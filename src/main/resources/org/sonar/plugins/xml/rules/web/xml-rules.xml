@@ -1,0 +1,17 @@
+<profile>
+  <name>Default XML Profile</name>
+  <language>web</language>
+  <rules>
+
+    <rule>
+      <repositoryKey>Xml</repositoryKey>
+      <key>XPathCheck</key>
+    </rule>
+    <rule>
+      <repositoryKey>Xml</repositoryKey>
+      <key>XmlSchemaCheck</key>
+    </rule>
+    
+  </rules>
+
+</profile>
