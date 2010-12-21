@@ -58,7 +58,7 @@ public class LineCountSensorTest {
   }
 
   @Test
-  public void testCatalog() throws IOException {
+  public void testLineCountParser() throws IOException {
     LineCountParser parser = new LineCountParser();
     int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/checks/generic/catalog.xml")));
     assertEquals(1, numCommentLines);

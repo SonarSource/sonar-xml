@@ -27,6 +27,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.xml.XmlPlugin;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -79,10 +80,10 @@ public final class SchemaResolver {
   private static final String[] FOLDERS = new String[] { "xhtml1", "jsf" };
 
   public static InputStream getSchemaByFileName(String fileName) {
-    InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
+    InputStream input = XmlPlugin.class.getResourceAsStream("schemas/" + fileName);
     if (input == null) {
       for (String folder : FOLDERS) {
-        input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
+        input = XmlPlugin.class.getResourceAsStream("schemas/" + folder + "/" + fileName);
         if (input != null) {
           break;
         }

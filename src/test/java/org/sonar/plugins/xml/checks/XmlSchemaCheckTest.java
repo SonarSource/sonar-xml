@@ -118,7 +118,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
         XmlSchemaCheck.class, "schemas", "http://java.sun.com/jsf/html" );
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
-    assertEquals((Integer) 7, sourceCode.getViolations().get(0).getLineId());
+    assertEquals((Integer) 8, sourceCode.getViolations().get(0).getLineId());
   }
 
   @Test
