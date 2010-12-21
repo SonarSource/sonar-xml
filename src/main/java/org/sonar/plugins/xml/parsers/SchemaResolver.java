@@ -113,11 +113,7 @@ public final class SchemaResolver {
       }
     }
 
-    if (input != null) {
-      return createLSInput(input);
-    } else {
-      return null;
-    }
+    return createLSInput(input);
   }
 
   private static LSInput createLSInput(InputStream inputStream) {
