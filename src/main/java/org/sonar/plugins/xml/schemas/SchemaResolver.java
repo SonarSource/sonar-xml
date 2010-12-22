@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.sonar.plugins.xml.parsers;
+package org.sonar.plugins.xml.schemas;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,7 +27,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.xml.XmlPlugin;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -80,10 +79,10 @@ public final class SchemaResolver {
   private static final String[] FOLDERS = new String[] { "xhtml1", "jsf" };
 
   public static InputStream getSchemaByFileName(String fileName) {
-    InputStream input = XmlPlugin.class.getResourceAsStream("schemas/" + fileName);
+    InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
     if (input == null) {
       for (String folder : FOLDERS) {
-        input = XmlPlugin.class.getResourceAsStream("schemas/" + folder + "/" + fileName);
+        input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
         if (input != null) {
           break;
         }
