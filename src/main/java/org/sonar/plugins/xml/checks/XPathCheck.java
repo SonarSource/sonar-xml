@@ -18,9 +18,7 @@
 
 package org.sonar.plugins.xml.checks;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -29,8 +27,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.xml.utils.PrefixResolver;
+import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
@@ -44,53 +42,39 @@ import org.w3c.dom.NodeList;
     isoCategory = IsoCategory.Reliability)
 public class XPathCheck extends AbstractPageCheck {
 
-  private final class XPathNamespaceContext implements NamespaceContext {
+  private final class DocumentNamespaceContext implements NamespaceContext {
 
-    private final Map<String, String> namespaceMap = new HashMap<String, String>();
+    private final PrefixResolver resolver;
 
-    public XPathNamespaceContext() {
-
-      for (String namespace : namespaces) {
-        String[] nn = StringUtils.split(namespace, "=");
-        if (nn.length > 1) {
-          // unquote the namespace
-          if (nn[1].startsWith("\"")){
-            nn[1] = StringUtils.strip(nn[1], "\"");
-          }
-          namespaceMap.put(nn[0], nn[1]);
-        }
-      }
+    private DocumentNamespaceContext(PrefixResolver resolver) {
+      this.resolver = resolver;
     }
 
     public String getNamespaceURI(String prefix) {
-      return namespaceMap.get(prefix);
-    }
-
-    // Dummy implemenation - not used!
-    public String getPrefix(String uri) {
-      return null;
+        String namespace = resolver.getNamespaceForPrefix(prefix);
+        return namespace;
     }
 
     // Dummy implementation - not used!
     public Iterator getPrefixes(String val) {
-      return null;
+        return null;
+    }
+
+    // Dummy implemenation - not used!
+    public String getPrefix(String uri) {
+        return null;
     }
   }
 
   @RuleProperty(key = "expression")
   private String expression;
 
-  @RuleProperty(key = "namespaces", description = "Namespaces")
-  private String[] namespaces;
-
-  private XPathExpression xPathExpression;
-
   private void evaluateXPath() {
 
-    Document document = getWebSourceCode().getDocument(namespaces != null);
+    Document document = getWebSourceCode().getDocument(expression.contains(":"));
 
     try {
-      NodeList nodes = (NodeList) getXPathExpression().evaluate(document, XPathConstants.NODESET);
+      NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
 
         int lineNumber = SaxParser.getLineNumber(nodes.item(i));
@@ -105,42 +89,29 @@ public class XPathCheck extends AbstractPageCheck {
     return expression;
   }
 
-  public String getNamespaces() {
-    if (namespaces != null) {
-      return StringUtils.join(namespaces, ",");
-    }
-    return "";
-  }
-
-  private XPathExpression getXPathExpression() {
-    if (expression != null && xPathExpression == null) {
+  private XPathExpression getXPathExpressionForDocument(Document document) {
+    if (expression != null) {
       try {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        if (!ArrayUtils.isEmpty(namespaces)) {
-          xpath.setNamespaceContext(new XPathNamespaceContext());
-        }
-        xPathExpression = xpath.compile(expression);
+        PrefixResolver resolver = new PrefixResolverDefault(document.getDocumentElement());
+        xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
+        return xpath.compile(expression);
       } catch (XPathExpressionException e) {
         throw new SonarException(e);
       }
     }
-
-    return xPathExpression;
+    return null;
   }
 
   public void setExpression(String expression) {
     this.expression = expression;
   }
 
-  public void setNamespaces(String list) {
-    namespaces = StringUtils.split(list, ",");
-  }
-
   @Override
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);
 
-    if (getXPathExpression() != null) {
+    if (expression != null) {
       evaluateXPath();
     }
   }

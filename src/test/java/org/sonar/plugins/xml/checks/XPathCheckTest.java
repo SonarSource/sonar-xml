@@ -52,8 +52,7 @@ public class XPathCheckTest extends AbstractCheckTester {
     String fileName = "src/test/resources/checks/generic/create-salesorder.xhtml";
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class,
-        "expression", "//ui:define[@name='title']",
-        "namespaces", "ui=\"http://java.sun.com/jsf/facelets\"");
+        "expression", "//ui:define[@name='title']");
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
     assertEquals((Integer) 26, sourceCode.getViolations().get(0).getLineId());

@@ -20,6 +20,9 @@ package org.sonar.plugins.xml.parsers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -156,6 +159,13 @@ public final class SaxParser {
       }
       current = e;
 
+      for (Entry<String, String> entry : prefixMappings.entrySet()) {
+        Attr attr = doc.createAttribute("xmlns:" + entry.getKey());
+        attr.setValue(entry.getValue());
+        current.setAttributeNodeNS(attr);
+      }
+      prefixMappings.clear();
+
       // For each attribute, make a new attribute in the DOM, append it
       // to the current element, and set the column and line numbers.
       if (attrs != null) {
@@ -202,6 +212,12 @@ public final class SaxParser {
         setLocationData(n);
         current.appendChild(n);
       }
+    }
+
+    private final Map<String, String> prefixMappings = new HashMap<String, String>();
+    @Override
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+      prefixMappings.put(prefix, uri);
     }
   }
 
