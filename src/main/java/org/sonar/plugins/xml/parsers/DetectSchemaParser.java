@@ -25,10 +25,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -36,40 +36,20 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Comment Counting in XML files
+ * Detect DTD or Schema
  *
  * @author Matthijs Galesloot
  * @since 1.0
  */
-public final class LineCountParser {
+public final class DetectSchemaParser {
 
-  private class CommentHandler extends DefaultHandler implements LexicalHandler {
+  private class Handler extends DefaultHandler implements LexicalHandler {
 
-    private int currentCommentLine = -1;
-    private Locator locator;
-    private int numCommentLines;
+    private String dtd;
+    private String schema;
 
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-      checkComment();
-    }
+    public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
 
-    private void checkComment() {
-      if (currentCommentLine >= 0) {
-        if (locator.getLineNumber() > currentCommentLine) {
-          numCommentLines++;
-          currentCommentLine = -1;
-        }
-      }
-    }
-
-    public void comment(char[] ch, int start, int length) throws SAXException {
-      for (int i = 0; i < length; i++) {
-        if (ch[start + i] == '\n') {
-          numCommentLines++;
-        }
-      }
-      currentCommentLine = locator.getLineNumber();
     }
 
     public void endCDATA() throws SAXException {
@@ -89,26 +69,20 @@ public final class LineCountParser {
       // ignore
     }
 
-    protected int getNumCommentLines() {
-      return numCommentLines;
-    }
-
-    @Override
-    public void setDocumentLocator(Locator locator) {
-      this.locator = locator;
-    }
-
     public void startCDATA() throws SAXException {
 
     }
 
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
-
+      dtd = systemId;
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-      checkComment();
+      schema = attributes.getValue("xmlns");
+
+      // we are done, make the parser stop
+      throw new SAXException("done");
     }
 
     public void startEntity(String name) throws SAXException {
@@ -150,21 +124,25 @@ public final class LineCountParser {
     }
   }
 
-  public int countLinesOfComment(InputStream input) {
-    SAXParser parser = newSaxParser();
-    try {
+  public String findSchema(InputStream input) {
+    Handler handler = new Handler();
 
+    try {
+      SAXParser parser = newSaxParser();
       XMLReader xmlReader = parser.getXMLReader();
       xmlReader.setFeature(Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
-      CommentHandler commentHandler = new CommentHandler();
-      xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
-      parser.parse(input, commentHandler);
-      return commentHandler.getNumCommentLines();
+      xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+      parser.parse(input, handler);
     } catch (IOException e) {
       throw new SonarException(e);
     } catch (SAXException e) {
-      throw new SonarException(e);
+      if (!"done".equals(e.getMessage())) {
+        throw new SonarException(e);
+      }
+    } finally {
+      IOUtils.closeQuietly(input);
     }
-  }
 
+    return handler.dtd == null ? handler.schema : handler.dtd;
+  }
 }

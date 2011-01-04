@@ -1,5 +1,5 @@
 /*
- * Sonar Xml Plugin
+ * Sonar XML Plugin
  * Copyright (C) 2010 Matthijs Galesloot
  * dev@sonar.codehaus.org
  *
@@ -36,12 +36,16 @@ import org.w3c.dom.ls.LSInput;
  * Resolves references to XML schema's, if possible built-in.
  *
  * @author Matthijs Galesloot
- * @since 1.1
+ * @since 1.
  */
 public final class SchemaResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<String, String>();
+
+  private SchemaResolver() {
+    // utility class, cannot instantiate
+  }
 
   static {
 

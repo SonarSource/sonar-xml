@@ -1,5 +1,5 @@
 /*
- * Sonar Xml Plugin
+ * Sonar XML Plugin
  * Copyright (C) 2010 Matthijs Galesloot
  * dev@sonar.codehaus.org
  *
@@ -43,6 +43,7 @@ import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
@@ -111,12 +112,12 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     return false;
   }
 
-  private Schema createSchema() {
+  private static Schema createSchema(String validationSchemas) {
     SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     schemaFactory.setResourceResolver(new LocalResourceResolver());
 
     List<Source> schemaSources = new ArrayList<Source>();
-    String[] schemaList = StringUtils.split(schemas, " \t\n");
+    String[] schemaList = StringUtils.split(validationSchemas, " \t\n");
     for (String schemaReference : schemaList) {
       InputStream input = SchemaResolver.getSchemaByNamespace(schemaReference);
       if (input != null) {
@@ -183,7 +184,22 @@ public class XmlSchemaCheck extends AbstractPageCheck {
   }
 
   private void validate() {
-    Validator validator = createSchema().newValidator();
+    if ("autodetect".equalsIgnoreCase(schemas)) {
+      String validationSchema = detectSchema();
+      if (validationSchema != null) {
+        validate(validationSchema);
+      }
+    } else {
+      validate(schemas);
+    }
+  }
+
+  private String detectSchema() {
+    return new DetectSchemaParser().findSchema(getWebSourceCode().createInputStream());
+  }
+
+  private void validate(String validationSchemas) {
+    Validator validator = createSchema(validationSchemas).newValidator();
     setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
     validator.setErrorHandler(new MessageHandler());
     validator.setResourceResolver(new LocalResourceResolver());

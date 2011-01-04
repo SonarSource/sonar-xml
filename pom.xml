@@ -6,7 +6,7 @@
   <artifactId>sonar-xml-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <version>0.1-SNAPSHOT</version>
-  <name>Sonar Xml Plugin</name>
+  <name>Sonar XML Plugin</name>
   <description>Analyze XML and XHTML documents.</description>
 
   <parent>

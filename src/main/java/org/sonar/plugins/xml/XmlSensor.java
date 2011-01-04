@@ -1,5 +1,5 @@
 /*
- * Sonar Xml Plugin
+ * Sonar XML Plugin
  * Copyright (C) 2010 Matthijs Galesloot
  * dev@sonar.codehaus.org
  *
@@ -17,6 +17,8 @@
  */
 
 package org.sonar.plugins.xml;
+
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -57,6 +59,8 @@ public final class XmlSensor implements Sensor {
 
     XmlPlugin.configureSourceDir(project);
 
+    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile);
+
     for (java.io.File file : project.getFileSystem().getSourceFiles(new Xml(project))) {
 
       try {
@@ -64,7 +68,7 @@ public final class XmlSensor implements Sensor {
 
         XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
 
-        for (AbstractPageCheck check : XmlRulesRepository.createChecks(profile)) {
+        for (AbstractPageCheck check : checks) {
           check.validate(sourceCode);
         }
         saveMetrics(sensorContext, sourceCode);

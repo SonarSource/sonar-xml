@@ -1,5 +1,5 @@
 /*
- * Sonar Xml Plugin
+ * Sonar XML Plugin
  * Copyright (C) 2010 Matthijs Galesloot
  * dev@sonar.codehaus.org
  *

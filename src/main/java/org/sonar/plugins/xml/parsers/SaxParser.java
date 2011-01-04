@@ -1,5 +1,5 @@
 /*
- * Sonar Xml Plugin
+ * Sonar XML Plugin
  * Copyright (C) 2010 Matthijs Galesloot
  * dev@sonar.codehaus.org
  *
@@ -215,13 +215,22 @@ public final class SaxParser {
     }
 
     private final Map<String, String> prefixMappings = new HashMap<String, String>();
+
+    /**
+     * prefixMappings (namespaces) are sent before startElement().
+     * So keep the mappings in a Map and add as attributes in startElement().
+     */
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
       prefixMappings.put(prefix, uri);
     }
   }
 
+  /**
+   * Gets the LineNumber of a node.
+   */
   public static int getLineNumber(Node node) {
-    return (Integer) node.getUserData(SaxParser.KEY_LINE_NO);
+    Integer lineNumber = (Integer) node.getUserData(SaxParser.KEY_LINE_NO);
+    return lineNumber == null ? 0 : lineNumber;
   }
 }
