@@ -43,7 +43,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public final class DetectSchemaParser {
 
-  private class Handler extends DefaultHandler implements LexicalHandler {
+  private static class Handler extends DefaultHandler implements LexicalHandler {
 
     private String dtd;
     private String schema;

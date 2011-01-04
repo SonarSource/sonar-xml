@@ -51,8 +51,7 @@ public class XPathCheck extends AbstractPageCheck {
     }
 
     public String getNamespaceURI(String prefix) {
-        String namespace = resolver.getNamespaceForPrefix(prefix);
-        return namespace;
+        return resolver.getNamespaceForPrefix(prefix);
     }
 
     // Dummy implementation - not used!

@@ -31,7 +31,7 @@ import org.sonar.plugins.xml.language.Xml;
 
 /**
  * Import of XML source files to sonar database.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -46,14 +46,14 @@ public final class XmlSourceImporter extends AbstractSourceImporter {
   }
 
   @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled(project) && StringUtils.equals(Xml.KEY, project.getLanguageKey());
-  }
-
-  @Override
   protected Resource<?> createResource(java.io.File file, List<java.io.File> sourceDirs, boolean unitTest) {
     LOG.debug("XmlSourceImporter:" + file.getPath());
     return File.fromIOFile(file, sourceDirs);
+  }
+
+  @Override
+  public boolean shouldExecuteOnProject(Project project) {
+    return isEnabled(project) && StringUtils.equals(Xml.KEY, project.getLanguageKey());
   }
 
   @Override

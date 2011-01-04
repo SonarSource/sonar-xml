@@ -39,7 +39,7 @@ import org.sonar.plugins.xml.rules.XmlRulesRepository;
 
 /**
  * XmlSensor provides analysis of xml files.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.1
  */
@@ -79,6 +79,15 @@ public final class XmlSensor implements Sensor {
     }
   }
 
+  private boolean hasActiveRules(RulesProfile profile) {
+    for (ActiveRule activeRule : profile.getActiveRules()) {
+      if (XmlRulesRepository.REPOSITORY_KEY.equals(activeRule.getRepositoryKey())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void saveMetrics(SensorContext sensorContext, XmlSourceCode sourceCode) {
 
     XmlMessagesMatcher messagesMatcher = new XmlMessagesMatcher();
@@ -94,15 +103,6 @@ public final class XmlSensor implements Sensor {
    */
   public boolean shouldExecuteOnProject(Project project) {
     return StringUtils.equals(Xml.KEY, project.getLanguageKey()) && hasActiveRules(profile);
-  }
-
-  private boolean hasActiveRules(RulesProfile profile) {
-    for (ActiveRule activeRule : profile.getActiveRules()) {
-      if (XmlRulesRepository.REPOSITORY_KEY.equals(activeRule.getRepositoryKey())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override

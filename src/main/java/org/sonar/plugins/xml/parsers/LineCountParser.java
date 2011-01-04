@@ -43,7 +43,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public final class LineCountParser {
 
-  private class CommentHandler extends DefaultHandler implements LexicalHandler {
+  private static class CommentHandler extends DefaultHandler implements LexicalHandler {
 
     private int currentCommentLine = -1;
     private Locator locator;
