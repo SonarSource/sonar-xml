@@ -81,15 +81,28 @@ public final class XmlRulesRepository extends RuleRepository {
     LOG.info("Loading checks for profile " + profile.getName());
 
     List<AbstractPageCheck> checks = new ArrayList<AbstractPageCheck>();
-    org.sonar.check.Rule ruleAnnotation = XmlSchemaCheck.class.getAnnotation(org.sonar.check.Rule.class);
 
     for (ActiveRule activeRule : profile.getActiveRules()) {
-      if (REPOSITORY_KEY.equals(activeRule.getRepositoryKey()) && ruleAnnotation.key().equals(activeRule.getRule().getConfigKey())) {
-        checks.add(createCheck(XmlSchemaCheck.class, activeRule));
+      if (REPOSITORY_KEY.equals(activeRule.getRepositoryKey())) {
+        Class<? extends AbstractPageCheck> clazz = findCheckClass(activeRule.getConfigKey());
+        if (clazz != null) {
+          checks.add(createCheck(clazz, activeRule));
+        }
       }
     }
 
     return checks;
+  }
+
+  private static Class<? extends AbstractPageCheck> findCheckClass(String key) {
+    for (Class<? extends AbstractPageCheck> clazz : CHECK_CLASSES) {
+      org.sonar.check.Rule ruleAnnotation = clazz.getAnnotation(org.sonar.check.Rule.class);
+      if (ruleAnnotation.key().equals(key)) {
+        return clazz;
+      }
+    }
+
+    return null;
   }
 
   private final AnnotationRuleParser annotationRuleParser;

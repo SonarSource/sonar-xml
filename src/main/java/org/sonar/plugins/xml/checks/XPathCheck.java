@@ -65,8 +65,11 @@ public class XPathCheck extends AbstractPageCheck {
     }
   }
 
-  @RuleProperty(key = "expression")
+  @RuleProperty(key = "expression", description = "Expression")
   private String expression;
+
+  @RuleProperty(key = "filePattern", description = "filePattern")
+  private String filePattern;
 
   private void evaluateXPath() {
 
@@ -102,6 +105,15 @@ public class XPathCheck extends AbstractPageCheck {
     return null;
   }
 
+  public String getFilePattern() {
+    return filePattern;
+  }
+
+
+  public void setFilePattern(String filePattern) {
+    this.filePattern = filePattern;
+  }
+
   public void setExpression(String expression) {
     this.expression = expression;
   }
@@ -110,7 +122,7 @@ public class XPathCheck extends AbstractPageCheck {
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);
 
-    if (expression != null) {
+    if (expression != null && isFileIncluded(filePattern)) {
       evaluateXPath();
     }
   }

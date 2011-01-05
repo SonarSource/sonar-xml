@@ -21,6 +21,7 @@ package org.sonar.plugins.xml.checks;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.WildcardPattern;
 
 /**
  * Abtract superclass for checks.
@@ -70,6 +71,16 @@ public abstract class AbstractPageCheck {
 
   public final void setRule(Rule rule) {
     this.rule = rule;
+  }
+
+  protected boolean isFileIncluded(String filePattern) {
+    if (filePattern != null) {
+      String fileName = getWebSourceCode().getResource().getKey();
+      WildcardPattern matcher = WildcardPattern.create(filePattern);
+      return matcher.match(fileName);
+    } else {
+      return true;
+    }
   }
 
   public abstract void validate(XmlSourceCode xmlSourceCode);

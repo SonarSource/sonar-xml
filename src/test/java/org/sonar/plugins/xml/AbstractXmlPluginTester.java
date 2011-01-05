@@ -18,28 +18,36 @@
 
 package org.sonar.plugins.xml;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileReader;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.rules.DefaultXmlProfile;
+import org.sonar.plugins.xml.rules.XmlMessagesRepository;
+import org.sonar.plugins.xml.rules.XmlRulesRepository;
+import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
  *
  * @author Matthijs Galesloot
  *
  */
-public class AbstractWebPluginTester {
+public class AbstractXmlPluginTester {
 
   private static MavenProject loadPom(File pomFile) throws URISyntaxException {
 
@@ -71,17 +79,23 @@ public class AbstractWebPluginTester {
     return project;
   }
 
-  protected ServerFileSystem newServerFileSystem() {
+  /**
+   * create standard rules profile
+   */
+  protected RulesProfile createStandardRulesProfile() {
+    ProfileDefinition profileDefinition = getProfileDefinition();
 
-    return new ServerFileSystem() {
-
-      public List<File> getExtensions(String dirName, String... suffixes) {
-        return null;
-      }
-
-      public File getHomeDir() {
-        return null;
-      }
-    };
+    ValidationMessages messages = ValidationMessages.create();
+    RulesProfile profile = profileDefinition.createProfile(messages);
+    assertEquals(0, messages.getErrors().size());
+    assertEquals(0, messages.getWarnings().size());
+    assertEquals(0, messages.getInfos().size());
+    return profile;
   }
+
+  protected DefaultXmlProfile getProfileDefinition() {
+    return new DefaultXmlProfile(new XmlRulesRepository(new AnnotationRuleParser()),
+        new XmlMessagesRepository(), new XmlSchemaMessagesRepository());
+  }
+
 }

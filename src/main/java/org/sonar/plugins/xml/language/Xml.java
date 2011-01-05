@@ -33,16 +33,16 @@ import org.sonar.plugins.xml.XmlPlugin;
  */
 public class Xml extends AbstractLanguage {
 
-  /** All the valid web files suffixes. */
+  /** All the valid xml files suffixes. */
   private static final String[] DEFAULT_SUFFIXES = { "xml", "xhtml" };
 
-  /** A web instance. */
+  /** A xml instance. */
   public static final Xml INSTANCE = new Xml();
 
-  /** The web language key. */
+  /** The xml language key. */
   public static final String KEY = "xml";
 
-  /** The web language name */
+  /** The xml language name */
   private static final String XML_LANGUAGE_NAME = "Xml";
 
   private String[] fileSuffixes;

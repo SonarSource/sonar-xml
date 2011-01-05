@@ -18,6 +18,7 @@
 
 package org.sonar.plugins.xml.parsers;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -52,5 +53,6 @@ public class DetectSchemaParserTest {
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
     String schema = detectSchemaParser.findSchema(new ByteArrayInputStream(fragment.getBytes()));
     assertNotNull(schema);
+    assertEquals("http://www.w3.org/1999/xhtml", schema);
   }
 }

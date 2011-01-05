@@ -25,8 +25,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import org.apache.bcel.generic.GETSTATIC;
 import org.junit.Test;
 import org.sonar.api.rules.Violation;
+import org.sonar.plugins.xml.SimpleRuleFinder;
 import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
 
 /**
@@ -105,7 +107,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   private void checkViolationMessages(XmlSourceCode sourceCode) {
     XmlMessagesMatcher messagesMatcher = new XmlMessagesMatcher();
     for (Violation v : sourceCode.getViolations()) {
-      messagesMatcher.setRuleForViolation(new SimpleRuleFinder(), v);
+      messagesMatcher.setRuleForViolation(new SimpleRuleFinder(createStandardRulesProfile()), v);
       assertFalse("Unresolved message: "+ v.getMessage(), XmlSchemaCheck.class.getSimpleName().equals(v.getRule().getKey()));
     }
   }

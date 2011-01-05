@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -146,16 +145,6 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     return schemas;
   }
 
-  private boolean isFileIncluded() {
-    if (filePattern != null) {
-      String fileName = getWebSourceCode().getResource().getKey();
-      WildcardPattern matcher = WildcardPattern.create(filePattern);
-      return matcher.match(fileName);
-    } else {
-      return true;
-    }
-  }
-
   private void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);
@@ -178,7 +167,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);
 
-    if (schemas != null && isFileIncluded()) {
+    if (schemas != null && isFileIncluded(filePattern)) {
       validate();
     }
   }
