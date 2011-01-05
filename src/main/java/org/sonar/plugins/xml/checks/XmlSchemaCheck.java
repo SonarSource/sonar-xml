@@ -125,6 +125,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
         try {
           schemaSources.add(new StreamSource(new FileInputStream(schemaReference)));
         } catch (FileNotFoundException e) {
+          LOG.error("Could not find schema " + schemaReference);
           throw new SonarException(e);
         }
       }

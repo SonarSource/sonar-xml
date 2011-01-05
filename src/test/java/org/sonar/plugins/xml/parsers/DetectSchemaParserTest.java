@@ -20,7 +20,6 @@ package org.sonar.plugins.xml.parsers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -40,7 +39,6 @@ public class DetectSchemaParserTest {
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
     String schema = detectSchemaParser.findSchema(FileUtils.openInputStream(new File(fileName)));
     assertNotNull(schema);
-    assertTrue(schema.contains(".dtd"));
     LSInput lsInput = SchemaResolver.getSchemaAsLSInput(schema);
     assertNotNull(lsInput);
   }

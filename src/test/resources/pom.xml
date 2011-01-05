@@ -11,8 +11,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <sourceDirectory>src/main/code</sourceDirectory>
   </build> 
   <properties>
-  	<sonar.web.sourceDirectory>src</sonar.web.sourceDirectory>
+  	<sonar.xml.sourceDirectory>src</sonar.xml.sourceDirectory>
   	<sonar.language>xml</sonar.language>
     <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
+    <sonar.xml.fileExtensions>xml</sonar.xml.fileExtensions>
   </properties>
 </project>

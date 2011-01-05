@@ -41,10 +41,10 @@ import org.sonar.plugins.xml.checks.XmlSchemaCheck;
 import org.sonar.plugins.xml.language.Xml;
 
 /**
- * Repository for web rules.
+ * Repository for XML rules.
  *
  * @author Matthijs Galesloot
- * @since 1.1
+ * @since 1.0
  */
 public final class XmlRulesRepository extends RuleRepository {
 

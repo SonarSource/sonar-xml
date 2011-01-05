@@ -32,7 +32,7 @@ import org.sonar.api.rules.RuleParam;
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @Test
-  public void testStandardMeasuresIntegrationTest() throws Exception {
+  public void testSensor() throws Exception {
 
     File pomFile = new File(XmlSensorTest.class.getResource("/pom.xml").toURI());
 

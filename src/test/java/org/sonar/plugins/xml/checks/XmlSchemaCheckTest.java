@@ -25,9 +25,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import org.apache.bcel.generic.GETSTATIC;
 import org.junit.Test;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.SimpleRuleFinder;
 import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
 
@@ -35,7 +35,6 @@ import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
  * @author Matthijs Galesloot
  */
 public class XmlSchemaCheckTest extends AbstractCheckTester {
-
 
   @Test
   public void testFilePattern() throws FileNotFoundException  {
@@ -93,15 +92,38 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null,
         XmlSchemaCheck.class, "schemas", "xhtml1-strict" );
 
-//    for (Violation v : sourceCode.getViolations()) {
-//      PrintStream out = System.out;
-//      out.println(v.getLineId() + ": " + v.getMessage());
-//    }
     assertEquals("Incorrect number of violations", 143, sourceCode.getViolations().size());
-    assertEquals((Integer) 60, sourceCode.getViolations().get(0).getLineId());
 
     // check if all violations resolved to messages
     checkViolationMessages(sourceCode);
+  }
+
+  @Test
+  public void violateAutoDetectCheck() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null,
+        XmlSchemaCheck.class, "schemas", "autodetect" );
+
+    assertEquals("Incorrect number of violations", 143, sourceCode.getViolations().size());
+  }
+
+  @Test(expected=SonarException.class)
+  public void missingSchema() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
+    FileReader reader = new FileReader(fileName);
+    parseAndCheck(reader, new File(fileName), null,
+        XmlSchemaCheck.class, "schemas", "does-not-exist" );
+  }
+
+  @Test
+  public void schemaAsExternalPath() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null,
+        XmlSchemaCheck.class, "schemas", "src/main/resources/org/sonar/plugins/xml/schemas/xhtml1/xhtml1-frameset.xsd" );
+
+    assertEquals("Incorrect number of violations", 141, sourceCode.getViolations().size());
   }
 
   private void checkViolationMessages(XmlSourceCode sourceCode) {

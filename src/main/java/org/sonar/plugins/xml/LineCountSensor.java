@@ -36,7 +36,7 @@ import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
 /**
- * 
+ *
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -94,7 +94,7 @@ public final class LineCountSensor implements Sensor {
   }
 
   /**
-   * This sensor only executes on Web projects with W3C Markup rules.
+   * This sensor only executes on XML projects.
    */
   public boolean shouldExecuteOnProject(Project project) {
     return isEnabled(project) && Xml.KEY.equals(project.getLanguageKey());

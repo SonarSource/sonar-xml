@@ -35,7 +35,7 @@ import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
- * Web Plugin publishes extensions to sonar engine.
+ * XML Plugin publishes extensions to sonar engine.
  *
  * @author Matthijs Galesloot
  * @since 1.0
@@ -47,10 +47,9 @@ import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
         defaultValue = "src/main/resources", global = false, project = true) })
 public final class XmlPlugin implements Plugin {
 
-  public static final String FILE_EXTENSIONS = "sonar.web.fileExtensions";
-
+  public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
   private static final String KEY = "sonar-xml-plugin";
-  public static final String SOURCE_DIRECTORY = "sonar.web.sourceDirectory";
+  public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
 
   public static void configureSourceDir(Project project) {
     String sourceDir = (String) project.getProperty(SOURCE_DIRECTORY);

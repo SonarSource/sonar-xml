@@ -26,6 +26,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
@@ -143,6 +144,9 @@ public final class DetectSchemaParser {
       IOUtils.closeQuietly(input);
     }
 
-    return handler.dtd == null ? handler.schema : handler.dtd;
+    if (handler.dtd != null) {
+      return StringUtils.substringBefore(StringUtils.substringAfterLast(handler.dtd, "/"), ".");
+    }
+    return handler.schema;
   }
 }
