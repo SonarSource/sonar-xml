@@ -32,6 +32,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
 public class LineCountSensorTest {
@@ -46,7 +47,10 @@ public class LineCountSensorTest {
     DefaultProjectFileSystem filesystem = new DefaultProjectFileSystem(project);
     project.setFileSystem(filesystem);
     project.setPom(new MavenProject());
+    project.setLanguageKey(Xml.KEY);
     project.getPom().addCompileSourceRoot("src/test/resources/checks/generic");
+
+    assertTrue(lineCountSensor.shouldExecuteOnProject(project));
     lineCountSensor.analyse(project, sensorContext);
 
     for (Resource resource : sensorContext.getResources()) {

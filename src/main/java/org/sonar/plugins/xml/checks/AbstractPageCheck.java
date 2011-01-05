@@ -61,14 +61,6 @@ public abstract class AbstractPageCheck {
     getWebSourceCode().addViolation(violation);
   }
 
-  public final Rule getRule() {
-    return rule;
-  }
-
-  public final String getRuleKey() {
-    return rule.getConfigKey();
-  }
-
   public final void setRule(Rule rule) {
     this.rule = rule;
   }
