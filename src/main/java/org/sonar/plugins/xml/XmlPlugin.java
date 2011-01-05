@@ -36,15 +36,15 @@ import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
  * Web Plugin publishes extensions to sonar engine.
- * 
+ *
  * @author Matthijs Galesloot
  * @since 1.0
  */
 @Properties({
     @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
-        defaultValue = "xhtml,xml", global = true, project = true),
+        defaultValue = "xml,xhtml", global = true, project = true),
     @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
-        defaultValue = "src/main/webapp", global = false, project = true) })
+        defaultValue = "src/main/resources", global = false, project = true) })
 public final class XmlPlugin implements Plugin {
 
   public static final String FILE_EXTENSIONS = "sonar.web.fileExtensions";
@@ -61,7 +61,7 @@ public final class XmlPlugin implements Plugin {
   }
 
   public String getDescription() {
-    return getName() + " collects metrics on XML documents, such as lines of code, violations, documentation level...";
+    return getName() + " collects metrics on XML documents, such as lines of code, schema validation, violations ...";
   }
 
   public List<Class<? extends Extension>> getExtensions() {
@@ -81,8 +81,9 @@ public final class XmlPlugin implements Plugin {
     // Profiles
     list.add(DefaultXmlProfile.class);
     list.add(XhtmlTransitionalProfile.class);
-    list.add(XmlSensor.class);
 
+    // sensors
+    list.add(XmlSensor.class);
     list.add(LineCountSensor.class);
 
     // Code Colorizer
