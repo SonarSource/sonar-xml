@@ -50,19 +50,19 @@ public final class DetectSchemaParser {
     private String schema;
 
     public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
-
+      // empty
     }
 
     public void endCDATA() throws SAXException {
-
+      // empty
     }
 
     public void endDTD() throws SAXException {
-
+      // empty
     }
 
     public void endEntity(String name) throws SAXException {
-
+      // empty
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class DetectSchemaParser {
     }
 
     public void startCDATA() throws SAXException {
-
+      // empty
     }
 
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
@@ -87,7 +87,7 @@ public final class DetectSchemaParser {
     }
 
     public void startEntity(String name) throws SAXException {
-
+      // empty
     }
   }
 

@@ -54,8 +54,8 @@ public final class XmlPlugin implements Plugin {
   public static void configureSourceDir(Project project) {
     String sourceDir = (String) project.getProperty(SOURCE_DIRECTORY);
     if (sourceDir != null) {
-      project.getPom().getCompileSourceRoots().clear();
-      project.getPom().addCompileSourceRoot(sourceDir);
+      project.getFileSystem().getSourceDirs().clear();
+      project.getFileSystem().addSourceDir(project.getFileSystem().resolvePath(sourceDir));
     }
   }
 

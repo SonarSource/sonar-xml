@@ -31,6 +31,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * Resolves references to XML schema's, if possible built-in.
@@ -38,14 +39,10 @@ import org.w3c.dom.ls.LSInput;
  * @author Matthijs Galesloot
  * @since 1.
  */
-public final class SchemaResolver {
+public final class SchemaResolver implements LSResourceResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<String, String>();
-
-  private SchemaResolver() {
-    // utility class, cannot instantiate
-  }
 
   static {
 
@@ -139,5 +136,15 @@ public final class SchemaResolver {
       }
     }
     return null;
+  }
+
+  /**
+   * ResourceResolver tries to resolve schema's or dtd's with built-in resources or external files.
+   */
+  public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
+
+    LOG.debug("resolveResource: " + systemId);
+
+    return getSchemaAsLSInput(systemId);
   }
 }

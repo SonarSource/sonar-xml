@@ -21,8 +21,9 @@ package org.sonar.plugins.xml.rules;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.xml.checks.XmlSchemaCheck;
 
 /**
  * Default XML profile.
@@ -32,18 +33,20 @@ import org.sonar.plugins.xml.checks.XmlSchemaCheck;
  */
 public final class XhtmlTransitionalProfile extends ProfileDefinition {
 
+  private final RuleFinder ruleFinder;
   private final DefaultXmlProfile defaultXmlProfile;
 
-  public XhtmlTransitionalProfile(DefaultXmlProfile defaultXmlProfile) {
+  public XhtmlTransitionalProfile(DefaultXmlProfile defaultXmlProfile, RuleFinder ruleFinder) {
     this.defaultXmlProfile = defaultXmlProfile;
+    this.ruleFinder = ruleFinder;
   }
-
 
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
-    RulesProfile rulesProfile = defaultXmlProfile.createProfile(validation);
-    rulesProfile.setName("XHTML1-Transitional");
 
+    RulesProfile rulesProfile = defaultXmlProfile.createProfile(validation);
+    rulesProfile.setDefaultProfile(false);
+    rulesProfile.setName("XHTML1-Transitional");
     setXhtmlSchema(rulesProfile);
 
     rulesProfile.setDefaultProfile(false);
@@ -51,8 +54,11 @@ public final class XhtmlTransitionalProfile extends ProfileDefinition {
   }
 
   private void setXhtmlSchema(RulesProfile rulesProfile) {
-    ActiveRule activeRule = rulesProfile.getActiveRuleByConfigKey(XmlRulesRepository.REPOSITORY_KEY,
-        XmlSchemaCheck.class.getSimpleName());
+
+    Rule schemaCheck = ruleFinder.findByKey(XmlRulesRepository.REPOSITORY_KEY, "XmlSchemaCheck");
+
+    ActiveRule activeRule = rulesProfile.getActiveRule(schemaCheck);
     activeRule.setParameter("schemas", "xhtml1-transitional");
   }
+
 }

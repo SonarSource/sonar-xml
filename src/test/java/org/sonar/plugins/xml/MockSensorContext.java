@@ -177,4 +177,9 @@ public class MockSensorContext implements SensorContext {
   public List<Resource> getResources() {
     return resources;
   }
+
+  public void saveViolation(Violation arg0, boolean arg1) {
+    // TODO Auto-generated method stub
+
+  }
 }

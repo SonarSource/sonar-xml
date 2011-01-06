@@ -73,15 +73,15 @@ public final class LineCountParser {
     }
 
     public void endCDATA() throws SAXException {
-
+      // empty
     }
 
     public void endDTD() throws SAXException {
-
+      // empty
     }
 
     public void endEntity(String name) throws SAXException {
-
+      // empty
     }
 
     @Override
@@ -99,11 +99,11 @@ public final class LineCountParser {
     }
 
     public void startCDATA() throws SAXException {
-
+      // empty
     }
 
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
-
+      // empty
     }
 
     @Override
@@ -112,7 +112,7 @@ public final class LineCountParser {
     }
 
     public void startEntity(String name) throws SAXException {
-
+      // empty
     }
   }
 

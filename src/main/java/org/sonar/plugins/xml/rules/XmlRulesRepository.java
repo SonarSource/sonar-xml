@@ -34,7 +34,6 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
 import org.sonar.plugins.xml.checks.AbstractPageCheck;
 import org.sonar.plugins.xml.checks.XPathCheck;
 import org.sonar.plugins.xml.checks.XmlSchemaCheck;
@@ -116,13 +115,6 @@ public final class XmlRulesRepository extends RuleRepository {
 
   @Override
   public List<Rule> createRules() {
-    List<Rule> rules = annotationRuleParser.parse(getKey(), Arrays.asList(CHECK_CLASSES));
-
-    // Set rules multiple cardinality. This allows the user to use the
-    // rule as a template for a new rule.
-    for (Rule rule : rules) {
-      rule.setCardinality(Cardinality.MULTIPLE);
-    }
-    return rules;
+    return annotationRuleParser.parse(getKey(), Arrays.asList(CHECK_CLASSES));
   }
 }

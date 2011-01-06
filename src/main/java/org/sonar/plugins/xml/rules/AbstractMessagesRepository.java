@@ -35,10 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.rules.RulesCategory;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
-import org.sonar.check.IsoCategory;
 
 /**
  * Repository for XML validation messages.
@@ -65,8 +63,7 @@ class AbstractMessagesRepository extends RuleRepository {
 
       Rule rule = Rule.create(getKey(), (String) entry.getKey(), (String) entry.getKey());
       rule.setDescription((String) entry.getValue());
-      rule.setPriority(RulePriority.CRITICAL);
-      rule.setRulesCategory(RulesCategory.fromIsoCategory(IsoCategory.Reliability));
+      rule.setSeverity(RulePriority.CRITICAL);
       rule.setCardinality(Cardinality.SINGLE);
       rules.add(rule);
     }
@@ -99,9 +96,10 @@ class AbstractMessagesRepository extends RuleRepository {
     if (patterns == null) {
       patterns = new HashMap<String, Pattern>();
 
+      String[] replacements = new String[] { ".*", ".*", ".*", ".*", ".*" };
+
       for (Entry entry : messages.entrySet()) {
         String regExp = (String) entry.getValue();
-        String[] replacements = new String[] { ".*", ".*", ".*", ".*", ".*" };
 
         // replace single quoted 1-4 markers
         regExp = StringUtils.replaceEach(regExp,

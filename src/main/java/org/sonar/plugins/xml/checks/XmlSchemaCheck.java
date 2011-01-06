@@ -38,36 +38,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.IsoCategory;
+import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
-@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.CRITICAL,
-    isoCategory = IsoCategory.Reliability)
+@Rule(key = "XmlSchemaCheck", name = "XML Schema Check",
+    description = "XML Schema Check", priority = Priority.CRITICAL,
+    cardinality = Cardinality.MULTIPLE)
 public class XmlSchemaCheck extends AbstractPageCheck {
-
-  /**
-   * ResourceResolver tries to resolve schema's or dtd's with built-in resources or external files.
-   */
-  private static final class LocalResourceResolver implements LSResourceResolver {
-
-    public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
-
-      LOG.debug("resolveResource: " + systemId);
-
-      return SchemaResolver.getSchemaAsLSInput(systemId);
-    }
-  }
 
   /**
    * MessageHandler creates violations for errors and warnings.
@@ -113,7 +99,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
 
   private static Schema createSchema(String validationSchemas) {
     SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    schemaFactory.setResourceResolver(new LocalResourceResolver());
+    schemaFactory.setResourceResolver(new SchemaResolver());
 
     List<Source> schemaSources = new ArrayList<Source>();
     String[] schemaList = StringUtils.split(validationSchemas, " \t\n");
@@ -192,7 +178,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     Validator validator = createSchema(validationSchemas).newValidator();
     setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
     validator.setErrorHandler(new MessageHandler());
-    validator.setResourceResolver(new LocalResourceResolver());
+    validator.setResourceResolver(new SchemaResolver());
     try {
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
     } catch (SAXException e) {

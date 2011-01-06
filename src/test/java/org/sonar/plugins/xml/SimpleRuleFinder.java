@@ -49,4 +49,9 @@ public class SimpleRuleFinder implements RuleFinder {
     assertNotNull(activeRule);
     return activeRule.getRule();
   }
+
+  public Rule findById(int arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

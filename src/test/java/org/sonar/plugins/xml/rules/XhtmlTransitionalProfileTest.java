@@ -23,13 +23,14 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
-
+import org.sonar.plugins.xml.SimpleRuleFinder;
 
 public class XhtmlTransitionalProfileTest extends AbstractXmlPluginTester {
 
   @Test
   public void testCreateProfile() {
-    XhtmlTransitionalProfile profile = new XhtmlTransitionalProfile(getProfileDefinition());
+    XhtmlTransitionalProfile profile = new XhtmlTransitionalProfile(getProfileDefinition(), new SimpleRuleFinder(
+        super.createStandardRulesProfile()));
     ValidationMessages messages = ValidationMessages.create();
     profile.createProfile(messages);
     assertEquals(0, messages.getErrors().size());
