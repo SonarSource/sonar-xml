@@ -63,7 +63,7 @@ class AbstractMessagesRepository extends RuleRepository {
 
       Rule rule = Rule.create(getKey(), (String) entry.getKey(), (String) entry.getKey());
       rule.setDescription((String) entry.getValue());
-      rule.setSeverity(RulePriority.CRITICAL);
+      rule.setPriority(RulePriority.CRITICAL);
       rule.setCardinality(Cardinality.SINGLE);
       rules.add(rule);
     }

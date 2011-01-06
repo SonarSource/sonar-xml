@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
+import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -52,7 +53,7 @@ import org.xml.sax.SAXParseException;
 
 @Rule(key = "XmlSchemaCheck", name = "XML Schema Check",
     description = "XML Schema Check", priority = Priority.CRITICAL,
-    cardinality = Cardinality.MULTIPLE)
+    cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.NONE)
 public class XmlSchemaCheck extends AbstractPageCheck {
 
   /**
