@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.apache.commons.configuration.MapConfiguration;
@@ -32,6 +33,7 @@ import org.apache.maven.project.MavenProject;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.utils.SonarException;
@@ -67,18 +69,6 @@ public class AbstractXmlPluginTester {
     }
   }
 
-  protected Project loadProjectFromPom(File pomFile) throws Exception {
-    MavenProject pom = loadPom(pomFile);
-    Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId()).setPom(pom).setConfiguration(
-        new MapConfiguration(pom.getProperties()));
-    project.setFileSystem(new DefaultProjectFileSystem(project));
-    project.setPom(pom);
-    project.setLanguageKey(Xml.INSTANCE.getKey());
-    project.setLanguage(Xml.INSTANCE);
-
-    return project;
-  }
-
   /**
    * create standard rules profile
    */
@@ -96,6 +86,18 @@ public class AbstractXmlPluginTester {
   protected DefaultXmlProfile getProfileDefinition() {
     return new DefaultXmlProfile(new XmlRulesRepository(new AnnotationRuleParser()),
         new XmlMessagesRepository(), new XmlSchemaMessagesRepository());
+  }
+
+  protected Project loadProjectFromPom(File pomFile) throws URISyntaxException {
+    MavenProject pom = loadPom(pomFile);
+    Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId()).setPom(pom).setConfiguration(
+        new MapConfiguration(pom.getProperties()));
+    project.setFileSystem(new DefaultProjectFileSystem(project, new Languages(new Xml())));
+    project.setPom(pom);
+    project.setLanguageKey(Xml.INSTANCE.getKey());
+    project.setLanguage(Xml.INSTANCE);
+
+    return project;
   }
 
 }

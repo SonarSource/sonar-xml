@@ -31,6 +31,20 @@ import org.sonar.api.rules.RuleParam;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
+  private void createXPathRuleForPomFiles(RulesProfile rulesProfile) {
+    ActiveRule activeRule = rulesProfile.getActiveRule("Xml", "XPathCheck");
+    assertNotNull(activeRule);
+
+    RuleParam expressionParam = activeRule.getRule().getParam("expression");
+    assertNotNull(expressionParam);
+
+    expressionParam = activeRule.getRule().getParam("filePattern");
+    assertNotNull(expressionParam);
+
+    activeRule.setParameter("filePattern", "**/pom.xml");
+    activeRule.setParameter("expression", "//dependency/version");
+  }
+
   @Test
   public void testSensor() throws Exception {
 
@@ -46,24 +60,31 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
-    XmlPlugin.configureSourceDir(project);
-
     sensor.analyse(project, sensorContext);
 
     assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
   }
+  
+  @Test
+  public void testFileFilter() throws Exception {
 
-  private void createXPathRuleForPomFiles(RulesProfile rulesProfile) {
-    ActiveRule activeRule = rulesProfile.getActiveRule("Xml", "XPathCheck");
-    assertNotNull(activeRule);
+    File pomFile = new File(XmlSensorTest.class.getResource("/pom.xml").toURI());
 
-    RuleParam expressionParam = activeRule.getRule().getParam("expression");
-    assertNotNull(expressionParam);
+    final Project project = loadProjectFromPom(pomFile);
 
-    expressionParam = activeRule.getRule().getParam("filePattern");
-    assertNotNull(expressionParam);
+    MockSensorContext sensorContext = new MockSensorContext();
+    RulesProfile rulesProfile = createStandardRulesProfile();
+    createXPathRuleForPomFiles(rulesProfile);
 
-    activeRule.setParameter("filePattern", "**/pom.xml");
-    activeRule.setParameter("expression", "//dependency/version");
+    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile));
+
+    assertTrue(sensor.shouldExecuteOnProject(project));
+
+    // add an additional file filter
+    project.getConfiguration().addProperty(XmlPlugin.FILE_FILTER, "**/not found"); 
+  
+    sensor.analyse(project, sensorContext);
+
+    assertTrue("Should have found 0 violation", sensorContext.getViolations().size() == 0);
   }
 }

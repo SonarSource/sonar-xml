@@ -30,13 +30,14 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
 /**
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -80,11 +81,9 @@ public final class LineCountSensor implements Sensor {
 
   public void analyse(Project project, SensorContext sensorContext) {
 
-    XmlPlugin.configureSourceDir(project);
-
-    for (File file : project.getFileSystem().getSourceFiles(new Xml(project))) {
-      org.sonar.api.resources.File htmlFile = org.sonar.api.resources.File.fromIOFile(file, project.getFileSystem().getSourceDirs());
-      addMeasures(sensorContext, file, htmlFile);
+    for (InputFile inputfile : XmlPlugin.getFiles(project)) {
+      org.sonar.api.resources.File htmlFile = XmlProjectFileSystem.fromIOFile(inputfile, project);
+      addMeasures(sensorContext, inputfile.getFile(), htmlFile);
     }
   }
 

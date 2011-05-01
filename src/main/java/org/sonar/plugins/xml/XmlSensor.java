@@ -27,6 +27,7 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RuleFinder;
@@ -55,18 +56,19 @@ public final class XmlSensor implements Sensor {
     this.ruleFinder = ruleFinder;
   }
 
+  /**
+   * Analyze the XML files.
+   */
   public void analyse(Project project, SensorContext sensorContext) {
 
-    XmlPlugin.configureSourceDir(project);
-
-    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile);
-
-    for (java.io.File file : project.getFileSystem().getSourceFiles(new Xml(project))) {
+    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile, 
+        (String) project.getProperty(XmlPlugin.SCHEMAS)); 
+    for (InputFile inputfile : XmlPlugin.getFiles(project)) {
 
       try {
-        File resource = File.fromIOFile(file, project.getFileSystem().getSourceDirs());
+        File resource = XmlProjectFileSystem.fromIOFile(inputfile, project);
 
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
+        XmlSourceCode sourceCode = new XmlSourceCode(resource, inputfile.getFile());
 
         for (AbstractPageCheck check : checks) {
           check.validate(sourceCode);
@@ -74,7 +76,7 @@ public final class XmlSensor implements Sensor {
         saveMetrics(sensorContext, sourceCode);
 
       } catch (Exception e) {
-        LOG.error("Could not analyze the file " + file.getAbsolutePath(), e);
+        LOG.error("Could not analyze the file " + inputfile.getFile().getAbsolutePath(), e);
       }
     }
   }

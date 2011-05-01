@@ -35,7 +35,7 @@ import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * Resolves references to XML schema's, if possible built-in.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.
  */
@@ -66,55 +66,10 @@ public final class SchemaResolver implements LSResourceResolver {
     SCHEMAS_BUILTIN.put("http://java.sun.com/jsf/facelets", "jsf/facelets-ui-2.0.xsd");
 
     // MAVEN
-    SCHEMAS_BUILTIN.put("http://maven.apache.org/POM/4.0.0", "maven-4.0.0.xsd");
+    SCHEMAS_BUILTIN.put("http://maven.apache.org/POM/4.0.0", "maven/maven-4.0.0.xsd");
   };
 
-  public static InputStream getSchemaByNamespace(String nameSpace) {
-    String fileName = SCHEMAS_BUILTIN.get(nameSpace);
-    if (fileName != null) {
-      return getSchemaByFileName(fileName);
-    }
-    return null;
-  }
-
   private static final String[] FOLDERS = new String[] { "xhtml1", "jsf" };
-
-  public static InputStream getSchemaByFileName(String fileName) {
-    InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
-    if (input == null) {
-      for (String folder : FOLDERS) {
-        input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
-        if (input != null) {
-          break;
-        }
-      }
-    }
-    return input;
-  }
-
-  public static LSInput getSchemaAsLSInput(String systemId) {
-    InputStream input;
-
-    // try as namespace
-    input = getSchemaByNamespace(systemId);
-
-    // try as built-in resource
-    if (input == null) {
-      input = SchemaResolver.getSchemaByFileName(systemId);
-
-      // try as file system resource
-      if (input == null) {
-        try {
-          input = new FileInputStream(systemId);
-        } catch (FileNotFoundException e) {
-          LOG.warn("Could not find resource " + systemId);
-          return null;
-        }
-      }
-    }
-
-    return createLSInput(input);
-  }
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
@@ -132,8 +87,53 @@ public final class SchemaResolver implements LSResourceResolver {
       } catch (InstantiationException e) {
         throw new SonarException(e);
       } catch (IllegalAccessException e) {
-        throw new SonarException();
+        throw new SonarException(e);
       }
+    }
+    return null;
+  }
+
+  public static LSInput getBuiltinSchemaAsLSInput(String systemId) {
+    InputStream input;
+
+    // try as namespace
+    input = getBuiltinSchemaByNamespace(systemId);
+
+    // try as built-in resource
+    if (input == null) {
+      input = SchemaResolver.getBuiltinSchemaByFileName(systemId);
+
+      // try as file system resource
+      if (input == null) {
+        try {
+          input = new FileInputStream(systemId);
+        } catch (FileNotFoundException e) {
+          LOG.warn("Could not find resource " + systemId);
+          return null;
+        }
+      }
+    }
+
+    return createLSInput(input);
+  }
+
+  public static InputStream getBuiltinSchemaByFileName(String fileName) {
+    InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
+    if (input == null) {
+      for (String folder : FOLDERS) {
+        input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
+        if (input != null) {
+          break;
+        }
+      }
+    }
+    return input;
+  }
+
+  public static InputStream getBuiltinSchemaByNamespace(String nameSpace) {
+    String fileName = SCHEMAS_BUILTIN.get(nameSpace);
+    if (fileName != null) {
+      return getBuiltinSchemaByFileName(fileName);
     }
     return null;
   }
@@ -145,6 +145,6 @@ public final class SchemaResolver implements LSResourceResolver {
 
     LOG.debug("resolveResource: " + systemId);
 
-    return getSchemaAsLSInput(systemId);
+    return getBuiltinSchemaAsLSInput(systemId);
   }
 }

@@ -51,13 +51,19 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
-@Rule(key = "XmlSchemaCheck", name = "XML Schema Check",
-    description = "XML Schema Check", priority = Priority.CRITICAL,
-    cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.NONE)
+/**
+ * Perform schema check using xerces parser.
+ * 
+ * @author Matthijs Galesloot
+ * @since 1.0
+ */
+@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.CRITICAL,
+    cardinality = Cardinality.MULTIPLE)
 public class XmlSchemaCheck extends AbstractPageCheck {
 
   /**
-   * MessageHandler creates violations for errors and warnings.
+   * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
+   * warnings raised by the validator.
    */
   private class MessageHandler implements ErrorHandler {
 
@@ -80,32 +86,17 @@ public class XmlSchemaCheck extends AbstractPageCheck {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
 
-  @RuleProperty(key = "filePattern", description = "filePattern")
-  private String filePattern;
-
-  @RuleProperty(key = "schemas", description = "Schemas")
-  private String schemas;
-
-  private boolean containsMessage(SAXException e) {
-    if (e instanceof SAXParseException) {
-      SAXParseException spe = (SAXParseException) e;
-      for (Violation v : getWebSourceCode().getViolations()) {
-        if (v.getLineId().equals(spe.getLineNumber()) && v.getMessage().equals(spe.getMessage())) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
+  /**
+   * Create xsd schema for a list of schema's.
+   */
   private static Schema createSchema(String validationSchemas) {
-    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    schemaFactory.setResourceResolver(new SchemaResolver());
 
     List<Source> schemaSources = new ArrayList<Source>();
     String[] schemaList = StringUtils.split(validationSchemas, " \t\n");
+
+    // load each schema in a StreamSource.
     for (String schemaReference : schemaList) {
-      InputStream input = SchemaResolver.getSchemaByNamespace(schemaReference);
+      InputStream input = SchemaResolver.getBuiltinSchemaByNamespace(schemaReference);
       if (input != null) {
         schemaSources.add(new StreamSource(input));
       } else {
@@ -118,11 +109,46 @@ public class XmlSchemaCheck extends AbstractPageCheck {
       }
     }
 
+    // create a schema for the list of StreamSources.
     try {
+      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      schemaFactory.setResourceResolver(new SchemaResolver());
+
       return schemaFactory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
     } catch (SAXException e) {
       throw new SonarException(e);
     }
+  }
+
+  /**
+   * filePattern indicates which files should be checked.
+   */
+  @RuleProperty(key = "filePattern", description = "filePattern")
+  private String filePattern;
+
+  /**
+   * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
+   */
+  @RuleProperty(key = "schemas", description = "Schemas")
+  private String schemas;
+
+  /**
+   * Checks if a certain message has already been raised. Avoids duplicate messages.
+   */
+  private boolean containsMessage(SAXException e) {
+    if (e instanceof SAXParseException) {
+      SAXParseException spe = (SAXParseException) e;
+      for (Violation v : getWebSourceCode().getViolations()) {
+        if (v.getLineId().equals(spe.getLineNumber()) && v.getMessage().equals(spe.getMessage())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private String detectSchema() {
+    return new DetectSchemaParser().findSchemaOrDTD(getWebSourceCode().createInputStream());
   }
 
   public String getFilePattern() {
@@ -151,15 +177,6 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     this.schemas = schemas;
   }
 
-  @Override
-  public void validate(XmlSourceCode xmlSourceCode) {
-    setWebSourceCode(xmlSourceCode);
-
-    if (schemas != null && isFileIncluded(filePattern)) {
-      validate();
-    }
-  }
-
   private void validate() {
     if ("autodetect".equalsIgnoreCase(schemas)) {
       String validationSchema = detectSchema();
@@ -171,23 +188,32 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     }
   }
 
-  private String detectSchema() {
-    return new DetectSchemaParser().findSchema(getWebSourceCode().createInputStream());
-  }
-
   private void validate(String validationSchemas) {
+
+    // Create a new validator
     Validator validator = createSchema(validationSchemas).newValidator();
     setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
     validator.setErrorHandler(new MessageHandler());
     validator.setResourceResolver(new SchemaResolver());
+
+    // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
     } catch (SAXException e) {
-      if (!containsMessage(e)) {
+      if ( !containsMessage(e)) {
         createViolation(0, e.getMessage());
       }
     } catch (IOException e) {
       throw new SonarException(e);
+    }
+  }
+
+  @Override
+  public void validate(XmlSourceCode xmlSourceCode) {
+    setWebSourceCode(xmlSourceCode);
+
+    if (schemas != null && isFileIncluded(filePattern)) {
+      validate();
     }
   }
 }

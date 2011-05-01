@@ -21,9 +21,7 @@ package org.sonar.plugins.xml.parsers;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.SonarException;
@@ -37,11 +35,11 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Comment Counting in XML files
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
-public final class LineCountParser {
+public final class LineCountParser extends AbstractParser {
 
   private static class CommentHandler extends DefaultHandler implements LexicalHandler {
 
@@ -55,11 +53,9 @@ public final class LineCountParser {
     }
 
     private void checkComment() {
-      if (currentCommentLine >= 0) {
-        if (locator.getLineNumber() > currentCommentLine) {
-          numCommentLines++;
-          currentCommentLine = -1;
-        }
+      if (currentCommentLine >= 0 && locator.getLineNumber() > currentCommentLine) {
+        numCommentLines++;
+        currentCommentLine = -1;
       }
     }
 
@@ -113,40 +109,6 @@ public final class LineCountParser {
 
     public void startEntity(String name) throws SAXException {
       // empty
-    }
-  }
-
-  private static final SAXParserFactory SAX_FACTORY;
-
-  /**
-   * Build the SAXParserFactory.
-   */
-  static {
-
-    SAX_FACTORY = SAXParserFactory.newInstance();
-
-    try {
-      SAX_FACTORY.setValidating(false);
-      SAX_FACTORY.setNamespaceAware(false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/validation", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
-    }
-  }
-
-  public static SAXParser newSaxParser() {
-    try {
-      return SAX_FACTORY.newSAXParser();
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
     }
   }
 

@@ -21,9 +21,7 @@ package org.sonar.plugins.xml.parsers;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,12 +35,12 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Detect DTD or Schema
- *
+ * Parse the file quickly only to detect the sDTD or Schema.
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
-public final class DetectSchemaParser {
+public final class DetectSchemaParser extends AbstractParser {
 
   private static class Handler extends DefaultHandler implements LexicalHandler {
 
@@ -82,7 +80,7 @@ public final class DetectSchemaParser {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
       schema = attributes.getValue("xmlns");
 
-      // we are done, make the parser stop
+      // we are done, cause the parser to stop
       throw new SAXException("done");
     }
 
@@ -91,41 +89,10 @@ public final class DetectSchemaParser {
     }
   }
 
-  private static final SAXParserFactory SAX_FACTORY;
-
   /**
-   * Build the SAXParserFactory.
+   * Find the schema specified in the xmlns attribute. If a DTD is specified this will be returned instead.
    */
-  static {
-
-    SAX_FACTORY = SAXParserFactory.newInstance();
-
-    try {
-      SAX_FACTORY.setValidating(false);
-      SAX_FACTORY.setNamespaceAware(false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/validation", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
-    }
-  }
-
-  public static SAXParser newSaxParser() {
-    try {
-      return SAX_FACTORY.newSAXParser();
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
-    }
-  }
-
-  public String findSchema(InputStream input) {
+  public String findSchemaOrDTD(InputStream input) {
     Handler handler = new Handler();
 
     try {
@@ -137,7 +104,7 @@ public final class DetectSchemaParser {
     } catch (IOException e) {
       throw new SonarException(e);
     } catch (SAXException e) {
-      if (!"done".equals(e.getMessage())) {
+      if ( !"done".equals(e.getMessage())) {
         throw new SonarException(e);
       }
     } finally {

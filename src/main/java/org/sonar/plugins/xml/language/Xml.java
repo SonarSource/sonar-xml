@@ -18,16 +18,11 @@
 
 package org.sonar.plugins.xml.language;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Project;
-import org.sonar.plugins.xml.XmlPlugin;
 
 /**
  * This class defines the XML language.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -45,39 +40,20 @@ public class Xml extends AbstractLanguage {
   /** The xml language name */
   private static final String XML_LANGUAGE_NAME = "Xml";
 
-  private String[] fileSuffixes;
-
   /**
    * Default constructor.
    */
   public Xml() {
     super(KEY, XML_LANGUAGE_NAME);
-
-    fileSuffixes = DEFAULT_SUFFIXES;
-  }
-
-  public Xml(Project project) {
-    this();
-
-    List<?> extensions = project.getConfiguration().getList(XmlPlugin.FILE_EXTENSIONS);
-
-    if (extensions != null && !extensions.isEmpty() && !StringUtils.isEmpty((String) extensions.get(0))) {
-      fileSuffixes = new String[extensions.size()];
-      for (int i = 0; i < extensions.size(); i++) {
-        fileSuffixes[i] = extensions.get(i).toString().trim();
-      }
-    } else {
-      fileSuffixes = DEFAULT_SUFFIXES;
-    }
   }
 
   /**
    * Gets the file suffixes.
-   *
+   * 
    * @return the file suffixes
    * @see org.sonar.api.resources.Language#getFileSuffixes()
    */
   public String[] getFileSuffixes() {
-    return fileSuffixes;
+    return DEFAULT_SUFFIXES;
   }
 }

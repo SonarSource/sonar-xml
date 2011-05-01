@@ -40,7 +40,7 @@ import org.sonar.check.Cardinality;
 
 /**
  * Repository for XML validation messages.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -49,6 +49,8 @@ class AbstractMessagesRepository extends RuleRepository {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMessagesRepository.class);
 
   private Properties messages;
+
+  private Map<String, Pattern> patterns;
 
   public AbstractMessagesRepository(String repositoryKey, String languageKey) {
     super(repositoryKey, languageKey);
@@ -71,6 +73,38 @@ class AbstractMessagesRepository extends RuleRepository {
     return rules;
   }
 
+  public Map<String, Pattern> getMessagePatterns() {
+    if (patterns == null) {
+      patterns = new HashMap<String, Pattern>();
+
+      String[] replacements = new String[] { ".*", ".*", ".*", ".*", ".*" };
+
+      for (Entry entry : messages.entrySet()) {
+        String regExp = (String) entry.getValue();
+
+        // replace single quoted 1-4 markers
+        regExp = StringUtils.replaceEach(regExp, new String[] { "'{0}'", "'{1}'", "'{2}'", "'{3}'", "'{4}'" }, replacements);
+        // replace double quoted 1-4 markers
+        regExp = StringUtils.replaceEach(regExp, new String[] { "\"{0}\"", "\"{1}\"", "\"{2}\"", "\"{3}\"", "\"{4}\"" }, replacements);
+        // replace unquoted 1-4 markers
+        regExp = StringUtils.replaceEach(regExp, new String[] { "{0}", "{1}", "{2}", "{3}", "{4}" }, replacements);
+
+        // replace remaining regexp special characters
+        regExp = StringUtils.replaceEach(regExp, new String[] { "?", "[", "]", "{", "}", "(", ")", "\"</{0}>\"", "''" }, new String[] {
+            ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
+
+        try {
+          Pattern pattern = Pattern.compile(regExp);
+          patterns.put((String) entry.getKey(), pattern);
+        } catch (PatternSyntaxException e) {
+          LOG.debug("", e);
+          // ignore
+        }
+      }
+    }
+    return patterns;
+  }
+
   public Properties getMessages() {
     return messages;
   }
@@ -88,44 +122,6 @@ class AbstractMessagesRepository extends RuleRepository {
 
   protected void setMessages(Properties messages) {
     this.messages = messages;
-  }
-
-  private Map<String, Pattern> patterns;
-
-  public Map<String, Pattern> getMessagePatterns() {
-    if (patterns == null) {
-      patterns = new HashMap<String, Pattern>();
-
-      String[] replacements = new String[] { ".*", ".*", ".*", ".*", ".*" };
-
-      for (Entry entry : messages.entrySet()) {
-        String regExp = (String) entry.getValue();
-
-        // replace single quoted 1-4 markers
-        regExp = StringUtils.replaceEach(regExp,
-            new String[] { "'{0}'", "'{1}'", "'{2}'", "'{3}'", "'{4}'" }, replacements);
-        // replace double quoted 1-4 markers
-        regExp = StringUtils.replaceEach(regExp,
-            new String[] { "\"{0}\"", "\"{1}\"", "\"{2}\"", "\"{3}\"", "\"{4}\"" }, replacements);
-        // replace unquoted 1-4 markers
-        regExp = StringUtils.replaceEach(regExp,
-            new String[] { "{0}", "{1}", "{2}", "{3}", "{4}" }, replacements);
-
-        // replace remaining regexp special characters
-        regExp = StringUtils.replaceEach(regExp,
-            new String[] { "?", "[", "]", "{", "}", "(", ")", "\"</{0}>\"", "''" },
-            new String[] { ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
-
-        try {
-          Pattern pattern = Pattern.compile(regExp);
-          patterns.put((String) entry.getKey(), pattern);
-        } catch (PatternSyntaxException e) {
-          LOG.debug("", e);
-          // ignore
-        }
-      }
-    }
-    return patterns;
   }
 
 }

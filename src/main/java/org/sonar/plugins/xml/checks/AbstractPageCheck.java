@@ -25,7 +25,7 @@ import org.sonar.api.utils.WildcardPattern;
 
 /**
  * Abtract superclass for checks.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -33,22 +33,6 @@ public abstract class AbstractPageCheck {
 
   private Rule rule;
   private XmlSourceCode xmlSourceCode;
-
-  protected XmlSourceCode getWebSourceCode() {
-    return xmlSourceCode;
-  }
-
-  protected void setWebSourceCode(XmlSourceCode xmlSourceCode) {
-    this.xmlSourceCode = xmlSourceCode;
-  }
-
-  public String[] trimSplitCommaSeparatedList(String value) {
-    String[] tokens = StringUtils.split(value, ",");
-    for (int i = 0; i < tokens.length; i++) {
-      tokens[i] = tokens[i].trim();
-    }
-    return tokens;
-  }
 
   protected final void createViolation(int linePosition) {
     createViolation(linePosition, rule.getDescription());
@@ -61,10 +45,13 @@ public abstract class AbstractPageCheck {
     getWebSourceCode().addViolation(violation);
   }
 
-  public final void setRule(Rule rule) {
-    this.rule = rule;
+  protected XmlSourceCode getWebSourceCode() {
+    return xmlSourceCode;
   }
 
+  /**
+   * Check with ant style filepattern if the file is included.
+   */
   protected boolean isFileIncluded(String filePattern) {
     if (filePattern != null) {
       String fileName = getWebSourceCode().getResource().getKey();
@@ -73,6 +60,22 @@ public abstract class AbstractPageCheck {
     } else {
       return true;
     }
+  }
+
+  public final void setRule(Rule rule) {
+    this.rule = rule;
+  }
+
+  protected void setWebSourceCode(XmlSourceCode xmlSourceCode) {
+    this.xmlSourceCode = xmlSourceCode;
+  }
+
+  public String[] trimSplitCommaSeparatedList(String value) {
+    String[] tokens = StringUtils.split(value, ",");
+    for (int i = 0; i < tokens.length; i++) {
+      tokens[i] = tokens[i].trim();
+    }
+    return tokens;
   }
 
   public abstract void validate(XmlSourceCode xmlSourceCode);

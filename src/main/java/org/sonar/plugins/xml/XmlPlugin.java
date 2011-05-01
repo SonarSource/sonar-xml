@@ -25,18 +25,18 @@ import org.sonar.api.Extension;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
 import org.sonar.plugins.xml.rules.DefaultXmlProfile;
-import org.sonar.plugins.xml.rules.XhtmlTransitionalProfile;
 import org.sonar.plugins.xml.rules.XmlMessagesRepository;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
  * XML Plugin publishes extensions to sonar engine.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -50,13 +50,12 @@ public final class XmlPlugin implements Plugin {
   public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
   private static final String KEY = "sonar-xml-plugin";
   public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
+  public static final String FILE_FILTER = "sonar.xml.fileFilter";
+  public static final String SCHEMAS = "sonar.xml.schemas";
 
-  public static void configureSourceDir(Project project) {
-    String sourceDir = (String) project.getProperty(SOURCE_DIRECTORY);
-    if (sourceDir != null) {
-      project.getFileSystem().getSourceDirs().clear();
-      project.getFileSystem().addSourceDir(project.getFileSystem().resolvePath(sourceDir));
-    }
+  public static List<InputFile> getFiles(Project project) {
+    XmlProjectFileSystem fileSystem = new XmlProjectFileSystem(project);
+    return fileSystem.getFiles();
   }
 
   public String getDescription() {
@@ -79,8 +78,7 @@ public final class XmlPlugin implements Plugin {
 
     // Profiles
     list.add(DefaultXmlProfile.class);
-    list.add(XhtmlTransitionalProfile.class);
-
+  
     // sensors
     list.add(XmlSensor.class);
     list.add(LineCountSensor.class);

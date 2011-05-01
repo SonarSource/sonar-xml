@@ -41,7 +41,7 @@ import org.sonar.plugins.xml.language.Xml;
 
 /**
  * Repository for XML rules.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -52,7 +52,7 @@ public final class XmlRulesRepository extends RuleRepository {
   public static final String REPOSITORY_KEY = "Xml";
   public static final String REPOSITORY_NAME = "Xml";
 
-  private static AbstractPageCheck createCheck(Class<? extends AbstractPageCheck> checkClass, ActiveRule activeRule) {
+  private static AbstractPageCheck createCheck(Class<? extends AbstractPageCheck> checkClass, ActiveRule activeRule, String schemas) {
 
     try {
       AbstractPageCheck check = checkClass.newInstance();
@@ -65,6 +65,12 @@ public final class XmlRulesRepository extends RuleRepository {
           }
         }
       }
+      
+      // configure schemas property for SchemaCheck. 
+      if (check instanceof XmlSchemaCheck && schemas != null) {
+        XmlSchemaCheck schemaCheck = (XmlSchemaCheck) check;
+        schemaCheck.setSchemas(schemas); 
+      }
 
       return check;
     } catch (IllegalAccessException e) {
@@ -76,7 +82,7 @@ public final class XmlRulesRepository extends RuleRepository {
     }
   }
 
-  public static List<AbstractPageCheck> createChecks(RulesProfile profile) {
+  public static List<AbstractPageCheck> createChecks(RulesProfile profile, String schemas) {
     LOG.info("Loading checks for profile " + profile.getName());
 
     List<AbstractPageCheck> checks = new ArrayList<AbstractPageCheck>();
@@ -85,7 +91,7 @@ public final class XmlRulesRepository extends RuleRepository {
       if (REPOSITORY_KEY.equals(activeRule.getRepositoryKey())) {
         Class<? extends AbstractPageCheck> clazz = findCheckClass(activeRule.getConfigKey());
         if (clazz != null) {
-          checks.add(createCheck(clazz, activeRule));
+          checks.add(createCheck(clazz, activeRule, schemas));
         }
       }
     }

@@ -40,7 +40,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 @Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.CRITICAL,
-    cardinality = Cardinality.MULTIPLE, isoCategory = IsoCategory.NONE)
+    cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractPageCheck {
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
@@ -52,17 +52,17 @@ public class XPathCheck extends AbstractPageCheck {
     }
 
     public String getNamespaceURI(String prefix) {
-        return resolver.getNamespaceForPrefix(prefix);
-    }
-
-    // Dummy implementation - not used!
-    public Iterator getPrefixes(String val) {
-        return null;
+      return resolver.getNamespaceForPrefix(prefix);
     }
 
     // Dummy implemenation - not used!
     public String getPrefix(String uri) {
-        return null;
+      return null;
+    }
+
+    // Dummy implementation - not used!
+    public Iterator<Object> getPrefixes(String val) {
+      return null;
     }
   }
 
@@ -92,6 +92,10 @@ public class XPathCheck extends AbstractPageCheck {
     return expression;
   }
 
+  public String getFilePattern() {
+    return filePattern;
+  }
+
   private XPathExpression getXPathExpressionForDocument(Document document) {
     if (expression != null) {
       try {
@@ -106,17 +110,12 @@ public class XPathCheck extends AbstractPageCheck {
     return null;
   }
 
-  public String getFilePattern() {
-    return filePattern;
+  public void setExpression(String expression) {
+    this.expression = expression;
   }
-
 
   public void setFilePattern(String filePattern) {
     this.filePattern = filePattern;
-  }
-
-  public void setExpression(String expression) {
-    this.expression = expression;
   }
 
   @Override

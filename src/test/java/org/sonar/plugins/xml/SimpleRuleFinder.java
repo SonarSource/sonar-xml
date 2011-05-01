@@ -44,14 +44,14 @@ public class SimpleRuleFinder implements RuleFinder {
     return null;
   }
 
+  public Rule findById(int arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   public Rule findByKey(String repositoryKey, String key) {
     ActiveRule activeRule = profile.getActiveRuleByConfigKey(repositoryKey, key);
     assertNotNull(activeRule);
     return activeRule.getRule();
-  }
-
-  public Rule findById(int arg0) {
-    // TODO Auto-generated method stub
-    return null;
   }
 }

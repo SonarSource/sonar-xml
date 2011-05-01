@@ -39,63 +39,7 @@ import org.sonar.plugins.xml.AbstractXmlPluginTester;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
-
-  private final String repositoryKey = "Xml";
-
-  private Rule getRule(String ruleKey, Class<? extends AbstractPageCheck> checkClass) {
-
-    AnnotationRuleParser parser = new AnnotationRuleParser();
-    List<Rule> rules = parser.parse(repositoryKey, Arrays.asList(new Class[] { checkClass }));
-    for (Rule rule : rules) {
-      if (rule.getKey().equals(ruleKey)) {
-        return rule;
-      }
-    }
-    return null;
-  }
-
-  public XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractPageCheck> checkClass, String... params) {
-
-    return parseAndCheck(reader, null, null, checkClass, params);
-  }
-
-  public XmlSourceCode parseAndCheck(Reader reader, java.io.File file,
-      String code, Class<? extends AbstractPageCheck> checkClass, String... params) {
-
-    AbstractPageCheck check = instantiateCheck(checkClass, params);
-
-    XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
-    xmlSourceCode.setCode(code);
-
-    check.validate(xmlSourceCode);
-
-    return xmlSourceCode;
-  }
-
-  protected AbstractPageCheck instantiateCheck(Class<? extends AbstractPageCheck> checkClass, String... params) {
-    try {
-      AbstractPageCheck check = checkClass.newInstance();
-
-      Rule rule = getRule(checkClass.getSimpleName(), checkClass);
-      assertNotNull("Could not find rule", rule);
-      check.setRule(rule);
-      configureDefaultParams(check, rule);
-
-      for (int i = 0; i < params.length / 2; i++) {
-        BeanUtils.setProperty(check, params[i * 2], params[i * 2 + 1]);
-        assertNotNull(BeanUtils.getProperty(check, params[i * 2]));
-      }
-      return check;
-    } catch (IllegalAccessException e) {
-      throw new SonarException(e);
-    } catch (InstantiationException e) {
-      throw new SonarException(e);
-    } catch (InvocationTargetException e) {
-      throw new SonarException(e);
-    } catch (NoSuchMethodException e) {
-      throw new SonarException(e);
-    }
-  }
+  private static final String repositoryKey = "Xml";
 
   private void configureDefaultParams(AbstractPageCheck check, Rule rule) {
     ValidationMessages validationMessages = ValidationMessages.create();
@@ -124,5 +68,60 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     } catch (NoSuchMethodException e) {
       throw new SonarException(e);
     }
+  }
+
+  private Rule getRule(String ruleKey, Class<? extends AbstractPageCheck> checkClass) {
+
+    AnnotationRuleParser parser = new AnnotationRuleParser();
+    List<Rule> rules = parser.parse(repositoryKey, Arrays.asList(new Class[] { checkClass }));
+    for (Rule rule : rules) {
+      if (rule.getKey().equals(ruleKey)) {
+        return rule;
+      }
+    }
+    return null;
+  }
+
+  protected AbstractPageCheck instantiateCheck(Class<? extends AbstractPageCheck> checkClass, String... params) {
+    try {
+      AbstractPageCheck check = checkClass.newInstance();
+
+      Rule rule = getRule(checkClass.getSimpleName(), checkClass);
+      assertNotNull("Could not find rule", rule);
+      check.setRule(rule);
+      configureDefaultParams(check, rule);
+
+      for (int i = 0; i < params.length / 2; i++) {
+        BeanUtils.setProperty(check, params[i * 2], params[i * 2 + 1]);
+        assertNotNull(BeanUtils.getProperty(check, params[i * 2]));
+      }
+      return check;
+    } catch (IllegalAccessException e) {
+      throw new SonarException(e);
+    } catch (InstantiationException e) {
+      throw new SonarException(e);
+    } catch (InvocationTargetException e) {
+      throw new SonarException(e);
+    } catch (NoSuchMethodException e) {
+      throw new SonarException(e);
+    }
+  }
+
+  public XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractPageCheck> checkClass, String... params) {
+
+    return parseAndCheck(reader, null, null, checkClass, params);
+  }
+
+  public XmlSourceCode parseAndCheck(Reader reader, java.io.File file,
+      String code, Class<? extends AbstractPageCheck> checkClass, String... params) {
+
+    AbstractPageCheck check = instantiateCheck(checkClass, params);
+
+    XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
+    xmlSourceCode.setCode(code);
+
+    check.validate(xmlSourceCode);
+
+    return xmlSourceCode;
   }
 }

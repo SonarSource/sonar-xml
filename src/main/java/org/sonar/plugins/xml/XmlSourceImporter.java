@@ -24,10 +24,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractSourceImporter;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.xml.language.Xml;
+
+import com.google.common.collect.Lists;
 
 /**
  * Import of XML source files to sonar database.
@@ -39,10 +43,25 @@ public final class XmlSourceImporter extends AbstractSourceImporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSourceImporter.class);
 
-  public XmlSourceImporter(Project project) {
-    super(new Xml(project));
+  public XmlSourceImporter(Xml xml) {
+    super(xml);
+  }
 
-    XmlPlugin.configureSourceDir(project);
+  /**
+   * Conversion from InputFile to File. Allows to provide backward compatibility.
+   */
+  private static List<java.io.File> toFiles(List<InputFile> files) {
+    List<java.io.File> result = Lists.newArrayList();
+    for (InputFile file : files) {
+      result.add(file.getFile());
+    }
+    return result;
+  }
+
+  @Override
+  public void analyse(Project project, SensorContext context) {
+    parseDirs(context, toFiles(XmlPlugin.getFiles(project)), XmlProjectFileSystem.getSourceDirs(project), false, project.getFileSystem()
+        .getSourceCharset());
   }
 
   @Override

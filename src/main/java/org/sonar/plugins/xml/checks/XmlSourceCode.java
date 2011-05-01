@@ -33,8 +33,8 @@ import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 
 /**
- * Checks and analyzers report measurements, violations and other findings in WebSourceCode.
- *
+ * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -45,6 +45,10 @@ public class XmlSourceCode {
 
   private final Resource<?> resource;
   private final List<Violation> violations = new ArrayList<Violation>();
+
+  private Document documentNamespaceAware;
+
+  private Document documentNamespaceUnaware;
 
   public XmlSourceCode(Resource<?> resource, File file) {
     this.resource = resource;
@@ -60,34 +64,14 @@ public class XmlSourceCode {
       try {
         return FileUtils.openInputStream(file);
       } catch (IOException e) {
-        throw new SonarException();
+        throw new SonarException(e);
       }
     } else {
       return new ByteArrayInputStream(code.getBytes());
     }
   }
 
-  public Resource<?> getResource() {
-    return resource;
-  }
-
-  public List<Violation> getViolations() {
-    return violations;
-  }
-
-  @Override
-  public String toString() {
-    return resource.getLongName();
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  private Document documentNamespaceAware;
-  private Document documentNamespaceUnaware;
-
-  public Document getDocument(boolean namespaceAware) {
+  protected Document getDocument(boolean namespaceAware) {
     InputStream inputStream = createInputStream();
     if (namespaceAware) {
       if (documentNamespaceAware == null) {
@@ -100,5 +84,22 @@ public class XmlSourceCode {
       }
       return documentNamespaceUnaware;
     }
+  }
+
+  public Resource<?> getResource() {
+    return resource;
+  }
+
+  public List<Violation> getViolations() {
+    return violations;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  @Override
+  public String toString() {
+    return resource.getLongName();
   }
 }

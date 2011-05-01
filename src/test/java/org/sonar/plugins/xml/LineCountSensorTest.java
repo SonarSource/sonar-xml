@@ -30,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.xml.language.Xml;
@@ -38,14 +39,20 @@ import org.sonar.plugins.xml.parsers.LineCountParser;
 public class LineCountSensorTest {
 
   @Test
+  public void testLineCountParser() throws IOException {
+    LineCountParser parser = new LineCountParser();
+    int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/checks/generic/catalog.xml")));
+    assertEquals(1, numCommentLines);
+  }
+
+  @Test
   public void testLineCountSensor() {
     LineCountSensor lineCountSensor = new LineCountSensor();
 
     MockSensorContext sensorContext = new MockSensorContext();
     Project project = new Project("");
     project.setConfiguration(new PropertiesConfiguration());
-    DefaultProjectFileSystem filesystem = new DefaultProjectFileSystem(project);
-    project.setFileSystem(filesystem);
+    project.setFileSystem(new DefaultProjectFileSystem(project, new Languages(new Xml())));
     project.setPom(new MavenProject());
     project.setLanguageKey(Xml.KEY);
     project.getPom().addCompileSourceRoot("src/test/resources/checks/generic");
@@ -59,12 +66,5 @@ public class LineCountSensorTest {
       assertTrue(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue() > 10);
       assertTrue(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue() > 10);
     }
-  }
-
-  @Test
-  public void testLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser();
-    int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/checks/generic/catalog.xml")));
-    assertEquals(1, numCommentLines);
   }
 }

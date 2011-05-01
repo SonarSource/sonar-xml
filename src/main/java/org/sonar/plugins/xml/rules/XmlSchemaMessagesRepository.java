@@ -22,7 +22,7 @@ import org.sonar.plugins.xml.language.Xml;
 
 /**
  * Repository for XMLSchema validation messages.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */

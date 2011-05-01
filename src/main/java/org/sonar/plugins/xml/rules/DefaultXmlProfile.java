@@ -29,7 +29,7 @@ import org.sonar.plugins.xml.language.Xml;
 
 /**
  * Default XML profile.
- *
+ * 
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -39,8 +39,7 @@ public final class DefaultXmlProfile extends ProfileDefinition {
   private final XmlMessagesRepository xmlMessagesRepository;
   private final XmlSchemaMessagesRepository xmlSchemaMessagesRepository;
 
-  public DefaultXmlProfile(XmlRulesRepository xmlRulesRepository,
-      XmlMessagesRepository xmlMessagesRepository,
+  public DefaultXmlProfile(XmlRulesRepository xmlRulesRepository, XmlMessagesRepository xmlMessagesRepository,
       XmlSchemaMessagesRepository xmlSchemaMessagesRepository) {
     this.xmlRulesRepository = xmlRulesRepository;
     this.xmlMessagesRepository = xmlMessagesRepository;

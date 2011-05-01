@@ -37,9 +37,9 @@ public class DetectSchemaParserTest {
   @Test
   public void testDetectDTD() throws IOException {
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
-    String schema = detectSchemaParser.findSchema(FileUtils.openInputStream(new File(fileName)));
+    String schema = detectSchemaParser.findSchemaOrDTD(FileUtils.openInputStream(new File(fileName)));
     assertNotNull(schema);
-    LSInput lsInput = SchemaResolver.getSchemaAsLSInput(schema);
+    LSInput lsInput = SchemaResolver.getBuiltinSchemaAsLSInput(schema);
     assertNotNull(lsInput);
   }
 
@@ -49,7 +49,7 @@ public class DetectSchemaParserTest {
       "xmlns:c=\"http://java.sun.com/jstl/core\" ></html>";
 
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
-    String schema = detectSchemaParser.findSchema(new ByteArrayInputStream(fragment.getBytes()));
+    String schema = detectSchemaParser.findSchemaOrDTD(new ByteArrayInputStream(fragment.getBytes()));
     assertNotNull(schema);
     assertEquals("http://www.w3.org/1999/xhtml", schema);
   }
