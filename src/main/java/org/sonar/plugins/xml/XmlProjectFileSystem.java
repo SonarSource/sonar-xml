@@ -92,17 +92,35 @@ public class XmlProjectFileSystem {
       return accept(file);
     }
   }
-  private static class InclusionFilter extends FileFilter {
+  
+  private class InclusionFilter implements IOFileFilter {
 
-    private String fileFilter;
+    private String inclusionPattern;
+    private File sourceDir;
 
-    public InclusionFilter(String fileFilter) {
-      this.fileFilter = fileFilter;
+    public InclusionFilter(File sourceDir, String inclusionPattern) {
+      this.sourceDir = sourceDir;
+      this.inclusionPattern = inclusionPattern;
     }
 
-    public boolean accept(File pathname) {
-      WildcardPattern matcher = WildcardPattern.create(fileFilter);
-      return matcher.match(pathname.getPath().replace("\\", "/"));
+    public boolean accept(File file) {
+      String relativePath = DefaultProjectFileSystem.getRelativePath(file, sourceDir);
+      if (relativePath == null) {
+        return false;
+      }
+      
+      // one of the inclusionpatterns must match. 
+      for (String filter : inclusionPattern.split(",")) {
+        WildcardPattern matcher = WildcardPattern.create(filter);
+        if (matcher.match(relativePath)) {
+          return true;
+        }
+      }
+      return false; 
+    }
+    
+    public boolean accept(File file, String name) {
+      return accept(file);
     }
   }
 
@@ -112,17 +130,8 @@ public class XmlProjectFileSystem {
 
   public XmlProjectFileSystem(Project project) {
     this.project = project;
-
-    String fileFilter = (String) project.getProperty(XmlPlugin.FILE_FILTER);
-    if (fileFilter != null) {
-      addFileFilter(new InclusionFilter(fileFilter));
-    }
   }
-
-  private void addFileFilter(FileFilter fileFilter) {
-    filters.add(new DelegateFileFilter(fileFilter));
-  }
-
+  
   private WildcardPattern[] getExclusionPatterns(boolean applyExclusionPatterns) {
     WildcardPattern[] exclusionPatterns;
     if (applyExclusionPatterns) {
@@ -141,13 +150,23 @@ public class XmlProjectFileSystem {
 
     IOFileFilter suffixFilter = getFileSuffixFilter();
     WildcardPattern[] exclusionPatterns = getExclusionPatterns(true);
-
+    IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
+    
     for (File dir : getSourceDirs()) {
       if (dir.exists()) {
+        
+        // exclusion filter
         IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
-        IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
+        // visible filter
         List<IOFileFilter> fileFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter);
+        // inclusion filter
+        String inclusionPattern = (String) project.getProperty(XmlPlugin.INCLUDE_FILE_FILTER);
+        if (inclusionPattern != null) {
+          fileFilters.add(new InclusionFilter(dir, inclusionPattern));
+        }
         fileFilters.addAll(this.filters);
+        
+        // create DefaultInputFile for each file. 
         List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(fileFilters), HiddenFileFilter.VISIBLE);
         for (File file : files) {
           String relativePath = DefaultProjectFileSystem.getRelativePath(file, dir);

@@ -15,5 +15,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   	<sonar.language>xml</sonar.language>
     <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
     <sonar.xml.fileExtensions>xml</sonar.xml.fileExtensions>
+    <sonar.xml.schemas>xhtml1-strict</sonar.xml.schemas>
   </properties>
 </project>

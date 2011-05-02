@@ -81,7 +81,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     assertTrue(sensor.shouldExecuteOnProject(project));
 
     // add an additional file filter
-    project.getConfiguration().addProperty(XmlPlugin.FILE_FILTER, "**/not found"); 
+    project.getConfiguration().addProperty(XmlPlugin.INCLUDE_FILE_FILTER, "**/not found"); 
   
     sensor.analyse(project, sensorContext);
 

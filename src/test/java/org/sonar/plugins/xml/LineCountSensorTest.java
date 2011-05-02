@@ -45,6 +45,15 @@ public class LineCountSensorTest {
     assertEquals(1, numCommentLines);
   }
 
+  @Test(expected=NullPointerException.class)
+  public void failingLineCountParser() throws IOException {
+    LineCountParser parser = new LineCountParser();
+    String filename = "src/test/resources/checks/generic/header.html"; 
+    		
+    int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File(filename)));
+    assertEquals(1, numCommentLines);
+  }
+   
   @Test
   public void testLineCountSensor() {
     LineCountSensor lineCountSensor = new LineCountSensor();

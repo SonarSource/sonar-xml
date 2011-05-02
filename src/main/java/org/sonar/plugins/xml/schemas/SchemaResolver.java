@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
@@ -43,22 +44,30 @@ public final class SchemaResolver implements LSResourceResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<String, String>();
+  private static final Map<String, String> DTD_BUILTIN = new HashMap<String, String>();
 
+  // SCHEMA's 
   static {
 
     // XML
     SCHEMAS_BUILTIN.put("http://www.w3.org/2001/xml.xsd", "xml.xsd");
 
-    // XHTML1
-    SCHEMAS_BUILTIN.put("xhtml1-transitional", "xhtml1/xhtml1-transitional.xsd");
+    // XHTML 1.0 - by Doctype 
+    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.xsd");
+    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Transitional//EN", "xhtml1/xhtml1-transitional.xsd");
+    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Frameset//EN", "xhtml1/xhtml1-frameset.xsd");
+ 
+    // XHTML 1.0 - by namespace
+    SCHEMAS_BUILTIN.put("http://www.w3.org/1999/xhtml", "xhtml1/xhtml1-strict.xsd");
+    
+    // XHTML 1.0 - by shortname
     SCHEMAS_BUILTIN.put("xhtml1-strict", "xhtml1/xhtml1-strict.xsd");
+    SCHEMAS_BUILTIN.put("xhtml1-transitional", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("xhtml1-frameset", "xhtml1/xhtml1-frameset.xsd");
-
-    // XHTML1 - DTD
-    SCHEMAS_BUILTIN.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd", "xhtml1/xhtml1-transitional.dtd");
-    SCHEMAS_BUILTIN.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd", "xhtml1/xhtml1-strict.dtd");
-    SCHEMAS_BUILTIN.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd", "xhtml1/xhtml1-frameset.dtd");
-
+    
+    // XHTML 1.1 - If DTD is specified use the corresponding XSD Schema 
+    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.1 Strict//EN", "xhtml11/xhtml11.xsd");
+    
     // JSF Taglib to XSD conversions
     // (from http://blogger.ziesemer.com/2008/03/facelets-and-xsd-converted-tlds.html)
     SCHEMAS_BUILTIN.put("http://java.sun.com/jsf/core", "jsf/jsf-core-2.0.xsd");
@@ -67,9 +76,34 @@ public final class SchemaResolver implements LSResourceResolver {
 
     // MAVEN
     SCHEMAS_BUILTIN.put("http://maven.apache.org/POM/4.0.0", "maven/maven-4.0.0.xsd");
-  };
+  }
+  
+  // DTDs
+  static {
+    // HTML 3.2 
+    DTD_BUILTIN.put("-//W3C//DTD HTML 3.2//EN", "html32/html32.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD HTML 3.2 Final//EN", "html32/html32.dtd");
+    
+    // HTML 4.0 
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.0//EN", "html4/strict.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.0 Transitional//EN", "html4/loose.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.0 Frameset//EN", "html4/frameset.dtd");
+  
+    // HTML 4.01 
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.01//EN", "html4/strict.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.01 Transitional//EN", "html4/loose.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD HTML 4.01 Frameset//EN", "html4/frameset.dtd");
+    
+    // XHTML 1.0 
+    DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Transitional//EN", "xhtml1/xhtml1-transitional.dtd");
+    DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Frameset//EN", "xhtml1/xhtml1-frameset.dtd");
+   
+    // XHTML 1.1
+    DTD_BUILTIN.put("//W3C//DTD XHTML 1.1//EN", "xhtml1/xhtml11.dtd");
+  }
 
-  private static final String[] FOLDERS = new String[] { "xhtml1", "jsf" };
+  private static final String[] SCHEMA_FOLDERS = new String[] { "xhtml1", "jsf" };
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
@@ -93,7 +127,21 @@ public final class SchemaResolver implements LSResourceResolver {
     return null;
   }
 
-  public static LSInput getBuiltinSchemaAsLSInput(String systemId) {
+  /**
+   * Gets a built-in DTD.
+   */
+  private static InputStream getBuiltinDTD(String publicId) {
+    String fileName = DTD_BUILTIN.get(publicId);
+    if (fileName != null) {
+      return getBuiltinDTDByFileName(fileName);
+    }
+    return null;
+  }
+
+  /**
+   * Get a built-in XML schema. 
+   */
+  public static InputStream getBuiltinSchema(String systemId) {
     InputStream input;
 
     // try as namespace
@@ -101,26 +149,29 @@ public final class SchemaResolver implements LSResourceResolver {
 
     // try as built-in resource
     if (input == null) {
-      input = SchemaResolver.getBuiltinSchemaByFileName(systemId);
+      input = getBuiltinSchemaByFileName(systemId);
 
       // try as file system resource
       if (input == null) {
         try {
           input = new FileInputStream(systemId);
         } catch (FileNotFoundException e) {
-          LOG.warn("Could not find resource " + systemId);
+          LOG.warn("Could not find schema " + systemId);
           return null;
         }
       }
     }
 
-    return createLSInput(input);
+    return input;
   }
 
-  public static InputStream getBuiltinSchemaByFileName(String fileName) {
+  /**
+   * Gets a built-in XML schema by filename. 
+   */
+  private static InputStream getBuiltinSchemaByFileName(String fileName) {
     InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
     if (input == null) {
-      for (String folder : FOLDERS) {
+      for (String folder : SCHEMA_FOLDERS) {
         input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
         if (input != null) {
           break;
@@ -129,8 +180,19 @@ public final class SchemaResolver implements LSResourceResolver {
     }
     return input;
   }
+  
 
-  public static InputStream getBuiltinSchemaByNamespace(String nameSpace) {
+  /**
+   * Gets a built-in DTD by filename. 
+   */
+  private static InputStream getBuiltinDTDByFileName(String fileName) {
+    return SchemaResolver.class.getResourceAsStream("/org/sonar/plugins/xml/dtd/" + fileName);
+  }
+
+  /**
+   * Gets a built-in XML schema by nameSpace. 
+   */
+  private static InputStream getBuiltinSchemaByNamespace(String nameSpace) {
     String fileName = SCHEMAS_BUILTIN.get(nameSpace);
     if (fileName != null) {
       return getBuiltinSchemaByFileName(fileName);
@@ -139,12 +201,40 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   /**
-   * ResourceResolver tries to resolve schema's or dtd's with built-in resources or external files.
+   * ResourceResolver tries to resolve schema's and dtd's with built-in resources or external files.
    */
   public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
-    LOG.debug("resolveResource: " + systemId);
+    InputStream input = null;
 
-    return getBuiltinSchemaAsLSInput(systemId);
+    // try as DTD
+    if (publicId != null && publicId.contains("//DTD")) {
+      input = getBuiltinDTD(publicId);
+    } else {
+
+      // try as namespace
+      input = getBuiltinSchemaByNamespace(systemId);
+
+      // try as built-in XML schema
+      if (input == null) {
+        input = getBuiltinSchemaByFileName(systemId);
+      }
+      
+      // try as built-in entity 
+      if (input == null) {
+        if (StringUtils.startsWithIgnoreCase(systemId, "html")) {
+          input = getBuiltinDTDByFileName("html4/"+ systemId);
+        } else {
+          input = getBuiltinDTDByFileName("xhtml1/"+ systemId);
+        }
+      }
+    }
+
+    if (input == null) {
+      LOG.debug("Could not resolve resource: " + systemId);
+      return null;
+    } else {
+      return createLSInput(input);
+    }
   }
 }

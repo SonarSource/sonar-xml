@@ -43,6 +43,8 @@ import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 @Properties({
     @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
         defaultValue = "xml,xhtml", global = true, project = true),
+    @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include", description = "List of file inclusion filters, separated by komma.",
+            defaultValue = "", global = false, project = true),  
     @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
         defaultValue = "src/main/resources", global = false, project = true) })
 public final class XmlPlugin implements Plugin {
@@ -50,7 +52,7 @@ public final class XmlPlugin implements Plugin {
   public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
   private static final String KEY = "sonar-xml-plugin";
   public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
-  public static final String FILE_FILTER = "sonar.xml.fileFilter";
+  public static final String INCLUDE_FILE_FILTER = "sonar.xml.includeFileFilter";
   public static final String SCHEMAS = "sonar.xml.schemas";
 
   public static List<InputFile> getFiles(Project project) {

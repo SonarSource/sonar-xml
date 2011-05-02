@@ -24,6 +24,7 @@ import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
 
 import org.apache.xerces.impl.Constants;
+import org.jfree.util.Log;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;

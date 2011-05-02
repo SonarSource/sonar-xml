@@ -10,6 +10,6 @@
   </build> 
   <properties>
   	<sonar.language>xml</sonar.language>
-  	<sonar.profile>XHTML1-Transitional</sonar.profile>
+  	<sonar.xml.schemas>xhtml1-strict</sonar.xml.schemas>
   </properties>
 </project>

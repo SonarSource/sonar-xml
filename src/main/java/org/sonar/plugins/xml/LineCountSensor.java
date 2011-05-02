@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
+import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -37,6 +38,7 @@ import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
 /**
+ * Count lines of code in XML files. 
  * 
  * @author Matthijs Galesloot
  * @since 1.0
@@ -68,12 +70,15 @@ public final class LineCountSensor implements Sensor {
     }
 
     try {
+      
+      Log.debug("Count comment in " + file.getPath());
+      
       int numCommentLines = new LineCountParser().countLinesOfComment(FileUtils.openInputStream(file));
       sensorContext.saveMeasure(xmlFile, CoreMetrics.LINES, (double) numLines);
       sensorContext.saveMeasure(xmlFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
       sensorContext.saveMeasure(xmlFile, CoreMetrics.NCLOC, (double) numLines - numEmptyLines - numCommentLines);
-    } catch (IOException e) {
-      throw new SonarException(e);
+    } catch (Exception e) {
+      LOG.debug("Fail to count lines in " + file.getPath(), e);
     }
 
     LOG.debug("LineCountSensor: " + xmlFile.getKey() + ":" + numLines + "," + numEmptyLines + "," + 0);

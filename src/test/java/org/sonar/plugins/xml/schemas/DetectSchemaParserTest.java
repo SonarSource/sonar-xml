@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.sonar.plugins.xml.parsers;
+package org.sonar.plugins.xml.schemas;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,11 +24,13 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.plugins.xml.parsers.DetectSchemaParser;
+import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
-import org.w3c.dom.ls.LSInput;
 
 public class DetectSchemaParserTest {
 
@@ -37,10 +39,10 @@ public class DetectSchemaParserTest {
   @Test
   public void testDetectDTD() throws IOException {
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
-    String schema = detectSchemaParser.findSchemaOrDTD(FileUtils.openInputStream(new File(fileName)));
-    assertNotNull(schema);
-    LSInput lsInput = SchemaResolver.getBuiltinSchemaAsLSInput(schema);
-    assertNotNull(lsInput);
+    Doctype doctype = detectSchemaParser.findDoctype(FileUtils.openInputStream(new File(fileName)));
+    assertNotNull(doctype.getDtd());
+    InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
+    assertNotNull(input);
   }
 
   @Test
@@ -49,8 +51,8 @@ public class DetectSchemaParserTest {
       "xmlns:c=\"http://java.sun.com/jstl/core\" ></html>";
 
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
-    String schema = detectSchemaParser.findSchemaOrDTD(new ByteArrayInputStream(fragment.getBytes()));
-    assertNotNull(schema);
-    assertEquals("http://www.w3.org/1999/xhtml", schema);
+    Doctype doctype = detectSchemaParser.findDoctype(new ByteArrayInputStream(fragment.getBytes()));
+    assertNotNull(doctype.getNamespace());
+    assertEquals("http://www.w3.org/1999/xhtml", doctype.getNamespace());
   }
 }

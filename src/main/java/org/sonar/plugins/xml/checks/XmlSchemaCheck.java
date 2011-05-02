@@ -18,8 +18,6 @@
 
 package org.sonar.plugins.xml.checks;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.slf4j.Logger;
@@ -39,11 +38,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
+import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -89,24 +88,17 @@ public class XmlSchemaCheck extends AbstractPageCheck {
   /**
    * Create xsd schema for a list of schema's.
    */
-  private static Schema createSchema(String validationSchemas) {
+  private static Schema createSchema(String[] schemaList) {
 
     List<Source> schemaSources = new ArrayList<Source>();
-    String[] schemaList = StringUtils.split(validationSchemas, " \t\n");
 
     // load each schema in a StreamSource.
     for (String schemaReference : schemaList) {
-      InputStream input = SchemaResolver.getBuiltinSchemaByNamespace(schemaReference);
-      if (input != null) {
-        schemaSources.add(new StreamSource(input));
-      } else {
-        try {
-          schemaSources.add(new StreamSource(new FileInputStream(schemaReference)));
-        } catch (FileNotFoundException e) {
-          LOG.error("Could not find schema " + schemaReference);
-          throw new SonarException(e);
-        }
+      InputStream input = SchemaResolver.getBuiltinSchema(schemaReference);
+      if (input == null) {
+        throw new SonarException("Could not load schema: " + schemaReference);
       }
+      schemaSources.add(new StreamSource(input));
     }
 
     // create a schema for the list of StreamSources.
@@ -147,8 +139,8 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     return false;
   }
 
-  private String detectSchema() {
-    return new DetectSchemaParser().findSchemaOrDTD(getWebSourceCode().createInputStream());
+  private Doctype detectSchema() {
+    return new DetectSchemaParser().findDoctype(getWebSourceCode().createInputStream());
   }
 
   public String getFilePattern() {
@@ -179,26 +171,47 @@ public class XmlSchemaCheck extends AbstractPageCheck {
 
   private void validate() {
     if ("autodetect".equalsIgnoreCase(schemas)) {
-      String validationSchema = detectSchema();
-      if (validationSchema != null) {
-        validate(validationSchema);
-      }
+      autodetectSchemaAndValidate(); 
     } else {
-      validate(schemas);
+      String[] schemaList = StringUtils.split(schemas, " \t\n");
+
+      validate(schemaList);
+    }
+  }
+  
+  private void autodetectSchemaAndValidate() {
+    final Doctype doctype = detectSchema();
+    
+    // first try doctype as this is more specific 
+    if (doctype.getDtd() != null) {
+      InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
+      if (input == null) {
+        LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
+      } else {
+        IOUtils.closeQuietly(input);
+        validate(new String[] { doctype.getDtd() });
+      }
+    }
+    // try namespace 
+    else if (doctype.getNamespace() != null && !doctype.getNamespace().isEmpty()) {
+      validate(new String[] { doctype.getNamespace() });
+    } else {
+      LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
     }
   }
 
-  private void validate(String validationSchemas) {
+  private void validate(String[] schemaList) {
 
     // Create a new validator
-    Validator validator = createSchema(validationSchemas).newValidator();
+    Validator validator = createSchema(schemaList).newValidator();
     setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
     validator.setErrorHandler(new MessageHandler());
     validator.setResourceResolver(new SchemaResolver());
 
     // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
-      validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
+      LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
+      validator.validate(new StreamSource(getWebSourceCode().createInputStream())); 
     } catch (SAXException e) {
       if ( !containsMessage(e)) {
         createViolation(0, e.getMessage());

@@ -24,7 +24,6 @@ import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
@@ -42,10 +41,26 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public final class DetectSchemaParser extends AbstractParser {
 
+  /**
+   * Doctype declaration in a Document. 
+   */
+  public static class Doctype {
+    
+    private String dtd;
+    private String namespace;
+    
+    public String getDtd() {
+      return dtd;
+    }
+    
+    public String getNamespace() {
+      return namespace;
+    }
+  }
+  
   private static class Handler extends DefaultHandler implements LexicalHandler {
 
-    private String dtd;
-    private String schema;
+    private Doctype doctype = new Doctype();
 
     public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
       // empty
@@ -73,12 +88,12 @@ public final class DetectSchemaParser extends AbstractParser {
     }
 
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
-      dtd = systemId;
+      doctype.dtd = publicId;
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-      schema = attributes.getValue("xmlns");
+      doctype.namespace = attributes.getValue("xmlns");
 
       // we are done, cause the parser to stop
       throw new SAXException("done");
@@ -90,9 +105,9 @@ public final class DetectSchemaParser extends AbstractParser {
   }
 
   /**
-   * Find the schema specified in the xmlns attribute. If a DTD is specified this will be returned instead.
+   * Find the Doctype (DTD or schema). 
    */
-  public String findSchemaOrDTD(InputStream input) {
+  public Doctype findDoctype(InputStream input) {
     Handler handler = new Handler();
 
     try {
@@ -111,9 +126,7 @@ public final class DetectSchemaParser extends AbstractParser {
       IOUtils.closeQuietly(input);
     }
 
-    if (handler.dtd != null) {
-      return StringUtils.substringBefore(StringUtils.substringAfterLast(handler.dtd, "/"), ".");
-    }
-    return handler.schema;
+    return handler.doctype;
   }
 }
+
