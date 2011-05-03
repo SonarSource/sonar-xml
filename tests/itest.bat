@@ -1,1 +1,0 @@
-mvn verify -Pintegration-tests -Dsonar.runtimeVersion=2.7
