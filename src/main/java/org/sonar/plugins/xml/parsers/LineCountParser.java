@@ -129,7 +129,7 @@ public final class LineCountParser extends AbstractParser {
     } catch (SAXException e) {
       throw new SonarException(e);
     } catch (UnrecoverableParseError e) {
-      return 0; 
+      return 0;
     }
   }
 

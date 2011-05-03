@@ -34,10 +34,8 @@ import org.xml.sax.SAXParseException;
  */
 public abstract class AbstractParser {
 
-  protected static final SAXParserFactory SAX_FACTORY;
-  
   /**
-   * Exception for a parse error from which the parser cannot recover. 
+   * Exception for a parse error from which the parser cannot recover.
    */
   protected static class UnrecoverableParseError extends RuntimeException {
 
@@ -47,9 +45,11 @@ public abstract class AbstractParser {
 
     public UnrecoverableParseError(SAXParseException e) {
       super(e);
-    }    
+    }
   }
-  
+
+  protected static final SAXParserFactory SAX_FACTORY;
+
   /**
    * Build the SAXParserFactory.
    */

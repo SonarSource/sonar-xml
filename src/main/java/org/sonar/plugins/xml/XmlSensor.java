@@ -61,8 +61,7 @@ public final class XmlSensor implements Sensor {
    */
   public void analyse(Project project, SensorContext sensorContext) {
 
-    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile, 
-        (String) project.getProperty(XmlPlugin.SCHEMAS)); 
+    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile, (String) project.getProperty(XmlPlugin.SCHEMAS));
     for (InputFile inputfile : XmlPlugin.getFiles(project)) {
 
       try {

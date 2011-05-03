@@ -57,4 +57,15 @@ public class XPathCheckTest extends AbstractCheckTester {
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
     assertEquals((Integer) 26, sourceCode.getViolations().get(0).getLineId());
   }
+  
+  @Test
+  public void violateXPathWithInvalidDocument() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/generic/sonarsource.html";
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class,
+        "expression", "//link[@rel]");
+
+    assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
+  }
+  
 }

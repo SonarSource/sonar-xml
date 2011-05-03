@@ -37,7 +37,7 @@ import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
 /**
- * Count lines of code in XML files. 
+ * Count lines of code in XML files.
  * 
  * @author Matthijs Galesloot
  * @since 1.0
@@ -69,9 +69,9 @@ public final class LineCountSensor implements Sensor {
     }
 
     try {
-      
+
       Log.debug("Count comment in " + file.getPath());
-      
+
       int numCommentLines = new LineCountParser().countLinesOfComment(FileUtils.openInputStream(file));
       sensorContext.saveMeasure(xmlFile, CoreMetrics.LINES, (double) numLines);
       sensorContext.saveMeasure(xmlFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);

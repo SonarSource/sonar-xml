@@ -21,7 +21,9 @@ package org.sonar.plugins.xml.checks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -61,20 +63,6 @@ import org.xml.sax.SAXParseException;
 public class XmlSchemaCheck extends AbstractPageCheck {
 
   /**
-   * Exception for a parse error from which the parser cannot recover. 
-   */
-  private static class UnrecoverableParseError extends RuntimeException {
-
-    static final String FAILUREMESSAGE = "The reference to entity \"null\"";
-
-    private static final long serialVersionUID = 1L;
-
-    public UnrecoverableParseError(SAXParseException e) {
-      super(e);
-    }    
-  }
-  
-  /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
    * warnings raised by the validator.
    */
@@ -100,12 +88,35 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     }
   }
 
+  /**
+   * Exception for a parse error from which the parser cannot recover.
+   */
+  private static class UnrecoverableParseError extends RuntimeException {
+
+    static final String FAILUREMESSAGE = "The reference to entity \"null\"";
+
+    private static final long serialVersionUID = 1L;
+
+    public UnrecoverableParseError(SAXParseException e) {
+      super(e);
+    }
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
+
+  private static final Map<String, Schema> cachedSchemas = new HashMap<String, Schema>();
 
   /**
    * Create xsd schema for a list of schema's.
    */
   private static Schema createSchema(String[] schemaList) {
+
+    final String cacheKey = StringUtils.join(schemaList, ",");
+    // first try to load a cached schema.
+    Schema schema = cachedSchemas.get(cacheKey);
+    if (schema != null) {
+      return schema;
+    }
 
     List<Source> schemaSources = new ArrayList<Source>();
 
@@ -123,7 +134,9 @@ public class XmlSchemaCheck extends AbstractPageCheck {
       SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       schemaFactory.setResourceResolver(new SchemaResolver());
 
-      return schemaFactory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
+      schema = schemaFactory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
+      cachedSchemas.put(cacheKey, schema);
+      return schema;
     } catch (SAXException e) {
       throw new SonarException(e);
     }
@@ -138,8 +151,29 @@ public class XmlSchemaCheck extends AbstractPageCheck {
   /**
    * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
    */
-  @RuleProperty(key = "schemas", description = "Schemas")
+  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect")
   private String schemas;
+
+  private void autodetectSchemaAndValidate() {
+    final Doctype doctype = detectSchema();
+
+    // first try doctype as this is more specific
+    if (doctype.getDtd() != null) {
+      InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
+      if (input == null) {
+        LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
+      } else {
+        IOUtils.closeQuietly(input);
+        validate(new String[] { doctype.getDtd() });
+      }
+    }
+    // try namespace
+    else if (doctype.getNamespace() != null && !doctype.getNamespace().isEmpty()) {
+      validate(new String[] { doctype.getNamespace() });
+    } else {
+      LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
+    }
+  }
 
   /**
    * Checks if a certain message has already been raised. Avoids duplicate messages.
@@ -188,32 +222,11 @@ public class XmlSchemaCheck extends AbstractPageCheck {
 
   private void validate() {
     if ("autodetect".equalsIgnoreCase(schemas)) {
-      autodetectSchemaAndValidate(); 
+      autodetectSchemaAndValidate();
     } else {
       String[] schemaList = StringUtils.split(schemas, " \t\n");
 
       validate(schemaList);
-    }
-  }
-  
-  private void autodetectSchemaAndValidate() {
-    final Doctype doctype = detectSchema();
-    
-    // first try doctype as this is more specific 
-    if (doctype.getDtd() != null) {
-      InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
-      if (input == null) {
-        LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
-      } else {
-        IOUtils.closeQuietly(input);
-        validate(new String[] { doctype.getDtd() });
-      }
-    }
-    // try namespace 
-    else if (doctype.getNamespace() != null && !doctype.getNamespace().isEmpty()) {
-      validate(new String[] { doctype.getNamespace() });
-    } else {
-      LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
     }
   }
 
@@ -228,7 +241,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
       LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
-      validator.validate(new StreamSource(getWebSourceCode().createInputStream())); 
+      validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
     } catch (SAXException e) {
       if ( !containsMessage(e)) {
         createViolation(0, e.getMessage());
@@ -236,7 +249,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     } catch (IOException e) {
       throw new SonarException(e);
     } catch (UnrecoverableParseError e) {
-      // ignore, message already reported. 
+      // ignore, message already reported.
     }
   }
 

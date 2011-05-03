@@ -42,22 +42,22 @@ import org.xml.sax.helpers.DefaultHandler;
 public final class DetectSchemaParser extends AbstractParser {
 
   /**
-   * Doctype declaration in a Document. 
+   * Doctype declaration in a Document.
    */
   public static class Doctype {
-    
+
     private String dtd;
     private String namespace;
-    
+
     public String getDtd() {
       return dtd;
     }
-    
+
     public String getNamespace() {
       return namespace;
     }
   }
-  
+
   private static class Handler extends DefaultHandler implements LexicalHandler {
 
     private Doctype doctype = new Doctype();
@@ -105,7 +105,7 @@ public final class DetectSchemaParser extends AbstractParser {
   }
 
   /**
-   * Find the Doctype (DTD or schema). 
+   * Find the Doctype (DTD or schema).
    */
   public Doctype findDoctype(InputStream input) {
     Handler handler = new Handler();
@@ -129,4 +129,3 @@ public final class DetectSchemaParser extends AbstractParser {
     return handler.doctype;
   }
 }
-

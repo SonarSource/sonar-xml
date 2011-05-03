@@ -43,10 +43,6 @@ public final class XmlSourceImporter extends AbstractSourceImporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSourceImporter.class);
 
-  public XmlSourceImporter(Xml xml) {
-    super(xml);
-  }
-
   /**
    * Conversion from InputFile to File. Allows to provide backward compatibility.
    */
@@ -56,6 +52,10 @@ public final class XmlSourceImporter extends AbstractSourceImporter {
       result.add(file.getFile());
     }
     return result;
+  }
+
+  public XmlSourceImporter(Xml xml) {
+    super(xml);
   }
 
   @Override

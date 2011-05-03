@@ -65,11 +65,11 @@ public final class XmlRulesRepository extends RuleRepository {
           }
         }
       }
-      
-      // configure schemas property for SchemaCheck. 
+
+      // configure schemas property for SchemaCheck.
       if (check instanceof XmlSchemaCheck && schemas != null) {
         XmlSchemaCheck schemaCheck = (XmlSchemaCheck) check;
-        schemaCheck.setSchemas(schemas); 
+        schemaCheck.setSchemas(schemas);
       }
 
       return check;

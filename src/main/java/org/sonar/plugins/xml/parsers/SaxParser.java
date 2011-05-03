@@ -196,7 +196,9 @@ public final class SaxParser extends AbstractParser {
 
       return document;
     } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
+      return null;
+    } catch (SonarException e) {
+      return null;
     }
   }
 }

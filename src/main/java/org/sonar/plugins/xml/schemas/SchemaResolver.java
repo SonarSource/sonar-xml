@@ -46,28 +46,28 @@ public final class SchemaResolver implements LSResourceResolver {
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<String, String>();
   private static final Map<String, String> DTD_BUILTIN = new HashMap<String, String>();
 
-  // SCHEMA's 
+  // SCHEMA's
   static {
 
     // XML
     SCHEMAS_BUILTIN.put("http://www.w3.org/2001/xml.xsd", "xml.xsd");
 
-    // XHTML 1.0 - by Doctype 
+    // XHTML 1.0 - by Doctype
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.xsd");
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Transitional//EN", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Frameset//EN", "xhtml1/xhtml1-frameset.xsd");
- 
+
     // XHTML 1.0 - by namespace
     SCHEMAS_BUILTIN.put("http://www.w3.org/1999/xhtml", "xhtml1/xhtml1-strict.xsd");
-    
+
     // XHTML 1.0 - by shortname
     SCHEMAS_BUILTIN.put("xhtml1-strict", "xhtml1/xhtml1-strict.xsd");
     SCHEMAS_BUILTIN.put("xhtml1-transitional", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("xhtml1-frameset", "xhtml1/xhtml1-frameset.xsd");
-    
-    // XHTML 1.1 - by Doctype 
+
+    // XHTML 1.1 - by Doctype
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.1 Strict//EN", "xhtml11/xhtml11.xsd");
-    
+
     // JSF Taglib to XSD conversions
     // (from http://blogger.ziesemer.com/2008/03/facelets-and-xsd-converted-tlds.html)
     SCHEMAS_BUILTIN.put("http://java.sun.com/jsf/core", "jsf/jsf-core-2.0.xsd");
@@ -77,28 +77,28 @@ public final class SchemaResolver implements LSResourceResolver {
     // MAVEN
     SCHEMAS_BUILTIN.put("http://maven.apache.org/POM/4.0.0", "maven/maven-4.0.0.xsd");
   }
-  
+
   // DTDs
   static {
-    // HTML 3.2 
+    // HTML 3.2
     DTD_BUILTIN.put("-//W3C//DTD HTML 3.2//EN", "html32/html32.dtd");
     DTD_BUILTIN.put("-//W3C//DTD HTML 3.2 Final//EN", "html32/html32.dtd");
-    
-    // HTML 4.0 
+
+    // HTML 4.0
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.0//EN", "html4/strict.dtd");
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.0 Transitional//EN", "html4/loose.dtd");
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.0 Frameset//EN", "html4/frameset.dtd");
-  
-    // HTML 4.01 
+
+    // HTML 4.01
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.01//EN", "html4/strict.dtd");
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.01 Transitional//EN", "html4/loose.dtd");
     DTD_BUILTIN.put("-//W3C//DTD HTML 4.01 Frameset//EN", "html4/frameset.dtd");
-    
-    // XHTML 1.0 
+
+    // XHTML 1.0
     DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.dtd");
     DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Transitional//EN", "xhtml1/xhtml1-transitional.dtd");
     DTD_BUILTIN.put("-//W3C//DTD XHTML 1.0 Frameset//EN", "xhtml1/xhtml1-frameset.dtd");
-   
+
     // XHTML 1.1
     DTD_BUILTIN.put("//W3C//DTD XHTML 1.1//EN", "xhtml1/xhtml11.dtd");
   }
@@ -139,7 +139,14 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   /**
-   * Get a built-in XML schema. 
+   * Gets a built-in DTD by filename.
+   */
+  private static InputStream getBuiltinDTDByFileName(String fileName) {
+    return SchemaResolver.class.getResourceAsStream("/org/sonar/plugins/xml/dtd/" + fileName);
+  }
+
+  /**
+   * Get a built-in XML schema.
    */
   public static InputStream getBuiltinSchema(String systemId) {
     InputStream input;
@@ -166,7 +173,7 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   /**
-   * Gets a built-in XML schema by filename. 
+   * Gets a built-in XML schema by filename.
    */
   private static InputStream getBuiltinSchemaByFileName(String fileName) {
     InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
@@ -180,17 +187,9 @@ public final class SchemaResolver implements LSResourceResolver {
     }
     return input;
   }
-  
 
   /**
-   * Gets a built-in DTD by filename. 
-   */
-  private static InputStream getBuiltinDTDByFileName(String fileName) {
-    return SchemaResolver.class.getResourceAsStream("/org/sonar/plugins/xml/dtd/" + fileName);
-  }
-
-  /**
-   * Gets a built-in XML schema by nameSpace. 
+   * Gets a built-in XML schema by nameSpace.
    */
   private static InputStream getBuiltinSchemaByNamespace(String nameSpace) {
     String fileName = SCHEMAS_BUILTIN.get(nameSpace);
@@ -219,13 +218,13 @@ public final class SchemaResolver implements LSResourceResolver {
       if (input == null) {
         input = getBuiltinSchemaByFileName(systemId);
       }
-      
-      // try as built-in entity 
+
+      // try as built-in entity
       if (input == null) {
         if (StringUtils.startsWithIgnoreCase(systemId, "html")) {
-          input = getBuiltinDTDByFileName("html4/"+ systemId);
+          input = getBuiltinDTDByFileName("html4/" + systemId);
         } else {
-          input = getBuiltinDTDByFileName("xhtml1/"+ systemId);
+          input = getBuiltinDTDByFileName("xhtml1/" + systemId);
         }
       }
     }

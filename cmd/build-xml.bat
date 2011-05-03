@@ -1,5 +1,6 @@
-
 rem run this script from xml folder
+rem the script builds and installs the plugin, and then starts sonar. 
+rem the script waits until sonar is ready and then starts an analysis.  
 
 set SONAR_HOME=C:\bin\sonar-2.7
 set SONAR_FLAGS=-Dsonar.host.url=http://localhost:9000
@@ -15,7 +16,7 @@ set mvncommand=mvn sonar:sonar
 rem 'ping' in order to wait a few seconds
 ping 127.0.0.1 -n 10 -w 1000 > nul
 rem try mvn sonar
-call %mvncommand% -f source-its/projects/xhtml/pom.xml %SONAR_FLAGS% %DEBUG% > sonar-xml.log
+call %mvncommand% -f src/test/resources/pom.xml %SONAR_FLAGS% %DEBUG% > sonar-xml.log
 rem check if sonar was available
 find "Sonar server can not be reached" *.log
 rem previous command will set errorlevel to 0 if the log contained "sonar server can not be reached"

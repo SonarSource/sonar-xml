@@ -90,7 +90,7 @@ public class XmlProjectFileSystem {
       return accept(file);
     }
   }
-  
+
   private static class InclusionFilter implements IOFileFilter {
 
     private String inclusionPattern;
@@ -106,19 +106,34 @@ public class XmlProjectFileSystem {
       if (relativePath == null) {
         return false;
       }
-      
-      // one of the inclusionpatterns must match. 
+
+      // one of the inclusionpatterns must match.
       for (String filter : inclusionPattern.split(",")) {
         WildcardPattern matcher = WildcardPattern.create(filter);
         if (matcher.match(relativePath)) {
           return true;
         }
       }
-      return false; 
+      return false;
     }
-    
+
     public boolean accept(File file, String name) {
       return accept(file);
+    }
+  }
+
+  public static org.sonar.api.resources.File fromIOFile(InputFile inputfile, Project project) {
+    return org.sonar.api.resources.File.fromIOFile(inputfile.getFile(), getSourceDirs(project));
+  }
+
+  public static List<File> getSourceDirs(Project project) {
+    String sourceDir = (String) project.getProperty(XmlPlugin.SOURCE_DIRECTORY);
+    if (sourceDir != null) {
+      List<File> sourceDirs = new ArrayList<File>();
+      sourceDirs.add(project.getFileSystem().resolvePath(sourceDir));
+      return sourceDirs;
+    } else {
+      return project.getFileSystem().getSourceDirs();
     }
   }
 
@@ -129,7 +144,7 @@ public class XmlProjectFileSystem {
   public XmlProjectFileSystem(Project project) {
     this.project = project;
   }
-  
+
   private WildcardPattern[] getExclusionPatterns(boolean applyExclusionPatterns) {
     WildcardPattern[] exclusionPatterns;
     if (applyExclusionPatterns) {
@@ -149,10 +164,10 @@ public class XmlProjectFileSystem {
     IOFileFilter suffixFilter = getFileSuffixFilter();
     WildcardPattern[] exclusionPatterns = getExclusionPatterns(true);
     IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
-    
+
     for (File dir : getSourceDirs()) {
       if (dir.exists()) {
-        
+
         // exclusion filter
         IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
         // visible filter
@@ -163,8 +178,8 @@ public class XmlProjectFileSystem {
           fileFilters.add(new InclusionFilter(dir, inclusionPattern));
         }
         fileFilters.addAll(this.filters);
-        
-        // create DefaultInputFile for each file. 
+
+        // create DefaultInputFile for each file.
         List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(fileFilters), HiddenFileFilter.VISIBLE);
         for (File file : files) {
           String relativePath = DefaultProjectFileSystem.getRelativePath(file, dir);
@@ -200,22 +215,7 @@ public class XmlProjectFileSystem {
     return suffixFilter;
   }
 
-  public static List<File> getSourceDirs(Project project) {
-    String sourceDir = (String) project.getProperty(XmlPlugin.SOURCE_DIRECTORY);
-    if (sourceDir != null) {
-      List<File> sourceDirs = new ArrayList<File>();
-      sourceDirs.add(project.getFileSystem().resolvePath(sourceDir));
-      return sourceDirs;
-    } else {
-      return project.getFileSystem().getSourceDirs();
-    }
-  }
-
   private List<File> getSourceDirs() {
     return getSourceDirs(project);
-  }
-
-  public static org.sonar.api.resources.File fromIOFile(InputFile inputfile, Project project) {
-    return org.sonar.api.resources.File.fromIOFile(inputfile.getFile(), getSourceDirs(project));
   }
 }

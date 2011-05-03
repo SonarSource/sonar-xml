@@ -43,8 +43,8 @@ import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 @Properties({
     @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
         defaultValue = "xml,xhtml", global = true, project = true),
-    @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include", description = "List of file inclusion filters, separated by komma.",
-            defaultValue = "", global = false, project = true),  
+    @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include",
+        description = "List of file inclusion filters, separated by komma.", defaultValue = "", global = false, project = true),
     @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
         defaultValue = "src/main/resources", global = false, project = true) })
 public final class XmlPlugin implements Plugin {
@@ -80,7 +80,7 @@ public final class XmlPlugin implements Plugin {
 
     // Profiles
     list.add(DefaultXmlProfile.class);
-  
+
     // sensors
     list.add(XmlSensor.class);
     list.add(LineCountSensor.class);

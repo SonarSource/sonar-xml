@@ -75,15 +75,19 @@ public class XPathCheck extends AbstractPageCheck {
 
     Document document = getWebSourceCode().getDocument(expression.contains(":"));
 
-    try {
-      NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
-      for (int i = 0; i < nodes.getLength(); i++) {
+    if (document == null) {
+      createViolation(0, "XPath check cannot be evaluated because document is not valid");
+    } else {
+      try {
+        NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); i++) {
 
-        int lineNumber = SaxParser.getLineNumber(nodes.item(i));
-        createViolation(lineNumber);
+          int lineNumber = SaxParser.getLineNumber(nodes.item(i));
+          createViolation(lineNumber);
+        }
+      } catch (XPathExpressionException e) {
+        throw new SonarException(e);
       }
-    } catch (XPathExpressionException e) {
-      throw new SonarException(e);
     }
   }
 

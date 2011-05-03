@@ -82,7 +82,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     String fileName = "pom.xml";
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "http://maven.apache.org/POM/4.0.0");
+        "autodetect");
 
     if (sourceCode.getViolations().size() > 0) {
       Log.error(sourceCode.getViolations().get(0).getMessage());
