@@ -61,6 +61,20 @@ import org.xml.sax.SAXParseException;
 public class XmlSchemaCheck extends AbstractPageCheck {
 
   /**
+   * Exception for a parse error from which the parser cannot recover. 
+   */
+  private static class UnrecoverableParseError extends RuntimeException {
+
+    static final String FAILUREMESSAGE = "The reference to entity \"null\"";
+
+    private static final long serialVersionUID = 1L;
+
+    public UnrecoverableParseError(SAXParseException e) {
+      super(e);
+    }    
+  }
+  
+  /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
    * warnings raised by the validator.
    */
@@ -68,6 +82,9 @@ public class XmlSchemaCheck extends AbstractPageCheck {
 
     private void createViolation(SAXParseException e) {
       XmlSchemaCheck.this.createViolation(e.getLineNumber(), e.getLocalizedMessage());
+      if (e.getLocalizedMessage().contains(UnrecoverableParseError.FAILUREMESSAGE)) {
+        throw new UnrecoverableParseError(e);
+      }
     }
 
     public void error(SAXParseException e) throws SAXException {
@@ -218,6 +235,8 @@ public class XmlSchemaCheck extends AbstractPageCheck {
       }
     } catch (IOException e) {
       throw new SonarException(e);
+    } catch (UnrecoverableParseError e) {
+      // ignore, message already reported. 
     }
   }
 

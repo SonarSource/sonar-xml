@@ -33,7 +33,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 

@@ -20,6 +20,7 @@ package org.sonar.plugins.xml.checks;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -97,6 +98,17 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
+  }
+  
+  @Test
+  public void violateWrongAmpersands() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/generic/wrong-ampersand.xhtml";
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 8, sourceCode.getViolations().size());
+    Violation v = sourceCode.getViolations().get(sourceCode.getViolations().size() - 1);
+    assertTrue(v.getMessage().contains("reference to entity"));
   }
   
 //  @Test(expected=NullPointerException.class)

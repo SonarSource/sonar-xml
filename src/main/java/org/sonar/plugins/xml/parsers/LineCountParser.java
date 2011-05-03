@@ -24,7 +24,6 @@ import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
 
 import org.apache.xerces.impl.Constants;
-import org.jfree.util.Log;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
@@ -83,7 +82,9 @@ public final class LineCountParser extends AbstractParser {
 
     @Override
     public void fatalError(SAXParseException e) throws SAXException {
-      // ignore
+      if (e.getLocalizedMessage().contains(UnrecoverableParseError.FAILUREMESSAGE)) {
+        throw new UnrecoverableParseError(e);
+      }
     }
 
     protected int getNumCommentLines() {
@@ -127,6 +128,8 @@ public final class LineCountParser extends AbstractParser {
       throw new SonarException(e);
     } catch (SAXException e) {
       throw new SonarException(e);
+    } catch (UnrecoverableParseError e) {
+      return 0; 
     }
   }
 

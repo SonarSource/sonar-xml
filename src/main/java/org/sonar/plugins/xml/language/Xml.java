@@ -18,6 +18,8 @@
 
 package org.sonar.plugins.xml.language;
 
+import java.util.Arrays;
+
 import org.sonar.api.resources.AbstractLanguage;
 
 /**
@@ -54,6 +56,6 @@ public class Xml extends AbstractLanguage {
    * @see org.sonar.api.resources.Language#getFileSuffixes()
    */
   public String[] getFileSuffixes() {
-    return DEFAULT_SUFFIXES;
+    return Arrays.copyOf(DEFAULT_SUFFIXES, DEFAULT_SUFFIXES.length);
   }
 }

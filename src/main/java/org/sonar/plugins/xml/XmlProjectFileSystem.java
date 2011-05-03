@@ -25,13 +25,11 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.DelegateFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.FileFilter;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
@@ -93,7 +91,7 @@ public class XmlProjectFileSystem {
     }
   }
   
-  private class InclusionFilter implements IOFileFilter {
+  private static class InclusionFilter implements IOFileFilter {
 
     private String inclusionPattern;
     private File sourceDir;

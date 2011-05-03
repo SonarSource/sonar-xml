@@ -31,7 +31,6 @@ import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;

@@ -91,7 +91,7 @@ class AbstractMessagesRepository extends RuleRepository {
 
         // replace remaining regexp special characters
         regExp = StringUtils.replaceEach(regExp, new String[] { "?", "[", "]", "{", "}", "(", ")", "\"</{0}>\"", "''" }, new String[] {
-            ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
+          ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
 
         try {
           Pattern pattern = Pattern.compile(regExp);

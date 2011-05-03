@@ -65,7 +65,7 @@ public final class SchemaResolver implements LSResourceResolver {
     SCHEMAS_BUILTIN.put("xhtml1-transitional", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("xhtml1-frameset", "xhtml1/xhtml1-frameset.xsd");
     
-    // XHTML 1.1 - If DTD is specified use the corresponding XSD Schema 
+    // XHTML 1.1 - by Doctype 
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.1 Strict//EN", "xhtml11/xhtml11.xsd");
     
     // JSF Taglib to XSD conversions

@@ -45,13 +45,13 @@ public class LineCountSensorTest {
     assertEquals(1, numCommentLines);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test
   public void failingLineCountParser() throws IOException {
     LineCountParser parser = new LineCountParser();
     String filename = "src/test/resources/checks/generic/header.html"; 
     		
     int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File(filename)));
-    assertEquals(1, numCommentLines);
+    assertEquals(0, numCommentLines);
   }
    
   @Test
@@ -70,8 +70,6 @@ public class LineCountSensorTest {
     lineCountSensor.analyse(project, sensorContext);
 
     for (Resource resource : sensorContext.getResources()) {
-      assertTrue("Missing Comment line in " + resource.getKey(), sensorContext.getMeasure(resource, CoreMetrics.COMMENT_LINES)
-          .getIntValue() > 0);
       assertTrue(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue() > 10);
       assertTrue(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue() > 10);
     }
