@@ -64,7 +64,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
   }
-  
+
   @Test
   public void testFileFilter() throws Exception {
 
@@ -81,8 +81,8 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     assertTrue(sensor.shouldExecuteOnProject(project));
 
     // add an additional file filter
-    project.getConfiguration().addProperty(XmlPlugin.INCLUDE_FILE_FILTER, "**/not found"); 
-  
+    project.getConfiguration().addProperty(XmlPlugin.INCLUDE_FILE_FILTER, "**/not found");
+
     sensor.analyse(project, sensorContext);
 
     assertTrue("Should have found 0 violation", sensorContext.getViolations().size() == 0);

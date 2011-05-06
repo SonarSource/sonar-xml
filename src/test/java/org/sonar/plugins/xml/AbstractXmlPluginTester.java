@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.apache.commons.configuration.MapConfiguration;
@@ -45,9 +44,9 @@ import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
- *
+ * 
  * @author Matthijs Galesloot
- *
+ * 
  */
 public class AbstractXmlPluginTester {
 
@@ -84,8 +83,8 @@ public class AbstractXmlPluginTester {
   }
 
   protected DefaultXmlProfile getProfileDefinition() {
-    return new DefaultXmlProfile(new XmlRulesRepository(new AnnotationRuleParser()),
-        new XmlMessagesRepository(), new XmlSchemaMessagesRepository());
+    return new DefaultXmlProfile(new XmlRulesRepository(new AnnotationRuleParser()), new XmlMessagesRepository(),
+        new XmlSchemaMessagesRepository());
   }
 
   protected Project loadProjectFromPom(File pomFile) throws URISyntaxException {

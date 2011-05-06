@@ -58,7 +58,7 @@ public final class DefaultXmlProfile extends ProfileDefinition {
     List<Rule> rules = xmlRulesRepository.createRules();
     RulesProfile rulesProfile = RulesProfile.create("Default XML Profile", Xml.KEY);
     for (Rule rule : rules) {
-      rulesProfile.activateRule(rule, RulePriority.MAJOR);
+      rulesProfile.activateRule(rule, null);
     }
     addMessageRepository(rulesProfile, xmlMessagesRepository);
     addMessageRepository(rulesProfile, xmlSchemaMessagesRepository);

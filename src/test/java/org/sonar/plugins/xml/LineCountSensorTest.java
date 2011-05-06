@@ -48,12 +48,12 @@ public class LineCountSensorTest {
   @Test
   public void failingLineCountParser() throws IOException {
     LineCountParser parser = new LineCountParser();
-    String filename = "src/test/resources/checks/generic/header.html"; 
-    		
+    String filename = "src/test/resources/checks/generic/header.html";
+
     int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File(filename)));
     assertEquals(0, numCommentLines);
   }
-   
+
   @Test
   public void testLineCountSensor() {
     LineCountSensor lineCountSensor = new LineCountSensor();

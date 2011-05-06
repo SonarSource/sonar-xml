@@ -58,7 +58,7 @@ import org.xml.sax.SAXParseException;
  * @author Matthijs Galesloot
  * @since 1.0
  */
-@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.CRITICAL,
+@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.MAJOR,
     cardinality = Cardinality.MULTIPLE)
 public class XmlSchemaCheck extends AbstractPageCheck {
 

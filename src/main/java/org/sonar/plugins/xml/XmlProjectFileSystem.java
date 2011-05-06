@@ -65,8 +65,8 @@ public class XmlProjectFileSystem {
 
   private static class ExclusionFilter implements IOFileFilter {
 
-    File sourceDir;
-    WildcardPattern[] patterns;
+    private File sourceDir;
+    private WildcardPattern[] patterns;
 
     ExclusionFilter(File sourceDir, WildcardPattern[] patterns) {
       this.sourceDir = sourceDir;

@@ -81,8 +81,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   public void validateMavenPom() throws FileNotFoundException {
     String fileName = "pom.xml";
     FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "autodetect");
+    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
     if (sourceCode.getViolations().size() > 0) {
       Log.error(sourceCode.getViolations().get(0).getMessage());
@@ -99,7 +98,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
   }
-  
+
   @Test
   public void violateWrongAmpersands() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/wrong-ampersand.xhtml";
@@ -110,15 +109,15 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     Violation v = sourceCode.getViolations().get(sourceCode.getViolations().size() - 1);
     assertTrue(v.getMessage().contains("reference to entity"));
   }
-  
-//  @Test(expected=NullPointerException.class)
-//  public void failingParser() throws FileNotFoundException {
-//    String fileName = "src/test/resources/checks/generic/header.html"; 
-//    FileReader reader = new FileReader(fileName);
-//    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
-//
-//    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
-//  }
+
+  // @Test(expected=NullPointerException.class)
+  // public void failingParser() throws FileNotFoundException {
+  // String fileName = "src/test/resources/checks/generic/header.html";
+  // FileReader reader = new FileReader(fileName);
+  // XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
+  //
+  // assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
+  // }
 
   @Test
   public void violateBuiltinXhtmlSchemaCheck() throws FileNotFoundException {

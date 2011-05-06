@@ -30,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
-import org.sonar.plugins.xml.schemas.SchemaResolver;
 
 public class DetectSchemaParserTest {
 
@@ -47,8 +46,7 @@ public class DetectSchemaParserTest {
 
   @Test
   public void testDetectSchema() throws IOException {
-    String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\"" +
-      "xmlns:c=\"http://java.sun.com/jstl/core\" ></html>";
+    String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\"" + "xmlns:c=\"http://java.sun.com/jstl/core\" ></html>";
 
     DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
     Doctype doctype = detectSchemaParser.findDoctype(new ByteArrayInputStream(fragment.getBytes()));

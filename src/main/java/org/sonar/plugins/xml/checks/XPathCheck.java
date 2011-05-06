@@ -38,7 +38,7 @@ import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-@Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.CRITICAL,
+@Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR,
     cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractPageCheck {
 

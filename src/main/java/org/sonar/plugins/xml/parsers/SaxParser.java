@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -50,7 +51,7 @@ public final class SaxParser extends AbstractParser {
    * From http://will.thestranathans.com/post/1026712315/getting-line-numbers-from-xpath-in-java
    * 
    */
-  private static final class LocationRecordingHandler extends DefaultHandler {
+  private static final class LocationRecordingHandler extends DefaultHandler implements LexicalHandler {
 
     private final Document doc;
     private Locator locator;
@@ -159,6 +160,39 @@ public final class SaxParser extends AbstractParser {
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
       prefixMappings.put(prefix, uri);
     }
+
+    /**
+     * Comment node (needed for white space checking). 
+     */
+    public void comment(char[] buf, int offset, int length) throws SAXException {
+      Node n = doc.createComment(new String(buf, offset, length));
+      setLocationData(n);
+      current.appendChild(n);
+    }
+
+    public void endCDATA() throws SAXException {
+      // empty - Lexical Handler method
+    }
+
+    public void endDTD() throws SAXException {
+      // empty - Lexical Handler method
+    }
+
+    public void endEntity(String arg0) throws SAXException {
+      // empty - Lexical Handler method
+    }
+
+    public void startCDATA() throws SAXException {
+      // empty - Lexical Handler method
+    }
+
+    public void startDTD(String arg0, String arg1, String arg2) throws SAXException {
+      // empty - Lexical Handler method
+    }
+
+    public void startEntity(String arg0) throws SAXException {
+      // empty - Lexical Handler method
+    }
   }
 
   private static final String KEY_LINE_NO = "saxParser.lineNumber";
@@ -176,6 +210,9 @@ public final class SaxParser extends AbstractParser {
   public void parse(InputStream input, DefaultHandler handler) {
     SAXParser parser = newSaxParser();
     try {
+      // read comments too, so use lexical handler.
+      parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+
       parser.parse(input, handler);
     } catch (IOException e) {
       throw new SonarException(e);
@@ -192,6 +229,7 @@ public final class SaxParser extends AbstractParser {
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
+
       parse(input, handler);
 
       return document;

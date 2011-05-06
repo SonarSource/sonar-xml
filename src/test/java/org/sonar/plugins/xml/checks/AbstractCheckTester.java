@@ -18,9 +18,11 @@
 
 package org.sonar.plugins.xml.checks;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +40,8 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
+
+  private static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
   private static final String repositoryKey = "Xml";
 
@@ -107,13 +111,13 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     }
   }
 
-  public XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractPageCheck> checkClass, String... params) {
+  protected XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractPageCheck> checkClass, String... params) {
 
     return parseAndCheck(reader, null, null, checkClass, params);
   }
 
-  public XmlSourceCode parseAndCheck(Reader reader, java.io.File file,
-      String code, Class<? extends AbstractPageCheck> checkClass, String... params) {
+  protected XmlSourceCode parseAndCheck(Reader reader, java.io.File file, String code, Class<? extends AbstractPageCheck> checkClass,
+      String... params) {
 
     AbstractPageCheck check = instantiateCheck(checkClass, params);
 
@@ -123,5 +127,12 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     check.validate(xmlSourceCode);
 
     return xmlSourceCode;
+  }
+
+  protected void parseCheckAndAssert(String fragment, Class<? extends AbstractPageCheck> clazz, int numViolations, String... params) {
+    Reader reader = new StringReader(fragment);
+    XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, clazz, params);
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, numViolations, sourceCode.getViolations().size());
   }
 }

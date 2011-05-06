@@ -35,13 +35,11 @@ public class XPathCheckTest extends AbstractCheckTester {
   @Test
   public void violateXPathCheck() throws FileNotFoundException {
 
-    String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\" " +
-    		"xmlns:ui=\"http://java.sun.com/jsf/facelets\">" +
-    		"<body><br /></body></html>";
+    String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\" " + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
+        + "<body><br /></body></html>";
 
     Reader reader = new StringReader(fragment);
-    XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, XPathCheck.class,
-        "expression", "//br");
+    XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, XPathCheck.class, "expression", "//br");
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
     assertEquals((Integer) 1, sourceCode.getViolations().get(0).getLineId());
@@ -51,21 +49,20 @@ public class XPathCheckTest extends AbstractCheckTester {
   public void violateXPathWithNamespacesCheck() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/create-salesorder.xhtml";
     FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class,
-        "expression", "//ui:define[@name='title']");
+    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression",
+        "//ui:define[@name='title']");
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
     assertEquals((Integer) 26, sourceCode.getViolations().get(0).getLineId());
   }
-  
+
   @Test
   public void violateXPathWithInvalidDocument() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/sonarsource.html";
     FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class,
-        "expression", "//link[@rel]");
+    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression", "//link[@rel]");
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
   }
-  
+
 }

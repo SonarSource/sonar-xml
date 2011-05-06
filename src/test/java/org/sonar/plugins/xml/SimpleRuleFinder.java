@@ -36,19 +36,23 @@ public class SimpleRuleFinder implements RuleFinder {
     this.profile = profile;
   }
 
+  @Override
   public Rule find(RuleQuery query) {
     return null;
   }
 
+  @Override
   public Collection<Rule> findAll(RuleQuery query) {
     return null;
   }
 
+  @Override
   public Rule findById(int arg0) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @Override
   public Rule findByKey(String repositoryKey, String key) {
     ActiveRule activeRule = profile.getActiveRuleByConfigKey(repositoryKey, key);
     assertNotNull(activeRule);

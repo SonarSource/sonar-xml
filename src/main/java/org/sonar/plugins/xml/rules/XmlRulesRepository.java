@@ -35,6 +35,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.checks.AbstractPageCheck;
+import org.sonar.plugins.xml.checks.IllegalTabCheck;
+import org.sonar.plugins.xml.checks.IndentCheck;
+import org.sonar.plugins.xml.checks.NewlineCheck;
 import org.sonar.plugins.xml.checks.XPathCheck;
 import org.sonar.plugins.xml.checks.XmlSchemaCheck;
 import org.sonar.plugins.xml.language.Xml;
@@ -47,7 +50,8 @@ import org.sonar.plugins.xml.language.Xml;
  */
 public final class XmlRulesRepository extends RuleRepository {
 
-  private static final Class[] CHECK_CLASSES = new Class[] { XmlSchemaCheck.class, XPathCheck.class };
+  private static final Class[] CHECK_CLASSES = new Class[] { IllegalTabCheck.class, IndentCheck.class, NewlineCheck.class,
+    XmlSchemaCheck.class, XPathCheck.class };
   private static final Logger LOG = LoggerFactory.getLogger(XmlRulesRepository.class);
   public static final String REPOSITORY_KEY = "Xml";
   public static final String REPOSITORY_NAME = "Xml";
