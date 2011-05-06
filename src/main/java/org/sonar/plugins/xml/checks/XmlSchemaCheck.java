@@ -168,7 +168,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
       }
     }
     // try namespace
-    else if (doctype.getNamespace() != null && !doctype.getNamespace().isEmpty()) {
+    else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
       validate(new String[] { doctype.getNamespace() });
     } else {
       LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
