@@ -50,7 +50,21 @@ class AbstractMessagesRepository extends RuleRepository {
 
   private Properties messages;
 
+  private static final Properties messageNames;
+
   private Map<String, Pattern> patterns;
+
+  /**
+   * Load friendly names for messages from a properties file. 
+   */
+  static {
+    messageNames = new Properties();
+    try {
+      messageNames.load(AbstractMessagesRepository.class.getResourceAsStream("message-names.txt"));
+    } catch (IOException e) {
+      throw new SonarException(e);
+    }
+  }
 
   public AbstractMessagesRepository(String repositoryKey, String languageKey) {
     super(repositoryKey, languageKey);
@@ -63,14 +77,28 @@ class AbstractMessagesRepository extends RuleRepository {
 
     for (Entry entry : messages.entrySet()) {
 
-      Rule rule = Rule.create(getKey(), (String) entry.getKey(), (String) entry.getKey());
-      rule.setDescription((String) entry.getValue());
-      rule.setPriority(RulePriority.CRITICAL);
-      rule.setCardinality(Cardinality.SINGLE);
-      rules.add(rule);
+      // replace the key with a friendly name.
+      String name = (String) messageNames.get(entry.getKey());
+      if (name == null) {
+        name = (String) entry.getKey();
+      }
+
+      // if the provided name is empty the message will be ignored.
+      if (name.length() > 0) {
+        Rule rule = Rule.create(getKey(), (String) entry.getKey(), name);
+
+        rule.setDescription(escapeComment((String) entry.getValue()));
+        rule.setSeverity(RulePriority.MAJOR);
+        rule.setCardinality(Cardinality.SINGLE);
+        rules.add(rule);
+      }
     }
 
     return rules;
+  }
+
+  private String escapeComment(String message) {
+    return message.replace("<!", "&lt;!");
   }
 
   public Map<String, Pattern> getMessagePatterns() {
@@ -91,7 +119,7 @@ class AbstractMessagesRepository extends RuleRepository {
 
         // replace remaining regexp special characters
         regExp = StringUtils.replaceEach(regExp, new String[] { "?", "[", "]", "{", "}", "(", ")", "\"</{0}>\"", "''" }, new String[] {
-          ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
+            ".", ".", ".", ".", ".", ".", ".", ".*", ".*" });
 
         try {
           Pattern pattern = Pattern.compile(regExp);

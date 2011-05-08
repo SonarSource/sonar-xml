@@ -137,18 +137,16 @@ public final class SaxParser extends AbstractParser {
       // to the current element, and set the column and line numbers.
       if (attrs != null) {
         for (int i = 0; i < attrs.getLength(); i++) {
-          Attr attr = null;
+          final Attr attr;
           if (attrs.getLocalName(i) != null && !"".equals(attrs.getLocalName(i))) {
             attr = doc.createAttributeNS(attrs.getURI(i), attrs.getLocalName(i));
-            attr.setValue(attrs.getValue(i));
-            setLocationData(attr);
             current.setAttributeNodeNS(attr);
           } else {
             attr = doc.createAttribute(attrs.getQName(i));
-            attr.setValue(attrs.getValue(i));
-            setLocationData(attr);
             current.setAttributeNode(attr);
           }
+          attr.setValue(attrs.getValue(i));
+          setLocationData(attr);
         }
       }
     }

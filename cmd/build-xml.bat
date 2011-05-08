@@ -8,7 +8,7 @@ set DEBUG=
 
 call mvn install -Dmaven.test.skip
 call xcopy /Y target\*.jar %SONAR_HOME%\extensions\plugins
-rem start "Sonar Server" /MIN %SONAR_HOME%\bin\windows-x86-64\StartSonar.bat 
+start "Sonar Server" /MIN %SONAR_HOME%\bin\windows-x86-64\StartSonar.bat 
 
 set mvncommand=mvn sonar:sonar
 
