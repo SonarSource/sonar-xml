@@ -68,7 +68,7 @@ public class XPathCheck extends AbstractPageCheck {
   @RuleProperty(key = "expression", description = "Expression")
   private String expression;
 
-  @RuleProperty(key = "filePattern", description = "filePattern")
+  @RuleProperty(key = "filePattern", description = "File Include Pattern")
   private String filePattern;
 
   private void evaluateXPath() {

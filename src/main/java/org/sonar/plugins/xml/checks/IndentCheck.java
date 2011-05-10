@@ -36,10 +36,10 @@ import org.w3c.dom.Node;
 @Rule(key = "IndentCheck", name = "Indent Check", description = "Indent Check", priority = Priority.MINOR, cardinality = Cardinality.SINGLE)
 public class IndentCheck extends AbstractPageCheck {
 
-  @RuleProperty(key = "indentSize", description = "indentSize", defaultValue = "2")
+  @RuleProperty(key = "indentSize", description = "Indent Size", defaultValue = "2")
   private int indentSize = 2;
 
-  @RuleProperty(key = "tabSize", description = "tabSize", defaultValue = "2")
+  @RuleProperty(key = "tabSize", description = "Tab Size", defaultValue = "2")
   private int tabSize = 2;
 
   /**

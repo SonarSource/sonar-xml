@@ -58,6 +58,15 @@ public final class DetectSchemaParser extends AbstractParser {
     }
   }
 
+  /**
+   * Exception to stop the parser from further processing.  
+   */
+  private static class StopParserException extends SAXException {
+
+    private static final long serialVersionUID = 1L;
+    
+  }
+  
   private static class Handler extends DefaultHandler implements LexicalHandler {
 
     private Doctype doctype = new Doctype();
@@ -96,7 +105,7 @@ public final class DetectSchemaParser extends AbstractParser {
       doctype.namespace = attributes.getValue("xmlns");
 
       // we are done, cause the parser to stop
-      throw new SAXException("done");
+      throw new StopParserException();
     }
 
     public void startEntity(String name) throws SAXException {
@@ -116,16 +125,15 @@ public final class DetectSchemaParser extends AbstractParser {
       xmlReader.setFeature(Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
       xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
       parser.parse(input, handler);
+      return handler.doctype;
     } catch (IOException e) {
       throw new SonarException(e);
+    } catch (StopParserException e) {
+      return handler.doctype; 
     } catch (SAXException e) {
-      if ( !"done".equals(e.getMessage())) {
-        throw new SonarException(e);
-      }
+      throw new SonarException(e);
     } finally {
       IOUtils.closeQuietly(input);
     }
-
-    return handler.doctype;
   }
 }

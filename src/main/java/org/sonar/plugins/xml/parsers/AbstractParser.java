@@ -24,7 +24,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * Provides reusable code for Xml parsers.
@@ -33,20 +32,6 @@ import org.xml.sax.SAXParseException;
  * @since 1.0
  */
 public abstract class AbstractParser {
-
-  /**
-   * Exception for a parse error from which the parser cannot recover.
-   */
-  protected static class UnrecoverableParseError extends RuntimeException {
-
-    static final String FAILUREMESSAGE = "The reference to entity \"null\"";
-
-    private static final long serialVersionUID = 1L;
-
-    public UnrecoverableParseError(SAXParseException e) {
-      super(e);
-    }
-  }
 
   protected static final SAXParserFactory SAX_FACTORY;
 

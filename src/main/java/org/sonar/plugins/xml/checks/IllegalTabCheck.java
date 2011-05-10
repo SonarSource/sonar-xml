@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
     cardinality = Cardinality.SINGLE)
 public class IllegalTabCheck extends AbstractPageCheck {
 
-  @RuleProperty(key = "markAll", description = "mark all tab errors", defaultValue = "false")
+  @RuleProperty(key = "markAll", description = "Mark All Tab Errors", defaultValue = "false")
   private boolean markAll;
 
   private boolean validationReady;
@@ -71,9 +71,11 @@ public class IllegalTabCheck extends AbstractPageCheck {
   }
 
   private void createNewViolation(int lineNumber) {
-    createViolation(lineNumber);
-    if ( !markAll) {
+    if (!markAll) {
+      createViolation(lineNumber, "Tab characters found (this is the first occurrence)");
       validationReady = true;
+    } else {
+      createViolation(lineNumber);
     }
   }
 

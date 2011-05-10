@@ -145,7 +145,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
   /**
    * filePattern indicates which files should be checked.
    */
-  @RuleProperty(key = "filePattern", description = "filePattern")
+  @RuleProperty(key = "filePattern", description = "File Include Pattern")
   private String filePattern;
 
   /**
