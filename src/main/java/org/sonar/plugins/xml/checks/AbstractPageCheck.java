@@ -25,7 +25,7 @@ import org.sonar.api.utils.WildcardPattern;
 
 /**
  * Abtract superclass for checks.
- * 
+ *
  * @author Matthijs Galesloot
  * @since 1.0
  */
@@ -34,11 +34,11 @@ public abstract class AbstractPageCheck {
   private Rule rule;
   private XmlSourceCode xmlSourceCode;
 
-  protected final void createViolation(int linePosition) {
+  protected final void createViolation(Integer linePosition) {
     createViolation(linePosition, rule.getDescription());
   }
 
-  protected final void createViolation(int linePosition, String message) {
+  protected final void createViolation(Integer linePosition, String message) {
     Violation violation = Violation.create(rule, getWebSourceCode().getResource());
     violation.setMessage(message);
     violation.setLineId(linePosition);

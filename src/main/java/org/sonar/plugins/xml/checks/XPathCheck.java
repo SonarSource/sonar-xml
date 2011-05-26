@@ -38,8 +38,7 @@ import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-@Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR,
-    cardinality = Cardinality.MULTIPLE)
+@Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractPageCheck {
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
@@ -50,16 +49,19 @@ public class XPathCheck extends AbstractPageCheck {
       this.resolver = resolver;
     }
 
+    @Override
     public String getNamespaceURI(String prefix) {
       return resolver.getNamespaceForPrefix(prefix);
     }
 
     // Dummy implemenation - not used!
+    @Override
     public String getPrefix(String uri) {
       return null;
     }
 
     // Dummy implementation - not used!
+    @Override
     public Iterator<Object> getPrefixes(String val) {
       return null;
     }
@@ -71,19 +73,26 @@ public class XPathCheck extends AbstractPageCheck {
   @RuleProperty(key = "filePattern", description = "File Include Pattern")
   private String filePattern;
 
+  @RuleProperty(key = "message", description = "Message")
+  private String message;
+
   private void evaluateXPath() {
 
     Document document = getWebSourceCode().getDocument(expression.contains(":"));
 
     if (document == null) {
-      createViolation(0, "XPath check cannot be evaluated because document is not valid");
+      createViolation(null, "XPath check cannot be evaluated because document is not valid");
     } else {
       try {
         NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); i++) {
 
           int lineNumber = SaxParser.getLineNumber(nodes.item(i));
-          createViolation(lineNumber);
+          if (message == null) {
+            createViolation(lineNumber);
+          } else {
+            createViolation(lineNumber, message);
+          }
         }
       } catch (XPathExpressionException e) {
         throw new SonarException(e);
@@ -97,6 +106,10 @@ public class XPathCheck extends AbstractPageCheck {
 
   public String getFilePattern() {
     return filePattern;
+  }
+
+  public String getMessage() {
+    return message;
   }
 
   private XPathExpression getXPathExpressionForDocument(Document document) {
@@ -119,6 +132,10 @@ public class XPathCheck extends AbstractPageCheck {
 
   public void setFilePattern(String filePattern) {
     this.filePattern = filePattern;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 
   @Override
