@@ -49,19 +49,16 @@ public class XPathCheck extends AbstractPageCheck {
       this.resolver = resolver;
     }
 
-    @Override
     public String getNamespaceURI(String prefix) {
       return resolver.getNamespaceForPrefix(prefix);
     }
 
-    // Dummy implemenation - not used!
-    @Override
+    // Dummy implementation - not used!
     public String getPrefix(String uri) {
       return null;
     }
 
     // Dummy implementation - not used!
-    @Override
     public Iterator<Object> getPrefixes(String val) {
       return null;
     }
