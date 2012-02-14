@@ -47,46 +47,38 @@ public class MockSensorContext implements SensorContext {
 
   private final List<Violation> violations = new ArrayList<Violation>();
 
-  @Override
   public Event createEvent(Resource resource, String name, String description, String category, Date date) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public void deleteEvent(Event event) {
     // TODO Auto-generated method stub
   }
 
-  @Override
   public void deleteLink(String key) {
     // TODO Auto-generated method stub
   }
 
-  @Override
   public Set<Dependency> getDependencies() {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public List<Event> getEvents(Resource resource) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Collection<Dependency> getIncomingDependencies(Resource to) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Measure getMeasure(Metric metric) {
     return measure;
   }
 
-  @Override
   public Measure getMeasure(Resource resource, Metric metric) {
     for (Resource r : measures.keySet()) {
       if (r.equals(resource)) {
@@ -100,13 +92,11 @@ public class MockSensorContext implements SensorContext {
     return null;
   }
 
-  @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     // TODO Auto-generated method stub
     return null;
@@ -116,13 +106,11 @@ public class MockSensorContext implements SensorContext {
     return resources.size();
   }
 
-  @Override
   public Collection<Dependency> getOutgoingDependencies(Resource from) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Resource getResource(Resource resource) {
     // TODO Auto-generated method stub
     return null;
@@ -136,31 +124,26 @@ public class MockSensorContext implements SensorContext {
     return violations;
   }
 
-  @Override
   public Dependency saveDependency(Dependency dependency) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public void saveLink(ProjectLink link) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override
   public Measure saveMeasure(Measure measure) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Measure saveMeasure(Metric metric, Double value) {
     this.measure = new Measure(metric, value);
     return measure;
   }
 
-  @Override
   public Measure saveMeasure(Resource resource, Measure measure) {
     if (measures.get(resource) == null) {
       measures.put(resource, new ArrayList<Measure>());
@@ -172,71 +155,59 @@ public class MockSensorContext implements SensorContext {
     return measure;
   }
 
-  @Override
   public Measure saveMeasure(Resource resource, Metric metric, Double value) {
     Measure m = new Measure(metric, value);
     return saveMeasure(resource, m);
   }
 
-  @Override
   public String saveResource(Resource resource) {
     resources.add(resource);
     return null;
   }
 
-  @Override
   public void saveSource(Resource resource, String source) {
     resources.add(resource);
   }
 
-  @Override
   public void saveViolation(Violation violation) {
     violations.add(violation);
   }
 
-  @Override
   public void saveViolation(Violation arg0, boolean arg1) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override
   public void saveViolations(Collection<Violation> violations) {
     // TODO Auto-generated method stub
 
   }
 
-  @Override
   public boolean index(Resource resource) {
     // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean index(Resource resource, Resource parentReference) {
     // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isExcluded(Resource reference) {
     // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isIndexed(Resource reference, boolean acceptExcluded) {
     // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public Resource getParent(Resource reference) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public Collection<Resource> getChildren(Resource reference) {
     // TODO Auto-generated method stub
     return null;
