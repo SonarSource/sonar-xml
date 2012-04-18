@@ -38,7 +38,6 @@ import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
  * XML Plugin publishes extensions to sonar engine.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 @Properties({
     @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",

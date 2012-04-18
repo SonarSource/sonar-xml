@@ -42,7 +42,6 @@ import org.sonar.check.Cardinality;
  * Repository for XML validation messages.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 class AbstractMessagesRepository extends RuleRepository {
 

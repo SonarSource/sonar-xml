@@ -33,7 +33,6 @@ import java.util.List;
  * Import of XML source files to sonar database.
  *
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class XmlSourceImporter extends AbstractSourceImporter {
 

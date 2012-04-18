@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
  * Perform check for newline after elements.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 @Rule(key = "NewlineCheck", name = "Newline Check", description = "Newline Check", priority = Priority.MINOR,
     cardinality = Cardinality.SINGLE)

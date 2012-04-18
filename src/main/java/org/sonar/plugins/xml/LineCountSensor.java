@@ -40,7 +40,6 @@ import org.sonar.plugins.xml.parsers.LineCountParser;
  * Count lines of code in XML files.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class LineCountSensor implements Sensor {
 

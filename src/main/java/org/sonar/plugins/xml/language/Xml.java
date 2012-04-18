@@ -24,7 +24,6 @@ import org.sonar.api.resources.AbstractLanguage;
  * This class defines the XML language.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public class Xml extends AbstractLanguage {
 

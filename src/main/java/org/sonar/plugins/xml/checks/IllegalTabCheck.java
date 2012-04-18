@@ -31,7 +31,6 @@ import org.w3c.dom.Node;
  * Perform check for tab.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 @Rule(key = "IllegalTabCheck", name = "Illegal Tab Check", description = "Tab Character", priority = Priority.MINOR,
     cardinality = Cardinality.SINGLE)

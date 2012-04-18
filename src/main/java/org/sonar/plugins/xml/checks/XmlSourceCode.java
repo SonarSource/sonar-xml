@@ -36,7 +36,6 @@ import org.w3c.dom.Document;
  * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public class XmlSourceCode {
 

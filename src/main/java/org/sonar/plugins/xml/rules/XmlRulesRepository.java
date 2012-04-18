@@ -46,7 +46,6 @@ import org.sonar.plugins.xml.language.Xml;
  * Repository for XML rules.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class XmlRulesRepository extends RuleRepository {
 

@@ -38,7 +38,6 @@ import org.w3c.dom.ls.LSResourceResolver;
  * Resolves references to XML schema's, if possible built-in.
  * 
  * @author Matthijs Galesloot
- * @since 1.
  */
 public final class SchemaResolver implements LSResourceResolver {
 

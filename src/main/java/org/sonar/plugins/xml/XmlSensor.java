@@ -42,7 +42,6 @@ import org.sonar.plugins.xml.rules.XmlRulesRepository;
  * XmlSensor provides analysis of xml files.
  * 
  * @author Matthijs Galesloot
- * @since 1.1
  */
 public final class XmlSensor implements Sensor {
 

@@ -31,7 +31,6 @@ import org.w3c.dom.Node;
  * Perform check for indenting of elements.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 @Rule(key = "IndentCheck", name = "Indent Check", description = "Indent Check", priority = Priority.MINOR, cardinality = Cardinality.SINGLE)
 public class IndentCheck extends AbstractPageCheck {

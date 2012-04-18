@@ -29,7 +29,6 @@ import org.xml.sax.SAXException;
  * Provides reusable code for Xml parsers.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public abstract class AbstractParser {
 

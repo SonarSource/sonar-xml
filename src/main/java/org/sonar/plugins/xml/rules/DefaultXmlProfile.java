@@ -30,7 +30,6 @@ import org.sonar.plugins.xml.language.Xml;
  * Default XML profile.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class DefaultXmlProfile extends ProfileDefinition {
 

@@ -56,7 +56,6 @@ import org.xml.sax.SAXParseException;
  * Perform schema check using xerces parser.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 @Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.MAJOR,
     cardinality = Cardinality.MULTIPLE)

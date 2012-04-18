@@ -37,7 +37,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * Parse the file quickly only to detect the sDTD or Schema.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class DetectSchemaParser extends AbstractParser {
 

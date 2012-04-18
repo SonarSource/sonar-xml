@@ -31,7 +31,6 @@ import org.sonar.api.rules.Violation;
  * Repository for XML Parser messages.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class XmlMessagesMatcher {
 

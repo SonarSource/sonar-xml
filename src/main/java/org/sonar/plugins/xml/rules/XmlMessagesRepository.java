@@ -24,7 +24,6 @@ import org.sonar.plugins.xml.language.Xml;
  * Repository for XML validation messages.
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class XmlMessagesRepository extends AbstractMessagesRepository {
 

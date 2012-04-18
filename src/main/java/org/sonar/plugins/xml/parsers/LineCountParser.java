@@ -37,7 +37,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * Comment Counting in XML files
  * 
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public final class LineCountParser extends AbstractParser {
 

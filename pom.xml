@@ -9,7 +9,6 @@
     <relativePath>../parent</relativePath>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-xml-plugin</artifactId>
   <version>0.2-SNAPSHOT</version>
   <packaging>sonar-plugin</packaging>

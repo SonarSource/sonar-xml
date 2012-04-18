@@ -27,7 +27,6 @@ import org.sonar.api.utils.WildcardPattern;
  * Abtract superclass for checks.
  *
  * @author Matthijs Galesloot
- * @since 1.0
  */
 public abstract class AbstractPageCheck {
 
