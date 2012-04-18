@@ -20,6 +20,8 @@ package org.sonar.plugins.xml;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.xml.XMLConstants;
+
 import java.io.File;
 import java.io.FileReader;
 import java.net.URISyntaxException;
@@ -44,11 +46,14 @@ import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
 /**
- * 
  * @author Matthijs Galesloot
- * 
  */
 public class AbstractXmlPluginTester {
+
+  static {
+    System.setProperty("javax.xml.validation.SchemaFactory:" + XMLConstants.W3C_XML_SCHEMA_NS_URI,
+        "org.apache.xerces.jaxp.validation.XMLSchemaFactory");
+  }
 
   private static MavenProject loadPom(File pomFile) throws URISyntaxException {
 
