@@ -1,80 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.codehaus.sonar-plugins</groupId>
-		<artifactId>parent</artifactId>
-		<version>12</version>
-		<relativePath>../parent</relativePath>
-	</parent>
+  <parent>
+    <groupId>org.codehaus.sonar-plugins</groupId>
+    <artifactId>parent</artifactId>
+    <version>12</version>
+    <relativePath>../parent</relativePath>
+  </parent>
 
-	<groupId>org.codehaus.sonar-plugins</groupId>
-	<artifactId>sonar-xml-plugin</artifactId>
-	<version>0.2-SNAPSHOT</version>
-	<packaging>sonar-plugin</packaging>
+  <groupId>org.codehaus.sonar-plugins</groupId>
+  <artifactId>sonar-xml-plugin</artifactId>
+  <version>0.2-SNAPSHOT</version>
+  <packaging>sonar-plugin</packaging>
 
-	<name>Sonar XML Plugin</name>
-	<description>Analyze XML and XHTML documents.</description>
+  <name>Sonar XML Plugin</name>
+  <description>Analyze XML and XHTML documents.</description>
 
- 	<url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
- 	<inceptionYear>2010</inceptionYear>
-	<organization>
-		<name>Matthijs Galesloot</name>
-	</organization>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<id>mgalesloot</id>
-			<name>Matthijs Galesloot</name>
-			<email>matthijs@codehaus.org</email>
-		</developer>
-	</developers>
+  <url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
+  <inceptionYear>2010</inceptionYear>
+  <organization>
+    <name>Matthijs Galesloot</name>
+  </organization>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>mgalesloot</id>
+      <name>Matthijs Galesloot</name>
+      <email>matthijs@codehaus.org</email>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/xml</connection>
-		<developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/xml</developerConnection>
-		<url>http://svn.codehaus.org/sonar-plugins/</url>
-	</scm>
-	<issueManagement>
-		<system>JIRA</system>
-		<url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14607</url>
-	</issueManagement>
-	<ciManagement>
-		<system>BAMBOO</system>
-		<url>http://ci.codehaus.org/browse/SONAR-XML</url>
-	</ciManagement>
+  <scm>
+    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/xml</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/xml</developerConnection>
+    <url>http://svn.codehaus.org/sonar-plugins/</url>
+  </scm>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14607</url>
+  </issueManagement>
+  <ciManagement>
+    <system>BAMBOO</system>
+    <url>http://ci.codehaus.org/browse/SONAR-XML</url>
+  </ciManagement>
 
-	<properties>
-		<sonar.version>2.7</sonar.version>
-		<license.name>AL2</license.name>
-		<sonar.pluginName>Xml</sonar.pluginName>
-		<sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
-	</properties>
+  <properties>
+    <sonar.version>2.7</sonar.version>
+    <license.name>AL2</license.name>
+    <sonar.pluginName>Xml</sonar.pluginName>
+    <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
+  </properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.codehaus.sonar</groupId>
-				<artifactId>sonar-plugin-api</artifactId>
-				<version>${sonar.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${sonar.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.codehaus.sonar</groupId>
-			<artifactId>sonar-plugin-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
       <version>3.0.3</version>
@@ -82,134 +82,134 @@
       <scope>provided</scope>
     </dependency>
 
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>org.codehaus.sonar</groupId>
-			<artifactId>sonar-testing-harness</artifactId>
-			<version>${sonar.version}</version>
-			<scope>test</scope>
-		</dependency>
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <version>${sonar.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-		<!-- integration tests -->
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.sonar</groupId>
-			<artifactId>sonar-ws-client</artifactId>
-			<version>${sonar.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <!-- integration tests -->
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-ws-client</artifactId>
+      <version>${sonar.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<repositories>
-		<repository>
-			<id>codehaus.org</id>
-			<name>Codehaus Repository</name>
-			<url>http://repository.codehaus.org</url>
-		</repository>
-	</repositories>
+  <repositories>
+    <repository>
+      <id>codehaus.org</id>
+      <name>Codehaus Repository</name>
+      <url>http://repository.codehaus.org</url>
+    </repository>
+  </repositories>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.5</version>
-				<executions>
-					<execution>
-						<id>add-test-source</id>
-						<phase>generate-test-sources</phase>
-						<goals>
-							<goal>add-test-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>src/itest/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>add-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/itest/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-		</plugins>
-	</build>
+    </plugins>
+  </build>
 
-	<profiles>
-		<profile>
-			<id>integration-tests</id>
+  <profiles>
+    <profile>
+      <id>integration-tests</id>
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-resources-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>copy-resources</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<outputDirectory>${basedir}/target/source-its</outputDirectory>
-									<resources>
-										<resource>
-											<directory>${basedir}/source-its</directory>
-											<filtering>true</filtering>
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.sonar</groupId>
-						<artifactId>sonar-dev-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>start-server</id>
-								<phase>pre-integration-test</phase>
-								<configuration>
-								  <runtimeVersion>2.7</runtimeVersion>
-									<background>true</background>
-									<clean>true</clean>
-								</configuration>
-								<goals>
-									<goal>start-war</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>analyze-projects</id>
-								<phase>pre-integration-test</phase>
-								<configuration>
-									<projectsDir>${basedir}/target/source-its/projects</projectsDir>
-								</configuration>
-								<goals>
-									<goal>analyze</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>stop-server</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>stop-war</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-resources</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${basedir}/target/source-its</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${basedir}/source-its</directory>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-dev-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <runtimeVersion>2.7</runtimeVersion>
+                  <background>true</background>
+                  <clean>true</clean>
+                </configuration>
+                <goals>
+                  <goal>start-war</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>analyze-projects</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <projectsDir>${basedir}/target/source-its/projects</projectsDir>
+                </configuration>
+                <goals>
+                  <goal>analyze</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-server</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop-war</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
