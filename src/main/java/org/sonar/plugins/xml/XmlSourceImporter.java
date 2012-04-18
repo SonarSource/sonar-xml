@@ -18,16 +18,16 @@
 
 package org.sonar.plugins.xml;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.Lists;
 import org.sonar.api.batch.AbstractSourceImporter;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.plugins.xml.language.Xml;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
 
 /**
  * Import of XML source files to sonar database.
@@ -37,34 +37,34 @@ import com.google.common.collect.Lists;
  */
 public final class XmlSourceImporter extends AbstractSourceImporter {
 
-  /**
-   * Conversion from InputFile to File. Allows to provide backward compatibility.
-   */
-  private static List<java.io.File> toFiles(List<InputFile> files) {
-    List<java.io.File> result = Lists.newArrayList();
-    for (InputFile file : files) {
-      result.add(file.getFile());
-    }
-    return result;
-  }
+  private final Project project;
 
-  public XmlSourceImporter(Xml xml) {
+  public XmlSourceImporter(Xml xml, Project project) {
     super(xml);
+    this.project = project;
   }
 
   @Override
-  public void analyse(Project project, SensorContext context) {
-    parseDirs(context, toFiles(XmlPlugin.getFiles(project)), XmlProjectFileSystem.getSourceDirs(project), false, project.getFileSystem()
-        .getSourceCharset());
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled(project) && StringUtils.equals(Xml.KEY, project.getLanguageKey());
+  protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
+    List<File> files = toFiles(XmlPlugin.getFiles(project));
+    List<File> dirs = XmlProjectFileSystem.getSourceDirs(project);
+    parseDirs(context, files, dirs, false, fileSystem.getSourceCharset());
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName();
   }
+
+  /**
+   * Conversion from InputFile to File. Allows to provide backward compatibility.
+   */
+  private static List<File> toFiles(List<InputFile> files) {
+    List<File> result = Lists.newArrayList();
+    for (InputFile file : files) {
+      result.add(file.getFile());
+    }
+    return result;
+  }
+
 }
