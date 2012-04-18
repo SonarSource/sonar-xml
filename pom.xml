@@ -57,27 +57,11 @@
     <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${sonar.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>3.0.3</version>
-      <type>jar</type>
+      <version>${sonar.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -88,94 +72,12 @@
       <version>${sonar.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <!-- integration tests -->
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-ws-client</artifactId>
-      <version>${sonar.version}</version>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>2.0.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>integration-tests</id>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-resources</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${basedir}/target/source-its</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${basedir}/source-its</directory>
-                      <filtering>true</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.sonar</groupId>
-            <artifactId>sonar-dev-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>start-server</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <runtimeVersion>2.7</runtimeVersion>
-                  <background>true</background>
-                  <clean>true</clean>
-                </configuration>
-                <goals>
-                  <goal>start-war</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>analyze-projects</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <projectsDir>${basedir}/target/source-its/projects</projectsDir>
-                </configuration>
-                <goals>
-                  <goal>analyze</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-server</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop-war</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
