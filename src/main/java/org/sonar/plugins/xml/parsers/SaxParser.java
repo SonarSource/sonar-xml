@@ -18,16 +18,6 @@
 
 package org.sonar.plugins.xml.parsers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-
 import org.sonar.api.utils.SonarException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -39,16 +29,25 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * Parse XML files and add linenumbers in the document.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class SaxParser extends AbstractParser {
 
   /**
    * From http://will.thestranathans.com/post/1026712315/getting-line-numbers-from-xpath-in-java
-   * 
    */
   private static final class LocationRecordingHandler extends DefaultHandler implements LexicalHandler {
 
@@ -159,12 +158,16 @@ public final class SaxParser extends AbstractParser {
     }
 
     /**
-     * Comment node (needed for white space checking). 
+     * Comment node (needed for white space checking).
      */
     public void comment(char[] buf, int offset, int length) throws SAXException {
       Node n = doc.createComment(new String(buf, offset, length));
       setLocationData(n);
-      current.appendChild(n);
+      if (current == null) {
+        doc.appendChild(n);
+      } else {
+        current.appendChild(n);
+      }
     }
 
     public void endCDATA() throws SAXException {
@@ -209,7 +212,6 @@ public final class SaxParser extends AbstractParser {
     try {
       // read comments too, so use lexical handler.
       parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
-
       parser.parse(input, handler);
     } catch (IOException e) {
       throw new SonarException(e);
@@ -219,16 +221,11 @@ public final class SaxParser extends AbstractParser {
   }
 
   public Document parseDocument(InputStream input, boolean namespaceAware) {
-
     try {
       SAX_FACTORY.setNamespaceAware(namespaceAware);
-
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
-
       parse(input, handler);
-
       return document;
     } catch (ParserConfigurationException e) {
       return null;
