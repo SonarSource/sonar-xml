@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>sonar-xml-plugin</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar XML Plugin</name>
@@ -37,9 +37,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/xml</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/xml</developerConnection>
-    <url>http://svn.codehaus.org/sonar-plugins/</url>
+    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/tags/sonar-xml-plugin-0.2</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-xml-plugin-0.2</developerConnection>
+    <url>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-xml-plugin-0.2</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
