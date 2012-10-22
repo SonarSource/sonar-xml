@@ -18,13 +18,12 @@
 
 package org.sonar.plugins.xml;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFile;
@@ -38,9 +37,11 @@ import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 
+import java.util.List;
+
 /**
  * XmlSensor provides analysis of xml files.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class XmlSensor implements Sensor {
@@ -49,10 +50,12 @@ public final class XmlSensor implements Sensor {
 
   private final RulesProfile profile;
   private final RuleFinder ruleFinder;
+  private final Settings settings;
 
-  public XmlSensor(RulesProfile profile, RuleFinder ruleFinder) {
+  public XmlSensor(RulesProfile profile, RuleFinder ruleFinder, Settings settings) {
     this.profile = profile;
     this.ruleFinder = ruleFinder;
+    this.settings = settings;
   }
 
   /**
@@ -61,7 +64,7 @@ public final class XmlSensor implements Sensor {
   public void analyse(Project project, SensorContext sensorContext) {
 
     List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile, (String) project.getProperty(XmlPlugin.SCHEMAS));
-    for (InputFile inputfile : XmlPlugin.getFiles(project)) {
+    for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
 
       try {
         File resource = XmlProjectFileSystem.fromIOFile(inputfile, project);

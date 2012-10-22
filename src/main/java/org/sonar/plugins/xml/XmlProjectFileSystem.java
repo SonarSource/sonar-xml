@@ -18,11 +18,7 @@
 
 package org.sonar.plugins.xml;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -30,13 +26,17 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.plugins.xml.language.Xml;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class XmlProjectFileSystem {
 
@@ -155,13 +155,13 @@ public class XmlProjectFileSystem {
     return exclusionPatterns;
   }
 
-  public List<InputFile> getFiles() {
+  public List<InputFile> getFiles(Settings settings) {
     List<InputFile> result = Lists.newArrayList();
     if (getSourceDirs() == null) {
       return result;
     }
 
-    IOFileFilter suffixFilter = getFileSuffixFilter();
+    IOFileFilter suffixFilter = getFileSuffixFilter(settings);
     WildcardPattern[] exclusionPatterns = getExclusionPatterns(true);
     IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
 
@@ -190,25 +190,21 @@ public class XmlProjectFileSystem {
     return result;
   }
 
-  private String[] getFileSuffixes(Project project) {
-    List<?> extensions = project.getConfiguration().getList(XmlPlugin.FILE_EXTENSIONS);
+  private String[] getFileSuffixes(Project project, Settings settings) {
+    String[] extensions = settings.getStringArray(XmlPlugin.FILE_EXTENSIONS);
 
-    if (extensions != null && !extensions.isEmpty() && !StringUtils.isEmpty((String) extensions.get(0))) {
-      String[] fileSuffixes = new String[extensions.size()];
-      for (int i = 0; i < extensions.size(); i++) {
-        fileSuffixes[i] = extensions.get(i).toString().trim();
-      }
-      return fileSuffixes;
+    if (extensions.length > 0 && StringUtils.isNotEmpty(extensions[0])) {
+      return extensions;
     } else {
       return Xml.INSTANCE.getFileSuffixes();
     }
   }
 
-  private IOFileFilter getFileSuffixFilter() {
+  private IOFileFilter getFileSuffixFilter(Settings settings) {
     IOFileFilter suffixFilter = FileFilterUtils.trueFileFilter();
 
-    List<String> suffixes = Arrays.asList(getFileSuffixes(project));
-    if ( !suffixes.isEmpty()) {
+    List<String> suffixes = Arrays.asList(getFileSuffixes(project, settings));
+    if (!suffixes.isEmpty()) {
       suffixFilter = new SuffixFileFilter(suffixes);
     }
 

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>parent</artifactId>
-    <version>13</version>
+    <version>14</version>
     <relativePath>../parent</relativePath>
   </parent>
 
@@ -51,7 +51,7 @@
   </ciManagement>
 
   <properties>
-    <sonar.version>2.7</sonar.version>
+    <sonar.version>3.0</sonar.version>
     <license.name>AL2</license.name>
     <sonar.pluginName>Xml</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>

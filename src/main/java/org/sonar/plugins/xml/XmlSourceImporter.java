@@ -21,6 +21,7 @@ package org.sonar.plugins.xml;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.AbstractSourceImporter;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -37,15 +38,17 @@ import java.util.List;
 public final class XmlSourceImporter extends AbstractSourceImporter {
 
   private final Project project;
+  private final Settings settings;
 
-  public XmlSourceImporter(Xml xml, Project project) {
+  public XmlSourceImporter(Xml xml, Project project, Settings settings) {
     super(xml);
     this.project = project;
+    this.settings = settings;
   }
 
   @Override
   protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    List<File> files = toFiles(XmlPlugin.getFiles(project));
+    List<File> files = toFiles(XmlPlugin.getFiles(project, settings));
     List<File> dirs = XmlProjectFileSystem.getSourceDirs(project);
     parseDirs(context, files, dirs, false, fileSystem.getSourceCharset());
   }

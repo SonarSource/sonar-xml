@@ -18,11 +18,6 @@
 
 package org.sonar.plugins.xml.rules;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -42,15 +37,20 @@ import org.sonar.plugins.xml.checks.XPathCheck;
 import org.sonar.plugins.xml.checks.XmlSchemaCheck;
 import org.sonar.plugins.xml.language.Xml;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Repository for XML rules.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class XmlRulesRepository extends RuleRepository {
 
-  private static final Class[] CHECK_CLASSES = new Class[] { IllegalTabCheck.class, IndentCheck.class, NewlineCheck.class,
-    XmlSchemaCheck.class, XPathCheck.class };
+  private static final Class[] CHECK_CLASSES = new Class[] {IllegalTabCheck.class, IndentCheck.class, NewlineCheck.class,
+    XmlSchemaCheck.class, XPathCheck.class};
   private static final Logger LOG = LoggerFactory.getLogger(XmlRulesRepository.class);
   public static final String REPOSITORY_KEY = "Xml";
   public static final String REPOSITORY_NAME = "Xml";
@@ -62,7 +62,7 @@ public final class XmlRulesRepository extends RuleRepository {
       check.setRule(activeRule.getRule());
       if (activeRule.getActiveRuleParams() != null) {
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-          if ( !StringUtils.isEmpty(param.getValue())) {
+          if (StringUtils.isNotEmpty(param.getValue())) {
             LOG.debug("Rule param " + param.getKey() + " = " + param.getValue());
             BeanUtils.setProperty(check, param.getRuleParam().getKey(), param.getValue());
           }

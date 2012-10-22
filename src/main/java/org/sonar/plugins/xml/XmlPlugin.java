@@ -18,13 +18,11 @@
 
 package org.sonar.plugins.xml;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.api.Extension;
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
@@ -34,33 +32,31 @@ import org.sonar.plugins.xml.rules.XmlMessagesRepository;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * XML Plugin publishes extensions to sonar engine.
- * 
+ *
  * @author Matthijs Galesloot
  */
 @Properties({
-    @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
-        defaultValue = "xml,xhtml", global = true, project = true),
-    @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include",
-        description = "List of file inclusion filters, separated by komma.", defaultValue = "", global = false, project = true),
-    @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
-        defaultValue = "src/main/resources", global = false, project = true) })
-public final class XmlPlugin implements Plugin {
+  @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
+    defaultValue = "xml,xhtml", global = true, project = true),
+  @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include",
+    description = "List of file inclusion filters, separated by comma.", defaultValue = "", global = false, project = true),
+  @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
+    defaultValue = "src/main/resources", global = false, project = true)})
+public final class XmlPlugin extends SonarPlugin {
 
   public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
-  private static final String KEY = "sonar-xml-plugin";
   public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
   public static final String INCLUDE_FILE_FILTER = "sonar.xml.includeFileFilter";
   public static final String SCHEMAS = "sonar.xml.schemas";
 
-  public static List<InputFile> getFiles(Project project) {
+  public static List<InputFile> getFiles(Project project, Settings settings) {
     XmlProjectFileSystem fileSystem = new XmlProjectFileSystem(project);
-    return fileSystem.getFiles();
-  }
-
-  public String getDescription() {
-    return getName() + " collects metrics on XML documents, such as lines of code, schema validation, violations ...";
+    return fileSystem.getFiles(settings);
   }
 
   public List<Class<? extends Extension>> getExtensions() {
@@ -88,18 +84,5 @@ public final class XmlPlugin implements Plugin {
     list.add(XmlCodeColorizerFormat.class);
 
     return list;
-  }
-
-  public String getKey() {
-    return KEY;
-  }
-
-  public String getName() {
-    return "Xml plugin";
-  }
-
-  @Override
-  public String toString() {
-    return getKey();
   }
 }

@@ -18,9 +18,6 @@
 
 package org.sonar.plugins.xml;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
@@ -30,20 +27,29 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Count lines of code in XML files.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class LineCountSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LineCountSensor.class);
+  private Settings settings;
+
+  public LineCountSensor(Settings settings) {
+    this.settings = settings;
+  }
 
   private void addMeasures(SensorContext sensorContext, File file, org.sonar.api.resources.File xmlFile) {
 
@@ -84,15 +90,14 @@ public final class LineCountSensor implements Sensor {
 
   public void analyse(Project project, SensorContext sensorContext) {
 
-    for (InputFile inputfile : XmlPlugin.getFiles(project)) {
+    for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
       org.sonar.api.resources.File htmlFile = XmlProjectFileSystem.fromIOFile(inputfile, project);
       addMeasures(sensorContext, inputfile.getFile(), htmlFile);
     }
   }
 
   private boolean isEnabled(Project project) {
-    return project.getConfiguration().getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
-        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE);
+    return settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
   }
 
   /**

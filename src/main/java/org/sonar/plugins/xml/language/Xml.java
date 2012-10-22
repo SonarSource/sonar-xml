@@ -22,13 +22,13 @@ import org.sonar.api.resources.AbstractLanguage;
 
 /**
  * This class defines the XML language.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public class Xml extends AbstractLanguage {
 
   /** All the valid xml files suffixes. */
-  private static final String[] DEFAULT_SUFFIXES = { "xml", "xhtml" };
+  private static final String[] DEFAULT_SUFFIXES = {"xml", "xhtml"};
 
   /** A xml instance. */
   public static final Xml INSTANCE = new Xml();
@@ -48,11 +48,11 @@ public class Xml extends AbstractLanguage {
 
   /**
    * Gets the file suffixes.
-   * 
+   *
    * @return the file suffixes
    * @see org.sonar.api.resources.Language#getFileSuffixes()
    */
   public String[] getFileSuffixes() {
-    return DEFAULT_SUFFIXES; 
+    return DEFAULT_SUFFIXES;
   }
 }

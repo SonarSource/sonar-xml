@@ -18,16 +18,13 @@
 
 package org.sonar.plugins.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.Languages;
@@ -35,6 +32,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LineCountSensorTest {
 
@@ -56,7 +59,9 @@ public class LineCountSensorTest {
 
   @Test
   public void testLineCountSensor() {
-    LineCountSensor lineCountSensor = new LineCountSensor();
+    Settings settings = new Settings(new PropertyDefinitions(XmlPlugin.class));
+    settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, true); // Default value is in CorePlugins
+    LineCountSensor lineCountSensor = new LineCountSensor(settings);
 
     MockSensorContext sensorContext = new MockSensorContext();
     Project project = new Project("");

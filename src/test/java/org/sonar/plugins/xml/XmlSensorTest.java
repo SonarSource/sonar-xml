@@ -18,16 +18,17 @@
 
 package org.sonar.plugins.xml;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RuleParam;
+
+import java.io.File;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
@@ -56,7 +57,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile));
+    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile), new Settings());
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
@@ -76,7 +77,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile));
+    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile), new Settings());
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
