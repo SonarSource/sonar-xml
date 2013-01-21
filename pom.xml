@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>parent</artifactId>
-    <version>14</version>
+    <version>16</version>
   </parent>
 
   <artifactId>sonar-xml-plugin</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar XML Plugin</name>
@@ -18,7 +18,8 @@
   <url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
   <inceptionYear>2010</inceptionYear>
   <organization>
-    <name>Matthijs Galesloot</name>
+    <name>SonarSource</name>
+    <url>http://www.sonarsource.com</url>
   </organization>
   <licenses>
     <license>
@@ -32,6 +33,11 @@
       <id>mgalesloot</id>
       <name>Matthijs Galesloot</name>
       <email>matthijs@codehaus.org</email>
+    </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <email>julien.henry@sonarsource.com</email>
     </developer>
   </developers>
 

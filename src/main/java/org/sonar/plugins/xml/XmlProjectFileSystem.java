@@ -1,6 +1,6 @@
 /*
  * Sonar XML Plugin
- * Copyright (C) 2010 Matthijs Galesloot
+ * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.sonar.plugins.xml;
 
 import com.google.common.collect.Lists;
