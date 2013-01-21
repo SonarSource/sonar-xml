@@ -17,12 +17,13 @@
  */
 package org.sonar.plugins.xml.language;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.api.web.CodeColorizerFormat;
+import org.sonar.colorizer.MultilinesDocTokenizer;
 import org.sonar.colorizer.RegexpTokenizer;
 import org.sonar.colorizer.Tokenizer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlCodeColorizerFormat extends CodeColorizerFormat {
 
@@ -30,8 +31,21 @@ public class XmlCodeColorizerFormat extends CodeColorizerFormat {
 
   public XmlCodeColorizerFormat() {
     super(Xml.KEY);
-    tokenizers.add(new RegexpTokenizer("<span class=\"k\">", "</span>", "</?\\p{L}*>?"));
-    tokenizers.add(new RegexpTokenizer("<span class=\"k\">", "</span>", ">"));
+    String tagAfter = "</span>";
+
+    // == CDATA ==
+    tokenizers.add(new CDATADocTokenizer("<span class=\"k\">", tagAfter));
+
+    // == doctype ==
+    tokenizers.add(new RegexpTokenizer("<span class=\"j\">", tagAfter, "<!DOCTYPE.*>"));
+
+    // == comments ==
+    tokenizers.add(new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", tagAfter));
+
+    // == tags ==
+    tokenizers.add(new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", tagAfter));
+    tokenizers.add(new XmlStartElementTokenizer("<span class=\"k\">", tagAfter, "<span class=\"c\">", tagAfter, "<span class=\"s\">", tagAfter));
+
   }
 
   @Override
