@@ -17,15 +17,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Iterator;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.SonarException;
@@ -36,6 +27,15 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import java.util.Iterator;
 
 @Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractPageCheck {
@@ -63,7 +63,7 @@ public class XPathCheck extends AbstractPageCheck {
     }
   }
 
-  @RuleProperty(key = "expression", description = "Expression")
+  @RuleProperty(key = "expression", description = "Expression", type = "TEXT")
   private String expression;
 
   @RuleProperty(key = "filePattern", description = "File Include Pattern")
