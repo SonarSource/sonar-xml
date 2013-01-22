@@ -29,10 +29,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.DefaultProjectFileSystem;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +63,14 @@ public class XmlProjectFileSystem {
 
     public String getRelativePath() {
       return relativePath;
+    }
+
+    public InputStream getInputStream() throws FileNotFoundException {
+      try {
+        return FileUtils.openInputStream(getFile());
+      } catch (IOException e) {
+        throw new SonarException(e);
+      }
     }
   }
 

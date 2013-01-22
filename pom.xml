@@ -57,7 +57,7 @@
   </ciManagement>
 
   <properties>
-    <sonar.version>3.0</sonar.version>
+    <sonar.version>3.2</sonar.version>
     <license.name>AL2</license.name>
     <sonar.pluginName>Xml</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
