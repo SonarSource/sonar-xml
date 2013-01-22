@@ -39,7 +39,7 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.rules.DefaultXmlProfile;
+import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 import org.sonar.plugins.xml.rules.XmlMessagesRepository;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
@@ -86,8 +86,8 @@ public class AbstractXmlPluginTester {
     return profile;
   }
 
-  protected DefaultXmlProfile getProfileDefinition() {
-    return new DefaultXmlProfile(new XmlRulesRepository(new AnnotationRuleParser()), new XmlMessagesRepository(),
+  protected XmlSonarWayProfile getProfileDefinition() {
+    return new XmlSonarWayProfile(new XmlRulesRepository(new AnnotationRuleParser()), new XmlMessagesRepository(),
         new XmlSchemaMessagesRepository());
   }
 

@@ -26,7 +26,7 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
-import org.sonar.plugins.xml.rules.DefaultXmlProfile;
+import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 import org.sonar.plugins.xml.rules.XmlMessagesRepository;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
@@ -73,7 +73,7 @@ public final class XmlPlugin extends SonarPlugin {
     list.add(XmlSchemaMessagesRepository.class);
 
     // Profiles
-    list.add(DefaultXmlProfile.class);
+    list.add(XmlSonarWayProfile.class);
 
     // sensors
     list.add(XmlSensor.class);

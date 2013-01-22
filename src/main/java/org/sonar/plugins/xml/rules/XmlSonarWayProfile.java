@@ -17,26 +17,28 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import java.util.List;
-
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.language.Xml;
 
+import java.util.List;
+
 /**
  * Default XML profile.
  * 
  * @author Matthijs Galesloot
  */
-public final class DefaultXmlProfile extends ProfileDefinition {
+public final class XmlSonarWayProfile extends ProfileDefinition {
+
+  public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
 
   private final XmlRulesRepository xmlRulesRepository;
   private final XmlMessagesRepository xmlMessagesRepository;
   private final XmlSchemaMessagesRepository xmlSchemaMessagesRepository;
 
-  public DefaultXmlProfile(XmlRulesRepository xmlRulesRepository, XmlMessagesRepository xmlMessagesRepository,
+  public XmlSonarWayProfile(XmlRulesRepository xmlRulesRepository, XmlMessagesRepository xmlMessagesRepository,
       XmlSchemaMessagesRepository xmlSchemaMessagesRepository) {
     this.xmlRulesRepository = xmlRulesRepository;
     this.xmlMessagesRepository = xmlMessagesRepository;
@@ -53,7 +55,7 @@ public final class DefaultXmlProfile extends ProfileDefinition {
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
     List<Rule> rules = xmlRulesRepository.createRules();
-    RulesProfile rulesProfile = RulesProfile.create("Default XML Profile", Xml.KEY);
+    RulesProfile rulesProfile = RulesProfile.create(SONAR_WAY_PROFILE_NAME, Xml.KEY);
     for (Rule rule : rules) {
       rulesProfile.activateRule(rule, null);
     }
