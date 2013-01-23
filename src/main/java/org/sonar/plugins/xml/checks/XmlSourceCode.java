@@ -17,19 +17,19 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
@@ -94,6 +94,10 @@ public class XmlSourceCode {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public File getFile() {
+    return file;
   }
 
   @Override

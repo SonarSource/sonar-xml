@@ -19,6 +19,8 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
@@ -39,6 +41,8 @@ import java.util.Iterator;
 
 @Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractXmlCheck {
+
+  private final static Logger LOG = LoggerFactory.getLogger(XPathCheck.class);
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
 
@@ -77,7 +81,7 @@ public class XPathCheck extends AbstractXmlCheck {
     Document document = getWebSourceCode().getDocument(expression.contains(":"));
 
     if (document == null) {
-      createViolation(null, "XPath check cannot be evaluated because document is not valid");
+      LOG.warn("XPath check cannot be evaluated on {} because document is not valid", getWebSourceCode().getFile());
     } else {
       try {
         NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);

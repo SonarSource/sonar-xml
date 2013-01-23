@@ -17,14 +17,14 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
@@ -35,7 +35,7 @@ public class XPathCheckTest extends AbstractCheckTester {
   public void violateXPathCheck() throws FileNotFoundException {
 
     String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\" " + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
-        + "<body><br /></body></html>";
+      + "<body><br /></body></html>";
 
     Reader reader = new StringReader(fragment);
     XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, XPathCheck.class, "expression", "//br");
@@ -55,13 +55,14 @@ public class XPathCheckTest extends AbstractCheckTester {
     assertEquals((Integer) 26, sourceCode.getViolations().get(0).getLineId());
   }
 
+  // SONARPLUGINS-1765
   @Test
-  public void violateXPathWithInvalidDocument() throws FileNotFoundException {
+  public void xpathRuleShouldNotCreateViolationForInvalidDocument() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/sonarsource.html";
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression", "//link[@rel]");
 
-    assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
+    assertEquals("Incorrect number of violations", 0, sourceCode.getViolations().size());
   }
 
 }
