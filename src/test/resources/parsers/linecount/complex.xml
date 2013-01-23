@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ A OnJava Journal Catalog -->
+<catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" title="OnJava.com" publisher="O'Reilly">
+  <journal wrongattribute="" 
+  date="April 2004">
+    <article>
+      <title>Declarative 
+      Programming in Java</title>
+      <author>Narayanan Jayaratchagan<!-- Mixed comment --></author>
+    </article>
+  </journal>
+  <journal date="January 2004"><!-- Inline comment --><!-- Inline comment -->
+    <article>
+    <!-- Multiline
+    comment -->
+      <title>Data Binding with XMLBeans</title><!-- Multiline
+      comment --><author>Daniel Steinberg</author><!-- Inline comment -->
+    </article>
+    text
+    <![CDATA[<title>Data Binding with XMLBeans</title><!-- Multiline
+      comment --><author>Daniel Steinberg</author>
+    </article>]]>
+  </journal>
+</catalog>

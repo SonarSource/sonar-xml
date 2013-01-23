@@ -54,7 +54,7 @@ public final class LineCountSensor implements Sensor {
 
     LineIterator iterator = null;
     int numLines = 0;
-    int numEmptyLines = 0;
+    int numBlankLines = 0;
 
     try {
       iterator = FileUtils.lineIterator(file);
@@ -62,8 +62,8 @@ public final class LineCountSensor implements Sensor {
       while (iterator.hasNext()) {
         String line = iterator.nextLine();
         numLines++;
-        if (StringUtils.isEmpty(line)) {
-          numEmptyLines++;
+        if (StringUtils.isBlank(line)) {
+          numBlankLines++;
         }
       }
     } catch (IOException e) {
@@ -76,15 +76,16 @@ public final class LineCountSensor implements Sensor {
 
       Log.debug("Count comment in " + file.getPath());
 
-      int numCommentLines = new LineCountParser().countLinesOfComment(FileUtils.openInputStream(file));
+      LineCountParser lineCountParser = new LineCountParser();
+      int numCommentLines = lineCountParser.countLinesOfComment(FileUtils.openInputStream(file));
       sensorContext.saveMeasure(xmlFile, CoreMetrics.LINES, (double) numLines);
       sensorContext.saveMeasure(xmlFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
-      sensorContext.saveMeasure(xmlFile, CoreMetrics.NCLOC, (double) numLines - numEmptyLines - numCommentLines);
+      sensorContext.saveMeasure(xmlFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - numCommentLines);
     } catch (Exception e) {
       LOG.debug("Fail to count lines in " + file.getPath(), e);
     }
 
-    LOG.debug("LineCountSensor: " + xmlFile.getKey() + ":" + numLines + "," + numEmptyLines + "," + 0);
+    LOG.debug("LineCountSensor: " + xmlFile.getKey() + ":" + numLines + "," + numBlankLines + "," + 0);
   }
 
   public void analyse(Project project, SensorContext sensorContext) {

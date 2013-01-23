@@ -18,7 +18,6 @@
 package org.sonar.plugins.xml;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -30,31 +29,12 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.parsers.LineCountParser;
 
-import java.io.File;
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class LineCountSensorTest {
-
-  @Test
-  public void testLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser();
-    int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/checks/generic/catalog.xml")));
-    assertEquals(1, numCommentLines);
-  }
-
-  @Test
-  public void failingLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser();
-    String filename = "src/test/resources/checks/generic/header.html";
-
-    int numCommentLines = parser.countLinesOfComment(FileUtils.openInputStream(new File(filename)));
-    assertEquals(0, numCommentLines);
-  }
 
   @Test
   public void testLineCountSensor() {
@@ -68,14 +48,24 @@ public class LineCountSensorTest {
     project.setFileSystem(new DefaultProjectFileSystem(project, new Languages(new Xml())));
     project.setPom(new MavenProject());
     project.setLanguageKey(Xml.KEY);
-    project.getPom().addCompileSourceRoot("src/test/resources/checks/generic");
+    project.getPom().addCompileSourceRoot("src/test/resources/parsers/linecount");
 
     assertTrue(lineCountSensor.shouldExecuteOnProject(project));
     lineCountSensor.analyse(project, sensorContext);
 
     for (Resource resource : sensorContext.getResources()) {
-      assertTrue(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue() > 10);
-      assertTrue(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue() > 10);
+      if (resource.getKey().equals("complex.xml")) {
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(26);
+        // TODO SONARPLUGINS-2623
+        // assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(21);
+      }
+      else if (resource.getKey().equals("simple.xml")) {
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(18);
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(15);
+      }
+      else {
+        fail("Unexpected resource: " + resource.getKey());
+      }
     }
   }
 }

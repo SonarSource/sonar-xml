@@ -118,7 +118,6 @@ public class XmlStartElementTokenizer extends Tokenizer {
   }
 
   private boolean consumeEndOfTagElement(CodeReader code, HtmlCodeBuilder codeBuilder) {
-    // Check for empty element end like <br />
     return consumeEndElement(code, codeBuilder, "/>")
       || consumeEndElement(code, codeBuilder, "?>")
       || consumeEndElement(code, codeBuilder, ">");
