@@ -17,12 +17,6 @@
  */
 package org.sonar.plugins.xml.schemas;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +26,15 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Resolves references to XML schema's, if possible built-in.
@@ -49,6 +52,7 @@ public final class SchemaResolver implements LSResourceResolver {
 
     // XML
     SCHEMAS_BUILTIN.put("http://www.w3.org/2001/xml.xsd", "xml.xsd");
+    SCHEMAS_BUILTIN.put("http://www.w3.org/XML/1998/namespace", "xml.xsd");
 
     // XHTML 1.0 - by Doctype
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.xsd");
@@ -101,7 +105,7 @@ public final class SchemaResolver implements LSResourceResolver {
     DTD_BUILTIN.put("//W3C//DTD XHTML 1.1//EN", "xhtml1/xhtml11.dtd");
   }
 
-  private static final String[] SCHEMA_FOLDERS = new String[] { "xhtml1", "jsf" };
+  private static final String[] SCHEMA_FOLDERS = new String[] {"xhtml1", "jsf"};
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
@@ -156,13 +160,18 @@ public final class SchemaResolver implements LSResourceResolver {
     if (input == null) {
       input = getBuiltinSchemaByFileName(systemId);
 
-      // try as file system resource
+      // try as url resource
       if (input == null) {
-        try {
-          input = new FileInputStream(systemId);
-        } catch (FileNotFoundException e) {
-          LOG.warn("Could not find schema " + systemId);
-          return null;
+        input = getSchemaByURL(systemId);
+
+        // try as file system resource
+        if (input == null) {
+          try {
+            input = new FileInputStream(systemId);
+          } catch (FileNotFoundException e) {
+            LOG.warn("Could not find schema " + systemId);
+            return null;
+          }
         }
       }
     }
@@ -171,10 +180,34 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   /**
+   * Gets a XML schema by URL.
+   */
+  private static InputStream getSchemaByURL(String urlStr) {
+    URL url;
+    try {
+      url = new URL(urlStr);
+    } catch (MalformedURLException e) {
+      return null;
+    }
+
+    try {
+      return url.openStream();
+    } catch (IOException e) {
+      LOG.warn("Unable to get {}", urlStr, e);
+      return null;
+    }
+  }
+
+  /**
    * Gets a built-in XML schema by filename.
    */
   private static InputStream getBuiltinSchemaByFileName(String fileName) {
-    InputStream input = SchemaResolver.class.getResourceAsStream(fileName);
+    InputStream input = null;
+    try {
+      input = SchemaResolver.class.getResourceAsStream(fileName);
+    } catch (Exception e) {
+      LOG.warn("Error while trying to read {}", fileName, e);
+    }
     if (input == null) {
       for (String folder : SCHEMA_FOLDERS) {
         input = SchemaResolver.class.getResourceAsStream(folder + "/" + fileName);
@@ -202,6 +235,8 @@ public final class SchemaResolver implements LSResourceResolver {
    */
   public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
+    LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
+
     InputStream input = null;
 
     // try as DTD
@@ -210,7 +245,7 @@ public final class SchemaResolver implements LSResourceResolver {
     } else {
 
       // try as namespace
-      input = getBuiltinSchemaByNamespace(systemId);
+      input = getBuiltinSchemaByNamespace(namespaceURI);
 
       // try as built-in XML schema
       if (input == null) {

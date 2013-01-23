@@ -69,7 +69,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   /**
    * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
    */
-  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect")
+  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect", type = "TEXT")
   private String schemas;
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
