@@ -18,6 +18,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,8 +32,9 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "NewlineCheck", name = "Newline Check", description = "Newline Check", priority = Priority.MINOR,
-    cardinality = Cardinality.SINGLE)
-public class NewlineCheck extends AbstractPageCheck {
+  cardinality = Cardinality.SINGLE)
+@BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
+public class NewlineCheck extends AbstractXmlCheck {
 
   /**
    * Validate newlines for node.
@@ -48,7 +50,7 @@ public class NewlineCheck extends AbstractPageCheck {
         case Node.COMMENT_NODE:
         case Node.ELEMENT_NODE:
           // check if there is a new node before we have had any newlines.
-          if ( !newline) {
+          if (!newline) {
             createViolation(SaxParser.getLineNumber(child), "Node should be on the next line");
           } else {
             newline = false;
@@ -56,8 +58,8 @@ public class NewlineCheck extends AbstractPageCheck {
           lastChild = child;
           break;
         case Node.TEXT_NODE:
-          // newline check is OK if there is non whitespace or the whitespace contains a newline 
-          if ( !StringUtils.isWhitespace(child.getTextContent()) || child.getTextContent().contains("\n")) {
+          // newline check is OK if there is non whitespace or the whitespace contains a newline
+          if (!StringUtils.isWhitespace(child.getTextContent()) || child.getTextContent().contains("\n")) {
             newline = true;
           }
           break;
@@ -78,7 +80,7 @@ public class NewlineCheck extends AbstractPageCheck {
   }
 
   private void validateLastChild(boolean newlineAfterLastChild, Node lastChild) {
-    if ( !newlineAfterLastChild && lastChild != null) {
+    if (!newlineAfterLastChild && lastChild != null) {
       createViolation(SaxParser.getLineNumber(lastChild), "Missing newline after last element");
     }
   }

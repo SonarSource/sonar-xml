@@ -18,6 +18,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,8 +33,9 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "IllegalTabCheck", name = "Illegal Tab Check", description = "Tab Character", priority = Priority.MINOR,
-    cardinality = Cardinality.SINGLE)
-public class IllegalTabCheck extends AbstractPageCheck {
+  cardinality = Cardinality.SINGLE)
+@BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
+public class IllegalTabCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "markAll", description = "Mark All Tab Errors", defaultValue = "false")
   private boolean markAll;
@@ -88,12 +90,10 @@ public class IllegalTabCheck extends AbstractPageCheck {
     }
   }
 
-  
   public boolean isMarkAll() {
     return markAll;
   }
 
-  
   public void setMarkAll(boolean markAll) {
     this.markAll = markAll;
   }

@@ -17,26 +17,23 @@
  */
 package org.sonar.plugins.xml;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.xml.checks.AbstractPageCheck;
+import org.sonar.plugins.xml.checks.AbstractXmlCheck;
+import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
-import org.sonar.plugins.xml.rules.XmlRulesRepository;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -47,22 +44,19 @@ public final class XmlSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
-  private final RulesProfile profile;
-  private final RuleFinder ruleFinder;
   private final Settings settings;
+  private final AnnotationCheckFactory annotationCheckFactory;
 
-  public XmlSensor(RulesProfile profile, RuleFinder ruleFinder, Settings settings) {
-    this.profile = profile;
-    this.ruleFinder = ruleFinder;
+  public XmlSensor(Settings settings, RulesProfile profile) {
     this.settings = settings;
+    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getChecks());
   }
 
   /**
    * Analyze the XML files.
    */
   public void analyse(Project project, SensorContext sensorContext) {
-
-    List<AbstractPageCheck> checks = XmlRulesRepository.createChecks(profile, settings.getString(XmlPlugin.SCHEMAS));
+    Collection<AbstractXmlCheck> checks = annotationCheckFactory.getChecks();
     for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
 
       try {
@@ -70,10 +64,11 @@ public final class XmlSensor implements Sensor {
 
         XmlSourceCode sourceCode = new XmlSourceCode(resource, inputfile.getFile());
 
-        for (AbstractPageCheck check : checks) {
+        for (AbstractXmlCheck check : checks) {
+          check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
           check.validate(sourceCode);
         }
-        saveMetrics(sensorContext, sourceCode);
+        saveViolations(sensorContext, sourceCode);
 
       } catch (Exception e) {
         LOG.error("Could not analyze the file " + inputfile.getFile().getAbsolutePath(), e);
@@ -81,21 +76,8 @@ public final class XmlSensor implements Sensor {
     }
   }
 
-  private boolean hasActiveRules(RulesProfile profile) {
-    for (ActiveRule activeRule : profile.getActiveRules()) {
-      if (XmlRulesRepository.REPOSITORY_KEY.equals(activeRule.getRepositoryKey())) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private void saveMetrics(SensorContext sensorContext, XmlSourceCode sourceCode) {
-
-    XmlMessagesMatcher messagesMatcher = new XmlMessagesMatcher();
-
+  private void saveViolations(SensorContext sensorContext, XmlSourceCode sourceCode) {
     for (Violation violation : sourceCode.getViolations()) {
-      messagesMatcher.setRuleForViolation(ruleFinder, violation);
       sensorContext.saveViolation(violation);
     }
   }
@@ -104,7 +86,7 @@ public final class XmlSensor implements Sensor {
    * This sensor only executes on projects with active XML rules.
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return StringUtils.equals(Xml.KEY, project.getLanguageKey()) && hasActiveRules(profile);
+    return Xml.KEY.equals(project.getLanguageKey());
   }
 
   @Override

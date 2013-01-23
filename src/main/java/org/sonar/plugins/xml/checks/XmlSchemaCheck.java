@@ -17,20 +17,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.XMLConstants;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
@@ -51,14 +37,44 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Perform schema check using xerces parser.
  * 
  * @author Matthijs Galesloot
  */
-@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "XML Schema Check", priority = Priority.MAJOR,
-    cardinality = Cardinality.MULTIPLE)
-public class XmlSchemaCheck extends AbstractPageCheck {
+@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "Perform validation of the XML file against XML Schema using Xerces parser", priority = Priority.MAJOR,
+  cardinality = Cardinality.MULTIPLE)
+public class XmlSchemaCheck extends AbstractXmlCheck {
+
+  /**
+   * filePattern indicates which files should be checked.
+   */
+  @RuleProperty(key = "filePattern", description = "File Include Pattern")
+  private String filePattern;
+
+  /**
+   * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
+   */
+  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect")
+  private String schemas;
+
+  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
+
+  private static final Map<String, Schema> cachedSchemas = new HashMap<String, Schema>();
 
   /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
@@ -100,10 +116,6 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     }
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
-
-  private static final Map<String, Schema> cachedSchemas = new HashMap<String, Schema>();
-
   /**
    * Create xsd schema for a list of schema's.
    */
@@ -140,18 +152,6 @@ public class XmlSchemaCheck extends AbstractPageCheck {
     }
   }
 
-  /**
-   * filePattern indicates which files should be checked.
-   */
-  @RuleProperty(key = "filePattern", description = "File Include Pattern")
-  private String filePattern;
-
-  /**
-   * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
-   */
-  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect")
-  private String schemas;
-
   private void autodetectSchemaAndValidate() {
     final Doctype doctype = detectSchema();
 
@@ -162,12 +162,12 @@ public class XmlSchemaCheck extends AbstractPageCheck {
         LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
       } else {
         IOUtils.closeQuietly(input);
-        validate(new String[] { doctype.getDtd() });
+        validate(new String[] {doctype.getDtd()});
       }
     }
     // try namespace
     else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
-      validate(new String[] { doctype.getNamespace() });
+      validate(new String[] {doctype.getNamespace()});
     } else {
       LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
     }
@@ -241,7 +241,7 @@ public class XmlSchemaCheck extends AbstractPageCheck {
       LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
     } catch (SAXException e) {
-      if ( !containsMessage(e)) {
+      if (!containsMessage(e)) {
         createViolation(0, e.getMessage());
       }
     } catch (IOException e) {

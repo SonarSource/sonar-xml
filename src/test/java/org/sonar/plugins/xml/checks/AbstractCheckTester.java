@@ -17,15 +17,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.sonar.api.profiles.RulesProfile;
@@ -38,16 +29,24 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
   private static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
-  private static final String repositoryKey = "Xml";
-
-  private void configureDefaultParams(AbstractPageCheck check, Rule rule) {
+  private void configureDefaultParams(AbstractXmlCheck check, Rule rule) {
     ValidationMessages validationMessages = ValidationMessages.create();
     RulesProfile rulesProfile = getProfileDefinition().createProfile(validationMessages);
 
+    rulesProfile.activateRule(rule, null);
     ActiveRule activeRule = rulesProfile.getActiveRule(rule);
 
     assertNotNull("Could not find activeRule", activeRule);
@@ -73,10 +72,10 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     }
   }
 
-  private Rule getRule(String ruleKey, Class<? extends AbstractPageCheck> checkClass) {
+  private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
 
     AnnotationRuleParser parser = new AnnotationRuleParser();
-    List<Rule> rules = parser.parse(repositoryKey, Arrays.asList(new Class[] { checkClass }));
+    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[] {checkClass}));
     for (Rule rule : rules) {
       if (rule.getKey().equals(ruleKey)) {
         return rule;
@@ -85,9 +84,9 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     return null;
   }
 
-  protected AbstractPageCheck instantiateCheck(Class<? extends AbstractPageCheck> checkClass, String... params) {
+  protected AbstractXmlCheck instantiateCheck(Class<? extends AbstractXmlCheck> checkClass, String... params) {
     try {
-      AbstractPageCheck check = checkClass.newInstance();
+      AbstractXmlCheck check = checkClass.newInstance();
 
       Rule rule = getRule(checkClass.getSimpleName(), checkClass);
       assertNotNull("Could not find rule", rule);
@@ -110,15 +109,15 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     }
   }
 
-  protected XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractPageCheck> checkClass, String... params) {
+  protected XmlSourceCode parseAndCheck(Reader reader, Class<? extends AbstractXmlCheck> checkClass, String... params) {
 
     return parseAndCheck(reader, null, null, checkClass, params);
   }
 
-  protected XmlSourceCode parseAndCheck(Reader reader, java.io.File file, String code, Class<? extends AbstractPageCheck> checkClass,
+  protected XmlSourceCode parseAndCheck(Reader reader, java.io.File file, String code, Class<? extends AbstractXmlCheck> checkClass,
       String... params) {
 
-    AbstractPageCheck check = instantiateCheck(checkClass, params);
+    AbstractXmlCheck check = instantiateCheck(checkClass, params);
 
     XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
     xmlSourceCode.setCode(code);
@@ -128,7 +127,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     return xmlSourceCode;
   }
 
-  protected void parseCheckAndAssert(String fragment, Class<? extends AbstractPageCheck> clazz, int numViolations, String... params) {
+  protected void parseCheckAndAssert(String fragment, Class<? extends AbstractXmlCheck> clazz, int numViolations, String... params) {
     Reader reader = new StringReader(fragment);
     XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, clazz, params);
 

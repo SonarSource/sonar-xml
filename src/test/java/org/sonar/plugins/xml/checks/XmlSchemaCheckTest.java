@@ -17,20 +17,17 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.jfree.util.Log;
+import org.junit.Test;
+import org.sonar.api.rules.Violation;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import org.jfree.util.Log;
-import org.junit.Test;
-import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.xml.SimpleRuleFinder;
-import org.sonar.plugins.xml.rules.XmlMessagesMatcher;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Matthijs Galesloot
@@ -40,14 +37,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   private static final String SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
   private static final String SCHEMAS = "schemas";
   private static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
-
-  private void checkViolationMessages(XmlSourceCode sourceCode) {
-    XmlMessagesMatcher messagesMatcher = new XmlMessagesMatcher();
-    for (Violation v : sourceCode.getViolations()) {
-      messagesMatcher.setRuleForViolation(new SimpleRuleFinder(createStandardRulesProfile()), v);
-      assertFalse("Unresolved message: " + v.getMessage(), XmlSchemaCheck.class.getSimpleName().equals(v.getRule().getKey()));
-    }
-  }
 
   @Test(expected = SonarException.class)
   public void missingSchema() throws FileNotFoundException {
@@ -85,7 +74,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     if (sourceCode.getViolations().size() > 0) {
       Log.error(sourceCode.getViolations().get(0).getMessage());
     }
-    checkViolationMessages(sourceCode);
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getViolations().size());
   }
 
@@ -109,15 +97,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     assertTrue(v.getMessage().contains("reference to entity"));
   }
 
-  // @Test(expected=NullPointerException.class)
-  // public void failingParser() throws FileNotFoundException {
-  // String fileName = "src/test/resources/checks/generic/header.html";
-  // FileReader reader = new FileReader(fileName);
-  // XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
-  //
-  // assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
-  // }
-
   @Test
   public void violateBuiltinXhtmlSchemaCheck() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/create-salesorder.xhtml";
@@ -126,9 +105,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getViolations().size());
     assertEquals((Integer) 16, sourceCode.getViolations().get(0).getLineId());
-
-    // check if all violations resolved to messages
-    checkViolationMessages(sourceCode);
   }
 
   @Test
@@ -171,8 +147,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-transitional");
 
-    // check if all violations resolved to messages
-    checkViolationMessages(sourceCode);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 350, sourceCode.getViolations().size());
   }
 
   @Test
@@ -182,8 +157,5 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-strict");
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
-
-    // check if all violations resolved to messages
-    checkViolationMessages(sourceCode);
   }
 }

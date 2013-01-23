@@ -26,10 +26,8 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
-import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
-import org.sonar.plugins.xml.rules.XmlMessagesRepository;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
-import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
+import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,6 @@ public final class XmlPlugin extends SonarPlugin {
   public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
   public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
   public static final String INCLUDE_FILE_FILTER = "sonar.xml.includeFileFilter";
-  public static final String SCHEMAS = "sonar.xml.schemas";
 
   public static List<InputFile> getFiles(Project project, Settings settings) {
     XmlProjectFileSystem fileSystem = new XmlProjectFileSystem(project);
@@ -67,10 +64,8 @@ public final class XmlPlugin extends SonarPlugin {
     // xml files importer
     list.add(XmlSourceImporter.class);
 
-    // XML rules and messages
+    // XML rules
     list.add(XmlRulesRepository.class);
-    list.add(XmlMessagesRepository.class);
-    list.add(XmlSchemaMessagesRepository.class);
 
     // Profiles
     list.add(XmlSonarWayProfile.class);

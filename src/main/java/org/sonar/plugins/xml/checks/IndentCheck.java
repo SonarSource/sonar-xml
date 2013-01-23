@@ -18,6 +18,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,7 +33,8 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "IndentCheck", name = "Indent Check", description = "Indent Check", priority = Priority.MINOR, cardinality = Cardinality.SINGLE)
-public class IndentCheck extends AbstractPageCheck {
+@BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
+public class IndentCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "indentSize", description = "Indent Size", defaultValue = "2")
   private int indentSize = 2;
@@ -105,7 +107,7 @@ public class IndentCheck extends AbstractPageCheck {
   public void setIndentSize(int indentSize) {
     this.indentSize = indentSize;
   }
-  
+
   public void setTabSize(int tabSize) {
     this.tabSize = tabSize;
   }
@@ -119,7 +121,7 @@ public class IndentCheck extends AbstractPageCheck {
       validateIndent(document.getDocumentElement());
     }
   }
-  
+
   /**
    * Validate the indent for this node.
    */

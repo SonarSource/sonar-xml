@@ -17,13 +17,12 @@
  */
 package org.sonar.plugins.xml.rules;
 
+import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
-
-import java.util.List;
 
 /**
  * Default XML profile.
@@ -32,36 +31,19 @@ import java.util.List;
  */
 public final class XmlSonarWayProfile extends ProfileDefinition {
 
-  public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
+  private final AnnotationProfileParser annotationProfileParser;
 
-  private final XmlRulesRepository xmlRulesRepository;
-  private final XmlMessagesRepository xmlMessagesRepository;
-  private final XmlSchemaMessagesRepository xmlSchemaMessagesRepository;
-
-  public XmlSonarWayProfile(XmlRulesRepository xmlRulesRepository, XmlMessagesRepository xmlMessagesRepository,
-      XmlSchemaMessagesRepository xmlSchemaMessagesRepository) {
-    this.xmlRulesRepository = xmlRulesRepository;
-    this.xmlMessagesRepository = xmlMessagesRepository;
-    this.xmlSchemaMessagesRepository = xmlSchemaMessagesRepository;
-  }
-
-  private void addMessageRepository(RulesProfile rulesProfile, AbstractMessagesRepository messagesRepository) {
-    List<Rule> rules = messagesRepository.createRules();
-    for (Rule rule : rules) {
-      rulesProfile.activateRule(rule, null);
-    }
+  public XmlSonarWayProfile(AnnotationProfileParser annotationProfileParser) {
+    this.annotationProfileParser = annotationProfileParser;
   }
 
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
-    List<Rule> rules = xmlRulesRepository.createRules();
-    RulesProfile rulesProfile = RulesProfile.create(SONAR_WAY_PROFILE_NAME, Xml.KEY);
-    for (Rule rule : rules) {
-      rulesProfile.activateRule(rule, null);
-    }
-    addMessageRepository(rulesProfile, xmlMessagesRepository);
-    addMessageRepository(rulesProfile, xmlSchemaMessagesRepository);
-    rulesProfile.setDefaultProfile(true);
-    return rulesProfile;
+    return annotationProfileParser.parse(
+        CheckRepository.REPOSITORY_KEY,
+        CheckRepository.SONAR_WAY_PROFILE_NAME,
+        Xml.KEY,
+        CheckRepository.getCheckClasses(),
+        validation);
   }
 }

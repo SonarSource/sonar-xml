@@ -17,7 +17,26 @@
  */
 package org.sonar.plugins.xml;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.project.MavenProject;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.sonar.api.profiles.AnnotationProfileParser;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.DefaultProjectFileSystem;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
 import javax.xml.XMLConstants;
 
@@ -25,24 +44,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.URISyntaxException;
 
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.project.MavenProject;
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
-import org.sonar.plugins.xml.rules.XmlMessagesRepository;
-import org.sonar.plugins.xml.rules.XmlRulesRepository;
-import org.sonar.plugins.xml.rules.XmlSchemaMessagesRepository;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Matthijs Galesloot
@@ -87,8 +91,8 @@ public class AbstractXmlPluginTester {
   }
 
   protected XmlSonarWayProfile getProfileDefinition() {
-    return new XmlSonarWayProfile(new XmlRulesRepository(new AnnotationRuleParser()), new XmlMessagesRepository(),
-        new XmlSchemaMessagesRepository());
+    RuleFinder ruleFinder = ruleFinder();
+    return new XmlSonarWayProfile(new AnnotationProfileParser(ruleFinder));
   }
 
   protected Project loadProjectFromPom(File pomFile) throws URISyntaxException {
@@ -101,6 +105,15 @@ public class AbstractXmlPluginTester {
     project.setLanguage(Xml.INSTANCE);
 
     return project;
+  }
+
+  static RuleFinder ruleFinder() {
+    return when(mock(RuleFinder.class).findByKey(Mockito.anyString(), Mockito.anyString())).thenAnswer(new Answer<Rule>() {
+      public Rule answer(InvocationOnMock invocation) {
+        Object[] arguments = invocation.getArguments();
+        return Rule.create((String) arguments[0], (String) arguments[1], (String) arguments[1]).setDescription("Mocked description");
+      }
+    }).getMock();
   }
 
 }

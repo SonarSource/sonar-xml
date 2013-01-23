@@ -22,9 +22,16 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.AnnotationRuleParser;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
+import org.sonar.plugins.xml.checks.AbstractXmlCheck;
+import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.checks.XPathCheck;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
@@ -32,7 +39,9 @@ import static org.junit.Assert.assertNotNull;
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
   private void createXPathRuleForPomFiles(RulesProfile rulesProfile) {
-    ActiveRule activeRule = rulesProfile.getActiveRule("Xml", "XPathCheck");
+    Rule xpathRule = getRule("XPathCheck", XPathCheck.class);
+    rulesProfile.activateRule(xpathRule, null);
+    ActiveRule activeRule = rulesProfile.getActiveRule(xpathRule);
     assertNotNull(activeRule);
 
     RuleParam expressionParam = activeRule.getRule().getParam("expression");
@@ -56,7 +65,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile), new Settings());
+    XmlSensor sensor = new XmlSensor(new Settings(), rulesProfile);
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
@@ -76,7 +85,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, new SimpleRuleFinder(rulesProfile), new Settings());
+    XmlSensor sensor = new XmlSensor(new Settings(), rulesProfile);
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
@@ -86,5 +95,17 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     sensor.analyse(project, sensorContext);
 
     assertTrue("Should have found 0 violation", sensorContext.getViolations().size() == 0);
+  }
+
+  private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
+
+    AnnotationRuleParser parser = new AnnotationRuleParser();
+    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[] {checkClass}));
+    for (Rule rule : rules) {
+      if (rule.getKey().equals(ruleKey)) {
+        return rule;
+      }
+    }
+    return null;
   }
 }

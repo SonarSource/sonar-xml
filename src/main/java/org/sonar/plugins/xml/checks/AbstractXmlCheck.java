@@ -27,7 +27,7 @@ import org.sonar.api.utils.WildcardPattern;
  *
  * @author Matthijs Galesloot
  */
-public abstract class AbstractPageCheck {
+public abstract class AbstractXmlCheck {
 
   private Rule rule;
   private XmlSourceCode xmlSourceCode;

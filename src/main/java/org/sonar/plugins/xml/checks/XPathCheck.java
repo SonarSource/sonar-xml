@@ -38,7 +38,7 @@ import javax.xml.xpath.XPathFactory;
 import java.util.Iterator;
 
 @Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
-public class XPathCheck extends AbstractPageCheck {
+public class XPathCheck extends AbstractXmlCheck {
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
 

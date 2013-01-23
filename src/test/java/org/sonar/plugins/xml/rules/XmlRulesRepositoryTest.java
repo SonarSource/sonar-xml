@@ -17,29 +17,29 @@
  */
 package org.sonar.plugins.xml.rules;
 
+import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleRepository;
 import org.sonar.plugins.xml.checks.CheckRepository;
-import org.sonar.plugins.xml.language.Xml;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Repository for XML rules.
- */
-public final class XmlRulesRepository extends RuleRepository {
+public class XmlRulesRepositoryTest {
 
-  private final AnnotationRuleParser annotationRuleParser;
-
-  public XmlRulesRepository(AnnotationRuleParser annotationRuleParser) {
-    super(CheckRepository.REPOSITORY_KEY, Xml.KEY);
-    setName(CheckRepository.REPOSITORY_NAME);
-    this.annotationRuleParser = annotationRuleParser;
+  @Test
+  public void constructor() {
+    XmlRulesRepository repo = new XmlRulesRepository(mockAnnotationRuleParser());
+    assertThat(repo.getKey()).isEqualTo(CheckRepository.REPOSITORY_KEY);
+    assertThat(repo.getName()).isEqualTo(CheckRepository.REPOSITORY_NAME);
   }
 
-  @Override
-  public List<Rule> createRules() {
-    return annotationRuleParser.parse(CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
+  @Test
+  public void createRules() {
+    XmlRulesRepository repo = new XmlRulesRepository(mockAnnotationRuleParser());
+    assertThat(repo.createRules().size()).isEqualTo(CheckRepository.getChecks().size());
   }
+
+  private AnnotationRuleParser mockAnnotationRuleParser() {
+    return new AnnotationRuleParser();
+  }
+
 }
