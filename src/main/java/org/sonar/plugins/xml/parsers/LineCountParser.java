@@ -17,12 +17,6 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.parsers.SAXParser;
-
-import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
@@ -31,6 +25,11 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.SAXParser;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Comment Counting in XML files
@@ -117,7 +116,6 @@ public final class LineCountParser extends AbstractParser {
     try {
 
       XMLReader xmlReader = parser.getXMLReader();
-      xmlReader.setFeature(Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
       CommentHandler commentHandler = new CommentHandler();
       xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
       parser.parse(input, commentHandler);
