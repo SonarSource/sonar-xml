@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -32,14 +31,15 @@ import org.w3c.dom.Node;
  * 
  * @author Matthijs Galesloot
  */
-@Rule(key = "IndentCheck", name = "Indent Check", description = "Indent Check", priority = Priority.MINOR, cardinality = Cardinality.SINGLE)
+@Rule(key = "IndentCheck",
+  priority = Priority.MINOR)
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
 public class IndentCheck extends AbstractXmlCheck {
 
-  @RuleProperty(key = "indentSize", description = "Indent Size", defaultValue = "2")
+  @RuleProperty(key = "indentSize", defaultValue = "2")
   private int indentSize = 2;
 
-  @RuleProperty(key = "tabSize", description = "Tab Size", defaultValue = "2")
+  @RuleProperty(key = "tabSize", defaultValue = "2")
   private int tabSize = 2;
 
   /**

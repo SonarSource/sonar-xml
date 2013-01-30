@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -32,12 +31,12 @@ import org.w3c.dom.Node;
  * 
  * @author Matthijs Galesloot
  */
-@Rule(key = "IllegalTabCheck", name = "Illegal Tab Check", description = "Tab Character", priority = Priority.MINOR,
-  cardinality = Cardinality.SINGLE)
+@Rule(key = "IllegalTabCheck",
+  priority = Priority.MINOR)
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
 public class IllegalTabCheck extends AbstractXmlCheck {
 
-  @RuleProperty(key = "markAll", description = "Mark All Tab Errors", defaultValue = "false")
+  @RuleProperty(key = "markAll", defaultValue = "false")
   private boolean markAll;
 
   private boolean validationReady;
@@ -53,7 +52,8 @@ public class IllegalTabCheck extends AbstractXmlCheck {
         String text = sibling.getTextContent();
         if (StringUtils.isWhitespace(text) && StringUtils.contains(text, "\t")) {
           createNewViolation(SaxParser.getLineNumber(sibling));
-          break; // one violation for this node is enough
+          // one violation for this node is enough
+          break;
         }
       }
     }

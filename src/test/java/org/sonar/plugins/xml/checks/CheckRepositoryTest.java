@@ -19,9 +19,14 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.api.rules.AnnotationRuleParser;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -49,6 +54,40 @@ public class CheckRepositoryTest {
   @Test
   public void getCheckClasses() {
     assertThat(CheckRepository.getCheckClasses().size()).isEqualTo(CheckRepository.getChecks().size());
+  }
+
+  @Test
+  public void everyCheckIsInternationalizedAndTested() {
+    List<Class> checks = CheckRepository.getCheckClasses();
+
+    for (Class cls : checks) {
+      String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
+      assertThat(getClass().getResource(testName))
+          .overridingErrorMessage("No test for " + cls.getSimpleName())
+          .isNotNull();
+    }
+
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("org.sonar.l10n.xml", Locale.ENGLISH);
+
+    List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
+    for (Rule rule : rules) {
+      resourceBundle.getString("rule." + CheckRepository.REPOSITORY_KEY + "." + rule.getKey() + ".name");
+      assertThat(getClass().getResource("/org/sonar/l10n/xml/rules/xml/" + rule.getKey() + ".html"))
+          .overridingErrorMessage("No description for " + rule.getKey())
+          .isNotNull();
+
+      assertThat(rule.getDescription())
+          .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
+          .isNull();
+
+      for (RuleParam param : rule.getParams()) {
+        resourceBundle.getString("rule." + CheckRepository.REPOSITORY_KEY + "." + rule.getKey() + ".param." + param.getKey());
+
+        assertThat(param.getDescription())
+            .overridingErrorMessage("Description for param " + param.getKey() + " of " + rule.getKey() + " should be in separate file")
+            .isEmpty();
+      }
+    }
   }
 
 }

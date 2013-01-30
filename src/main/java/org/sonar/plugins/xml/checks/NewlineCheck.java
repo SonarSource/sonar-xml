@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.xml.parsers.SaxParser;
@@ -31,8 +30,8 @@ import org.w3c.dom.Node;
  * 
  * @author Matthijs Galesloot
  */
-@Rule(key = "NewlineCheck", name = "Newline Check", description = "Newline Check", priority = Priority.MINOR,
-  cardinality = Cardinality.SINGLE)
+@Rule(key = "NewlineCheck",
+  priority = Priority.MINOR)
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
 public class NewlineCheck extends AbstractXmlCheck {
 

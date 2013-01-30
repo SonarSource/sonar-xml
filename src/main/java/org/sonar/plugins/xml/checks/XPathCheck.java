@@ -39,10 +39,19 @@ import javax.xml.xpath.XPathFactory;
 
 import java.util.Iterator;
 
-@Rule(key = "XPathCheck", name = "XPath Check", description = "XPath Check", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
+@Rule(key = "XPathCheck", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractXmlCheck {
 
-  private final static Logger LOG = LoggerFactory.getLogger(XPathCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XPathCheck.class);
+
+  @RuleProperty(key = "expression", type = "TEXT")
+  private String expression;
+
+  @RuleProperty(key = "filePattern")
+  private String filePattern;
+
+  @RuleProperty(key = "message")
+  private String message;
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
 
@@ -66,15 +75,6 @@ public class XPathCheck extends AbstractXmlCheck {
       return null;
     }
   }
-
-  @RuleProperty(key = "expression", description = "Expression", type = "TEXT")
-  private String expression;
-
-  @RuleProperty(key = "filePattern", description = "File Include Pattern")
-  private String filePattern;
-
-  @RuleProperty(key = "message", description = "Message")
-  private String message;
 
   private void evaluateXPath() {
 

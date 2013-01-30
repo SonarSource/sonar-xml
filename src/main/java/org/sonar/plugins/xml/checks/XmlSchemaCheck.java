@@ -56,20 +56,20 @@ import java.util.Map;
  * 
  * @author Matthijs Galesloot
  */
-@Rule(key = "XmlSchemaCheck", name = "XML Schema Check", description = "Perform validation of the XML file against XML Schema using Xerces parser", priority = Priority.MAJOR,
+@Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR,
   cardinality = Cardinality.MULTIPLE)
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
    * filePattern indicates which files should be checked.
    */
-  @RuleProperty(key = "filePattern", description = "File Include Pattern")
+  @RuleProperty(key = "filePattern")
   private String filePattern;
 
   /**
    * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
    */
-  @RuleProperty(key = "schemas", description = "Schemas", defaultValue = "autodetect", type = "TEXT")
+  @RuleProperty(key = "schemas", defaultValue = "autodetect", type = "TEXT")
   private String schemas;
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
