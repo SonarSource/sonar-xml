@@ -41,9 +41,9 @@ import java.util.List;
   @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
     defaultValue = "xml,xhtml", global = true, project = true),
   @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include",
-    description = "List of file inclusion filters, separated by comma.", defaultValue = "", global = false, project = true),
+    description = "List of file inclusion filters, separated by comma.", defaultValue = "", global = false, project = false),
   @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
-    defaultValue = "src/main/resources", global = false, project = true)})
+    defaultValue = "src/main/resources", global = false, project = false)})
 public final class XmlPlugin extends SonarPlugin {
 
   public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
