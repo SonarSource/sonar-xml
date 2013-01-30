@@ -49,7 +49,7 @@ public final class XmlSensor implements Sensor {
 
   public XmlSensor(Settings settings, RulesProfile profile) {
     this.settings = settings;
-    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getChecks());
+    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
   }
 
   /**
