@@ -36,7 +36,7 @@ public class Xml extends AbstractLanguage {
   public static final String KEY = "xml";
 
   /** The xml language name */
-  private static final String XML_LANGUAGE_NAME = "Xml";
+  private static final String XML_LANGUAGE_NAME = "XML";
 
   /**
    * Default constructor.
