@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>sonar-xml-plugin</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar XML Plugin</name>
@@ -45,6 +45,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-xml</url>
+    <tag>1.0</tag>
   </scm>
   
   <issueManagement>
