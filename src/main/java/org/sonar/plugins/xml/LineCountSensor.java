@@ -96,7 +96,7 @@ public final class LineCountSensor implements Sensor {
     }
   }
 
-  private boolean isEnabled(Project project) {
+  private boolean isEnabled() {
     return settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
   }
 
@@ -104,7 +104,7 @@ public final class LineCountSensor implements Sensor {
    * This sensor only executes on XML projects.
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled(project) && Xml.KEY.equals(project.getLanguageKey());
+    return isEnabled() && Xml.KEY.equals(project.getLanguageKey());
   }
 
   @Override

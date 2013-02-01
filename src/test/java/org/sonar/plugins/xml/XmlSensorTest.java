@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
@@ -94,7 +95,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.analyse(project, sensorContext);
 
-    assertTrue("Should have found 0 violation", sensorContext.getViolations().size() == 0);
+    assertThat(sensorContext.getViolations().size()).isEqualTo(0);
   }
 
   private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {

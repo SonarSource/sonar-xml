@@ -201,7 +201,7 @@ public class XmlProjectFileSystem {
     return result;
   }
 
-  private String[] getFileSuffixes(Project project, Settings settings) {
+  private String[] getFileSuffixes(Settings settings) {
     String[] extensions = settings.getStringArray(XmlPlugin.FILE_EXTENSIONS);
 
     if (extensions.length > 0 && StringUtils.isNotEmpty(extensions[0])) {
@@ -214,7 +214,7 @@ public class XmlProjectFileSystem {
   private IOFileFilter getFileSuffixFilter(Settings settings) {
     IOFileFilter suffixFilter = FileFilterUtils.trueFileFilter();
 
-    List<String> suffixes = Arrays.asList(getFileSuffixes(project, settings));
+    List<String> suffixes = Arrays.asList(getFileSuffixes(settings));
     if (!suffixes.isEmpty()) {
       suffixFilter = new SuffixFileFilter(suffixes);
     }

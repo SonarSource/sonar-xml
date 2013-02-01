@@ -74,7 +74,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
 
-  private static final Map<String, Schema> cachedSchemas = new HashMap<String, Schema>();
+  private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<String, Schema>();
 
   /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
@@ -123,7 +123,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
     final String cacheKey = StringUtils.join(schemaList, ",");
     // first try to load a cached schema.
-    Schema schema = cachedSchemas.get(cacheKey);
+    Schema schema = CACHED_SCHEMAS.get(cacheKey);
     if (schema != null) {
       return schema;
     }
@@ -145,7 +145,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       schemaFactory.setResourceResolver(new SchemaResolver());
 
       schema = schemaFactory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
-      cachedSchemas.put(cacheKey, schema);
+      CACHED_SCHEMAS.put(cacheKey, schema);
       return schema;
     } catch (SAXException e) {
       throw new SonarException(e);
