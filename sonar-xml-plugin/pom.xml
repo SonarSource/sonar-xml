@@ -11,7 +11,7 @@
   <artifactId>sonar-xml-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>Sonar XML Plugin</name>
+  <name>XML :: Sonar Plugin</name>
   <description>Enables analysis of XML and XHTML documents into Sonar.</description>
   <url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
 
