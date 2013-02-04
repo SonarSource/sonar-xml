@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.codehaus.sonar-plugins.xml</groupId>
+    <artifactId>xml</artifactId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>sonar-xml-plugin</artifactId>
+  <packaging>sonar-plugin</packaging>
+
+  <name>Sonar XML Plugin</name>
+  <description>Enables analysis of XML and XHTML documents into Sonar.</description>
+  <url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</developerConnection>
+    <url>https://github.com/SonarCommunity/sonar-xml</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <!-- Configuration for sonar-packaging-maven-plugin -->
+    <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
+    <sonar.pluginName>Xml</sonar.pluginName>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

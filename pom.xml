@@ -8,14 +8,12 @@
     <version>16</version>
   </parent>
 
-  <artifactId>sonar-xml-plugin</artifactId>
+  <groupId>org.codehaus.sonar-plugins.xml</groupId>
+  <artifactId>xml</artifactId>
   <version>1.1-SNAPSHOT</version>
-  <packaging>sonar-plugin</packaging>
+  <packaging>pom</packaging>
 
-  <name>Sonar XML Plugin</name>
-  <description>Analyze XML and XHTML documents.</description>
-
-  <url>http://docs.codehaus.org/display/SONAR/XML+Plugin</url>
+  <name>XML</name>
   <inceptionYear>2010</inceptionYear>
   <organization>
     <name>SonarSource</name>
@@ -23,11 +21,12 @@
   </organization>
   <licenses>
     <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>GNU LGPL 3</name>
+      <url>http://www.gnu.org/licenses/lgpl.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
       <id>mgalesloot</id>
@@ -41,13 +40,16 @@
     </developer>
   </developers>
 
+  <modules>
+    <module>sonar-xml-plugin</module>
+  </modules>
+
   <scm>
     <connection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-xml</url>
     <tag>HEAD</tag>
   </scm>
-  
   <issueManagement>
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14607</url>
@@ -58,33 +60,91 @@
   </ciManagement>
 
   <properties>
-    <sonar.version>3.2</sonar.version>
     <license.name>AL2</license.name>
-    <sonar.pluginName>Xml</sonar.pluginName>
-    <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
+
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+
+    <sonar.version>3.2</sonar.version>
+    <sslrVersion>1.18</sslrVersion>
+    <sslrSquidVersion>2.2</sslrSquidVersion>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
-      <scope>provided</scope>
-    </dependency>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${sonar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-testing-harness</artifactId>
+        <version>${sonar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-project</artifactId>
+        <version>2.0.7</version>
+      </dependency>
 
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-testing-harness</artifactId>
-      <version>${sonar.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>2.0.7</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${sslrVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-xpath</artifactId>
+        <version>${sslrVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-toolkit</artifactId>
+        <version>${sslrVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-testing-harness</artifactId>
+        <version>${sslrVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
+        <artifactId>sslr-squid-bridge</artifactId>
+        <version>${sslrSquidVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.5.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>1.5.6</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>0.9.15</version>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.10</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>1.9.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.easytesting</groupId>
+        <artifactId>fest-assert</artifactId>
+        <version>1.4</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
