@@ -23,18 +23,17 @@ import org.sonar.xml.api.XmlGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class WhitespaceTest {
+public class VersionNumTest {
 
   Grammar g = XmlGrammar.createGrammarBuilder().build();
 
   @Test
   public void ok() {
-    assertThat(g.rule(XmlGrammar.WHITESPACE))
-        .matches(" ")
-        .matches("\t")
-        .matches("\r")
-        .matches("\n")
-        .matches("  \r\n \r");
+    assertThat(g.rule(XmlGrammar.VERSION_NUM))
+        .matches("1.0")
+        .matches("1.1")
+
+        .notMatches("0.0");
   }
 
 }
