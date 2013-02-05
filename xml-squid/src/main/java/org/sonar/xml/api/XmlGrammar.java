@@ -31,6 +31,7 @@ public enum XmlGrammar implements GrammarRuleKey {
 
   S,
   NAME,
+  NM_TOKEN,
   ENTITY_VALUE,
   ATT_VALUE,
   SYSTEM_LITERAL,
@@ -112,7 +113,8 @@ public enum XmlGrammar implements GrammarRuleKey {
   private static final String NAME_START_CHAR_REGEXP = "[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D" +
     "\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]";
   private static final String NAME_CHAR_REGEXP = "(?:" + NAME_START_CHAR_REGEXP + "|[-.0-9\u00B7\u0300-\u036F\u203F-\u2040])";
-  private static final String NAME_REGEXP = NAME_START_CHAR_REGEXP + NAME_CHAR_REGEXP + "*+";
+  private static final String NAME_REGEXP = "(?:" + NAME_START_CHAR_REGEXP + NAME_CHAR_REGEXP + "*+" + ")";
+  private static final String NM_TOKEN_REGEXP = "(?:" + NAME_CHAR_REGEXP + "++)";
   private static final String PUBID_CHAR_REGEXP = "[ \r\na-zA-Z0-9-'()+,./:=?;!*#@$_%]";
 
   private static final String COMMENT_REGEXP = "<!--" + "(?:(?!-)" + CHAR_REGEXP + "|-" + "(?!-)" + CHAR_REGEXP + ")*+" + "-->";
@@ -131,6 +133,7 @@ public enum XmlGrammar implements GrammarRuleKey {
 
     b.rule(S).is(b.skippedTrivia(b.regexp(S_REGEXP))).skip();
     b.rule(NAME).is(b.regexp(NAME_REGEXP));
+    b.rule(NM_TOKEN).is(b.regexp(NM_TOKEN_REGEXP));
     b.rule(ENTITY_VALUE).is(
         b.firstOf(
             b.sequence('"', b.zeroOrMore(b.firstOf(b.regexp("[^%&\"]++"), PE_REFERENCE, REFERENCE)), '"'),
@@ -263,6 +266,35 @@ public enum XmlGrammar implements GrammarRuleKey {
         b.firstOf(
             b.sequence('(', b.optional(S), "#PCDATA", b.zeroOrMore(b.optional(S), '|', b.optional(S), NAME), b.optional(S), ")*"),
             b.sequence('(', b.optional(S), "#PCDATA", b.optional(S), ')')));
+
+    b.rule(ATT_LIST_DECL).is("<!ATTLIST", S, NAME, b.zeroOrMore(ATT_DEF), b.optional(S), '>');
+    b.rule(ATT_DEF).is(S, NAME, S, ATT_TYPE, S, DEFAULT_DECL);
+    b.rule(ATT_TYPE).is(
+        b.firstOf(
+            STRING_TYPE,
+            TOKENIZED_TYPE,
+            ENUMERATED_TYPE));
+    b.rule(STRING_TYPE).is("CDATA");
+    b.rule(TOKENIZED_TYPE).is(
+        b.firstOf(
+            "IDREFS",
+            "IDREF",
+            "ID",
+            "ENTITIES",
+            "ENTITY",
+            "NMTOKENS",
+            "NMTOKEN"));
+    b.rule(ENUMERATED_TYPE).is(
+        b.firstOf(
+            NOTATION_TYPE,
+            ENUMERATION));
+    b.rule(NOTATION_TYPE).is("NOTATION", S, '(', b.optional(S), NAME, b.zeroOrMore(b.optional(S), '|', b.optional(S), NAME), b.optional(S), ')');
+    b.rule(ENUMERATION).is('(', b.optional(S), NM_TOKEN, b.zeroOrMore(b.optional(S), '|', b.optional(S), NM_TOKEN), b.optional(S), ')');
+    b.rule(DEFAULT_DECL).is(
+        b.firstOf(
+            "#REQUIRED",
+            "#IMPLIED",
+            b.sequence(b.optional("#FIXED", S), ATT_VALUE)));
 
     b.rule(CHAR_REF).is(b.regexp(CHAR_REF_REGEXP));
     b.rule(REFERENCE).is(b.firstOf(ENTITY_REF, CHAR_REF));
