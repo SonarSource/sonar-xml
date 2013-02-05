@@ -23,19 +23,17 @@ import org.sonar.xml.api.XmlGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class VersionNumTest {
+public class ContentSpecTest {
 
   Grammar g = XmlGrammar.createGrammarBuilder().build();
 
   @Test
   public void ok() {
-    assertThat(g.rule(XmlGrammar.VERSION_NUM))
-        .matches("1.0")
-        .matches("1.1")
-        .matches("1.2")
-        .matches("1.12345")
-
-        .notMatches("0.0");
+    assertThat(g.rule(XmlGrammar.CONTENT_SPEC))
+        .matches("EMPTY")
+        .matches("ANY")
+        .matches("(foo)")
+        .matches("(#PCDATA)");
   }
 
 }

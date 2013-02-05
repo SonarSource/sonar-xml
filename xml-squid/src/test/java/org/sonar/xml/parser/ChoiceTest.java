@@ -23,19 +23,17 @@ import org.sonar.xml.api.XmlGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class VersionNumTest {
+public class ChoiceTest {
 
   Grammar g = XmlGrammar.createGrammarBuilder().build();
 
   @Test
   public void ok() {
-    assertThat(g.rule(XmlGrammar.VERSION_NUM))
-        .matches("1.0")
-        .matches("1.1")
-        .matches("1.2")
-        .matches("1.12345")
-
-        .notMatches("0.0");
+    assertThat(g.rule(XmlGrammar.CHOICE))
+        .matches("(foo|bar)")
+        .matches("(foo| bar|baz)")
+        .matches("(foo| (bar |baz))")
+        .matches("( foo | bar )");
   }
 
 }

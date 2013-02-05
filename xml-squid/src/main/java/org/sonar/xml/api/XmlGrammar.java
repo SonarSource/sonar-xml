@@ -71,6 +71,28 @@ public enum XmlGrammar implements GrammarRuleKey {
   CONTENT,
   EMPTY_ELEM_TAG,
 
+  ELEMENT_DECL,
+  CONTENT_SPEC,
+  CHILDREN,
+  CP,
+  CHOICE,
+  SEQ,
+  MIXED,
+  ATT_LIST_DECL,
+  ATT_DEF,
+  ATT_TYPE,
+  STRING_TYPE,
+  TOKENIZED_TYPE,
+  ENUMERATED_TYPE,
+  NOTATION_TYPE,
+  ENUMERATION,
+  DEFAULT_DECL,
+  CONDITIONAL_SECT,
+  INCLUDE_SECT,
+  IGNORE_SECT,
+  IGNORE_SECT_CONTENTS,
+  IGNORE,
+
   CHAR_REF,
   REFERENCE,
   ENTITY_REF,
@@ -78,12 +100,9 @@ public enum XmlGrammar implements GrammarRuleKey {
 
   ENCODING_DECL,
   EXTERNAL_ID,
-  ELEMENT_DECL,
-  ATT_LIST_DECL,
   ENTITY_DECL,
   NOTATION_DECL,
   TEXT_DECL,
-  CONDITIONAL_SECT,
 
   ;
 
@@ -154,7 +173,7 @@ public enum XmlGrammar implements GrammarRuleKey {
             b.sequence('"', VERSION_NUM, '"'),
             b.sequence('\'', VERSION_NUM, '\'')));
     b.rule(EQ).is(b.optional(S), '=', b.optional(S));
-    b.rule(VERSION_NUM).is(b.firstOf("1.0", "1.1"));
+    b.rule(VERSION_NUM).is("1.", b.regexp("[0-9]++"));
     b.rule(MISC).is(
         b.firstOf(
             S,
@@ -212,6 +231,39 @@ public enum XmlGrammar implements GrammarRuleKey {
             b.optional(CHAR_DATA)));
     b.rule(EMPTY_ELEM_TAG).is('<', NAME, b.zeroOrMore(S, ATTRIBUTE), b.optional(S), "/>");
 
+    b.rule(ELEMENT_DECL).is("<!ELEMENT", S, NAME, S, CONTENT_SPEC, b.optional(S), '>');
+    b.rule(CONTENT_SPEC).is(
+        b.firstOf(
+            "EMPTY",
+            "ANY",
+            MIXED,
+            CHILDREN));
+    b.rule(CHILDREN).is(
+        b.firstOf(
+            CHOICE,
+            SEQ),
+        b.optional(
+            b.firstOf(
+                '?',
+                '*',
+                '+')));
+    b.rule(CP).is(
+        b.firstOf(
+            NAME,
+            CHOICE,
+            SEQ),
+        b.optional(
+            b.firstOf(
+                '?',
+                '*',
+                '+')));
+    b.rule(CHOICE).is('(', b.optional(S), CP, b.oneOrMore(b.optional(S), '|', b.optional(S), CP), b.optional(S), ')');
+    b.rule(SEQ).is('(', b.optional(S), CP, b.zeroOrMore(b.optional(S), ',', b.optional(S), CP), b.optional(S), ')');
+    b.rule(MIXED).is(
+        b.firstOf(
+            b.sequence('(', b.optional(S), "#PCDATA", b.zeroOrMore(b.optional(S), '|', b.optional(S), NAME), b.optional(S), ")*"),
+            b.sequence('(', b.optional(S), "#PCDATA", b.optional(S), ')')));
+
     b.rule(CHAR_REF).is(b.regexp(CHAR_REF_REGEXP));
     b.rule(REFERENCE).is(b.firstOf(ENTITY_REF, CHAR_REF));
     b.rule(ENTITY_REF).is('&', NAME, ';');
@@ -221,5 +273,4 @@ public enum XmlGrammar implements GrammarRuleKey {
 
     return b;
   }
-
 }

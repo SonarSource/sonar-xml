@@ -23,19 +23,22 @@ import org.sonar.xml.api.XmlGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class VersionNumTest {
+public class CpTest {
 
   Grammar g = XmlGrammar.createGrammarBuilder().build();
 
   @Test
   public void ok() {
-    assertThat(g.rule(XmlGrammar.VERSION_NUM))
-        .matches("1.0")
-        .matches("1.1")
-        .matches("1.2")
-        .matches("1.12345")
+    assertThat(g.rule(XmlGrammar.CP))
+        .matches("foo")
+        .matches("(foo|bar)")
+        .matches("(foo)")
 
-        .notMatches("0.0");
+        .matches("foo?")
+        .matches("foo*")
+        .matches("foo+")
+
+        .matches("(foo,bar)*");
   }
 
 }
