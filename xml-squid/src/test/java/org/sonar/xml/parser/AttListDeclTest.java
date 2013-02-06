@@ -35,6 +35,13 @@ public class AttListDeclTest {
         .matches("<!ATTLIST foo bar ID #REQUIRED>")
         .matches("<!ATTLIST foo bar ID #REQUIRED baz CDATA #IMPLIED >")
 
+        .matches("<!ATTLIST poem  xml:space (default|preserve) 'preserve'>")
+        .matches("<!ATTLIST pre xml:space (preserve) #FIXED 'preserve'>")
+
+        .matches("<!ATTLIST poem   xml:lang CDATA 'fr'>")
+        .matches("<!ATTLIST gloss  xml:lang CDATA 'en'>")
+        .matches("<!ATTLIST note   xml:lang CDATA 'en'>")
+
         .matches("<!ATTLIST termdef\nid      ID      #REQUIRED\nname    CDATA   #IMPLIED>")
         .matches("<!ATTLIST list\ntype    (bullets|ordered|glossary)  \"ordered\">")
         .matches("<!ATTLIST form\nmethod  CDATA   #FIXED \"POST\">");

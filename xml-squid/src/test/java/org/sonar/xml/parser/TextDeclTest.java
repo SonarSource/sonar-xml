@@ -32,7 +32,10 @@ public class TextDeclTest {
     assertThat(g.rule(XmlGrammar.TEXT_DECL))
         .matches("<?xml encoding='foo'?>")
         .matches("<?xml encoding='foo' ?>")
-        .matches("<?xml version='1.0' encoding='foo'?>");
+        .matches("<?xml version='1.0' encoding='foo'?>")
+
+        .matches("<?xml encoding='UTF-8'?>")
+        .matches("<?xml encoding='EUC-JP'?>");
   }
 
 }

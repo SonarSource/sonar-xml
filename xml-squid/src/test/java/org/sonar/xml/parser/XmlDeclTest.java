@@ -33,7 +33,8 @@ public class XmlDeclTest {
         .matches("<?xml version='1.0'?>")
         .matches("<?xml version='1.0' ?>")
         .matches("<?xml version='1.0' encoding='UTF-8'?>")
-        .matches("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>");
-  }
+        .matches("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>")
 
+        .matches("<?xml version=\"1.1\" standalone='yes'?>");
+  }
 }

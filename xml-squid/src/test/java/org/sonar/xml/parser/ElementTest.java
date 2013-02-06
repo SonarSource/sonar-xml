@@ -34,7 +34,17 @@ public class ElementTest {
         .matches("<foo></foo>")
         .matches("<foo>bar</foo>")
         .matches("<foo><bar /></foo>")
-        .matches("<foo><bar depth=\"2\">baz</bar></foo>");
+        .matches("<foo><bar depth=\"2\">baz</bar></foo>")
+
+        .matches("<p xml:lang=\"en\">The quick brown fox jumps over the lazy dog.</p>")
+        .matches("<p xml:lang=\"en-GB\">What colour is it?</p>")
+        .matches("<p xml:lang=\"en-US\">What color is it?</p>")
+        .matches("<sp who=\"Faust\" desc='leise' xml:lang=\"de\">\n" +
+          "<l>Habe nun, ach! Philosophie,</l>\n" +
+          "<l>Juristerei, und Medizin</l>\n" +
+          "<l>und leider auch Theologie</l>\n" +
+          "<l>durchaus studiert mit hei&#xDF;em Bem&#xFC;h'n.</l>\n" +
+          "</sp>");
   }
 
 }

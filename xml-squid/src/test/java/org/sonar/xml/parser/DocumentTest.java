@@ -32,7 +32,10 @@ public class DocumentTest {
     assertThat(g.rule(XmlGrammar.DOCUMENT))
         .matches("<br />")
         .matches("<p><br /></p>")
-        .matches("<?xml version='1.0'?><br />");
+        .matches("<?xml version='1.0'?><br />")
+
+        .matches("<?xml version=\"1.1\"?>\n<!DOCTYPE greeting SYSTEM \"hello.dtd\">\n<greeting>Hello, world!</greeting>")
+        .matches("<?xml version=\"1.1\" encoding=\"UTF-8\" ?><!DOCTYPE greeting [\n<!ELEMENT greeting (#PCDATA)>\n]>\n<greeting>Hello, world!</greeting>");
   }
 
 }
