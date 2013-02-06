@@ -88,6 +88,7 @@ public enum XmlGrammar implements GrammarRuleKey {
   NOTATION_TYPE,
   ENUMERATION,
   DEFAULT_DECL,
+
   CONDITIONAL_SECT,
   INCLUDE_SECT,
   IGNORE_SECT,
@@ -99,13 +100,20 @@ public enum XmlGrammar implements GrammarRuleKey {
   ENTITY_REF,
   PE_REFERENCE,
 
-  ENCODING_DECL,
-  EXTERNAL_ID,
   ENTITY_DECL,
-  NOTATION_DECL,
-  TEXT_DECL,
+  GE_DECL,
+  PE_DECL,
+  ENTITY_DEF,
+  PE_DEF,
+  EXTERNAL_ID,
+  NDATA_DECL,
 
-  ;
+  TEXT_DECL,
+  ENCODING_DECL,
+  ENC_NAME,
+
+  NOTATION_DECL,
+  PUBLIC_ID;
 
   private static final String CHAR_REGEXP = "[\u0001-\uD7FF\uE000-\uFFFD]";
 
@@ -121,13 +129,15 @@ public enum XmlGrammar implements GrammarRuleKey {
 
   private static final String CHAR_REF_REGEXP = "(?:" + "&#" + "(?:[0-9]++|x[0-9a-fA-F]++);" + ")";
 
+  private static final String ENC_NAME_REGEXP = "(?:[A-Za-z][A-Za-z0-9._-]++)";
+
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
 
     b.rule(YES).is("yes");
     b.rule(NO).is("no");
 
-    // b.rule(DOCUMENT).is(PROLOG, ELEMENT, b.zeroOrMore(MISC));
+    b.rule(DOCUMENT).is(PROLOG, ELEMENT, b.zeroOrMore(MISC)); // TODO Test
 
     b.rule(CHAR).is(b.regexp(CHAR_REGEXP));
 
@@ -284,6 +294,7 @@ public enum XmlGrammar implements GrammarRuleKey {
             "ENTITY",
             "NMTOKENS",
             "NMTOKEN"));
+
     b.rule(ENUMERATED_TYPE).is(
         b.firstOf(
             NOTATION_TYPE,
@@ -296,12 +307,60 @@ public enum XmlGrammar implements GrammarRuleKey {
             "#IMPLIED",
             b.sequence(b.optional("#FIXED", S), ATT_VALUE)));
 
+    b.rule(CONDITIONAL_SECT).is( // TODO Test
+        b.firstOf(
+            INCLUDE_SECT,
+            IGNORE_SECT));
+    b.rule(INCLUDE_SECT).is("<![", b.optional(S), "INCLUDE", b.optional(S), '[', EXT_SUBSET_DECL, "]]>"); // TODO Test
+    b.rule(IGNORE_SECT).is("<![", b.optional(S), "IGNORE", b.optional(S), '[', b.optional(IGNORE_SECT_CONTENTS), "]]>");
+    b.rule(IGNORE_SECT_CONTENTS).is(
+        b.firstOf(
+            b.sequence(IGNORE, b.zeroOrMore("<![", b.optional(IGNORE_SECT_CONTENTS), "]]>", b.optional(IGNORE))),
+            b.oneOrMore("<![", b.optional(IGNORE_SECT_CONTENTS), "]]>", b.optional(IGNORE))));
+    b.rule(IGNORE).is(b.regexp("((?!<!\\[|]]>)" + CHAR_REGEXP + ")++"));
+
     b.rule(CHAR_REF).is(b.regexp(CHAR_REF_REGEXP));
     b.rule(REFERENCE).is(b.firstOf(ENTITY_REF, CHAR_REF));
     b.rule(ENTITY_REF).is('&', NAME, ';');
     b.rule(PE_REFERENCE).is('%', NAME, ';');
 
-    b.setRootRule(S); // FIXME Set to document
+    b.rule(ENTITY_DECL).is(
+        b.firstOf(
+            GE_DECL,
+            PE_DECL));
+    b.rule(GE_DECL).is("<!ENTITY", S, NAME, S, ENTITY_DEF, b.optional(S), '>');
+    b.rule(PE_DECL).is("<!ENTITY", S, '%', S, NAME, S, PE_DEF, b.optional(S), '>');
+    b.rule(ENTITY_DEF).is(
+        b.firstOf(
+            ENTITY_VALUE,
+            b.sequence(EXTERNAL_ID, b.optional(NDATA_DECL))));
+    b.rule(PE_DEF).is(
+        b.firstOf(
+            ENTITY_VALUE,
+            EXTERNAL_ID));
+    b.rule(EXTERNAL_ID).is(
+        b.firstOf(
+            b.sequence("SYSTEM", S, SYSTEM_LITERAL),
+            b.sequence("PUBLIC", S, PUBID_LITERAL, S, SYSTEM_LITERAL)));
+    b.rule(NDATA_DECL).is(S, "NDATA", S, NAME);
+
+    b.rule(TEXT_DECL).is("<?xml", b.optional(VERSION_INFO), ENCODING_DECL, b.optional(S), "?>");
+    b.rule(ENCODING_DECL).is(
+        S, "encoding", EQ,
+        b.firstOf(
+            b.sequence('"', ENC_NAME, '"'),
+            b.sequence('\'', ENC_NAME, '\'')));
+    b.rule(ENC_NAME).is(b.regexp(ENC_NAME_REGEXP));
+
+    b.rule(NOTATION_DECL).is(
+        "<!NOTATION", S, NAME, S,
+        b.firstOf(
+            EXTERNAL_ID,
+            PUBLIC_ID),
+        b.optional(S), '>');
+    b.rule(PUBLIC_ID).is("PUBLIC", S, PUBID_LITERAL);
+
+    b.setRootRule(DOCUMENT);
 
     return b;
   }
