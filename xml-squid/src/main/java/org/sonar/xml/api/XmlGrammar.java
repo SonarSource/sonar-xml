@@ -137,7 +137,7 @@ public enum XmlGrammar implements GrammarRuleKey {
     b.rule(YES).is("yes");
     b.rule(NO).is("no");
 
-    b.rule(DOCUMENT).is(PROLOG, ELEMENT, b.zeroOrMore(MISC)); // TODO Test
+    b.rule(DOCUMENT).is(PROLOG, ELEMENT, b.zeroOrMore(MISC));
 
     b.rule(CHAR).is(b.regexp(CHAR_REGEXP));
 
@@ -178,8 +178,8 @@ public enum XmlGrammar implements GrammarRuleKey {
     b.rule(CDATA).is(b.regexp("(?:(?!]]>)" + CHAR_REGEXP + ")*+"));
     b.rule(CD_END).is("]]>");
 
-    b.rule(PROLOG).is(b.optional(XML_DECL), b.zeroOrMore(MISC), b.optional(DOC_TYPE_DECL, b.zeroOrMore(MISC))); // TODO Test
-    b.rule(XML_DECL).is("<?xml", VERSION_INFO, b.optional(ENCODING_DECL), b.optional(SD_DECL), b.optional(S), "?>"); // TODO Test
+    b.rule(PROLOG).is(b.optional(XML_DECL), b.zeroOrMore(MISC), b.optional(DOC_TYPE_DECL, b.zeroOrMore(MISC)));
+    b.rule(XML_DECL).is("<?xml", VERSION_INFO, b.optional(ENCODING_DECL), b.optional(SD_DECL), b.optional(S), "?>");
     b.rule(VERSION_INFO).is(
         S, "version", EQ,
         b.firstOf(
@@ -192,17 +192,17 @@ public enum XmlGrammar implements GrammarRuleKey {
             S,
             COMMENT,
             PI));
-    b.rule(DOC_TYPE_DECL).is("<!DOCTYPE", S, NAME, b.optional(S, EXTERNAL_ID), b.optional(S), b.optional('[', INT_SUBSET, ']', b.optional(S)), '>'); // TODO
+    b.rule(DOC_TYPE_DECL).is("<!DOCTYPE", S, NAME, b.optional(S, EXTERNAL_ID), b.optional(S), b.optional('[', INT_SUBSET, ']', b.optional(S)), '>');
     b.rule(DECL_SEP).is(
         b.firstOf(
             S,
             PE_REFERENCE));
-    b.rule(INT_SUBSET).is( // TODO Test
+    b.rule(INT_SUBSET).is(
         b.zeroOrMore(
             b.firstOf(
                 MARKUP_DECL,
                 DECL_SEP)));
-    b.rule(MARKUP_DECL).is( // TODO Test
+    b.rule(MARKUP_DECL).is(
         b.firstOf(
             ELEMENT_DECL,
             ATT_LIST_DECL,
@@ -210,8 +210,8 @@ public enum XmlGrammar implements GrammarRuleKey {
             NOTATION_DECL,
             PI,
             COMMENT));
-    b.rule(EXT_SUBSET).is(b.optional(TEXT_DECL), EXT_SUBSET_DECL); // TODO Test
-    b.rule(EXT_SUBSET_DECL).is( // TODO Test
+    b.rule(EXT_SUBSET).is(b.optional(TEXT_DECL), EXT_SUBSET_DECL);
+    b.rule(EXT_SUBSET_DECL).is(
         b.zeroOrMore(
             b.firstOf(
                 MARKUP_DECL,
@@ -307,11 +307,11 @@ public enum XmlGrammar implements GrammarRuleKey {
             "#IMPLIED",
             b.sequence(b.optional("#FIXED", S), ATT_VALUE)));
 
-    b.rule(CONDITIONAL_SECT).is( // TODO Test
+    b.rule(CONDITIONAL_SECT).is(
         b.firstOf(
             INCLUDE_SECT,
             IGNORE_SECT));
-    b.rule(INCLUDE_SECT).is("<![", b.optional(S), "INCLUDE", b.optional(S), '[', EXT_SUBSET_DECL, "]]>"); // TODO Test
+    b.rule(INCLUDE_SECT).is("<![", b.optional(S), "INCLUDE", b.optional(S), '[', EXT_SUBSET_DECL, "]]>");
     b.rule(IGNORE_SECT).is("<![", b.optional(S), "IGNORE", b.optional(S), '[', b.optional(IGNORE_SECT_CONTENTS), "]]>");
     b.rule(IGNORE_SECT_CONTENTS).is(
         b.firstOf(
