@@ -32,7 +32,9 @@ public class MiscTest {
     assertThat(g.rule(XmlGrammar.MISC))
         .matches("   ")
         .matches("<!-- foo -->")
-        .matches("<?foo?>");
+        .matches("<?foo?>")
+
+        .notMatches("");
   }
 
 }
