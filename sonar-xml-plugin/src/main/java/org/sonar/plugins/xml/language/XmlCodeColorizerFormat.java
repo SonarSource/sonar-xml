@@ -34,7 +34,7 @@ public class XmlCodeColorizerFormat extends CodeColorizerFormat {
   @Override
   public List<Tokenizer> getTokenizers() {
     return Arrays.asList(
-        new CDataDocTokenizer2("<span class=\"k\">", "</span>"),
+        new CDataDocTokenizer("<span class=\"k\">", "</span>"),
         new RegexpTokenizer("<span class=\"j\">", "</span>", "<!DOCTYPE.*>"),
         new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", "</span>"),
         new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", "</span>"),
