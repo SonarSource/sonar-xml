@@ -24,7 +24,7 @@ import org.sonar.colorizer.Tokenizer;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-public class CDataDocTokenizer extends Tokenizer {
+public class CDataDocTokenizer2 extends Tokenizer {
 
   private static final String CDATA_START = "<![CDATA[";
   private static final String CDATA_END = "]]>";
@@ -36,7 +36,7 @@ public class CDataDocTokenizer extends Tokenizer {
   private final String tagBefore;
   private final String tagAfter;
 
-  public CDataDocTokenizer(String tagBefore, String tagAfter) {
+  public CDataDocTokenizer2(String tagBefore, String tagAfter) {
     this.tagBefore = tagBefore;
     this.tagAfter = tagAfter;
     this.startToken = CDATA_START.toCharArray();
