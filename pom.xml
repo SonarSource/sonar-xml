@@ -43,6 +43,7 @@
   <modules>
     <module>xml-squid</module>
     <module>sonar-xml-plugin</module>
+    <module>sslr-xml-toolkit</module>
   </modules>
 
   <scm>

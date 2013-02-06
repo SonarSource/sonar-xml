@@ -364,4 +364,5 @@ public enum XmlGrammar implements GrammarRuleKey {
 
     return b;
   }
+
 }

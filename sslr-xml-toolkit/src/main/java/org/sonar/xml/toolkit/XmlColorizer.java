@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sonar.plugins.xml.language;
+package org.sonar.xml.toolkit;
 
-import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.MultilinesDocTokenizer;
 import org.sonar.colorizer.RegexpTokenizer;
 import org.sonar.colorizer.Tokenizer;
@@ -25,14 +24,12 @@ import org.sonar.colorizer.Tokenizer;
 import java.util.Arrays;
 import java.util.List;
 
-public class XmlCodeColorizerFormat extends CodeColorizerFormat {
+public final class XmlColorizer {
 
-  public XmlCodeColorizerFormat() {
-    super(Xml.KEY);
+  private XmlColorizer() {
   }
 
-  @Override
-  public List<Tokenizer> getTokenizers() {
+  public static List<Tokenizer> getTokenizers() {
     return Arrays.asList(
         new CDataDocTokenizer("<span class=\"k\">", "</span>"),
         new RegexpTokenizer("<span class=\"j\">", "</span>", "<!DOCTYPE.*>"),
