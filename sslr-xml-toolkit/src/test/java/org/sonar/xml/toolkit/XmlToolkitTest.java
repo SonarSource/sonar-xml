@@ -15,21 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sonar.xml.parser;
+package org.sonar.xml.toolkit;
 
-import com.sonar.sslr.api.Grammar;
-import com.sonar.sslr.impl.Parser;
-import org.sonar.sslr.parser.ParserAdapter;
-import org.sonar.xml.XmlParserConfiguration;
-import org.sonar.xml.api.XmlGrammar;
+import org.junit.Test;
 
-public final class XmlParser {
+import java.lang.reflect.Constructor;
 
-  private XmlParser() {
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  public static Parser<Grammar> create(XmlParserConfiguration conf) {
-    return new ParserAdapter(conf.getCharset(), XmlGrammar.createGrammarBuilder().build());
+public class XmlToolkitTest {
+
+  @Test
+  public void private_constructor() throws Exception {
+    Constructor constructor = XmlToolkit.class.getDeclaredConstructor();
+    assertThat(constructor.isAccessible()).isFalse();
+    constructor.setAccessible(true);
+    constructor.newInstance();
   }
 
 }

@@ -25,8 +25,7 @@ public final class XmlToolkit {
   }
 
   public static void main(String[] args) {
-    Toolkit toolkit = new Toolkit("SSLR :: XML :: Toolkit", new XmlConfigurationModel());
-    toolkit.run();
+    new Toolkit("SSLR :: XML :: Toolkit", new XmlConfigurationModel()).run();
   }
 
 }

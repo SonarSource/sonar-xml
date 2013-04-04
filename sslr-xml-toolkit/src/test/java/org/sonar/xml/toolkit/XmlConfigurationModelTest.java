@@ -19,6 +19,10 @@ package org.sonar.xml.toolkit;
 
 import com.google.common.base.Charsets;
 import org.junit.Test;
+import org.sonar.colorizer.Tokenizer;
+import org.sonar.sslr.parser.ParserAdapter;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -63,6 +67,34 @@ public class XmlConfigurationModelTest {
         System.setProperty("foo", oldValue);
       }
     }
+  }
+
+  @Test
+  public void getProperties() {
+    XmlConfigurationModel model = new XmlConfigurationModel();
+    assertThat(model.getProperties()).containsOnly(model.charsetProperty);
+  }
+
+  @Test
+  public void doGetParser() {
+    assertThat(new XmlConfigurationModel().doGetParser()).isInstanceOf(ParserAdapter.class);
+  }
+
+  @Test
+  public void doGetTokenizers() {
+    List<Tokenizer> tokenizers = new XmlConfigurationModel().doGetTokenizers();
+
+    assertThat(tokenizers.size()).isGreaterThan(0);
+    assertThat(containsAnyCDataTokenizer(tokenizers)).isEqualTo(true);
+  }
+
+  private boolean containsAnyCDataTokenizer(List<Tokenizer> tokenizers) {
+    for (Tokenizer tokenizer : tokenizers) {
+      if (tokenizer instanceof CDataDocTokenizer) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

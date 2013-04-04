@@ -23,14 +23,18 @@ import com.sonar.sslr.api.Grammar;
 import com.sonar.sslr.impl.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.colorizer.MultilinesDocTokenizer;
+import org.sonar.colorizer.RegexpTokenizer;
 import org.sonar.colorizer.Tokenizer;
+import org.sonar.sslr.parser.ParserAdapter;
 import org.sonar.sslr.toolkit.AbstractConfigurationModel;
 import org.sonar.sslr.toolkit.ConfigurationProperty;
 import org.sonar.sslr.toolkit.Validators;
 import org.sonar.xml.XmlParserConfiguration;
-import org.sonar.xml.parser.XmlParser;
+import org.sonar.xml.api.XmlGrammar;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 
 public class XmlConfigurationModel extends AbstractConfigurationModel {
@@ -50,12 +54,17 @@ public class XmlConfigurationModel extends AbstractConfigurationModel {
 
   @Override
   public Parser<? extends Grammar> doGetParser() {
-    return XmlParser.create(getConfiguration());
+    return new ParserAdapter(getCharset(), XmlGrammar.createGrammarBuilder().build());
   }
 
   @Override
   public List<Tokenizer> doGetTokenizers() {
-    return XmlColorizer.getTokenizers();
+    return Arrays.asList(
+        new CDataDocTokenizer("<span class=\"k\">", "</span>"),
+        new RegexpTokenizer("<span class=\"j\">", "</span>", "<!DOCTYPE.*>"),
+        new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", "</span>"),
+        new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", "</span>"),
+        new XmlStartElementTokenizer("<span class=\"k\">", "</span>", "<span class=\"c\">", "</span>", "<span class=\"s\">", "</span>"));
   }
 
   @VisibleForTesting
