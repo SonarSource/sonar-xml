@@ -21,6 +21,7 @@ import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.sonar.colorizer.Tokenizer;
 import org.sonar.sslr.parser.ParserAdapter;
+import org.sonar.xml.CDataDocTokenizer;
 
 import java.util.List;
 

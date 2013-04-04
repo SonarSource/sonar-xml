@@ -18,11 +18,9 @@
 package org.sonar.plugins.xml.language;
 
 import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.MultilinesDocTokenizer;
-import org.sonar.colorizer.RegexpTokenizer;
 import org.sonar.colorizer.Tokenizer;
+import org.sonar.xml.XmlColorizer;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class XmlCodeColorizerFormat extends CodeColorizerFormat {
@@ -33,12 +31,7 @@ public class XmlCodeColorizerFormat extends CodeColorizerFormat {
 
   @Override
   public List<Tokenizer> getTokenizers() {
-    return Arrays.asList(
-        new CDataDocTokenizer("<span class=\"k\">", "</span>"),
-        new RegexpTokenizer("<span class=\"j\">", "</span>", "<!DOCTYPE.*>"),
-        new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", "</span>"),
-        new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", "</span>"),
-        new XmlStartElementTokenizer("<span class=\"k\">", "</span>", "<span class=\"c\">", "</span>", "<span class=\"s\">", "</span>"));
+    return XmlColorizer.createTokenizers();
   }
 
 }

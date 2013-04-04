@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sonar.plugins.xml.language;
+package org.sonar.xml;
 
 import org.junit.Test;
 import org.sonar.colorizer.CodeColorizer;
@@ -27,8 +27,7 @@ import static org.junit.Assert.assertThat;
 
 public class XmlCodeColorizerFormatTest {
 
-  XmlCodeColorizerFormat xmlColorizer = new XmlCodeColorizerFormat();
-  CodeColorizer codeColorizer = new CodeColorizer(xmlColorizer.getTokenizers());
+  private CodeColorizer codeColorizer = new CodeColorizer(XmlColorizer.createTokenizers());
 
   @Test
   public void testXMLHeader() {

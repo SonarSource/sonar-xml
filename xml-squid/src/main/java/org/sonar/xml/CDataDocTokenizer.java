@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sonar.xml.toolkit;
+package org.sonar.xml;
 
 import org.sonar.channel.CodeReader;
 import org.sonar.colorizer.HtmlCodeBuilder;
