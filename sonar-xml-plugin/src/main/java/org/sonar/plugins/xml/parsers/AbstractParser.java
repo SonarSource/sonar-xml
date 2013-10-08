@@ -21,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.xerces.jaxp.SAXParserFactoryImpl;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.SAXException;
 
@@ -38,7 +39,7 @@ public abstract class AbstractParser {
    */
   static {
 
-    SAX_FACTORY = SAXParserFactory.newInstance();
+    SAX_FACTORY = new SAXParserFactoryImpl();
 
     try {
       SAX_FACTORY.setValidating(false);
