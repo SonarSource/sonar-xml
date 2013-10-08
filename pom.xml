@@ -78,6 +78,18 @@
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${sonar.version}</version>
+        <exclusions>
+          <!--
+          Required for compatibility with SonarQube 3.x AND 4.x.
+          Xalan was provided by SonarQube 3.x but has been removed in
+          4.0. Excluding it from sonar-plugin-api forces the JAR file
+          to be packaged within the plugin.
+          -->
+          <exclusion>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
@@ -89,7 +101,6 @@
         <artifactId>maven-project</artifactId>
         <version>2.0.7</version>
       </dependency>
-
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-core</artifactId>
@@ -114,6 +125,11 @@
         <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
         <artifactId>sslr-squid-bridge</artifactId>
         <version>${sslrSquidVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.1</version>
       </dependency>
 
       <dependency>
