@@ -62,7 +62,7 @@
   </ciManagement>
 
   <properties>
-    <license.title>Sonar XML Plugin</license.title>
+    <license.title>SonarQube XML Plugin</license.title>
     <license.name>AL2</license.name>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>

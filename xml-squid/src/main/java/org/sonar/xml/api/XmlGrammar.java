@@ -1,5 +1,5 @@
 /*
- * Sonar XML Plugin
+ * SonarQube XML Plugin
  * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
