@@ -10,7 +10,7 @@
 
   <groupId>org.codehaus.sonar-plugins.xml</groupId>
   <artifactId>xml</artifactId>
-  <version>1.0.1</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>XML</name>
@@ -50,7 +50,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-xml</url>
-    <tag>1.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
