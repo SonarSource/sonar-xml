@@ -20,7 +20,6 @@ package org.sonar.plugins.xml;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
-import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -44,7 +43,7 @@ import java.io.IOException;
 public final class LineCountSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LineCountSensor.class);
-  private Settings settings;
+  private final Settings settings;
 
   public LineCountSensor(Settings settings) {
     this.settings = settings;
@@ -74,7 +73,7 @@ public final class LineCountSensor implements Sensor {
 
     try {
 
-      Log.debug("Count comment in " + file.getPath());
+      LOG.debug("Count comment in " + file.getPath());
 
       LineCountParser lineCountParser = new LineCountParser();
       int numCommentLines = lineCountParser.countLinesOfComment(FileUtils.openInputStream(file));
@@ -88,6 +87,7 @@ public final class LineCountSensor implements Sensor {
     LOG.debug("LineCountSensor: " + xmlFile.getKey() + ":" + numLines + "," + numBlankLines + "," + 0);
   }
 
+  @Override
   public void analyse(Project project, SensorContext sensorContext) {
 
     for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
@@ -103,6 +103,7 @@ public final class LineCountSensor implements Sensor {
   /**
    * This sensor only executes on XML projects.
    */
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return isEnabled() && Xml.KEY.equals(project.getLanguageKey());
   }
@@ -111,4 +112,5 @@ public final class LineCountSensor implements Sensor {
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }
