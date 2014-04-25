@@ -17,16 +17,15 @@
  */
 package org.sonar.plugins.xml;
 
-import org.sonar.api.Extension;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
 import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,35 +33,31 @@ import java.util.List;
  *
  * @author Matthijs Galesloot
  */
-@Properties({
-  @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
-    defaultValue = "xml,xhtml", global = true, project = true)})
 public final class XmlPlugin extends SonarPlugin {
 
   public static final String FILE_EXTENSIONS = "sonar.xml.file.suffixes";
 
-  public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
+  public List getExtensions() {
+    return ImmutableList.of(
 
-    // xml language
-    list.add(Xml.class);
+      PropertyDefinition.builder(XmlPlugin.FILE_EXTENSIONS)
+        .name("File extensions")
+        .description("List of file extensions that will be scanned.")
+        .defaultValue("xml,xhtml")
+        .category("XML")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT),
 
-    // xml files importer
-    list.add(XmlSourceImporter.class);
+      Xml.class,
 
-    // XML rules
-    list.add(XmlRulesRepository.class);
+      XmlSourceImporter.class,
 
-    // Profiles
-    list.add(XmlSonarWayProfile.class);
+      XmlRulesRepository.class,
+      XmlSonarWayProfile.class,
 
-    // sensors
-    list.add(XmlSensor.class);
-    list.add(LineCountSensor.class);
+      // Sensors
+      XmlSensor.class,
+      LineCountSensor.class,
 
-    // Code Colorizer
-    list.add(XmlCodeColorizerFormat.class);
-
-    return list;
+      XmlCodeColorizerFormat.class);
   }
 }

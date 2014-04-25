@@ -26,16 +26,18 @@ import java.util.List;
 
 public final class XmlColorizer {
 
+  private static final String END_TAG = "</span>";
+
   private XmlColorizer() {
   }
 
   public static List<Tokenizer> createTokenizers() {
     return Arrays.asList(
-        new CDataDocTokenizer("<span class=\"k\">", "</span>"),
-        new RegexpTokenizer("<span class=\"j\">", "</span>", "<!DOCTYPE.*>"),
-        new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", "</span>"),
-        new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", "</span>"),
-        new XmlStartElementTokenizer("<span class=\"k\">", "</span>", "<span class=\"c\">", "</span>", "<span class=\"s\">", "</span>"));
+        new CDataDocTokenizer("<span class=\"k\">", END_TAG),
+        new RegexpTokenizer("<span class=\"j\">", END_TAG, "<!DOCTYPE.*>"),
+        new MultilinesDocTokenizer("<!--", "-->", "<span class=\"j\">", END_TAG),
+        new MultilinesDocTokenizer("</", ">", "<span class=\"k\">", END_TAG),
+        new XmlStartElementTokenizer("<span class=\"k\">", END_TAG, "<span class=\"c\">", END_TAG, "<span class=\"s\">", END_TAG));
   }
 
 }

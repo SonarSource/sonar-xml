@@ -19,7 +19,6 @@ package org.sonar.xml.toolkit;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.sonar.sslr.api.Grammar;
 import com.sonar.sslr.impl.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +42,15 @@ public class XmlConfigurationModel extends AbstractConfigurationModel {
 
   @VisibleForTesting
   ConfigurationProperty charsetProperty = new ConfigurationProperty("Charset", CHARSET_PROPERTY_KEY,
-      getPropertyOrDefaultValue(CHARSET_PROPERTY_KEY, "UTF-8"),
-      Validators.charsetValidator());
+    getPropertyOrDefaultValue(CHARSET_PROPERTY_KEY, "UTF-8"),
+    Validators.charsetValidator());
 
   public List<ConfigurationProperty> getProperties() {
     return ImmutableList.of(charsetProperty);
   }
 
   @Override
-  public Parser<? extends Grammar> doGetParser() {
+  public Parser doGetParser() {
     return new ParserAdapter(getCharset(), XmlGrammar.createGrammarBuilder().build());
   }
 
@@ -63,8 +62,8 @@ public class XmlConfigurationModel extends AbstractConfigurationModel {
   @VisibleForTesting
   XmlParserConfiguration getConfiguration() {
     return XmlParserConfiguration.builder()
-        .setCharset(Charset.forName(charsetProperty.getValue()))
-        .build();
+      .setCharset(Charset.forName(charsetProperty.getValue()))
+      .build();
   }
 
   @VisibleForTesting

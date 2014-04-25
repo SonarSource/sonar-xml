@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public class XmlSourceCode {
@@ -41,14 +41,14 @@ public class XmlSourceCode {
   private String code;
   private final File file;
 
-  private final Resource<?> resource;
+  private final Resource resource;
   private final List<Violation> violations = new ArrayList<Violation>();
 
   private Document documentNamespaceAware;
 
   private Document documentNamespaceUnaware;
 
-  public XmlSourceCode(Resource<?> resource, File file) {
+  public XmlSourceCode(Resource resource, File file) {
     this.resource = resource;
     this.file = file;
   }
@@ -84,7 +84,7 @@ public class XmlSourceCode {
     }
   }
 
-  public Resource<?> getResource() {
+  public Resource getResource() {
     return resource;
   }
 
