@@ -21,9 +21,6 @@ import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
 import org.sonar.plugins.xml.rules.XmlRulesRepository;
@@ -39,21 +36,10 @@ import java.util.List;
  */
 @Properties({
   @Property(key = XmlPlugin.FILE_EXTENSIONS, name = "File extensions", description = "List of file extensions that will be scanned.",
-    defaultValue = "xml,xhtml", global = true, project = true),
-  @Property(key = XmlPlugin.INCLUDE_FILE_FILTER, name = "Files to include",
-    description = "List of file inclusion filters, separated by comma.", defaultValue = "", global = false, project = false),
-  @Property(key = XmlPlugin.SOURCE_DIRECTORY, name = "Source directory", description = "Source directory that will be scanned.",
-    defaultValue = "src/main/resources", global = false, project = false)})
+    defaultValue = "xml,xhtml", global = true, project = true)})
 public final class XmlPlugin extends SonarPlugin {
 
   public static final String FILE_EXTENSIONS = "sonar.xml.file.suffixes";
-  public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
-  public static final String INCLUDE_FILE_FILTER = "sonar.xml.includeFileFilter";
-
-  public static List<InputFile> getFiles(Project project, Settings settings) {
-    XmlProjectFileSystem fileSystem = new XmlProjectFileSystem(project);
-    return fileSystem.getFiles(settings);
-  }
 
   public List<Class<? extends Extension>> getExtensions() {
     List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();

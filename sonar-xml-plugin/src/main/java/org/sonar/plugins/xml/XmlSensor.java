@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
-import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
@@ -44,12 +44,12 @@ public final class XmlSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
-  private final Settings settings;
   private final AnnotationCheckFactory annotationCheckFactory;
+  private final ModuleFileSystem fileSystem;
 
-  public XmlSensor(Settings settings, RulesProfile profile) {
-    this.settings = settings;
+  public XmlSensor(RulesProfile profile, ModuleFileSystem fileSystem) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
+    this.fileSystem = fileSystem;
   }
 
   /**
@@ -57,12 +57,12 @@ public final class XmlSensor implements Sensor {
    */
   public void analyse(Project project, SensorContext sensorContext) {
     Collection<AbstractXmlCheck> checks = annotationCheckFactory.getChecks();
-    for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
+    for (java.io.File file : fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY))) {
 
       try {
-        File resource = XmlProjectFileSystem.fromIOFile(inputfile, project);
+        File resource = File.fromIOFile(file, project);
 
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, inputfile.getFile());
+        XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
 
         for (AbstractXmlCheck check : checks) {
           check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
@@ -71,7 +71,7 @@ public final class XmlSensor implements Sensor {
         saveViolations(sensorContext, sourceCode);
 
       } catch (Exception e) {
-        LOG.error("Could not analyze the file " + inputfile.getFile().getAbsolutePath(), e);
+        LOG.error("Could not analyze the file " + file.getAbsolutePath(), e);
       }
     }
   }

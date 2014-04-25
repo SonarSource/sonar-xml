@@ -17,22 +17,28 @@
  */
 package org.sonar.plugins.xml;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.maven.project.MavenProject;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.language.Xml;
+
+import java.io.File;
+import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LineCountSensorTest {
 
@@ -40,15 +46,18 @@ public class LineCountSensorTest {
   public void testLineCountSensor() {
     Settings settings = new Settings(new PropertyDefinitions(XmlPlugin.class));
     settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, true); // Default value is in CorePlugins
-    LineCountSensor lineCountSensor = new LineCountSensor(settings);
+
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(
+      new File("src/test/resources/parsers/linecount/complex.xml"),
+      new File("src/test/resources/parsers/linecount/simple.xml")));
+
+    LineCountSensor lineCountSensor = new LineCountSensor(settings, fs);
 
     MockSensorContext sensorContext = new MockSensorContext();
-    Project project = new Project("");
-    project.setConfiguration(new PropertiesConfiguration());
-    project.setFileSystem(new DefaultProjectFileSystem(project, new Languages(new Xml())));
-    project.setPom(new MavenProject());
-    project.setLanguageKey(Xml.KEY);
-    project.getPom().addCompileSourceRoot("src/test/resources/parsers/linecount");
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Xml.KEY);
+    addProjectFileSystem(project, "src/test/resources/parsers/linecount/");
 
     assertTrue(lineCountSensor.shouldExecuteOnProject(project));
     lineCountSensor.analyse(project, sensorContext);
@@ -58,14 +67,23 @@ public class LineCountSensorTest {
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(26);
         // TODO SONARPLUGINS-2623
         // assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(21);
-      }
-      else if (resource.getKey().equals("simple.xml")) {
+      } else if (resource.getKey().equals("simple.xml")) {
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(18);
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(15);
-      }
-      else {
+      } else {
         fail("Unexpected resource: " + resource.getKey());
       }
     }
   }
+
+  /**
+   * This is unavoidable in order to be compatible with sonarqube 4.2
+   */
+  private void addProjectFileSystem(Project project, String srcDir) {
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.getSourceDirs()).thenReturn(Arrays.asList(new File(srcDir)));
+
+    when(project.getFileSystem()).thenReturn(fs);
+  }
+
 }

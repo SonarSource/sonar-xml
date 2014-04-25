@@ -17,25 +17,31 @@
  */
 package org.sonar.plugins.xml;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XPathCheck;
+import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
-import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
@@ -57,16 +63,18 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @Test
   public void testSensor() throws Exception {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Xml.KEY);
+    addProjectFileSystem(project, "src/test/resources/src/");
 
-    File pomFile = new File(XmlSensorTest.class.getResource("/pom.xml").toURI());
-
-    final Project project = loadProjectFromPom(pomFile);
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom.xml")));
 
     MockSensorContext sensorContext = new MockSensorContext();
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(new Settings(), rulesProfile);
+    XmlSensor sensor = new XmlSensor(rulesProfile, fs);
 
     assertTrue(sensor.shouldExecuteOnProject(project));
 
@@ -75,38 +83,26 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
   }
 
-  @Test
-  public void testFileFilter() throws Exception {
-
-    File pomFile = new File(XmlSensorTest.class.getResource("/pom.xml").toURI());
-
-    final Project project = loadProjectFromPom(pomFile);
-
-    MockSensorContext sensorContext = new MockSensorContext();
-    RulesProfile rulesProfile = createStandardRulesProfile();
-    createXPathRuleForPomFiles(rulesProfile);
-
-    XmlSensor sensor = new XmlSensor(new Settings(), rulesProfile);
-
-    assertTrue(sensor.shouldExecuteOnProject(project));
-
-    // add an additional file filter
-    project.getConfiguration().addProperty(XmlPlugin.INCLUDE_FILE_FILTER, "**/not found");
-
-    sensor.analyse(project, sensorContext);
-
-    assertThat(sensorContext.getViolations().size()).isEqualTo(0);
-  }
-
   private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
 
     AnnotationRuleParser parser = new AnnotationRuleParser();
-    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[] {checkClass}));
+    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[]{checkClass}));
     for (Rule rule : rules) {
       if (rule.getKey().equals(ruleKey)) {
         return rule;
       }
     }
     return null;
+  }
+
+
+  /**
+   * This is unavoidable in order to be compatible with sonarqube 4.2
+   */
+  private void addProjectFileSystem(Project project, String srcDir) {
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.getSourceDirs()).thenReturn(Arrays.asList(new File(srcDir)));
+
+    when(project.getFileSystem()).thenReturn(fs);
   }
 }

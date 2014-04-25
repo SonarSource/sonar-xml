@@ -27,8 +27,9 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
@@ -44,9 +45,11 @@ public final class LineCountSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LineCountSensor.class);
   private final Settings settings;
+  private final ModuleFileSystem fileSystem;
 
-  public LineCountSensor(Settings settings) {
+  public LineCountSensor(Settings settings, ModuleFileSystem fileSystem) {
     this.settings = settings;
+    this.fileSystem = fileSystem;
   }
 
   private void addMeasures(SensorContext sensorContext, File file, org.sonar.api.resources.File xmlFile) {
@@ -90,9 +93,9 @@ public final class LineCountSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext sensorContext) {
 
-    for (InputFile inputfile : XmlPlugin.getFiles(project, settings)) {
-      org.sonar.api.resources.File htmlFile = XmlProjectFileSystem.fromIOFile(inputfile, project);
-      addMeasures(sensorContext, inputfile.getFile(), htmlFile);
+    for (File file : fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY))) {
+      org.sonar.api.resources.File htmlFile = org.sonar.api.resources.File.fromIOFile(file, project);
+      addMeasures(sensorContext, file, htmlFile);
     }
   }
 

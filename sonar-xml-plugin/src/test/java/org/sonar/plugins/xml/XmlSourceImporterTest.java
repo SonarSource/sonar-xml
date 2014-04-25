@@ -17,23 +17,33 @@
  */
 package org.sonar.plugins.xml;
 
-import org.sonar.api.batch.AbstractSourceImporter;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.resources.Language;
 import org.sonar.plugins.xml.language.Xml;
 
-/**
- * Import of XML source files to sonar database.
- *
- * @author Matthijs Galesloot
- */
-public final class XmlSourceImporter extends AbstractSourceImporter {
+import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-  public XmlSourceImporter(Xml xml) {
-    super(xml);
+public class XmlSourceImporterTest {
+
+  Xml xml;
+  private XmlSourceImporter importer;
+
+  @Before
+  public void setUp() {
+    xml = new Xml();
+    importer = new XmlSourceImporter(xml);
   }
 
-  @Override
-  public String toString() {
-    return "XML Source Importer";
+  @Test
+  public void testCreateImporter() throws Exception {
+    assertThat(importer.getLanguage(), is((Language) xml));
   }
 
+  @Test
+  public void testToString() throws Exception {
+    assertNotNull(importer.toString());
+  }
 }
