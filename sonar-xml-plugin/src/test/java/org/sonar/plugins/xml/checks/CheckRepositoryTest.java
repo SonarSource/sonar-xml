@@ -35,7 +35,7 @@ public class CheckRepositoryTest {
   @Test
   public void properties() {
     assertThat(CheckRepository.REPOSITORY_KEY).isEqualTo("xml");
-    assertThat(CheckRepository.REPOSITORY_NAME).isEqualTo("Sonar");
+    assertThat(CheckRepository.REPOSITORY_NAME).isEqualTo("SonarQube");
     assertThat(CheckRepository.SONAR_WAY_PROFILE_NAME).isEqualTo("Sonar way");
   }
 
