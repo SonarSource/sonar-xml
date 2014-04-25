@@ -18,10 +18,9 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
+import org.mockito.Mockito;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -34,7 +33,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -42,24 +40,34 @@ import static org.mockito.Mockito.when;
 
 public class LineCountSensorTest {
 
+
+  @Test
+  public void should_execute_on_javascript_project() {
+    Project project = new Project("key");
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    LineCountSensor sensor = new LineCountSensor(fs);
+
+    when(fs.files(any(FileQuery.class))).thenReturn(ListUtils.EMPTY_LIST);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+
+    when(fs.files(Mockito.any(FileQuery.class))).thenReturn(ImmutableList.of(new File("/tmp")));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+  }
+
   @Test
   public void testLineCountSensor() {
-    Settings settings = new Settings(new PropertyDefinitions(XmlPlugin.class));
-    settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, true); // Default value is in CorePlugins
-
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(
       new File("src/test/resources/parsers/linecount/complex.xml"),
       new File("src/test/resources/parsers/linecount/simple.xml")));
 
-    LineCountSensor lineCountSensor = new LineCountSensor(settings, fs);
-
+    LineCountSensor lineCountSensor = new LineCountSensor(fs);
     MockSensorContext sensorContext = new MockSensorContext();
+
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn(Xml.KEY);
     addProjectFileSystem(project, "src/test/resources/parsers/linecount/");
 
-    assertTrue(lineCountSensor.shouldExecuteOnProject(project));
     lineCountSensor.analyse(project, sensorContext);
 
     for (Resource resource : sensorContext.getResources()) {

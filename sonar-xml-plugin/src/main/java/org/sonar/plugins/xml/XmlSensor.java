@@ -86,7 +86,7 @@ public final class XmlSensor implements Sensor {
    * This sensor only executes on projects with active XML rules.
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return Xml.KEY.equals(project.getLanguageKey());
+    return !fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY)).isEmpty();
   }
 
   @Override

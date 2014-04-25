@@ -18,7 +18,9 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -38,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -62,6 +65,19 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
+  public void should_execute_on_javascript_project() {
+    Project project = new Project("key");
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    XmlSensor sensor = new XmlSensor(mock(RulesProfile.class), fs);
+
+    when(fs.files(any(FileQuery.class))).thenReturn(ListUtils.EMPTY_LIST);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+
+    when(fs.files(Mockito.any(FileQuery.class))).thenReturn(ImmutableList.of(new File("/tmp")));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+  }
+
+  @Test
   public void testSensor() throws Exception {
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn(Xml.KEY);
@@ -75,9 +91,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     createXPathRuleForPomFiles(rulesProfile);
 
     XmlSensor sensor = new XmlSensor(rulesProfile, fs);
-
-    assertTrue(sensor.shouldExecuteOnProject(project));
-
     sensor.analyse(project, sensorContext);
 
     assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);

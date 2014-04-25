@@ -22,10 +22,8 @@ import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
@@ -44,11 +42,9 @@ import java.io.IOException;
 public final class LineCountSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LineCountSensor.class);
-  private final Settings settings;
   private final ModuleFileSystem fileSystem;
 
-  public LineCountSensor(Settings settings, ModuleFileSystem fileSystem) {
-    this.settings = settings;
+  public LineCountSensor(ModuleFileSystem fileSystem) {
     this.fileSystem = fileSystem;
   }
 
@@ -99,16 +95,9 @@ public final class LineCountSensor implements Sensor {
     }
   }
 
-  private boolean isEnabled() {
-    return settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-  }
-
-  /**
-   * This sensor only executes on XML projects.
-   */
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return isEnabled() && Xml.KEY.equals(project.getLanguageKey());
+    return !fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY)).isEmpty();
   }
 
   @Override
