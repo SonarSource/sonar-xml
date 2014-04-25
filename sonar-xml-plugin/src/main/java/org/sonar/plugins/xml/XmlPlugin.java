@@ -46,7 +46,7 @@ import java.util.List;
     defaultValue = "src/main/resources", global = false, project = false)})
 public final class XmlPlugin extends SonarPlugin {
 
-  public static final String FILE_EXTENSIONS = "sonar.xml.fileExtensions";
+  public static final String FILE_EXTENSIONS = "sonar.xml.file.suffixes";
   public static final String SOURCE_DIRECTORY = "sonar.xml.sourceDirectory";
   public static final String INCLUDE_FILE_FILTER = "sonar.xml.includeFileFilter";
 
