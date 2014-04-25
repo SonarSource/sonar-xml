@@ -25,7 +25,7 @@
   <properties>
     <!-- Configuration for sonar-packaging-maven-plugin -->
     <sonar.pluginClass>org.sonar.plugins.xml.XmlPlugin</sonar.pluginClass>
-    <sonar.pluginName>Xml</sonar.pluginName>
+    <sonar.pluginName>XML</sonar.pluginName>
   </properties>
 
   <dependencies>
