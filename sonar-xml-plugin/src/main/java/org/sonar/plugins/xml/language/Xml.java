@@ -29,9 +29,6 @@ public class Xml extends AbstractLanguage {
   /** All the valid xml files suffixes. */
   public static final String[] DEFAULT_SUFFIXES = {"xml", "xhtml"};
 
-  /** A xml instance. */
-  public static final Xml INSTANCE = new Xml();
-
   /** The xml language key. */
   public static final String KEY = "xml";
 
