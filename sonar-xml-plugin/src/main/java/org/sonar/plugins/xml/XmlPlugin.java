@@ -42,9 +42,9 @@ public final class XmlPlugin extends SonarPlugin {
     return ImmutableList.of(
 
       PropertyDefinition.builder(XmlPlugin.FILE_EXTENSIONS)
-        .name("File extensions")
-        .description("List of file extensions that will be scanned.")
-        .defaultValue(StringUtils.join(Xml.DEFAULT_SUFFIXES, ","))
+        .name("File suffixes")
+        .description("Comma-separated list of suffixes for files to analyze.")
+        .defaultValue(".xml,.xhtml")
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
