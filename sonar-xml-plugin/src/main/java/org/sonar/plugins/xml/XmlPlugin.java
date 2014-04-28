@@ -18,6 +18,7 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -43,9 +44,10 @@ public final class XmlPlugin extends SonarPlugin {
       PropertyDefinition.builder(XmlPlugin.FILE_EXTENSIONS)
         .name("File extensions")
         .description("List of file extensions that will be scanned.")
-        .defaultValue("xml,xhtml")
+        .defaultValue(StringUtils.join(Xml.DEFAULT_SUFFIXES, ","))
         .category("XML")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT),
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
 
       Xml.class,
 
