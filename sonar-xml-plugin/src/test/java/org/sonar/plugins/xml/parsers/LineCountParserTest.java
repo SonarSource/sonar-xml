@@ -42,8 +42,7 @@ public class LineCountParserTest {
     assertThat(numCommentLine).isEqualTo(1);
   }
 
-  @Test
-  @Ignore("SONARPLUGINS-2623")
+  // TEST - FIXME: SONARPLUGINS-2623
   public void testComplexLineCountParser() throws IOException {
     LineCountParser parser = new LineCountParser();
     int numCommentLine = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/complex.xml")));

@@ -18,7 +18,6 @@
 package org.sonar.xml.parser;
 
 import com.sonar.sslr.api.Grammar;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.xml.api.XmlGrammar;
 
@@ -40,8 +39,7 @@ public class ElementDeclTest {
         .matches("<!ELEMENT b (#PCDATA)>");
   }
 
-  @Test
-  @Ignore("Name does not match %, looks like a PEReference, email sent to xml-editors")
+  // TEST - FIXME: "Name does not match %, looks like a PEReference, email sent to xml-editors"
   public void w3() {
     assertThat(g.rule(XmlGrammar.ELEMENT_DECL))
         .matches("<!ELEMENT %name.para; %content.para; >")

@@ -43,8 +43,7 @@ public class MixedTest {
         .matches("(#PCDATA)");
   }
 
-  @Test
-  @Ignore("Name does not match %, looks like a PEReference, email sent to xml-editors")
+  // TEST - FIXME: Name does not match %, looks like a PEReference, email sent to xml-editors
   public void w3() {
     assertThat(g.rule(XmlGrammar.MIXED))
         .matches("(#PCDATA | %font; | %phrase; | %special; | %form;)*");
