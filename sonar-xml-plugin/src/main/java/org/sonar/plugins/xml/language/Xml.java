@@ -27,7 +27,7 @@ import org.sonar.api.resources.AbstractLanguage;
 public class Xml extends AbstractLanguage {
 
   /** All the valid xml files suffixes. */
-  public static final String[] DEFAULT_SUFFIXES = {"xml", "xhtml"};
+  private static final String[] DEFAULT_SUFFIXES = {"xml", "xhtml"};
 
   /** The xml language key. */
   public static final String KEY = "xml";

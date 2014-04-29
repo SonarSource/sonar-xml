@@ -18,7 +18,6 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
