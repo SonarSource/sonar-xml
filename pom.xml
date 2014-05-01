@@ -64,8 +64,8 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>3.7</sonar.version>
-    <sslrVersion>1.19.2</sslrVersion>
-    <sslrSquidVersion>2.3</sslrSquidVersion>
+    <sslrVersion>1.20</sslrVersion>
+    <sslrSquidVersion>2.4</sslrSquidVersion>
   </properties>
 
   <dependencyManagement>
