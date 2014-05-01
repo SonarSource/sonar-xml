@@ -56,10 +56,6 @@
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14607</url>
   </issueManagement>
-  <ciManagement>
-    <system>BAMBOO</system>
-    <url>http://ci.codehaus.org/browse/SONAR-XML</url>
-  </ciManagement>
 
   <properties>
     <license.title>SonarQube XML Plugin</license.title>
