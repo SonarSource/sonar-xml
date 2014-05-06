@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins.xml</groupId>
     <artifactId>xml</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>sslr-xml-toolkit</artifactId>
