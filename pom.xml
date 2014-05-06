@@ -38,6 +38,12 @@
       <name>Julien Henry</name>
       <email>julien.henry@sonarsource.com</email>
     </developer>
+    <developer>
+      <id>lindamartin</id>
+      <name>Linda Martin</name>
+      <email>linda.martin@sonarsource.com</email>
+      <organization>SonarSource</organization>
+    </developer>
   </developers>
 
   <modules>
