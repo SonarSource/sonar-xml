@@ -63,7 +63,7 @@ public final class SaxParser extends AbstractParser {
 
     // Even with text nodes, we can record the line and column number
     @Override
-    public void characters(char buf[], int offset, int length) {
+    public void characters(char[] buf, int offset, int length) {
       if (current != null) {
         Node n = doc.createTextNode(new String(buf, offset, length));
         setLocationData(n);

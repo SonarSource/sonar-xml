@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 /**
  * Perform check for tab.
- * 
+ *
  * @author Matthijs Galesloot
  */
 @Rule(key = "IllegalTabCheck",
@@ -60,12 +60,8 @@ public class IllegalTabCheck extends AbstractXmlCheck {
 
     // check the child elements of the node
     for (Node child = node.getFirstChild(); !validationReady && child != null; child = child.getNextSibling()) {
-      switch (child.getNodeType()) {
-        case Node.ELEMENT_NODE:
-          findIllegalTabs(child);
-          break;
-        default:
-          break;
+      if (child.getNodeType() == Node.ELEMENT_NODE) {
+        findIllegalTabs(child);
       }
     }
   }
