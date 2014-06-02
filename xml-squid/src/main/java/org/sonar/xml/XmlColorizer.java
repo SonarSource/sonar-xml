@@ -33,14 +33,14 @@ public final class XmlColorizer {
 
   public static List<Tokenizer> createTokenizers() {
     return Arrays.asList(
-        new CDataDocTokenizer(span("k"), END_TAG),
-        new RegexpTokenizer(span("j"), END_TAG, "<!DOCTYPE.*>"),
-        new MultilinesDocTokenizer("<!--", "-->", span("j"), END_TAG),
-        new MultilinesDocTokenizer("</", ">", span("k"), END_TAG),
-        new XmlStartElementTokenizer(span("k"), END_TAG, span("c"), END_TAG, span("s"), END_TAG));
+      new CDataDocTokenizer(span("k"), END_TAG),
+      new RegexpTokenizer(span("j"), END_TAG, "<!DOCTYPE.*>"),
+      new MultilinesDocTokenizer("<!--", "-->", span("j"), END_TAG),
+      new MultilinesDocTokenizer("</", ">", span("k"), END_TAG),
+      new XmlStartElementTokenizer(span("k"), END_TAG, span("c"), END_TAG, span("s"), END_TAG));
   }
 
   private static String span(String clazz) {
-   return  "<span class=\"" + clazz + "\">";
+    return "<span class=\"" + clazz + "\">";
   }
 }
