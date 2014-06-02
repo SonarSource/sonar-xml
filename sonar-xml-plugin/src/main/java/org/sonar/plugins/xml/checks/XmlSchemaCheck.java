@@ -43,7 +43,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ import java.util.Map;
 
 /**
  * Perform schema check using xerces parser.
- * 
+ *
  * @author Matthijs Galesloot
  */
 @Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR,
@@ -162,12 +161,12 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
         LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
       } else {
         IOUtils.closeQuietly(input);
-        validate(new String[] {doctype.getDtd()});
+        validate(new String[]{doctype.getDtd()});
       }
     }
     // try namespace
     else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
-      validate(new String[] {doctype.getNamespace()});
+      validate(new String[]{doctype.getNamespace()});
     } else {
       LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
     }

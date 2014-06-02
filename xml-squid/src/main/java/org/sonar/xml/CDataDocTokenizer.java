@@ -46,9 +46,8 @@ public class CDataDocTokenizer extends Tokenizer {
   public boolean isCDATABloc(CodeReader code, HtmlCodeBuilder codeBuilder) {
     return isCDATAStarted(codeBuilder)
       || (code.peek() != '\n'
-        && code.peek() != '\r'
-        && (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length), startToken))
-      );
+      && code.peek() != '\r'
+      && (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length), startToken)));
   }
 
   @Override
@@ -68,8 +67,7 @@ public class CDataDocTokenizer extends Tokenizer {
         code.popTo(Pattern.compile(Pattern.quote(CDATA_END)).matcher(""), codeBuilder);
         codeBuilder.appendWithoutTransforming(tagAfter);
         setCDATAStarted(codeBuilder, false);
-      }
-      else {
+      } else {
         // Consume everything between CDATA
         code.pop(codeBuilder);
       }

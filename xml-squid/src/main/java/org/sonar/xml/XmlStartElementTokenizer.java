@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 /**
  * This tokenizer will deal with start xml elements including
  * attributes and multiline stuff.
- * @author Julien HENRY
  *
+ * @author Julien HENRY
  */
 public class XmlStartElementTokenizer extends Tokenizer {
 
@@ -44,7 +44,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
   private final String tagAfterAttributeValue;
 
   public XmlStartElementTokenizer(String tagBeforeElement, String tagAfterElement,
-      String tagBeforeAttributeName, String tagAfterAttributeName, String tagBeforeAttributeValue, String tagAfterAttributeValue) {
+                                  String tagBeforeAttributeName, String tagAfterAttributeName, String tagBeforeAttributeValue, String tagAfterAttributeValue) {
     this.tagBeforeElement = tagBeforeElement;
     this.tagAfterElement = tagAfterElement;
     this.tagBeforeAttributeName = tagBeforeAttributeName;
@@ -65,8 +65,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
         return true;
       }
       return false;
-    }
-    else {
+    } else {
       // Element already started
       return consumeStartElement(code, codeBuilder);
     }
@@ -76,8 +75,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
     // Consume every blanks
     if (code.popTo(Pattern.compile("\\s").matcher(""), codeBuilder) != -1) {
       return true;
-    }
-    else if (!isAttributeStarted(codeBuilder)) {
+    } else if (!isAttributeStarted(codeBuilder)) {
       if (consumeEndOfTagElement(code, codeBuilder)) {
         return true;
       }
@@ -95,8 +93,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
           // Consume '='
           code.pop(codeBuilder);
           return true;
-        }
-        else if (code.peek() == '\'' || code.peek() == '"') {
+        } else if (code.peek() == '\'' || code.peek() == '"') {
           char quote = (char) code.peek();
           setAttributeValueStarted(codeBuilder, quote);
           codeBuilder.appendWithoutTransforming(tagBeforeAttributeValue);
@@ -106,8 +103,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
           return true;
         }
         return false;
-      }
-      else {
+      } else {
         // attribute value started
         char quote = getAttributeQuote(codeBuilder);
         codeBuilder.appendWithoutTransforming(tagBeforeAttributeValue);
