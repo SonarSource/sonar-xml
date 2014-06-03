@@ -17,7 +17,8 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import org.sonar.api.utils.SonarException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,10 +30,7 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +42,8 @@ import java.util.Map.Entry;
  * @author Matthijs Galesloot
  */
 public final class SaxParser extends AbstractParser {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SaxParser.class);
 
   /**
    * From http://will.thestranathans.com/post/1026712315/getting-line-numbers-from-xpath-in-java
@@ -206,30 +206,25 @@ public final class SaxParser extends AbstractParser {
     return lineNumber == null ? 0 : lineNumber;
   }
 
-  public void parse(InputStream input, DefaultHandler handler) {
+  public void parse(InputStream input, DefaultHandler handler) throws Exception{
     SAXParser parser = newSaxParser();
-    try {
-      // read comments too, so use lexical handler.
-      parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
-      parser.parse(input, handler);
-    } catch (IOException e) {
-      throw new SonarException(e);
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    }
+    // read comments too, so use lexical handler.
+    parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+    parser.parse(input, handler);
   }
 
-  public Document parseDocument(InputStream input, boolean namespaceAware) {
+  public Document parseDocument(String filePath, InputStream input, boolean namespaceAware) {
     try {
       SAX_FACTORY.setNamespaceAware(namespaceAware);
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
       parse(input, handler);
       return document;
-    } catch (ParserConfigurationException e) {
-      return null;
-    } catch (SonarException e) {
+    } catch (Exception e) {
+      LOG.warn("Cannot properly analyse file {}", filePath);
+      LOG.warn("Cause: {}", e.toString());
       return null;
     }
   }
+
 }

@@ -23,6 +23,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import static org.hamcrest.Matchers.is;
@@ -39,7 +41,7 @@ public class SaxParserTest {
         "</xml>",
         "<!-- Baz -->");
     InputStream input = new ByteArrayInputStream(s.getBytes());
-    Document doc = new SaxParser().parseDocument(input, false);
+    Document doc = new SaxParser().parseDocument(null, input, false);
 
     Node node;
 

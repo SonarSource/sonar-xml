@@ -121,6 +121,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
     XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
     xmlSourceCode.setCode(code);
+    xmlSourceCode.parseSource();
 
     check.validate(xmlSourceCode);
 

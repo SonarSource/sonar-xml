@@ -44,9 +44,8 @@ public class XmlSourceCode {
   private final Resource resource;
   private final List<Violation> violations = new ArrayList<Violation>();
 
-  private Document documentNamespaceAware;
-
-  private Document documentNamespaceUnaware;
+  private Document documentNamespaceAware = null;
+  private Document documentNamespaceUnaware = null;
 
   public XmlSourceCode(Resource resource, File file) {
     this.resource = resource;
@@ -69,19 +68,27 @@ public class XmlSourceCode {
     }
   }
 
+  private String getFilePath() {
+    return file != null ? file.getAbsolutePath() : null;
+  }
+
   protected Document getDocument(boolean namespaceAware) {
-    InputStream inputStream = createInputStream();
     if (namespaceAware) {
-      if (documentNamespaceAware == null) {
-        documentNamespaceAware = new SaxParser().parseDocument(inputStream, true);
-      }
       return documentNamespaceAware;
     } else {
-      if (documentNamespaceUnaware == null) {
-        documentNamespaceUnaware = new SaxParser().parseDocument(inputStream, false);
-      }
       return documentNamespaceUnaware;
     }
+  }
+
+  public void parseSource() {
+    documentNamespaceUnaware = parseFile(false);
+    if (documentNamespaceUnaware != null) {
+      documentNamespaceAware = parseFile(true);
+    }
+  }
+
+  private Document parseFile(boolean namespaceAware) {
+    return new SaxParser().parseDocument(getFilePath(), createInputStream(), namespaceAware);
   }
 
   public Resource getResource() {
