@@ -21,8 +21,6 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
@@ -38,7 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
+ * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
  *
  * @author Matthijs Galesloot
  */
@@ -46,9 +44,9 @@ public class XmlSourceCode {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSourceCode.class);
 
-  private final Resource resource;
+  private final org.sonar.api.resources.File sonarFile;
   private final ModuleFileSystem fileSystem;
-  private final List<Violation> violations = new ArrayList<Violation>();
+  private final List<XmlIssue> xmlIssues = new ArrayList<XmlIssue>();
 
   private String code;
   private File file;
@@ -57,14 +55,14 @@ public class XmlSourceCode {
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
 
-  public XmlSourceCode(Resource resource, File file, ModuleFileSystem fileSystem) {
-    this.resource = resource;
+  public XmlSourceCode(org.sonar.api.resources.File sonarFile, File file, ModuleFileSystem fileSystem) {
+    this.sonarFile = sonarFile;
     this.file = file;
     this.fileSystem = fileSystem;
   }
 
-  public void addViolation(Violation violation) {
-    this.violations.add(violation);
+  public void addViolation(XmlIssue xmlIssue) {
+    this.xmlIssues.add(xmlIssue);
   }
 
   InputStream createInputStream() {
@@ -136,12 +134,12 @@ public class XmlSourceCode {
     file = tempFile;
   }
 
-  public Resource getResource() {
-    return resource;
+  public org.sonar.api.resources.File getSonarFile() {
+    return sonarFile;
   }
 
-  public List<Violation> getViolations() {
-    return violations;
+  public List<XmlIssue> getXmlIssues() {
+    return xmlIssues;
   }
 
   public void setCode(String code) {
@@ -154,6 +152,6 @@ public class XmlSourceCode {
 
   @Override
   public String toString() {
-    return resource.getLongName();
+    return sonarFile.getLongName();
   }
 }

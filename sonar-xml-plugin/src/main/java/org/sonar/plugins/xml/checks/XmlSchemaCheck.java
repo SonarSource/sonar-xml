@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
@@ -178,8 +177,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   private boolean containsMessage(SAXException e) {
     if (e instanceof SAXParseException) {
       SAXParseException spe = (SAXParseException) e;
-      for (Violation v : getWebSourceCode().getViolations()) {
-        if (v.getLineId().equals(spe.getLineNumber()) && v.getMessage().equals(spe.getMessage())) {
+      for (XmlIssue i : getWebSourceCode().getXmlIssues()) {
+        if (i.getLine() == spe.getLineNumber() && i.getMessage().equals(spe.getMessage())) {
           return true;
         }
       }

@@ -136,7 +136,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     Reader reader = new StringReader(fragment);
     XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, clazz, params);
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, numViolations, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, numViolations, sourceCode.getXmlIssues().size());
   }
 
   protected ModuleFileSystem mockFileSystem() {

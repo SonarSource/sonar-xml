@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
@@ -37,10 +36,7 @@ public abstract class AbstractXmlCheck {
   }
 
   protected final void createViolation(Integer linePosition, String message) {
-    Violation violation = Violation.create(rule, getWebSourceCode().getResource());
-    violation.setMessage(message);
-    violation.setLineId(linePosition);
-    getWebSourceCode().addViolation(violation);
+    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), rule, linePosition, message));
   }
 
   protected XmlSourceCode getWebSourceCode() {
@@ -52,7 +48,7 @@ public abstract class AbstractXmlCheck {
    */
   protected boolean isFileIncluded(String filePattern) {
     if (filePattern != null) {
-      String fileName = getWebSourceCode().getResource().getKey();
+      String fileName = getWebSourceCode().getSonarFile().getKey();
       WildcardPattern matcher = WildcardPattern.create(filePattern);
       return matcher.match(fileName);
     } else {

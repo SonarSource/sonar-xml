@@ -17,19 +17,22 @@
  */
 package org.sonar.plugins.xml;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -40,16 +43,18 @@ import java.util.Collection;
  *
  * @author Matthijs Galesloot
  */
-public final class XmlSensor implements Sensor {
+public class XmlSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
   private final AnnotationCheckFactory annotationCheckFactory;
   private final ModuleFileSystem fileSystem;
+  private final ResourcePerspectives resourcePerspectives;
 
-  public XmlSensor(RulesProfile profile, ModuleFileSystem fileSystem) {
+  public XmlSensor(RulesProfile profile, ModuleFileSystem fileSystem, ResourcePerspectives resourcePerspectives) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
     this.fileSystem = fileSystem;
+    this.resourcePerspectives = resourcePerspectives;
   }
 
   /**
@@ -69,7 +74,7 @@ public final class XmlSensor implements Sensor {
           check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
           check.validate(sourceCode);
         }
-        saveViolations(sensorContext, sourceCode);
+        saveIssue(sourceCode);
 
       } catch (Exception e) {
         LOG.error("Could not analyze the file " + file.getAbsolutePath(), e);
@@ -77,9 +82,16 @@ public final class XmlSensor implements Sensor {
     }
   }
 
-  private void saveViolations(SensorContext sensorContext, XmlSourceCode sourceCode) {
-    for (Violation violation : sourceCode.getViolations()) {
-      sensorContext.saveViolation(violation);
+  @VisibleForTesting
+  protected void saveIssue(XmlSourceCode sourceCode) {
+    for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
+      Issuable issuable = resourcePerspectives.as(Issuable.class, sourceCode.getSonarFile());
+      issuable.addIssue(
+        issuable.newIssueBuilder()
+          .ruleKey(xmlIssue.getRule().ruleKey())
+          .line(xmlIssue.getLine())
+          .message(xmlIssue.getMessage())
+          .build());
     }
   }
 

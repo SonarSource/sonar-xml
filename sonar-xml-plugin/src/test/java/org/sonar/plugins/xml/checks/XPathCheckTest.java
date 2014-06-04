@@ -40,8 +40,8 @@ public class XPathCheckTest extends AbstractCheckTester {
     Reader reader = new StringReader(fragment);
     XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, XPathCheck.class, "expression", "//br");
 
-    assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
-    assertEquals((Integer) 1, sourceCode.getViolations().get(0).getLineId());
+    assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
+    assertEquals(1, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
@@ -51,8 +51,8 @@ public class XPathCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression",
         "//ui:define[@name='title']");
 
-    assertEquals("Incorrect number of violations", 1, sourceCode.getViolations().size());
-    assertEquals((Integer) 26, sourceCode.getViolations().get(0).getLineId());
+    assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
+    assertEquals(26, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   // SONARPLUGINS-1765
@@ -62,7 +62,7 @@ public class XPathCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression", "//link[@rel]");
 
-    assertEquals("Incorrect number of violations", 0, sourceCode.getViolations().size());
+    assertEquals("Incorrect number of violations", 0, sourceCode.getXmlIssues().size());
   }
 
 }

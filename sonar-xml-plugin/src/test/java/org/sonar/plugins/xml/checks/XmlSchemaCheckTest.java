@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.jfree.util.Log;
 import org.junit.Test;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -52,7 +51,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
         "src/main/resources/org/sonar/plugins/xml/schemas/xhtml1/xhtml1-frameset.xsd");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 162, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 162, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -62,7 +61,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, "filePattern", "**/generic/**.xml",
         SCHEMAS, "src/test/resources/checks/generic/catalog.xsd");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -71,10 +70,10 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
-    if (sourceCode.getViolations().size() > 0) {
-      Log.error(sourceCode.getViolations().get(0).getMessage());
+    if (sourceCode.getXmlIssues().size() > 0) {
+      Log.error(sourceCode.getXmlIssues().get(0).getMessage());
     }
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -83,7 +82,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -92,9 +91,9 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 8, sourceCode.getViolations().size());
-    Violation v = sourceCode.getViolations().get(sourceCode.getViolations().size() - 1);
-    assertTrue(v.getMessage().contains("reference to entity"));
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 8, sourceCode.getXmlIssues().size());
+    XmlIssue i = sourceCode.getXmlIssues().get(sourceCode.getXmlIssues().size() - 1);
+    assertTrue(i.getMessage().contains("reference to entity"));
   }
 
   @Test
@@ -103,8 +102,8 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-transitional");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getViolations().size());
-    assertEquals((Integer) 16, sourceCode.getViolations().get(0).getLineId());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
+    assertEquals(16, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
@@ -114,8 +113,8 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
         "http://java.sun.com/jsf/core");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getViolations().size());
-    // assertEquals((Integer) , sourceCode.getViolations().get(0).getLineId());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
+    // assertEquals((Integer) , sourceCode.getIssues().get(0).getLineId());
   }
 
   @Test
@@ -125,8 +124,8 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
         "http://java.sun.com/jsf/html");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getViolations().size());
-    assertEquals((Integer) 8, sourceCode.getViolations().get(0).getLineId());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
+    assertEquals(8, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
@@ -137,8 +136,8 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
         "src/test/resources/checks/generic/catalog.xsd");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getViolations().size());
-    assertEquals((Integer) 5, sourceCode.getViolations().get(0).getLineId());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
+    assertEquals(5, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
@@ -147,7 +146,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-transitional");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 350, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 350, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -156,6 +155,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-strict");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getViolations().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
 }

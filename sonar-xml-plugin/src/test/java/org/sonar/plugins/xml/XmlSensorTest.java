@@ -21,7 +21,13 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.sonar.api.component.Perspective;
+import org.sonar.api.component.Perspectives;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -34,6 +40,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XPathCheck;
+import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
@@ -45,7 +52,11 @@ import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
@@ -73,7 +84,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void should_execute_on_javascript_project() {
     Project project = new Project("key");
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    XmlSensor sensor = new XmlSensor(mock(RulesProfile.class), fs);
+    XmlSensor sensor = new XmlSensor(mock(RulesProfile.class), fs, mock(ResourcePerspectives.class));
 
     when(fs.files(any(FileQuery.class))).thenReturn(ListUtils.EMPTY_LIST);
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
@@ -96,10 +107,14 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, fs);
+    Issuable issuable = mock(Issuable.class);
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
+    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, mock(ResourcePerspectives.class)));
+
     sensor.analyse(project, sensorContext);
 
-    assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
+    verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
   }
 
   /**
@@ -120,10 +135,15 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     RulesProfile rulesProfile = createStandardRulesProfile();
     createXPathRuleForPomFiles(rulesProfile);
 
-    XmlSensor sensor = new XmlSensor(rulesProfile, fs);
+    Issuable issuable = mock(Issuable.class);
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
+
+    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, perspectives));
+
     sensor.analyse(project, sensorContext);
 
-    assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
+    verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
   }
 
   private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
