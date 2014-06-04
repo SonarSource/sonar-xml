@@ -61,7 +61,7 @@ public final class XmlSensor implements Sensor {
 
       try {
         File resource = File.fromIOFile(file, project);
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
+        XmlSourceCode sourceCode = new XmlSourceCode(resource, file, fileSystem);
 
         sourceCode.parseSource();
 
@@ -94,4 +94,5 @@ public final class XmlSensor implements Sensor {
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

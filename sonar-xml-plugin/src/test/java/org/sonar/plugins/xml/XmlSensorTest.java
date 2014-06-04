@@ -20,6 +20,7 @@ package org.sonar.plugins.xml;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -36,6 +37,7 @@ import org.sonar.plugins.xml.checks.XPathCheck;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +49,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
+
+  @org.junit.Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private void createXPathRuleForPomFiles(RulesProfile rulesProfile) {
     Rule xpathRule = getRule("XPathCheck", XPathCheck.class);
@@ -60,7 +65,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     expressionParam = activeRule.getRule().getParam("filePattern");
     assertNotNull(expressionParam);
 
-    activeRule.setParameter("filePattern", "**/pom.xml");
+    activeRule.setParameter("filePattern", "**/pom*.xml");
     activeRule.setParameter("expression", "//dependency/version");
   }
 
@@ -85,6 +90,31 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom.xml")));
+    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
+
+    MockSensorContext sensorContext = new MockSensorContext();
+    RulesProfile rulesProfile = createStandardRulesProfile();
+    createXPathRuleForPomFiles(rulesProfile);
+
+    XmlSensor sensor = new XmlSensor(rulesProfile, fs);
+    sensor.analyse(project, sensorContext);
+
+    assertTrue("Should have found 1 violation", sensorContext.getViolations().size() > 0);
+  }
+
+  /**
+   * SONARXML-19
+   */
+  @Test
+  public void should_execute_on_file_with_chars_before_prolog() throws Exception {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Xml.KEY);
+    addProjectFileSystem(project, "src/test/resources/src/");
+
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom_with_chars_before_prolog.xml")));
+    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
+    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
 
     MockSensorContext sensorContext = new MockSensorContext();
     RulesProfile rulesProfile = createStandardRulesProfile();
@@ -107,7 +137,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     }
     return null;
   }
-
 
   /**
    * This is unavoidable in order to be compatible with sonarqube 4.2

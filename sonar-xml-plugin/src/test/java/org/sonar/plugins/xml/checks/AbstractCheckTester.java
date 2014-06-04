@@ -25,6 +25,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
@@ -32,11 +33,14 @@ import org.sonar.plugins.xml.AbstractXmlPluginTester;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
@@ -119,7 +123,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
     AbstractXmlCheck check = instantiateCheck(checkClass, params);
 
-    XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
+    XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file, mockFileSystem());
     xmlSourceCode.setCode(code);
     xmlSourceCode.parseSource();
 
@@ -134,4 +138,13 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, numViolations, sourceCode.getViolations().size());
   }
+
+  protected ModuleFileSystem mockFileSystem() {
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
+    when(fs.workingDir()).thenReturn(new java.io.File("src/test/resources/checks/generic/"));
+
+    return fs;
+  }
+
 }

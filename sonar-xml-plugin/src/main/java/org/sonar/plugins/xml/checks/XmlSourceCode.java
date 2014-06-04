@@ -17,9 +17,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
@@ -30,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Checks and analyzes report measurements, violations and other findings in WebSourceCode.
@@ -38,18 +44,23 @@ import java.util.List;
  */
 public class XmlSourceCode {
 
-  private String code;
-  private final File file;
+  private static final Logger LOG = LoggerFactory.getLogger(XmlSourceCode.class);
 
   private final Resource resource;
+  private final ModuleFileSystem fileSystem;
   private final List<Violation> violations = new ArrayList<Violation>();
+
+  private String code;
+  private File file;
+  private boolean hasCharsBeforeProlog = false;
 
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
 
-  public XmlSourceCode(Resource resource, File file) {
+  public XmlSourceCode(Resource resource, File file, ModuleFileSystem fileSystem) {
     this.resource = resource;
     this.file = file;
+    this.fileSystem = fileSystem;
   }
 
   public void addViolation(Violation violation) {
@@ -73,14 +84,12 @@ public class XmlSourceCode {
   }
 
   protected Document getDocument(boolean namespaceAware) {
-    if (namespaceAware) {
-      return documentNamespaceAware;
-    } else {
-      return documentNamespaceUnaware;
-    }
+    return namespaceAware ? documentNamespaceAware : documentNamespaceUnaware;
   }
 
   public void parseSource() {
+    checkForCharactersBeforeProlog();
+
     documentNamespaceUnaware = parseFile(false);
     if (documentNamespaceUnaware != null) {
       documentNamespaceAware = parseFile(true);
@@ -89,6 +98,42 @@ public class XmlSourceCode {
 
   private Document parseFile(boolean namespaceAware) {
     return new SaxParser().parseDocument(getFilePath(), createInputStream(), namespaceAware);
+  }
+
+  private void checkForCharactersBeforeProlog() {
+    if (file == null) {
+      return;
+    }
+
+    try {
+      int index = 0;
+      Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
+
+      for (String line : Files.readLines(file, fileSystem.sourceCharset())) {
+        Matcher m = firstTagPattern.matcher(line);
+
+        if (m.find()) {
+          if ("<?xml".equals(m.group())) {
+            index = line.indexOf(m.group());
+            hasCharsBeforeProlog = true;
+          }
+          break;
+        }
+      }
+      if (index > 0) {
+        setFileToTemporaryFileWithoutChars(index);
+      }
+    } catch (IOException e) {
+      LOG.warn(e.getMessage());
+    }
+  }
+
+  private void setFileToTemporaryFileWithoutChars(int index) throws IOException {
+    File tempFile = new File(fileSystem.workingDir(), file.getName());
+    String content = Files.toString(file, fileSystem.sourceCharset()).substring(index);
+
+    Files.write(content, tempFile, fileSystem.sourceCharset());
+    file = tempFile;
   }
 
   public Resource getResource() {
@@ -103,8 +148,8 @@ public class XmlSourceCode {
     this.code = code;
   }
 
-  public File getFile() {
-    return file;
+  public boolean hasCharsBeforeProlog() {
+    return hasCharsBeforeProlog;
   }
 
   @Override
