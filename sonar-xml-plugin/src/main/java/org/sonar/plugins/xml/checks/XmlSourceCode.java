@@ -49,6 +49,7 @@ public class XmlSourceCode {
   private final List<XmlIssue> xmlIssues = new ArrayList<XmlIssue>();
 
   private String code;
+  private File originalFile;
   private File file;
   private boolean hasCharsBeforeProlog = false;
 
@@ -58,6 +59,7 @@ public class XmlSourceCode {
   public XmlSourceCode(org.sonar.api.resources.File sonarFile, File file, ModuleFileSystem fileSystem) {
     this.sonarFile = sonarFile;
     this.file = file;
+    this.originalFile = file;
     this.fileSystem = fileSystem;
   }
 
@@ -78,7 +80,7 @@ public class XmlSourceCode {
   }
 
   private String getFilePath() {
-    return file != null ? file.getAbsolutePath() : null;
+    return originalFile != null ? originalFile.getAbsolutePath() : null;
   }
 
   protected Document getDocument(boolean namespaceAware) {
