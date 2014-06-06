@@ -33,7 +33,7 @@ import java.util.List;
 public class Xml extends AbstractLanguage {
 
   /** All the valid xml files suffixes. */
-  private static final String[] DEFAULT_SUFFIXES = {"xml"};
+  private static final String[] DEFAULT_SUFFIXES = {".xml"};
 
   /** The xml language key. */
   public static final String KEY = "xml";
