@@ -88,7 +88,7 @@ public class XmlFile {
         processCharBeforePrologInFile(fileSystem, lineNb);
       }
     } catch (IOException e) {
-      LOG.warn(e.getMessage());
+      LOG.warn("Unable to analyse file {}", file.getAbsolutePath(), e);
     }
   }
 
@@ -113,7 +113,7 @@ public class XmlFile {
       }
 
     } catch (IOException e) {
-      LOG.warn(e.getMessage());
+      LOG.warn("Unable to analyse file {}", file.getAbsolutePath(), e);
     }
   }
 
