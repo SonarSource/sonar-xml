@@ -220,7 +220,7 @@ public final class SaxParser extends AbstractParser {
       parse(input, handler, namespaceAware);
       return document;
     } catch (Exception e) {
-      LOG.warn("Cannot properly analyse file {}", originalFilePath);
+      LOG.warn("Unable to anayle file {}", originalFilePath);
       LOG.warn("Cause: {}", e.toString());
       return null;
     }
