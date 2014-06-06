@@ -35,18 +35,17 @@ import java.util.regex.Pattern;
 public class XmlFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlFile.class);
+  private final static String XML_PROLOG_START_TAG = "<?xml";
 
-
-  private File file;
   private final File originalFile;
   private final org.sonar.api.resources.File sonarFile;
+  private File file;
 
   /**
    * Number of lines removed before xml prolog if present
    */
   private int lineDeltaForIssue = 0;
   private boolean hasCharsBeforeProlog = false;
-  private final static String XML_PROLOG_START_TAG = "<?xml";
 
   public XmlFile(org.sonar.api.resources.File sonarFile, File file) {
     this.sonarFile = sonarFile;

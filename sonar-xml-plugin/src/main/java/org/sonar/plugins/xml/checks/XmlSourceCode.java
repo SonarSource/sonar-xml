@@ -40,8 +40,6 @@ import java.util.List;
  */
 public class XmlSourceCode {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSourceCode.class);
-
   private final List<XmlIssue> xmlIssues = new ArrayList<XmlIssue>();
 
   private String code;
