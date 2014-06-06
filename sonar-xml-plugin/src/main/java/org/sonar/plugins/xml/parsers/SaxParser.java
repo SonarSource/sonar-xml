@@ -31,6 +31,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -206,7 +207,7 @@ public final class SaxParser extends AbstractParser {
     return lineNumber == null ? 0 : lineNumber;
   }
 
-  public void parse(InputStream input, DefaultHandler handler, boolean namespaceAware) throws Exception{
+  public void parse(InputStream input, DefaultHandler handler, boolean namespaceAware) throws IOException, SAXException {
     SAXParser parser = newSaxParser(namespaceAware);
     // read comments too, so use lexical handler.
     parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
