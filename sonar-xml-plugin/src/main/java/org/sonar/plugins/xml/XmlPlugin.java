@@ -43,7 +43,7 @@ public final class XmlPlugin extends SonarPlugin {
       PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze.")
-        .defaultValue(".xml,.xhtml")
+        .defaultValue(".xml")
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
