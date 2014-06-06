@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class XmlFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlFile.class);
-  private final static String XML_PROLOG_START_TAG = "<?xml";
+  private static final String XML_PROLOG_START_TAG = "<?xml";
 
   private final File originalFile;
   private final org.sonar.api.resources.File sonarFile;
