@@ -19,6 +19,7 @@ package org.sonar.plugins.xml;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -33,7 +34,7 @@ public class XmlSourceImporterTest {
 
   @Before
   public void setUp() {
-    xml = new Xml();
+    xml = new Xml(new Settings());
     importer = new XmlSourceImporter(xml);
   }
 

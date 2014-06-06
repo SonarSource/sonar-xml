@@ -35,12 +35,12 @@ import java.util.List;
  */
 public final class XmlPlugin extends SonarPlugin {
 
-  public static final String FILE_EXTENSIONS = "sonar.xml.file.suffixes";
+  public static final String FILE_SUFFIXES_KEY = "sonar.xml.file.suffixes";
 
   public List getExtensions() {
     return ImmutableList.of(
 
-      PropertyDefinition.builder(XmlPlugin.FILE_EXTENSIONS)
+      PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze.")
         .defaultValue(".xml,.xhtml")
