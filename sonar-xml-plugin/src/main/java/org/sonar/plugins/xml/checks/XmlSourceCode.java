@@ -80,7 +80,7 @@ public class XmlSourceCode {
     if (documentNamespaceUnaware != null) {
       documentNamespaceAware = parseFile(true);
     }
-    return documentNamespaceUnaware != null && documentNamespaceAware != null;
+    return documentNamespaceUnaware != null || documentNamespaceAware != null;
   }
 
   private Document parseFile(boolean namespaceAware) {

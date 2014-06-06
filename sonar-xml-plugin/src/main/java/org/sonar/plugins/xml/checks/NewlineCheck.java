@@ -88,7 +88,7 @@ public class NewlineCheck extends AbstractXmlCheck {
     setWebSourceCode(xmlSourceCode);
 
     Document document = getWebSourceCode().getDocument(false);
-    if (document != null && document.getDocumentElement() != null) {
+    if (document.getDocumentElement() != null) {
       validateNewline(document.getDocumentElement());
     }
   }

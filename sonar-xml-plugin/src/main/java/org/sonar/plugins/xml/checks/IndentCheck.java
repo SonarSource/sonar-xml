@@ -116,7 +116,7 @@ public class IndentCheck extends AbstractXmlCheck {
     setWebSourceCode(xmlSourceCode);
 
     Document document = getWebSourceCode().getDocument(false);
-    if (document != null && document.getDocumentElement() != null) {
+    if (document.getDocumentElement() != null) {
       validateIndent(document.getDocumentElement());
     }
   }

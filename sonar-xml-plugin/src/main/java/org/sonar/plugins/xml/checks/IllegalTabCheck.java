@@ -80,7 +80,7 @@ public class IllegalTabCheck extends AbstractXmlCheck {
 
     validationReady = false;
     Document document = getWebSourceCode().getDocument(false);
-    if (document != null && document.getDocumentElement() != null) {
+    if (document.getDocumentElement() != null) {
       findIllegalTabs(document.getDocumentElement());
     }
   }
