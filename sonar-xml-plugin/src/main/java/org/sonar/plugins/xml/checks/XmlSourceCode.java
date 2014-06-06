@@ -25,6 +25,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -52,6 +53,7 @@ public class XmlSourceCode {
   private File originalFile;
   private File file;
   private boolean hasCharsBeforeProlog = false;
+  private int lineDeltaForIssue = 0;
 
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
@@ -79,7 +81,7 @@ public class XmlSourceCode {
     }
   }
 
-  private String getFilePath() {
+  private String getOriginalFilePath() {
     return originalFile != null ? originalFile.getAbsolutePath() : null;
   }
 
@@ -97,8 +99,9 @@ public class XmlSourceCode {
   }
 
   private Document parseFile(boolean namespaceAware) {
-    return new SaxParser().parseDocument(getFilePath(), createInputStream(), namespaceAware);
+    return new SaxParser().parseDocument(getOriginalFilePath(), createInputStream(), namespaceAware);
   }
+
 
   private void checkForCharactersBeforeProlog() {
     if (file == null) {
@@ -106,34 +109,49 @@ public class XmlSourceCode {
     }
 
     try {
-      int index = 0;
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
+
+      int index = 0;
+      int lineNb = 1;
 
       for (String line : Files.readLines(file, fileSystem.sourceCharset())) {
         Matcher m = firstTagPattern.matcher(line);
-
         if (m.find()) {
-          if ("<?xml".equals(m.group())) {
-            index = line.indexOf(m.group());
+          int groupIndex = line.indexOf(m.group());
+
+          if ("<?xml".equals(m.group()) && (groupIndex > 0 || lineNb > 1)) {
+            index += groupIndex;
             hasCharsBeforeProlog = true;
           }
           break;
         }
+        index = index + line.length() + 1;
+        lineNb++;
       }
-      if (index > 0) {
-        setFileToTemporaryFileWithoutChars(index);
+
+      if (hasCharsBeforeProlog) {
+        proceessCharBeforePrologInFile(index, lineNb);
       }
     } catch (IOException e) {
       LOG.warn(e.getMessage());
     }
   }
 
-  private void setFileToTemporaryFileWithoutChars(int index) throws IOException {
-    File tempFile = new File(fileSystem.workingDir(), file.getName());
-    String content = Files.toString(file, fileSystem.sourceCharset()).substring(index);
+  private void proceessCharBeforePrologInFile(int index, int lineDelta) {
+    try {
+      String content = Files.toString(file, fileSystem.sourceCharset());
+      File tempFile = new File(fileSystem.workingDir(), file.getName());
 
-    Files.write(content, tempFile, fileSystem.sourceCharset());
-    file = tempFile;
+      Files.write(content.substring(index), tempFile, fileSystem.sourceCharset());
+
+      file = tempFile;
+      if (lineDelta > 1) {
+        lineDeltaForIssue = lineDelta - 1;
+      }
+
+    } catch (IOException e) {
+      LOG.warn(e.getMessage());
+    }
   }
 
   public org.sonar.api.resources.File getSonarFile() {
@@ -150,6 +168,10 @@ public class XmlSourceCode {
 
   public boolean hasCharsBeforeProlog() {
     return hasCharsBeforeProlog;
+  }
+
+  public int getLineForNode(Node node) {
+    return SaxParser.getLineNumber(node) + lineDeltaForIssue;
   }
 
   @Override

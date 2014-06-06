@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 
 /**
  * Perform check for newline after elements.
- * 
+ *
  * @author Matthijs Galesloot
  */
 @Rule(key = "NewlineCheck",
@@ -50,7 +50,7 @@ public class NewlineCheck extends AbstractXmlCheck {
         case Node.ELEMENT_NODE:
           // check if there is a new node before we have had any newlines.
           if (!newline) {
-            createViolation(SaxParser.getLineNumber(child), "Node should be on the next line");
+            createViolation(getWebSourceCode().getLineForNode(child), "Node should be on the next line");
           } else {
             newline = false;
           }
@@ -80,7 +80,7 @@ public class NewlineCheck extends AbstractXmlCheck {
 
   private void validateLastChild(boolean newlineAfterLastChild, Node lastChild) {
     if (!newlineAfterLastChild && lastChild != null) {
-      createViolation(SaxParser.getLineNumber(lastChild), "Missing newline after last element");
+      createViolation(getWebSourceCode().getLineForNode(lastChild), "Missing newline after last element");
     }
   }
 

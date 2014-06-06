@@ -213,14 +213,14 @@ public final class SaxParser extends AbstractParser {
     parser.parse(input, handler);
   }
 
-  public Document parseDocument(String filePath, InputStream input, boolean namespaceAware) {
+  public Document parseDocument(String originalFilePath, InputStream input, boolean namespaceAware) {
     try {
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
       parse(input, handler, namespaceAware);
       return document;
     } catch (Exception e) {
-      LOG.warn("Cannot properly analyse file {}", filePath);
+      LOG.warn("Cannot properly analyse file {}", originalFilePath);
       LOG.warn("Cause: {}", e.toString());
       return null;
     }

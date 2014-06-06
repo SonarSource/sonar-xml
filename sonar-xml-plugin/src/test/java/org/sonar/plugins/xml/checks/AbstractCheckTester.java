@@ -19,6 +19,7 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.rules.ActiveRule;
@@ -43,6 +44,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
+
+  @org.junit.Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
@@ -142,7 +146,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   protected ModuleFileSystem mockFileSystem() {
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
-    when(fs.workingDir()).thenReturn(new java.io.File("src/test/resources/checks/generic/"));
+    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
 
     return fs;
   }

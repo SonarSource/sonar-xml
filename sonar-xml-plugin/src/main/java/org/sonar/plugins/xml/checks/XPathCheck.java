@@ -79,7 +79,7 @@ public class XPathCheck extends AbstractXmlCheck {
         NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); i++) {
 
-          int lineNumber = SaxParser.getLineNumber(nodes.item(i));
+          int lineNumber = getWebSourceCode().getLineForNode(nodes.item(i));
           if (message == null) {
             createViolation(lineNumber);
           } else {

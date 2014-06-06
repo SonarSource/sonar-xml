@@ -51,7 +51,7 @@ public class IllegalTabCheck extends AbstractXmlCheck {
       if (sibling.getNodeType() == Node.TEXT_NODE) {
         String text = sibling.getTextContent();
         if (StringUtils.isWhitespace(text) && StringUtils.contains(text, "\t")) {
-          createNewViolation(SaxParser.getLineNumber(sibling));
+          createNewViolation(getWebSourceCode().getLineForNode(sibling));
           // one violation for this node is enough
           break;
         }

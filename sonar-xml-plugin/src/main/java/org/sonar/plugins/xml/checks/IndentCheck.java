@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 /**
  * Perform check for indenting of elements.
- * 
+ *
  * @author Matthijs Galesloot
  */
 @Rule(key = "IndentCheck",
@@ -131,7 +131,7 @@ public class IndentCheck extends AbstractXmlCheck {
     int indent = collectIndent(node);
 
     if (depth * indentSize != indent) {
-      createViolation(SaxParser.getLineNumber(node), "Wrong indentation");
+      createViolation(getWebSourceCode().getLineForNode(node), "Wrong indentation");
     }
 
     // check the child elements

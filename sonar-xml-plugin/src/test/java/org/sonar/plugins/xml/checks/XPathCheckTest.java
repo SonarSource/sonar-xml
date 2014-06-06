@@ -55,6 +55,20 @@ public class XPathCheckTest extends AbstractCheckTester {
     assertEquals(26, sourceCode.getXmlIssues().get(0).getLine());
   }
 
+  /**
+   * SONARXML-19
+   */
+  @Test
+  public void report_issue_on_correct_line_for_file_with_char_before_prolog() throws FileNotFoundException {
+    String fileName = "src/test/resources/src/pom_with_chars_before_prolog.xml";
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, XPathCheck.class, "expression",
+        "//dependency/version");
+
+    assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
+    assertEquals(18, sourceCode.getXmlIssues().get(0).getLine());
+  }
+
   // SONARPLUGINS-1765
   @Test
   public void xpathRuleShouldNotCreateViolationForInvalidDocument() throws FileNotFoundException {

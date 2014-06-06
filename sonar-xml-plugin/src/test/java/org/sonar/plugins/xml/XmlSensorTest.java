@@ -102,6 +102,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom.xml")));
     when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
+    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
 
     MockSensorContext sensorContext = new MockSensorContext();
     RulesProfile rulesProfile = createStandardRulesProfile();
