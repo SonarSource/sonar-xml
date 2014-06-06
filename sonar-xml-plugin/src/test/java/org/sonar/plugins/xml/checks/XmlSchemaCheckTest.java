@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Matthijs Galesloot
@@ -85,15 +84,16 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
 
+  /**
+   * SONARXML-13
+   */
   @Test
-  public void violateWrongAmpersands() throws FileNotFoundException {
+  public void no_issue_on_corrupted_file() throws FileNotFoundException {
     String fileName = "src/test/resources/checks/generic/wrong-ampersand.xhtml";
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 8, sourceCode.getXmlIssues().size());
-    XmlIssue i = sourceCode.getXmlIssues().get(sourceCode.getXmlIssues().size() - 1);
-    assertTrue(i.getMessage().contains("reference to entity"));
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -130,7 +130,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
   @Test
   public void violateLocalXmlSchemaCheck() throws FileNotFoundException {
-
     String fileName = "src/test/resources/checks/generic/catalog.xml";
     FileReader reader = new FileReader(fileName);
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
@@ -138,15 +137,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
     assertEquals(5, sourceCode.getXmlIssues().get(0).getLine());
-  }
-
-  @Test
-  public void violateSonarSource() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/sonarsource.html";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-transitional");
-
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 350, sourceCode.getXmlIssues().size());
   }
 
   @Test

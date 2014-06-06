@@ -74,13 +74,17 @@ public class XmlSourceCode {
     return namespaceAware ? documentNamespaceAware : documentNamespaceUnaware;
   }
 
-  public void parseSource(ModuleFileSystem fileSystem) {
+  /**
+   * Parses the source and returns true if succeeded false if the file is corrupted.
+   */
+  public boolean parseSource(ModuleFileSystem fileSystem) {
     xmlFile.checkForCharactersBeforeProlog(fileSystem);
 
     documentNamespaceUnaware = parseFile(false);
     if (documentNamespaceUnaware != null) {
       documentNamespaceAware = parseFile(true);
     }
+    return documentNamespaceUnaware != null && documentNamespaceAware != null;
   }
 
   private Document parseFile(boolean namespaceAware) {

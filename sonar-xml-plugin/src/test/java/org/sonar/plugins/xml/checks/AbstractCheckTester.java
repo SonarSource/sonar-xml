@@ -83,7 +83,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
 
     AnnotationRuleParser parser = new AnnotationRuleParser();
-    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[] {checkClass}));
+    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[]{checkClass}));
     for (Rule rule : rules) {
       if (rule.getKey().equals(ruleKey)) {
         return rule;
@@ -124,15 +124,16 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   }
 
   protected XmlSourceCode parseAndCheck(Reader reader, java.io.File file, String code, Class<? extends AbstractXmlCheck> checkClass,
-      String... params) {
+                                        String... params) {
 
     AbstractXmlCheck check = instantiateCheck(checkClass, params);
 
     XmlSourceCode xmlSourceCode = new XmlSourceCode(new File(file == null ? "test" : file.getPath()), file);
     xmlSourceCode.setCode(code);
-    xmlSourceCode.parseSource(mockFileSystem());
 
-    check.validate(xmlSourceCode);
+    if (xmlSourceCode.parseSource(mockFileSystem())) {
+      check.validate(xmlSourceCode);
+    }
 
     return xmlSourceCode;
   }

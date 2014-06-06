@@ -68,14 +68,14 @@ public class XmlSensor implements Sensor {
         File resource = File.fromIOFile(file, project);
         XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
 
-        sourceCode.parseSource(fileSystem);
-
-        for (AbstractXmlCheck check : checks) {
-          check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
-          check.validate(sourceCode);
+        // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
+        if (sourceCode.parseSource(fileSystem)) {
+          for (AbstractXmlCheck check : checks) {
+            check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
+            check.validate(sourceCode);
+          }
+          saveIssue(sourceCode);
         }
-        saveIssue(sourceCode);
-
       } catch (Exception e) {
         LOG.error("Could not analyze the file " + file.getAbsolutePath(), e);
       }
