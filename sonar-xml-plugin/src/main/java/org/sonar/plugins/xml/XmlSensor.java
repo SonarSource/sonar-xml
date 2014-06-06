@@ -66,9 +66,9 @@ public class XmlSensor implements Sensor {
 
       try {
         File resource = File.fromIOFile(file, project);
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, file, fileSystem);
+        XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
 
-        sourceCode.parseSource();
+        sourceCode.parseSource(fileSystem);
 
         for (AbstractXmlCheck check : checks) {
           check.setRule(annotationCheckFactory.getActiveRule(check).getRule());

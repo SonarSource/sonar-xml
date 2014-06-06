@@ -35,8 +35,8 @@ public class CharBeforePrologCheck extends AbstractXmlCheck {
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);
 
-    if (getWebSourceCode().hasCharsBeforeProlog()) {
-      createViolation(getWebSourceCode().getPrologLine(), "Remove all character before \"<?xml\".");
+    if (getWebSourceCode().isPrologFirstInSource()) {
+      createViolation(getWebSourceCode().getXMLPrologLine(), "Remove all character before \"<?xml\".");
     }
   }
 

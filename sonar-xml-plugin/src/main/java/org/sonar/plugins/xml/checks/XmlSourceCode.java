@@ -17,7 +17,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -45,24 +42,16 @@ public class XmlSourceCode {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSourceCode.class);
 
-  private final org.sonar.api.resources.File sonarFile;
-  private final ModuleFileSystem fileSystem;
   private final List<XmlIssue> xmlIssues = new ArrayList<XmlIssue>();
 
   private String code;
-  private File originalFile;
-  private File file;
-  private boolean hasCharsBeforeProlog = false;
-  private int lineDeltaForIssue = 0;
 
+  private XmlFile xmlFile;
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
 
-  public XmlSourceCode(org.sonar.api.resources.File sonarFile, File file, ModuleFileSystem fileSystem) {
-    this.sonarFile = sonarFile;
-    this.file = file;
-    this.originalFile = file;
-    this.fileSystem = fileSystem;
+  public XmlSourceCode(org.sonar.api.resources.File sonarFile, File file) {
+    this.xmlFile = new XmlFile(sonarFile, file);
   }
 
   public void addViolation(XmlIssue xmlIssue) {
@@ -70,9 +59,9 @@ public class XmlSourceCode {
   }
 
   InputStream createInputStream() {
-    if (file != null) {
+    if (xmlFile.getIOFile() != null) {
       try {
-        return FileUtils.openInputStream(file);
+        return FileUtils.openInputStream(xmlFile.getIOFile());
       } catch (IOException e) {
         throw new SonarException(e);
       }
@@ -81,16 +70,12 @@ public class XmlSourceCode {
     }
   }
 
-  private String getOriginalFilePath() {
-    return originalFile != null ? originalFile.getAbsolutePath() : null;
-  }
-
   protected Document getDocument(boolean namespaceAware) {
     return namespaceAware ? documentNamespaceAware : documentNamespaceUnaware;
   }
 
-  public void parseSource() {
-    checkForCharactersBeforeProlog();
+  public void parseSource(ModuleFileSystem fileSystem) {
+    xmlFile.checkForCharactersBeforeProlog(fileSystem);
 
     documentNamespaceUnaware = parseFile(false);
     if (documentNamespaceUnaware != null) {
@@ -99,61 +84,11 @@ public class XmlSourceCode {
   }
 
   private Document parseFile(boolean namespaceAware) {
-    return new SaxParser().parseDocument(getOriginalFilePath(), createInputStream(), namespaceAware);
-  }
-
-
-  private void checkForCharactersBeforeProlog() {
-    if (file == null) {
-      return;
-    }
-
-    try {
-      String prolog = "<?xml";
-      int lineNb = 1;
-      Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
-
-      for (String line : Files.readLines(file, fileSystem.sourceCharset())) {
-        Matcher m = firstTagPattern.matcher(line);
-        if (m.find()) {
-          int groupIndex = line.indexOf(m.group());
-
-          if (prolog.equals(m.group()) && (groupIndex > 0 || lineNb > 1)) {
-            hasCharsBeforeProlog = true;
-          }
-          break;
-        }
-        lineNb++;
-      }
-
-      if (hasCharsBeforeProlog) {
-        proceessCharBeforePrologInFile(prolog, lineNb);
-      }
-    } catch (IOException e) {
-      LOG.warn(e.getMessage());
-    }
-  }
-
-  private void proceessCharBeforePrologInFile(String prolog, int lineDelta) {
-    try {
-      String content = Files.toString(file, fileSystem.sourceCharset());
-      File tempFile = new File(fileSystem.workingDir(), file.getName());
-
-      int index = content.indexOf(prolog);
-      Files.write(content.substring(index), tempFile, fileSystem.sourceCharset());
-
-      file = tempFile;
-      if (lineDelta > 1) {
-        lineDeltaForIssue = lineDelta - 1;
-      }
-
-    } catch (IOException e) {
-      LOG.warn(e.getMessage());
-    }
+    return new SaxParser().parseDocument(xmlFile.getFilePath(), createInputStream(), namespaceAware);
   }
 
   public org.sonar.api.resources.File getSonarFile() {
-    return sonarFile;
+    return xmlFile.getSonarFile();
   }
 
   public List<XmlIssue> getXmlIssues() {
@@ -164,20 +99,23 @@ public class XmlSourceCode {
     this.code = code;
   }
 
-  public boolean hasCharsBeforeProlog() {
-    return hasCharsBeforeProlog;
-  }
-
   public int getLineForNode(Node node) {
-    return SaxParser.getLineNumber(node) + lineDeltaForIssue;
+    return SaxParser.getLineNumber(node) + xmlFile.getLineDelta();
   }
 
-  public int getPrologLine() {
-    return lineDeltaForIssue + 1;
+  /**
+   * Returns the line number where the prolog is located in the file.
+   */
+  public int getXMLPrologLine() {
+    return xmlFile.getPrologLine();
+  }
+
+  public boolean isPrologFirstInSource() {
+    return xmlFile.hasCharsBeforeProlog();
   }
 
   @Override
   public String toString() {
-    return sonarFile.getLongName();
+    return xmlFile.getSonarFile().getLongName();
   }
 }
