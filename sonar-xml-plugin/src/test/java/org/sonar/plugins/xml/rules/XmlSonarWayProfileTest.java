@@ -45,7 +45,7 @@ public class XmlSonarWayProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(Xml.KEY);
     assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_NAME);
-    assertThat(profile.getActiveRulesByRepository(CheckRepository.REPOSITORY_KEY)).hasSize(3);
+    assertThat(profile.getActiveRulesByRepository(CheckRepository.REPOSITORY_KEY)).hasSize(4);
     assertThat(validation.hasErrors()).isFalse();
   }
 

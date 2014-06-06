@@ -95,8 +95,9 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   protected AbstractXmlCheck instantiateCheck(Class<? extends AbstractXmlCheck> checkClass, String... params) {
     try {
       AbstractXmlCheck check = checkClass.newInstance();
+      String ruleKey = checkClass.getAnnotation(org.sonar.check.Rule.class).key();
 
-      Rule rule = getRule(checkClass.getSimpleName(), checkClass);
+      Rule rule = getRule(ruleKey, checkClass);
       assertNotNull("Could not find rule", rule);
       check.setRule(rule);
       configureDefaultParams(check, rule);

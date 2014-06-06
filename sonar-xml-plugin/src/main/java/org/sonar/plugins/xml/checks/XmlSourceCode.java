@@ -172,6 +172,10 @@ public class XmlSourceCode {
     return SaxParser.getLineNumber(node) + lineDeltaForIssue;
   }
 
+  public int getPrologLine() {
+    return lineDeltaForIssue + 1;
+  }
+
   @Override
   public String toString() {
     return sonarFile.getLongName();

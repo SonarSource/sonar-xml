@@ -31,12 +31,13 @@ public class CheckRepository {
   }
 
   public static List<AbstractXmlCheck> getChecks() {
-    return ImmutableList.<AbstractXmlCheck> of(
-        new IllegalTabCheck(),
-        new IndentCheck(),
-        new NewlineCheck(),
-        new XmlSchemaCheck(),
-        new XPathCheck());
+    return ImmutableList.<AbstractXmlCheck>of(
+      new IllegalTabCheck(),
+      new IndentCheck(),
+      new NewlineCheck(),
+      new XmlSchemaCheck(),
+      new CharBeforePrologCheck(),
+      new XPathCheck());
   }
 
   public static List<Class> getCheckClasses() {
