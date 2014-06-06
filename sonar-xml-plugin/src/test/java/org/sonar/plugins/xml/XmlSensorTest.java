@@ -55,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -145,6 +146,32 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     sensor.analyse(project, sensorContext);
 
     verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
+  }
+
+  @Test
+  public void should_not_execute_test_on_corrupted_file() throws Exception {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Xml.KEY);
+    addProjectFileSystem(project, "src/test/resources/src/");
+
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/checks/generic/wrong-ampersand.xhtml")));
+    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
+    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
+
+    MockSensorContext sensorContext = new MockSensorContext();
+    RulesProfile rulesProfile = createStandardRulesProfile();
+    createXPathRuleForPomFiles(rulesProfile);
+
+    Issuable issuable = mock(Issuable.class);
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
+
+    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, perspectives));
+
+    sensor.analyse(project, sensorContext);
+
+    verify(sensor, never()).saveIssue(any(XmlSourceCode.class));
   }
 
   private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
