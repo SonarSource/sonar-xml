@@ -109,39 +109,37 @@ public class XmlSourceCode {
     }
 
     try {
-      Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
-
-      int index = 0;
+      String prolog = "<?xml";
       int lineNb = 1;
+      Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
 
       for (String line : Files.readLines(file, fileSystem.sourceCharset())) {
         Matcher m = firstTagPattern.matcher(line);
         if (m.find()) {
           int groupIndex = line.indexOf(m.group());
 
-          if ("<?xml".equals(m.group()) && (groupIndex > 0 || lineNb > 1)) {
-            index += groupIndex;
+          if (prolog.equals(m.group()) && (groupIndex > 0 || lineNb > 1)) {
             hasCharsBeforeProlog = true;
           }
           break;
         }
-        index = index + line.length() + 1;
         lineNb++;
       }
 
       if (hasCharsBeforeProlog) {
-        proceessCharBeforePrologInFile(index, lineNb);
+        proceessCharBeforePrologInFile(prolog, lineNb);
       }
     } catch (IOException e) {
       LOG.warn(e.getMessage());
     }
   }
 
-  private void proceessCharBeforePrologInFile(int index, int lineDelta) {
+  private void proceessCharBeforePrologInFile(String prolog, int lineDelta) {
     try {
       String content = Files.toString(file, fileSystem.sourceCharset());
       File tempFile = new File(fileSystem.workingDir(), file.getName());
 
+      int index = content.indexOf(prolog);
       Files.write(content.substring(index), tempFile, fileSystem.sourceCharset());
 
       file = tempFile;
