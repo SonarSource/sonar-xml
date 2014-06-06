@@ -33,7 +33,7 @@ import java.io.InputStream;
 
 /**
  * Comment Counting in XML files
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class LineCountParser extends AbstractParser {
@@ -112,7 +112,7 @@ public final class LineCountParser extends AbstractParser {
   }
 
   public int countLinesOfComment(InputStream input) {
-    SAXParser parser = newSaxParser();
+    SAXParser parser = newSaxParser(false);
     try {
 
       XMLReader xmlReader = parser.getXMLReader();

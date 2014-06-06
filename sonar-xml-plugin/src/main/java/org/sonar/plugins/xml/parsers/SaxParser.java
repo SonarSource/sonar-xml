@@ -206,8 +206,8 @@ public final class SaxParser extends AbstractParser {
     return lineNumber == null ? 0 : lineNumber;
   }
 
-  public void parse(InputStream input, DefaultHandler handler) throws Exception{
-    SAXParser parser = newSaxParser();
+  public void parse(InputStream input, DefaultHandler handler, boolean namespaceAware) throws Exception{
+    SAXParser parser = newSaxParser(namespaceAware);
     // read comments too, so use lexical handler.
     parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
     parser.parse(input, handler);
@@ -215,10 +215,9 @@ public final class SaxParser extends AbstractParser {
 
   public Document parseDocument(String filePath, InputStream input, boolean namespaceAware) {
     try {
-      SAX_FACTORY.setNamespaceAware(namespaceAware);
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
-      parse(input, handler);
+      parse(input, handler, namespaceAware);
       return document;
     } catch (Exception e) {
       LOG.warn("Cannot properly analyse file {}", filePath);

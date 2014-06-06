@@ -17,38 +17,42 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.xerces.jaxp.SAXParserFactoryImpl;
 import org.sonar.api.utils.SonarException;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 /**
  * Provides reusable code for Xml parsers.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public abstract class AbstractParser {
 
-  protected static final SAXParserFactory SAX_FACTORY;
+  private static final SAXParserFactory SAX_FACTORY_NAMESPCE_AWARE;
+  private static final SAXParserFactory SAX_FACTORY_NAMESPCE_UNAWARE;
 
   /**
    * Build the SAXParserFactory.
    */
   static {
 
-    SAX_FACTORY = new SAXParserFactoryImpl();
+    SAX_FACTORY_NAMESPCE_AWARE = new SAXParserFactoryImpl();
+    SAX_FACTORY_NAMESPCE_UNAWARE = new SAXParserFactoryImpl();
 
+    setCommonConf(SAX_FACTORY_NAMESPCE_AWARE);
+    SAX_FACTORY_NAMESPCE_AWARE.setNamespaceAware(true);
+
+    setCommonConf(SAX_FACTORY_NAMESPCE_UNAWARE);
+    SAX_FACTORY_NAMESPCE_UNAWARE.setNamespaceAware(false);
+  }
+
+  protected SAXParser newSaxParser(boolean namespaceAware) {
     try {
-      SAX_FACTORY.setValidating(false);
-      SAX_FACTORY.setNamespaceAware(false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/validation", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-      SAX_FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      SAX_FACTORY.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      return namespaceAware ? SAX_FACTORY_NAMESPCE_AWARE.newSAXParser() : SAX_FACTORY_NAMESPCE_UNAWARE.newSAXParser();
     } catch (SAXException e) {
       throw new SonarException(e);
     } catch (ParserConfigurationException e) {
@@ -56,13 +60,19 @@ public abstract class AbstractParser {
     }
   }
 
-  protected SAXParser newSaxParser() {
+  private static void setCommonConf(SAXParserFactory factory) {
     try {
-      return SAX_FACTORY.newSAXParser();
+      factory.setValidating(false);
+      factory.setFeature("http://xml.org/sax/features/validation", false);
+      factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     } catch (SAXException e) {
       throw new SonarException(e);
     } catch (ParserConfigurationException e) {
       throw new SonarException(e);
     }
   }
+
 }
