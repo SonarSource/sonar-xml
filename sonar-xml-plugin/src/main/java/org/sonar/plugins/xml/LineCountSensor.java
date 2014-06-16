@@ -66,7 +66,7 @@ public final class LineCountSensor implements Sensor {
       }
     } catch (IOException e) {
       LOG.warn("Unable to count lines for file: " + file.getAbsolutePath());
-      LOG.warn("Cause: {}", e.toString());
+      LOG.warn("Cause: {}", e);
     } finally {
       LineIterator.closeQuietly(iterator);
     }
