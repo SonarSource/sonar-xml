@@ -17,6 +17,15 @@
  */
 package org.sonar.plugins.xml.schemas;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +36,9 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Resolves references to XML schema's, if possible built-in.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class SchemaResolver implements LSResourceResolver {
@@ -233,6 +233,7 @@ public final class SchemaResolver implements LSResourceResolver {
   /**
    * ResourceResolver tries to resolve schema's and dtd's with built-in resources or external files.
    */
+  @Override
   public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
     LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
