@@ -17,6 +17,7 @@
  */
 package org.sonar.plugins.xml.schemas;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -106,6 +108,15 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   private static final String[] SCHEMA_FOLDERS = new String[] {"xhtml1", "jsf"};
+
+  private XmlSourceCode xmlSource = null;
+
+  public SchemaResolver() {
+  }
+
+  public SchemaResolver(XmlSourceCode xmlSource) {
+    this.xmlSource = xmlSource;
+  }
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
@@ -260,6 +271,25 @@ public final class SchemaResolver implements LSResourceResolver {
         } else {
           input = getBuiltinDTDByFileName("xhtml1/" + systemId);
         }
+      }
+    }
+
+    // try as an external file with an absolute path
+    // or a path relative to the location of the specified XML file
+    if (input == null && xmlSource != null) {
+      File externalFile = new File(systemId);
+      try {
+        if (externalFile.isAbsolute()) {
+          input = new FileInputStream(externalFile);
+        } else {
+          File parentDir = xmlSource.getParentDir();
+          if (parentDir != null) {
+            externalFile = new File(parentDir, systemId);
+            input = new FileInputStream(externalFile);
+          }
+        }
+      } catch (FileNotFoundException e) {
+        LOG.warn("Could not find resource " + externalFile);
       }
     }
 

@@ -42,6 +42,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ import java.util.Map;
  * @author Matthijs Galesloot
  */
 @Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR,
-  cardinality = Cardinality.MULTIPLE)
+cardinality = Cardinality.MULTIPLE)
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
@@ -87,14 +88,17 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       }
     }
 
+    @Override
     public void error(SAXParseException e) throws SAXException {
       createViolation(e);
     }
 
+    @Override
     public void fatalError(SAXParseException e) throws SAXException {
       createViolation(e);
     }
 
+    @Override
     public void warning(SAXParseException e) throws SAXException {
       createViolation(e);
     }
@@ -117,7 +121,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   /**
    * Create xsd schema for a list of schema's.
    */
-  private static Schema createSchema(String[] schemaList) {
+  private static Schema createSchema(XmlSourceCode xmlSourceCode, String[] schemaList) {
 
     final String cacheKey = StringUtils.join(schemaList, ",");
     // first try to load a cached schema.
@@ -140,7 +144,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     // create a schema for the list of StreamSources.
     try {
       SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      schemaFactory.setResourceResolver(new SchemaResolver());
+      schemaFactory.setResourceResolver(new SchemaResolver(xmlSourceCode));
 
       schema = schemaFactory.newSchema(schemaSources.toArray(new Source[schemaSources.size()]));
       CACHED_SCHEMAS.put(cacheKey, schema);
@@ -227,25 +231,32 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   }
 
   private void validate(String[] schemaList) {
-
-    // Create a new validator
-    Validator validator = createSchema(schemaList).newValidator();
-    setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
-    validator.setErrorHandler(new MessageHandler());
-    validator.setResourceResolver(new SchemaResolver());
-
-    // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
-      LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
-      validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
-    } catch (SAXException e) {
-      if (!containsMessage(e)) {
-        createViolation(0, e.getMessage());
+      ClassLoader initialClassLoader = Thread.currentThread()
+          .getContextClassLoader();
+      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
+      // Create a new validator
+      Validator validator = createSchema(getWebSourceCode(), schemaList).newValidator();
+      setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
+      validator.setErrorHandler(new MessageHandler());
+      validator.setResourceResolver(new SchemaResolver());
+
+      // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
+      try {
+        LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
+        validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
+      } catch (SAXException e) {
+        if (!containsMessage(e)) {
+          createViolation(0, e.getMessage());
+        }
+      } catch (UnrecoverableParseError e) {
+        // ignore, message already reported.
       }
+
+      Thread.currentThread().setContextClassLoader(initialClassLoader);
     } catch (IOException e) {
       throw new SonarException(e);
-    } catch (UnrecoverableParseError e) {
-      // ignore, message already reported.
     }
   }
 
