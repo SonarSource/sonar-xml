@@ -13,7 +13,7 @@
 
   <name>XML :: SonarQube Plugin</name>
   <description>Enable analysis and reporting on XML files.</description>
-  <url>http://docs.sonarqube.org/display/SONAR/XML+Plugin</url>
+  <url>http://redirect.sonarsource.com/plugins/xml.html</url>
 
   <scm>
     <connection>scm:git:git@github.com:SonarCommunity/sonar-xml.git</connection>
