@@ -88,7 +88,7 @@ public class XmlSensor implements Sensor {
       Issuable issuable = resourcePerspectives.as(Issuable.class, sourceCode.getSonarFile());
       issuable.addIssue(
         issuable.newIssueBuilder()
-          .ruleKey(xmlIssue.getRule().ruleKey())
+          .ruleKey(xmlIssue.getRuleKey())
           .line(xmlIssue.getLine())
           .message(xmlIssue.getMessage())
           .build());

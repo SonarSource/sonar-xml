@@ -18,6 +18,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.sonar.api.resources.File;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
 /**
@@ -27,20 +28,20 @@ import org.sonar.api.rules.Rule;
  */
 public class XmlIssue {
 
-  private final Rule rule;
   private final int line;
   private final String message;
   private final File file;
+  private RuleKey ruleKey;
 
-  public XmlIssue(File file, Rule rule, int line, String message) {
+  public XmlIssue(File file, RuleKey ruleKey, int line, String message) {
     this.file = file;
-    this.rule = rule;
+    this.ruleKey = ruleKey;
     this.line = line;
     this.message = message;
   }
 
-  public Rule getRule() {
-    return rule;
+  public RuleKey getRuleKey() {
+      return ruleKey;
   }
 
   public int getLine() {
