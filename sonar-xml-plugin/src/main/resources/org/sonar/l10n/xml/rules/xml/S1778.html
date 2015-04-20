@@ -12,20 +12,19 @@ This requirement is explicitly defined in the XML specification:
 Because each XML entity not accompanied by external encoding information and not in UTF-8 or UTF-16 encoding must begin with an XML encoding declaration, in which the first characters must be '&lt?xml', any conforming processor can detect, after two to four octets of input, which of the following cases apply.
 </blockquote>
 
-
-<h2>Noncompliant Example</h2>
+<h2>Noncompliant Code Sample</h2>
 <pre>
-<!-- Generated file -->
+&lt!-- Generated file --&gt
 &lt?xml version="1.0" encoding="UTF-8"?&gt
 &ltfirstNode&gt
   content
 &lt/firstNode&gt
 </pre>
 
-<h2>Noncompliant Example</h2>
+<h2>Compliant Solution</h2>
 <pre>
-<!-- Generated file -->
 &lt?xml version="1.0" encoding="UTF-8"?&gt
+&lt!-- Generated file --&gt
 &ltfirstNode&gt
   content
 &lt/firstNode&gt
