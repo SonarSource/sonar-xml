@@ -18,7 +18,6 @@
 package org.sonar.xml;
 
 import org.sonar.colorizer.MultilinesDocTokenizer;
-import org.sonar.colorizer.RegexpTokenizer;
 import org.sonar.colorizer.Tokenizer;
 
 import java.util.Arrays;
@@ -34,7 +33,7 @@ public final class XmlColorizer {
   public static List<Tokenizer> createTokenizers() {
     return Arrays.asList(
       new CDataDocTokenizer(span("k"), END_TAG),
-      new RegexpTokenizer(span("j"), END_TAG, "<!DOCTYPE.*>"),
+      new DoctypeTokenizer(span("j"), END_TAG),
       new MultilinesDocTokenizer("<!--", "-->", span("j"), END_TAG),
       new MultilinesDocTokenizer("</", ">", span("k"), END_TAG),
       new XmlStartElementTokenizer(span("k"), END_TAG, span("c"), END_TAG, span("s"), END_TAG));

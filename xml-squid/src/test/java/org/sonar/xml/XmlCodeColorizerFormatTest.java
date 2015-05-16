@@ -112,7 +112,7 @@ public class XmlCodeColorizerFormatTest {
 
   @Test
   public void testHighlightDoctype() {
-    assertThat(highlight("<!DOCTYPE foo bar >"), containsString("<span class=\"j\">&lt;!DOCTYPE foo bar &gt;</span>"));
+    assertThat(highlight("<!DOCTYPE foo bar >"), containsString("<span class=\"j\">&lt;!DOCTYPE</span> foo bar <span class=\"j\">&gt;</span>"));
   }
 
   private String highlight(String webSourceCode) {
