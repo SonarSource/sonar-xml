@@ -40,41 +40,46 @@ public final class LineCountParser extends AbstractParser {
 
   private static class CommentHandler extends DefaultHandler implements LexicalHandler {
 
-    private int currentCommentLine = -1;
+    private int lastLineNumberCode = 0;
+    private int lastLineNumberComment = 0;
+
     private Locator locator;
     private int numCommentLines;
 
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-      checkComment();
-    }
-
-    private void checkComment() {
-      if (currentCommentLine >= 0 && locator.getLineNumber() > currentCommentLine) {
-        numCommentLines++;
-        currentCommentLine = -1;
+    private void registerLineOfCode() {
+      lastLineNumberCode = locator.getLineNumber();
+      if (lastLineNumberComment >= lastLineNumberCode) {
+        numCommentLines--;
       }
     }
 
     public void comment(char[] ch, int start, int length) throws SAXException {
+      int numberCurrentCommentLines = 0;
       for (int i = 0; i < length; i++) {
         if (ch[start + i] == '\n') {
-          numCommentLines++;
+          numberCurrentCommentLines++;
         }
       }
-      currentCommentLine = locator.getLineNumber();
+
+      for (int i = numberCurrentCommentLines; i >= 0; i--) {
+        int lineNumber = locator.getLineNumber() - i;
+        if (lastLineNumberCode < lineNumber && lastLineNumberComment < lineNumber) {
+          numCommentLines++;
+          lastLineNumberComment = lineNumber;
+        }
+      }
     }
 
     public void endCDATA() throws SAXException {
-      // empty
+      registerLineOfCode();
     }
 
     public void endDTD() throws SAXException {
-      // empty
+      registerLineOfCode();
     }
 
     public void endEntity(String name) throws SAXException {
-      // empty
+      registerLineOfCode();
     }
 
     @Override
@@ -94,20 +99,20 @@ public final class LineCountParser extends AbstractParser {
     }
 
     public void startCDATA() throws SAXException {
-      // empty
+      registerLineOfCode();
     }
 
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
-      // empty
+      registerLineOfCode();
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-      checkComment();
+      registerLineOfCode();
     }
 
     public void startEntity(String name) throws SAXException {
-      // empty
+      registerLineOfCode();
     }
   }
 

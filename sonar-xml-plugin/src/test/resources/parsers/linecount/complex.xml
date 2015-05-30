@@ -13,7 +13,7 @@
   </journal>
   <journal date="January 2004"><!-- Inline comment --><!-- Inline comment -->
     <article>
-    <!-- Multiline
+    <!-- Two comment blocks on 1 line --><!-- Multiline
     comment -->
       <title>Data Binding with XMLBeans</title><!-- Multiline
       comment --><author>Daniel Steinberg</author><!-- Inline comment -->
