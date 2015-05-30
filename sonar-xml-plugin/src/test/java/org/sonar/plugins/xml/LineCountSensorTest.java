@@ -67,13 +67,12 @@ public class LineCountSensorTest {
     for (Resource resource : sensorContext.getResources()) {
       if (resource.getKey().equals("complex.xml")) {
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(26);
-        // TODO SONARPLUGINS-2623
-        // assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(21);
-
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(21);
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.COMMENT_LINES).getIntValue()).isEqualTo(4);
       } else if (resource.getKey().equals("simple.xml")) {
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(18);
         assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(15);
-
+        assertThat(sensorContext.getMeasure(resource, CoreMetrics.COMMENT_LINES).getIntValue()).isEqualTo(1);
       } else {
         fail("Unexpected resource: " + resource.getKey());
       }
