@@ -36,7 +36,7 @@ public abstract class AbstractXmlCheck {
   }
 
   protected final void createViolation(Integer linePosition, String message) {
-    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), rule, linePosition, message));
+    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), rule.ruleKey(), linePosition, message));
   }
 
   protected XmlSourceCode getWebSourceCode() {
