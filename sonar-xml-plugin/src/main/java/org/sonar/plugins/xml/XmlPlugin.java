@@ -50,8 +50,6 @@ public final class XmlPlugin extends SonarPlugin {
 
       Xml.class,
 
-      XmlSourceImporter.class,
-
       XmlRulesRepository.class,
       XmlSonarWayProfile.class,
 
