@@ -71,7 +71,7 @@
 
     <sonar.version>3.7</sonar.version>
     <sslrVersion>1.20</sslrVersion>
-    <sslrSquidVersion>2.4</sslrSquidVersion>
+    <sslrSquidVersion>2.6</sslrSquidVersion>
   </properties>
 
   <dependencyManagement>
