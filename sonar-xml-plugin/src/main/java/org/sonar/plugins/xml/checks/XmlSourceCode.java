@@ -17,19 +17,19 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.apache.commons.io.FileUtils;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.xml.parsers.SaxParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.xml.parsers.SaxParser;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -85,6 +85,10 @@ public class XmlSourceCode {
 
   private Document parseFile(boolean namespaceAware) {
     return new SaxParser().parseDocument(xmlFile.getFilePath(), createInputStream(), namespaceAware);
+  }
+
+  public File getParentDir() {
+    return xmlFile.getIOFile().getParentFile();
   }
 
   public org.sonar.api.resources.File getSonarFile() {

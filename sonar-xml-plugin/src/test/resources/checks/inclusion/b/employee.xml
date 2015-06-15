@@ -1,0 +1,6 @@
+<employee
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="employee.xsd">
+	<firstname>John</firstname>
+	<lastname>Doe</lastname>
+</employee>

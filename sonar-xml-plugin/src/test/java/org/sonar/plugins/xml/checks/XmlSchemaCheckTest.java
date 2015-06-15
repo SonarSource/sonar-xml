@@ -17,20 +17,23 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.jfree.util.Log;
-import org.junit.Test;
-import org.sonar.api.utils.SonarException;
+import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @author Matthijs Galesloot
  */
 public class XmlSchemaCheckTest extends AbstractCheckTester {
+
+  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheckTest.class);
 
   private static final String SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
   private static final String SCHEMAS = "schemas";
@@ -70,7 +73,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
 
     if (sourceCode.getXmlIssues().size() > 0) {
-      Log.error(sourceCode.getXmlIssues().get(0).getMessage());
+      LOG.error(sourceCode.getXmlIssues().get(0).getMessage());
     }
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
@@ -146,5 +149,16 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-strict");
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
+  }
+
+  @Test
+  public void testXsdInclusion() throws FileNotFoundException {
+    String fileName = "src/test/resources/checks/inclusion/b/employee.xml";
+
+    FileReader reader = new FileReader(fileName);
+    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
+        "src/test/resources/checks/inclusion/b/employee.xsd");
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 }

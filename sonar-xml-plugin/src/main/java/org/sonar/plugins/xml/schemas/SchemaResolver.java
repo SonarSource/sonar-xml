@@ -17,16 +17,7 @@
  */
 package org.sonar.plugins.xml.schemas;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.SonarException;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
-
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,9 +27,20 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
+
 /**
  * Resolves references to XML schema's, if possible built-in.
- * 
+ *
  * @author Matthijs Galesloot
  */
 public final class SchemaResolver implements LSResourceResolver {
@@ -106,6 +108,15 @@ public final class SchemaResolver implements LSResourceResolver {
   }
 
   private static final String[] SCHEMA_FOLDERS = new String[] {"xhtml1", "jsf"};
+
+  private XmlSourceCode xmlSource = null;
+
+  public SchemaResolver() {
+  }
+
+  public SchemaResolver(XmlSourceCode xmlSource) {
+    this.xmlSource = xmlSource;
+  }
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
@@ -233,6 +244,7 @@ public final class SchemaResolver implements LSResourceResolver {
   /**
    * ResourceResolver tries to resolve schema's and dtd's with built-in resources or external files.
    */
+  @Override
   public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
     LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
@@ -259,6 +271,25 @@ public final class SchemaResolver implements LSResourceResolver {
         } else {
           input = getBuiltinDTDByFileName("xhtml1/" + systemId);
         }
+      }
+    }
+
+    // try as an external file with an absolute path
+    // or a path relative to the location of the specified XML file
+    if (input == null && xmlSource != null) {
+      File externalFile = new File(systemId);
+      try {
+        if (externalFile.isAbsolute()) {
+          input = new FileInputStream(externalFile);
+        } else {
+          File parentDir = xmlSource.getParentDir();
+          if (parentDir != null) {
+            externalFile = new File(parentDir, systemId);
+            input = new FileInputStream(externalFile);
+          }
+        }
+      } catch (FileNotFoundException e) {
+        LOG.warn("Could not find resource " + externalFile);
       }
     }
 
