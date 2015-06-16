@@ -17,16 +17,17 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.language.XmlCodeColorizerFormat;
-import org.sonar.plugins.xml.rules.XmlRulesRepository;
+import org.sonar.plugins.xml.rules.XmlRulesDefinition;
 import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /**
  * XML Plugin publishes extensions to sonar engine.
@@ -50,7 +51,7 @@ public final class XmlPlugin extends SonarPlugin {
 
       Xml.class,
 
-      XmlRulesRepository.class,
+      XmlRulesDefinition.class,
       XmlSonarWayProfile.class,
 
       // Sensors

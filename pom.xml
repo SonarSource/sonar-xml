@@ -69,7 +69,7 @@
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>3.7</sonar.version>
+    <sonar.version>4.5.4</sonar.version>
     <sslrVersion>1.20</sslrVersion>
     <sslrSquidVersion>2.6</sslrSquidVersion>
   </properties>
@@ -146,17 +146,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.6</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>1.5.6</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>0.9.15</version>
+        <version>1.6.2</version>
       </dependency>
 
       <dependency>

@@ -17,15 +17,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.apache.xml.utils.PrefixResolver;
-import org.apache.xml.utils.PrefixResolverDefault;
-import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.util.Iterator;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -33,9 +25,17 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.util.Iterator;
 
-@Rule(key = "XPathCheck", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
+import org.apache.xml.utils.PrefixResolver;
+import org.apache.xml.utils.PrefixResolverDefault;
+import org.sonar.api.utils.SonarException;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+@Rule(key = "XPathCheck", priority = Priority.MAJOR)
 public class XPathCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "expression", type = "TEXT")
@@ -79,7 +79,7 @@ public class XPathCheck extends AbstractXmlCheck {
 
         int lineNumber = getWebSourceCode().getLineForNode(nodes.item(i));
         if (message == null) {
-          createViolation(lineNumber);
+          createViolation(lineNumber, "--");
         } else {
           createViolation(lineNumber, message);
         }

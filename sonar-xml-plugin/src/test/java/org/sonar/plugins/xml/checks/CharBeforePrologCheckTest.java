@@ -17,12 +17,11 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * @author Matthijs Galesloot
@@ -31,19 +30,13 @@ public class CharBeforePrologCheckTest extends AbstractCheckTester {
 
   @Test
   public void ko() throws FileNotFoundException {
-    String fileName = "src/test/resources/src/pom_with_chars_before_prolog.xml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, CharBeforePrologCheck.class);
-
+    XmlSourceCode sourceCode = parseAndCheck(CHAR_BEFORE_ROLOG_FILE, null, new CharBeforePrologCheck());
     assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
   public void ok() throws FileNotFoundException {
-    String fileName = "src/test/resources/src/pom.xml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new java.io.File(fileName), null, CharBeforePrologCheck.class);
-
+    XmlSourceCode sourceCode = parseAndCheck(POM_FILE, null, new CharBeforePrologCheck());
     assertEquals("Incorrect number of violations", 0, sourceCode.getXmlIssues().size());
   }
 }

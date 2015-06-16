@@ -17,15 +17,16 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import com.google.common.io.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+
+import com.google.common.io.Files;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -61,7 +62,7 @@ public class XmlFile {
    * Check if the xml file starts with a prolog "&lt?xml version="1.0" ?&gt"
    * if so, check if there is any characters prefixing it.
    */
-  public void checkForCharactersBeforeProlog(ModuleFileSystem fileSystem) {
+  public void checkForCharactersBeforeProlog(FileSystem fileSystem) {
     if (file == null) {
       return;
     }
@@ -70,7 +71,7 @@ public class XmlFile {
       int lineNb = 1;
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
 
-      for (String line : Files.readLines(file, fileSystem.sourceCharset())) {
+      for (String line : Files.readLines(file, fileSystem.encoding())) {
         Matcher m = firstTagPattern.matcher(line);
         if (m.find()) {
           int groupIndex = line.indexOf(m.group());
@@ -98,13 +99,13 @@ public class XmlFile {
    *   <li> lineDeltaForIssue
    *   <li> file
    */
-  private void processCharBeforePrologInFile(ModuleFileSystem fileSystem, int lineDelta) {
+  private void processCharBeforePrologInFile(FileSystem fileSystem, int lineDelta) {
     try {
-      String content = Files.toString(file, fileSystem.sourceCharset());
-      File tempFile = new File(fileSystem.workingDir(), file.getName());
+      String content = Files.toString(file, fileSystem.encoding());
+      File tempFile = new File(fileSystem.workDir(), file.getName());
 
       int index = content.indexOf(XML_PROLOG_START_TAG);
-      Files.write(content.substring(index), tempFile, fileSystem.sourceCharset());
+      Files.write(content.substring(index), tempFile, fileSystem.encoding());
 
       file = tempFile;
       if (lineDelta > 1) {

@@ -17,70 +17,45 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.jfree.util.Log;
+import static junit.framework.Assert.assertEquals;
+
+import java.io.FileNotFoundException;
+
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-
-import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
  */
 public class XmlSchemaCheckTest extends AbstractCheckTester {
 
-  private static final String SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML = "src/test/resources/checks/generic/TenderNed - Aankondigingen.xhtml";
-  private static final String SCHEMAS = "schemas";
-  private static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
   @Test(expected = SonarException.class)
-  public void missingSchema() throws FileNotFoundException {
-    String fileName = SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML;
-    FileReader reader = new FileReader(fileName);
-    parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "does-not-exist");
+  public void missing_schema() throws FileNotFoundException {
+    parseAndCheck(AANKONDIGINGEN_FILE, null, createCheck("does-not-exist", null));
   }
 
   @Test
-  public void schemaAsExternalPath() throws FileNotFoundException {
-    String fileName = SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML;
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "src/main/resources/org/sonar/plugins/xml/schemas/xhtml1/xhtml1-frameset.xsd");
-
+  public void schema_as_external_path() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, null, createCheck("src/main/resources/org/sonar/plugins/xml/schemas/xhtml1/xhtml1-frameset.xsd", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 162, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void testFilePattern() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/catalog.xml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, "filePattern", "**/generic/**.xml",
-        SCHEMAS, "src/test/resources/checks/generic/catalog.xsd");
-
+  public void test_file_pattern() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, null, createCheck("src/test/resources/checks/generic/catalog.xsd", "**/generic/**.xml"));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void validateMavenPom() throws FileNotFoundException {
-    String fileName = "pom.xml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
-
-    if (sourceCode.getXmlIssues().size() > 0) {
-      Log.error(sourceCode.getXmlIssues().get(0).getMessage());
-    }
+  public void validate_maven_pom() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(POM_FILE, null, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void violateAutoDetectCheck() throws FileNotFoundException {
-    String fileName = SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML;
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
-
+  public void violate_auto_detect_check() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, null, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
 
@@ -89,62 +64,53 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
    */
   @Test
   public void no_issue_on_corrupted_file() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/wrong-ampersand.xhtml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "autodetect");
-
+    XmlSourceCode sourceCode = parseAndCheck(WRONG_AMPERSAND_FILE, null, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void violateBuiltinXhtmlSchemaCheck() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/create-salesorder.xhtml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-transitional");
+  public void violate_builtin_xhtml_schema_check() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, null, createCheck("xhtml1-transitional", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
     assertEquals(16, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
-  public void violateFaceletsSchema() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/create-salesorder2.xhtml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "http://java.sun.com/jsf/core");
+  public void violate_facelets_schema() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, null, createCheck("http://java.sun.com/jsf/core", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
-    // assertEquals((Integer) , sourceCode.getIssues().get(0).getLineId());
+    // assertEquals((Integer) , sourceCode.getIssues().get(0).getLineId()); FIXME
   }
 
   @Test
-  public void violateJsfSchema() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/create-salesorder2.xhtml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "http://java.sun.com/jsf/html");
+  public void violate_jsf_schema() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, null, createCheck("http://java.sun.com/jsf/html", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
     assertEquals(8, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
-  public void violateLocalXmlSchemaCheck() throws FileNotFoundException {
-    String fileName = "src/test/resources/checks/generic/catalog.xml";
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS,
-        "src/test/resources/checks/generic/catalog.xsd");
+  public void violate_local_xml_schema_check() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, null, createCheck("src/test/resources/checks/generic/catalog.xsd", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
     assertEquals(5, sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
-  public void violateStrictHtml1heck() throws FileNotFoundException {
-    String fileName = SRC_TEST_RESOURCES_CHECKS_GENERIC_TENDER_NED_AANKONDIGINGEN_XHTML;
-    FileReader reader = new FileReader(fileName);
-    XmlSourceCode sourceCode = parseAndCheck(reader, new File(fileName), null, XmlSchemaCheck.class, SCHEMAS, "xhtml1-strict");
-
+  public void violate_strict_html1_check() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, null, createCheck("xhtml1-strict", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
+  }
+
+  private static XmlSchemaCheck createCheck(String schema, String filePattern) {
+    XmlSchemaCheck check = new XmlSchemaCheck();
+    check.setSchemas(schema);
+    check.setFilePattern(filePattern);
+
+    return check;
   }
 }

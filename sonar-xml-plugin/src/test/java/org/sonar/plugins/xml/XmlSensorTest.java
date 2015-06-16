@@ -17,42 +17,8 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.commons.collections.ListUtils;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.sonar.api.component.Perspective;
-import org.sonar.api.component.Perspectives;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.plugins.xml.checks.AbstractXmlCheck;
-import org.sonar.plugins.xml.checks.CheckRepository;
-import org.sonar.plugins.xml.checks.XPathCheck;
-import org.sonar.plugins.xml.checks.XmlSourceCode;
-import org.sonar.plugins.xml.language.Xml;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-
-import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -60,139 +26,105 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.sonar.plugins.xml.language.Xml;
+
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private void createXPathRuleForPomFiles(RulesProfile rulesProfile) {
-    Rule xpathRule = getRule("XPathCheck", XPathCheck.class);
-    rulesProfile.activateRule(xpathRule, null);
-    ActiveRule activeRule = rulesProfile.getActiveRule(xpathRule);
-    assertNotNull(activeRule);
+  private Project project;
+  private DefaultFileSystem fs;
+  private XmlSensor sensor;
+  private SensorContext context;
 
-    RuleParam expressionParam = activeRule.getRule().getParam("expression");
-    assertNotNull(expressionParam);
+  @Before
+  public void setUp() throws Exception {
+    project = new Project("");
+    context = mock(SensorContext.class);
 
-    expressionParam = activeRule.getRule().getParam("filePattern");
-    assertNotNull(expressionParam);
+    fs = new DefaultFileSystem(new File("src/test/resources/"));
+    fs.setWorkDir(temporaryFolder.newFolder("temp"));
 
-    activeRule.setParameter("filePattern", "**/pom*.xml");
-    activeRule.setParameter("expression", "//dependency/version");
+    CheckFactory checkFactory = new CheckFactory(new DefaultActiveRules(Collections.EMPTY_LIST));
+
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(mock(Issuable.class));
+
+    sensor = spy(new XmlSensor(fs, perspectives, checkFactory));
+    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(mock(Issuable.class));
   }
 
   @Test
   public void should_execute_on_javascript_project() {
-    Project project = new Project("key");
-    ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    XmlSensor sensor = new XmlSensor(mock(RulesProfile.class), fs, mock(ResourcePerspectives.class));
-
-    when(fs.files(any(FileQuery.class))).thenReturn(ListUtils.EMPTY_LIST);
+    // No XML file
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
-    when(fs.files(Mockito.any(FileQuery.class))).thenReturn(ImmutableList.of(new File("/tmp")));
+    // Has XML file
+    fs.add(createInputFile("file.xml"));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
+  /**
+   * Expect issue for rule: NewlineCheck
+   */
   @Test
   public void testSensor() throws Exception {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Xml.KEY);
-    addProjectFileSystem(project, "src/test/resources/src/");
+    fs.add(createInputFile("src/pom.xml"));
 
-    ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom.xml")));
-    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
-    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
-
-    MockSensorContext sensorContext = new MockSensorContext();
-    RulesProfile rulesProfile = createStandardRulesProfile();
-    createXPathRuleForPomFiles(rulesProfile);
-
-    Issuable issuable = mock(Issuable.class);
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
-    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, mock(ResourcePerspectives.class)));
-
-    sensor.analyse(project, sensorContext);
+    sensor.analyse(new Project(""), context);
 
     verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
   }
 
   /**
    * SONARXML-19
+   *
+   * Expect issue for rule: NewlineCheck
    */
   @Test
   public void should_execute_on_file_with_chars_before_prolog() throws Exception {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Xml.KEY);
-    addProjectFileSystem(project, "src/test/resources/src/");
+    fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
 
-    ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/src/pom_with_chars_before_prolog.xml")));
-    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
-    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
-
-    MockSensorContext sensorContext = new MockSensorContext();
-    RulesProfile rulesProfile = createStandardRulesProfile();
-    createXPathRuleForPomFiles(rulesProfile);
-
-    Issuable issuable = mock(Issuable.class);
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
-
-    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, perspectives));
-
-    sensor.analyse(project, sensorContext);
+    sensor.analyse(new Project(""), context);
 
     verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
   }
 
+  /**
+   * Has issue for rule: NewlineCheck, but should not be reported
+   */
   @Test
   public void should_not_execute_test_on_corrupted_file() throws Exception {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Xml.KEY);
-    addProjectFileSystem(project, "src/test/resources/src/");
+    fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
-    ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("src/test/resources/checks/generic/wrong-ampersand.xhtml")));
-    when(fs.sourceCharset()).thenReturn(Charset.defaultCharset());
-    when(fs.workingDir()).thenReturn(temporaryFolder.newFolder("temp"));
-
-    MockSensorContext sensorContext = new MockSensorContext();
-    RulesProfile rulesProfile = createStandardRulesProfile();
-    createXPathRuleForPomFiles(rulesProfile);
-
-    Issuable issuable = mock(Issuable.class);
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(issuable);
-
-    XmlSensor sensor = spy(new XmlSensor(rulesProfile, fs, perspectives));
-
-    sensor.analyse(project, sensorContext);
+    sensor.analyse(new Project(""), context);
 
     verify(sensor, never()).saveIssue(any(XmlSourceCode.class));
   }
 
-  private Rule getRule(String ruleKey, Class<? extends AbstractXmlCheck> checkClass) {
-
-    AnnotationRuleParser parser = new AnnotationRuleParser();
-    List<Rule> rules = parser.parse(CheckRepository.REPOSITORY_KEY, Arrays.asList(new Class[]{checkClass}));
-    for (Rule rule : rules) {
-      if (rule.getKey().equals(ruleKey)) {
-        return rule;
-      }
-    }
-    return null;
+  private DefaultInputFile createInputFile(String name) {
+    return new DefaultInputFile(name)
+      .setLanguage(Xml.KEY)
+      .setType(InputFile.Type.MAIN)
+      .setAbsolutePath(new File("src/test/resources/" + name).getAbsolutePath());
   }
 
-  /**
-   * This is unavoidable in order to be compatible with sonarqube 4.2
-   */
-  private void addProjectFileSystem(Project project, String srcDir) {
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.getSourceDirs()).thenReturn(Arrays.asList(new File(srcDir)));
-
-    when(project.getFileSystem()).thenReturn(fs);
-  }
 }

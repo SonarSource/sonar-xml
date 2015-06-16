@@ -17,26 +17,27 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
-import java.util.Collection;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -47,37 +48,40 @@ public class XmlSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
-  private final AnnotationCheckFactory annotationCheckFactory;
-  private final ModuleFileSystem fileSystem;
+  private final Checks<Object> checks;
+  private final FileSystem fileSystem;
   private final ResourcePerspectives resourcePerspectives;
+  private final FilePredicate mainFilesPredicate;
 
-  public XmlSensor(RulesProfile profile, ModuleFileSystem fileSystem, ResourcePerspectives resourcePerspectives) {
-    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
+  public XmlSensor(FileSystem fileSystem, ResourcePerspectives resourcePerspectives, CheckFactory checkFactory) {
+    this.checks = checkFactory.create(CheckRepository.REPOSITORY_KEY).addAnnotatedChecks(CheckRepository.getCheckClasses());
     this.fileSystem = fileSystem;
     this.resourcePerspectives = resourcePerspectives;
+    this.mainFilesPredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(Xml.KEY));
   }
 
   /**
    * Analyze the XML files.
    */
   public void analyse(Project project, SensorContext sensorContext) {
-    Collection<AbstractXmlCheck> checks = annotationCheckFactory.getChecks();
-    for (java.io.File file : fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY))) {
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
 
       try {
-        File resource = File.fromIOFile(file, project);
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, file);
+        File resource = File.create(inputFile.relativePath());
+        XmlSourceCode sourceCode = new XmlSourceCode(resource, inputFile.file());
 
         // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
         if (sourceCode.parseSource(fileSystem)) {
-          for (AbstractXmlCheck check : checks) {
-            check.setRule(annotationCheckFactory.getActiveRule(check).getRule());
-            check.validate(sourceCode);
+          for (Object check : checks.all()) {
+            ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
+            ((AbstractXmlCheck) check).validate(sourceCode);
           }
           saveIssue(sourceCode);
         }
       } catch (Exception e) {
-        LOG.error("Could not analyze the file " + file.getAbsolutePath(), e);
+        LOG.error("Could not analyze the file " + inputFile.file().getAbsolutePath(), e);
       }
     }
   }
@@ -86,9 +90,10 @@ public class XmlSensor implements Sensor {
   protected void saveIssue(XmlSourceCode sourceCode) {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       Issuable issuable = resourcePerspectives.as(Issuable.class, sourceCode.getSonarFile());
+
       issuable.addIssue(
         issuable.newIssueBuilder()
-          .ruleKey(xmlIssue.getRule().ruleKey())
+          .ruleKey(xmlIssue.getRuleKey())
           .line(xmlIssue.getLine())
           .message(xmlIssue.getMessage())
           .build());
@@ -99,7 +104,7 @@ public class XmlSensor implements Sensor {
    * This sensor only executes on projects with active XML rules.
    */
   public boolean shouldExecuteOnProject(Project project) {
-    return !fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY)).isEmpty();
+    return fileSystem.hasFiles(mainFilesPredicate);
   }
 
   @Override

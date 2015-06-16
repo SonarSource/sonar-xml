@@ -17,29 +17,25 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
-
-import java.util.List;
+import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 /**
  * Repository for XML rules.
  */
-public final class XmlRulesRepository extends RuleRepository {
-
-  private final AnnotationRuleParser annotationRuleParser;
-
-  public XmlRulesRepository(AnnotationRuleParser annotationRuleParser) {
-    super(CheckRepository.REPOSITORY_KEY, Xml.KEY);
-    setName(CheckRepository.REPOSITORY_NAME);
-    this.annotationRuleParser = annotationRuleParser;
-  }
+public final class XmlRulesDefinition implements RulesDefinition {
 
   @Override
-  public List<Rule> createRules() {
-    return annotationRuleParser.parse(CheckRepository.REPOSITORY_KEY, CheckRepository.getCheckClasses());
+  public void define(Context context) {
+    NewRepository repository = context
+      .createRepository(CheckRepository.REPOSITORY_KEY, Xml.KEY)
+      .setName(CheckRepository.REPOSITORY_NAME);
+
+    new AnnotationBasedRulesDefinition(repository, Xml.KEY).addRuleClasses(false, CheckRepository.getCheckClasses());
+
+    repository.done();
   }
+
 }

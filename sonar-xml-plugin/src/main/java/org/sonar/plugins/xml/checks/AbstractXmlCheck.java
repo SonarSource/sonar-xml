@@ -18,7 +18,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
@@ -28,15 +28,11 @@ import org.sonar.api.utils.WildcardPattern;
  */
 public abstract class AbstractXmlCheck {
 
-  private Rule rule;
+  private RuleKey ruleKey;
   private XmlSourceCode xmlSourceCode;
 
-  protected final void createViolation(Integer linePosition) {
-    createViolation(linePosition, rule.getDescription());
-  }
-
   protected final void createViolation(Integer linePosition, String message) {
-    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), rule, linePosition, message));
+    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), ruleKey, linePosition, message));
   }
 
   protected XmlSourceCode getWebSourceCode() {
@@ -56,8 +52,8 @@ public abstract class AbstractXmlCheck {
     }
   }
 
-  public final void setRule(Rule rule) {
-    this.rule = rule;
+  public final void setRuleKey(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
   }
 
   protected void setWebSourceCode(XmlSourceCode xmlSourceCode) {

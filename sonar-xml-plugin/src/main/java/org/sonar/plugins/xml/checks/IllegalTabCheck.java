@@ -70,7 +70,7 @@ public class IllegalTabCheck extends AbstractXmlCheck {
       createViolation(lineNumber, "Tab characters found (this is the first occurrence)");
       validationReady = true;
     } else {
-      createViolation(lineNumber);
+      createViolation(lineNumber, "Detect tab characters in your XML files.");
     }
   }
 

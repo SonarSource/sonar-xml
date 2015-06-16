@@ -17,13 +17,26 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -36,26 +49,12 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.XMLConstants;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Perform schema check using xerces parser.
  *
  * @author Matthijs Galesloot
  */
-@Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR,
-  cardinality = Cardinality.MULTIPLE)
+@Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR)
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
@@ -67,12 +66,13 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   /**
    * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
    */
-  @RuleProperty(key = "schemas", defaultValue = "autodetect", type = "TEXT")
+  @RuleProperty(key = "schemas", defaultValue = DEFAULT_SCHEMA, type = "TEXT")
   private String schemas;
+  public static final String DEFAULT_SCHEMA = "autodetect";
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
 
-  private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<String, Schema>();
+  private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap();
 
   /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
@@ -227,7 +227,6 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   }
 
   private void validate(String[] schemaList) {
-
     // Create a new validator
     Validator validator = createSchema(schemaList).newValidator();
     setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);

@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -53,6 +55,21 @@ public class MockSensorContext implements SensorContext {
 
   public void deleteEvent(Event event) {
     // TODO Auto-generated method stub
+  }
+
+  @Override
+  public Measure saveMeasure(InputFile inputFile, Metric metric, Double value) {
+    return null;
+  }
+
+  @Override
+  public Measure saveMeasure(InputFile inputFile, Measure measure) {
+    return null;
+  }
+
+  @Override
+  public Resource getResource(InputPath inputPath) {
+    return null;
   }
 
   public void deleteLink(String key) {

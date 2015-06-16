@@ -17,9 +17,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 public class CheckRepository {
 
@@ -31,7 +31,7 @@ public class CheckRepository {
   }
 
   public static List<AbstractXmlCheck> getChecks() {
-    return ImmutableList.<AbstractXmlCheck>of(
+    return ImmutableList.of(
       new IllegalTabCheck(),
       new IndentCheck(),
       new NewlineCheck(),

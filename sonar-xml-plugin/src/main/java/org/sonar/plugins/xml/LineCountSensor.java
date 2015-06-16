@@ -17,6 +17,9 @@
  */
 package org.sonar.plugins.xml;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
@@ -24,15 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Count lines of code in XML files.
@@ -42,10 +43,14 @@ import java.io.IOException;
 public final class LineCountSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LineCountSensor.class);
-  private final ModuleFileSystem fileSystem;
+  private final FileSystem fileSystem;
+  private final FilePredicate mainFilesPredicate;
 
-  public LineCountSensor(ModuleFileSystem fileSystem) {
+  public LineCountSensor(FileSystem fileSystem) {
     this.fileSystem = fileSystem;
+    this.mainFilesPredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(Xml.KEY));
   }
 
   private void addMeasures(SensorContext sensorContext, File file, org.sonar.api.resources.File xmlFile) {
@@ -89,16 +94,14 @@ public final class LineCountSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext sensorContext) {
-
-    for (File file : fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY))) {
-      org.sonar.api.resources.File htmlFile = org.sonar.api.resources.File.fromIOFile(file, project);
-      addMeasures(sensorContext, file, htmlFile);
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
+      addMeasures(sensorContext, inputFile.file(), org.sonar.api.resources.File.create(inputFile.relativePath()));
     }
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !fileSystem.files(FileQuery.onSource().onLanguage(Xml.KEY)).isEmpty();
+    return fileSystem.hasFiles(mainFilesPredicate);
   }
 
   @Override
