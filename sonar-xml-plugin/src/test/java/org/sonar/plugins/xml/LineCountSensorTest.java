@@ -87,4 +87,9 @@ public class LineCountSensorTest {
       .setAbsolutePath(new File("src/test/resources/parsers/linecount/" + name).getAbsolutePath());
   }
 
+  @Test
+  public void test_toString() throws Exception {
+    assertThat(new LineCountSensor(fs).toString()).isEqualTo(LineCountSensor.class.getSimpleName());
+
+  }
 }

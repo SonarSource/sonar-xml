@@ -61,10 +61,6 @@ public class XmlFile {
    * if so, check if there is any characters prefixing it.
    */
   public void checkForCharactersBeforeProlog(FileSystem fileSystem) {
-    if (inputFile.file() == null) {
-      return;
-    }
-
     try {
       int lineNb = 1;
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
