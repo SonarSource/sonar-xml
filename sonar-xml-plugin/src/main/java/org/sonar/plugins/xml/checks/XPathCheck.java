@@ -32,10 +32,12 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 @Rule(key = "XPathCheck", priority = Priority.MAJOR)
+@RuleTemplate
 public class XPathCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "expression", type = "TEXT")
