@@ -43,6 +43,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
+import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -55,6 +56,7 @@ import org.xml.sax.SAXParseException;
  * @author Matthijs Galesloot
  */
 @Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR)
+@RuleTemplate
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
