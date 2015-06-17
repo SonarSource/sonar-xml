@@ -19,22 +19,32 @@ package org.sonar.plugins.xml.checks;
 
 import static junit.framework.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Matthijs Galesloot
  */
 public class XPathCheckTest extends AbstractCheckTester {
 
-  @Test
-  public void violateXPathCheck() throws FileNotFoundException {
-    String fragment = "<html xmlns=\"http://www.w3.org/1999/xhtml\" "
-      + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
-      + "<body><br /></body></html>";
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
 
-    XmlSourceCode sourceCode = parseAndCheck(null, fragment, createCheck("//br"));
+  @Test
+  public void violateXPathCheck() throws IOException {
+    File tempFile = testFolder.newFile("file.xml");
+
+    FileUtils.write(tempFile, "<html xmlns=\"http://www.w3.org/1999/xhtml\" "
+      + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
+      + "<body><br /></body></html>");
+
+    XmlSourceCode sourceCode = parseAndCheck(tempFile, createCheck("//br"));
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
     assertEquals(1, sourceCode.getXmlIssues().get(0).getLine());
@@ -42,7 +52,7 @@ public class XPathCheckTest extends AbstractCheckTester {
 
   @Test
   public void violateXPathWithNamespacesCheck() throws FileNotFoundException {
-    XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, null, createCheck("//ui:define[@name='title']"));
+    XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, createCheck("//ui:define[@name='title']"));
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
     assertEquals(26, sourceCode.getXmlIssues().get(0).getLine());
@@ -53,7 +63,7 @@ public class XPathCheckTest extends AbstractCheckTester {
    */
   @Test
   public void report_issue_on_correct_line_for_file_with_char_before_prolog() throws FileNotFoundException {
-    XmlSourceCode sourceCode = parseAndCheck(CHAR_BEFORE_ROLOG_FILE, null, createCheck("//dependency/version"));
+    XmlSourceCode sourceCode = parseAndCheck(CHAR_BEFORE_ROLOG_FILE, createCheck("//dependency/version"));
 
     assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
     assertEquals(18, sourceCode.getXmlIssues().get(0).getLine());
@@ -64,7 +74,7 @@ public class XPathCheckTest extends AbstractCheckTester {
    */
   @Test
   public void xpathRuleShouldNotCreateViolationForInvalidDocument() throws FileNotFoundException {
-    XmlSourceCode sourceCode = parseAndCheck(SONARSOURCE_FILE, null, createCheck("//link[@rel]"));
+    XmlSourceCode sourceCode = parseAndCheck(SONARSOURCE_FILE, createCheck("//link[@rel]"));
     assertEquals("Incorrect number of violations", 0, sourceCode.getXmlIssues().size());
   }
 

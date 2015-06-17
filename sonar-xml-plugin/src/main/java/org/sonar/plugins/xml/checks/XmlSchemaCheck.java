@@ -68,11 +68,10 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
    */
   @RuleProperty(key = "schemas", defaultValue = DEFAULT_SCHEMA, type = "TEXT")
   private String schemas;
-  public static final String DEFAULT_SCHEMA = "autodetect";
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
-
   private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap();
+  public static final String DEFAULT_SCHEMA = "autodetect";
 
   /**
    * MessageHandler creates violations for errors and warnings. The handler is assigned to {@link Validator} to catch the errors and
@@ -237,12 +236,15 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     try {
       LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
+
     } catch (SAXException e) {
       if (!containsMessage(e)) {
         createViolation(0, e.getMessage());
       }
+
     } catch (IOException e) {
       throw new SonarException(e);
+
     } catch (UnrecoverableParseError e) {
       // ignore, message already reported.
     }

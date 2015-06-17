@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
@@ -46,8 +47,8 @@ public class XmlSourceCode {
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
 
-  public XmlSourceCode(org.sonar.api.resources.File sonarFile, File file) {
-    this.xmlFile = new XmlFile(sonarFile, file);
+  public XmlSourceCode(InputFile sonarFile) {
+    this.xmlFile = new XmlFile(sonarFile);
   }
 
   public void addViolation(XmlIssue xmlIssue) {
@@ -87,8 +88,12 @@ public class XmlSourceCode {
     return new SaxParser().parseDocument(xmlFile.getFilePath(), createInputStream(), namespaceAware);
   }
 
-  public org.sonar.api.resources.File getSonarFile() {
-    return xmlFile.getSonarFile();
+  public InputFile getInputFile() {
+    return xmlFile.getInputFile();
+  }
+
+  public String getFileFullName() {
+    return xmlFile.getInputFile().file().getAbsolutePath();
   }
 
   public List<XmlIssue> getXmlIssues() {
@@ -116,6 +121,6 @@ public class XmlSourceCode {
 
   @Override
   public String toString() {
-    return xmlFile.getSonarFile().getLongName();
+    return xmlFile.getInputFile().absolutePath();
   }
 }

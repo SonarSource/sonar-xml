@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.resources.File;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
@@ -42,10 +42,8 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
   protected static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
-  protected XmlSourceCode parseAndCheck(java.io.File file, String code, AbstractXmlCheck check) {
-    XmlSourceCode xmlSourceCode = new XmlSourceCode(File.create(file == null ? "test" : file.getPath()), file);
-
-    xmlSourceCode.setCode(code);
+  protected XmlSourceCode parseAndCheck(java.io.File file, AbstractXmlCheck check) {
+    XmlSourceCode xmlSourceCode = new XmlSourceCode(new DefaultInputFile(file.getPath()).setAbsolutePath(file.getAbsolutePath()));
 
     if (xmlSourceCode.parseSource(createFileSystem())) {
       check.validate(xmlSourceCode);

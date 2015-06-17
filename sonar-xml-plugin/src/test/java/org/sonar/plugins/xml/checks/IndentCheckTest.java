@@ -29,14 +29,12 @@ public class IndentCheckTest extends AbstractCheckTester {
   @Test
   public void checkIndent() throws FileNotFoundException {
     String fragment = "<html>\n<body><br>hello</br></body>\n</html>";
-
     parseCheckAndAssert(fragment, IndentCheck.class, 2);
   }
-  
+
   @Test
   public void checkIndentTabs() throws FileNotFoundException {
     String fragment = "<html>\n\t<body>\t\t<br>hello</br>\t</body>\n</html>";
-
     parseCheckAndAssert(fragment, IndentCheck.class, 0);
   }
 }

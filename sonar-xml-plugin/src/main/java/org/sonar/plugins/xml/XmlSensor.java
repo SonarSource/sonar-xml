@@ -28,9 +28,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlIssue;
@@ -69,8 +67,7 @@ public class XmlSensor implements Sensor {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
 
       try {
-        File resource = File.create(inputFile.relativePath());
-        XmlSourceCode sourceCode = new XmlSourceCode(resource, inputFile.file());
+        XmlSourceCode sourceCode = new XmlSourceCode(inputFile);
 
         // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
         if (sourceCode.parseSource(fileSystem)) {
@@ -89,14 +86,16 @@ public class XmlSensor implements Sensor {
   @VisibleForTesting
   protected void saveIssue(XmlSourceCode sourceCode) {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
-      Issuable issuable = resourcePerspectives.as(Issuable.class, sourceCode.getSonarFile());
+      Issuable issuable = resourcePerspectives.as(Issuable.class, sourceCode.getInputFile());
 
-      issuable.addIssue(
-        issuable.newIssueBuilder()
-          .ruleKey(xmlIssue.getRuleKey())
-          .line(xmlIssue.getLine())
-          .message(xmlIssue.getMessage())
-          .build());
+      if (issuable != null) {
+        issuable.addIssue(
+          issuable.newIssueBuilder()
+            .ruleKey(xmlIssue.getRuleKey())
+            .line(xmlIssue.getLine())
+            .message(xmlIssue.getMessage())
+            .build());
+      }
     }
   }
 

@@ -17,12 +17,11 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
- * Abtract superclass for checks.
+ * Abstract superclass for checks.
  *
  * @author Matthijs Galesloot
  */
@@ -32,7 +31,7 @@ public abstract class AbstractXmlCheck {
   private XmlSourceCode xmlSourceCode;
 
   protected final void createViolation(Integer linePosition, String message) {
-    getWebSourceCode().addViolation(new XmlIssue(getWebSourceCode().getSonarFile(), ruleKey, linePosition, message));
+    getWebSourceCode().addViolation(new XmlIssue(ruleKey, linePosition, message));
   }
 
   protected XmlSourceCode getWebSourceCode() {
@@ -44,9 +43,9 @@ public abstract class AbstractXmlCheck {
    */
   protected boolean isFileIncluded(String filePattern) {
     if (filePattern != null) {
-      String fileName = getWebSourceCode().getSonarFile().getKey();
-      WildcardPattern matcher = WildcardPattern.create(filePattern);
-      return matcher.match(fileName);
+      return WildcardPattern.create(filePattern)
+        .match(getWebSourceCode().getFileFullName());
+
     } else {
       return true;
     }
@@ -58,14 +57,6 @@ public abstract class AbstractXmlCheck {
 
   protected void setWebSourceCode(XmlSourceCode xmlSourceCode) {
     this.xmlSourceCode = xmlSourceCode;
-  }
-
-  public String[] trimSplitCommaSeparatedList(String value) {
-    String[] tokens = StringUtils.split(value, ",");
-    for (int i = 0; i < tokens.length; i++) {
-      tokens[i] = tokens[i].trim();
-    }
-    return tokens;
   }
 
   public abstract void validate(XmlSourceCode xmlSourceCode);

@@ -53,14 +53,14 @@ public final class LineCountSensor implements Sensor {
       fileSystem.predicates().hasLanguage(Xml.KEY));
   }
 
-  private void addMeasures(SensorContext sensorContext, File file, org.sonar.api.resources.File xmlFile) {
+  private static void addMeasures(SensorContext sensorContext, InputFile inputFile) {
 
     LineIterator iterator = null;
     int numLines = 0;
     int numBlankLines = 0;
 
     try {
-      iterator = FileUtils.lineIterator(file);
+      iterator = FileUtils.lineIterator(inputFile.file());
 
       while (iterator.hasNext()) {
         String line = iterator.nextLine();
@@ -70,7 +70,7 @@ public final class LineCountSensor implements Sensor {
         }
       }
     } catch (IOException e) {
-      LOG.warn("Unable to count lines for file: " + file.getAbsolutePath());
+      LOG.warn("Unable to count lines for file: " + inputFile.file().getAbsolutePath());
       LOG.warn("Cause: {}", e);
     } finally {
       LineIterator.closeQuietly(iterator);
@@ -78,24 +78,24 @@ public final class LineCountSensor implements Sensor {
 
     try {
 
-      LOG.debug("Count comment in " + file.getPath());
+      LOG.debug("Count comment in " + inputFile.file().getPath());
 
       LineCountParser lineCountParser = new LineCountParser();
-      int numCommentLines = lineCountParser.countLinesOfComment(FileUtils.openInputStream(file));
-      sensorContext.saveMeasure(xmlFile, CoreMetrics.LINES, (double) numLines);
-      sensorContext.saveMeasure(xmlFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
-      sensorContext.saveMeasure(xmlFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - numCommentLines);
+      int numCommentLines = lineCountParser.countLinesOfComment(FileUtils.openInputStream(inputFile.file()));
+      sensorContext.saveMeasure(inputFile, CoreMetrics.LINES, (double) numLines);
+      sensorContext.saveMeasure(inputFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
+      sensorContext.saveMeasure(inputFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - numCommentLines);
     } catch (Exception e) {
-      LOG.debug("Fail to count lines in " + file.getPath(), e);
+      LOG.debug("Fail to count lines in " + inputFile.file().getPath(), e);
     }
 
-    LOG.debug("LineCountSensor: " + xmlFile.getKey() + ":" + numLines + "," + numBlankLines + "," + 0);
+    LOG.debug("LineCountSensor: " + inputFile.file().getName() + ":" + numLines + "," + numBlankLines + "," + 0);
   }
 
   @Override
   public void analyse(Project project, SensorContext sensorContext) {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
-      addMeasures(sensorContext, inputFile.file(), org.sonar.api.resources.File.create(inputFile.relativePath()));
+      addMeasures(sensorContext, inputFile);
     }
   }
 
