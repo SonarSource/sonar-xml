@@ -44,7 +44,7 @@ public abstract class AbstractXmlCheck {
   protected boolean isFileIncluded(String filePattern) {
     if (filePattern != null) {
       return WildcardPattern.create(filePattern)
-        .match(getWebSourceCode().getFileFullName());
+        .match(getWebSourceCode().getLogicalPath());
 
     } else {
       return true;

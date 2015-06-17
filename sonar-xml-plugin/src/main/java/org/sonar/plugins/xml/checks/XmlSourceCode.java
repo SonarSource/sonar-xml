@@ -92,8 +92,8 @@ public class XmlSourceCode {
     return xmlFile.getInputFile();
   }
 
-  public String getFileFullName() {
-    return xmlFile.getInputFile().file().getAbsolutePath();
+  public String getLogicalPath() {
+    return xmlFile.getInputFile().absolutePath();
   }
 
   public List<XmlIssue> getXmlIssues() {
