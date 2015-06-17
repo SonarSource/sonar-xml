@@ -197,7 +197,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     return schemas;
   }
 
-  private void setFeature(Validator validator, String feature, boolean value) {
+  private static void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);
     } catch (SAXNotRecognizedException e) {

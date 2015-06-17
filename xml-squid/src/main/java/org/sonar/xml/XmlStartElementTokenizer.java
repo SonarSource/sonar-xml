@@ -165,7 +165,7 @@ public class XmlStartElementTokenizer extends Tokenizer {
     return (quote != null) && (this.equals(codeBuilder.getVariable(ELEMENT_TOKENIZER)));
   }
 
-  private Character getAttributeQuote(HtmlCodeBuilder codeBuilder) {
+  private static Character getAttributeQuote(HtmlCodeBuilder codeBuilder) {
     return (Character) codeBuilder.getVariable(ATTRIBUTE_VALUE_STARTED, null);
   }
 
@@ -174,11 +174,11 @@ public class XmlStartElementTokenizer extends Tokenizer {
     codeBuilder.setVariable(ELEMENT_TOKENIZER, b ? this : null);
   }
 
-  private void setAttributeStarted(HtmlCodeBuilder codeBuilder, Boolean b) {
+  private static void setAttributeStarted(HtmlCodeBuilder codeBuilder, Boolean b) {
     codeBuilder.setVariable(ATTRIBUTE_STARTED, b);
   }
 
-  private void setAttributeValueStarted(HtmlCodeBuilder codeBuilder, Character quote) {
+  private static void setAttributeValueStarted(HtmlCodeBuilder codeBuilder, Character quote) {
     codeBuilder.setVariable(ATTRIBUTE_VALUE_STARTED, quote);
   }
 

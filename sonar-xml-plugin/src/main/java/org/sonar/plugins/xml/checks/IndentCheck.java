@@ -87,7 +87,7 @@ public class IndentCheck extends AbstractXmlCheck {
   /**
    * Get the depth of this node in the node hierarchy.
    */
-  private int getDepth(Node node) {
+  private static int getDepth(Node node) {
     int depth = 0;
     for (Node parent = node.getParentNode(); parent.getParentNode() != null; parent = parent.getParentNode()) {
       depth++;
