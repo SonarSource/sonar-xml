@@ -17,7 +17,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.FileNotFoundException;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -27,37 +29,48 @@ import org.junit.Test;
 public class NewlineCheckTest extends AbstractCheckTester {
 
   @Test
-  public void checkNewlines() throws FileNotFoundException {
-    String fragment = "<html>\n<body><br>hello</br></body>\n</html>";
+  public void checkNewlines() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body><br>hello</br></body>\n</html>"),
+      new NewlineCheck());
 
-    parseCheckAndAssert(fragment, NewlineCheck.class, 2);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void checkMultipleNewlines() throws FileNotFoundException {
-    String fragment = "<html>\n<body><br /><br>hello</br></body>\n</html>";
+  public void checkMultipleNewlines() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body><br /><br>hello</br></body>\n</html>"),
+        new NewlineCheck());
 
-    parseCheckAndAssert(fragment, NewlineCheck.class, 3);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 3, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void checkCommentsOK() throws FileNotFoundException {
-    String fragment = "<html>\n<body>\n<!-- hello -->\n</body>\n</html>";
+  public void checkCommentsOK() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body>\n<!-- hello -->\n</body>\n</html>"),
+      new NewlineCheck());
 
-    parseCheckAndAssert(fragment, NewlineCheck.class, 0);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void checkCommentsNotOK() throws FileNotFoundException {
-    String fragment = "<html>\n<body>\n<!-- hello --></body>\n</html>";
+  public void checkCommentsNotOK() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body>\n<!-- hello --></body>\n</html>"),
+      new NewlineCheck());
 
-    parseCheckAndAssert(fragment, NewlineCheck.class, 1);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void checkClosedTag() throws FileNotFoundException {
-    String fragment = "<html>\n<body/>\n</html>";
+  public void checkClosedTag() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body/>\n</html>"),
+      new NewlineCheck());
 
-    parseCheckAndAssert(fragment, NewlineCheck.class, 0);
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
+
 }

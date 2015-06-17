@@ -17,10 +17,11 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -31,18 +32,18 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  protected static final java.io.File AANKONDIGINGEN_FILE = new java.io.File("src/test/resources/checks/generic/TenderNed-Aankondigingen.xhtml");
-  protected static final java.io.File POM_FILE = new java.io.File("pom.xml");
-  protected static final java.io.File CATALOG_FILE = new java.io.File("src/test/resources/checks/generic/catalog.xml");
-  protected static final java.io.File WRONG_AMPERSAND_FILE = new java.io.File("src/test/resources/checks/generic/wrong-ampersand.xhtml");
-  protected static final java.io.File SALES_ORDER_FILE = new java.io.File("src/test/resources/checks/generic/create-salesorder.xhtml");
-  protected static final java.io.File SALES_ORDER2_FILE = new java.io.File("src/test/resources/checks/generic/create-salesorder2.xhtml");
-  protected static final java.io.File CHAR_BEFORE_ROLOG_FILE = new java.io.File("src/test/resources/src/pom_with_chars_before_prolog.xml");
-  protected static final java.io.File SONARSOURCE_FILE = new java.io.File("src/test/resources/checks/generic/sonarsource.html");
+  protected static final File AANKONDIGINGEN_FILE = new File("src/test/resources/checks/generic/TenderNed-Aankondigingen.xhtml");
+  protected static final File POM_FILE = new File("pom.xml");
+  protected static final File CATALOG_FILE = new File("src/test/resources/checks/generic/catalog.xml");
+  protected static final File WRONG_AMPERSAND_FILE = new File("src/test/resources/checks/generic/wrong-ampersand.xhtml");
+  protected static final File SALES_ORDER_FILE = new File("src/test/resources/checks/generic/create-salesorder.xhtml");
+  protected static final File SALES_ORDER2_FILE = new File("src/test/resources/checks/generic/create-salesorder2.xhtml");
+  protected static final File CHAR_BEFORE_ROLOG_FILE = new File("src/test/resources/src/pom_with_chars_before_prolog.xml");
+  protected static final File SONARSOURCE_FILE = new File("src/test/resources/checks/generic/sonarsource.html");
 
   protected static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
-  protected XmlSourceCode parseAndCheck(java.io.File file, AbstractXmlCheck check) {
+  protected XmlSourceCode parseAndCheck(File file, AbstractXmlCheck check) {
     XmlSourceCode xmlSourceCode = new XmlSourceCode(new DefaultInputFile(file.getPath()).setAbsolutePath(file.getAbsolutePath()));
 
     if (xmlSourceCode.parseSource(createFileSystem())) {
@@ -52,21 +53,21 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     return xmlSourceCode;
   }
 
-  protected void parseCheckAndAssert(String fragment, Class<? extends AbstractXmlCheck> clazz, int numViolations, String... params) {
-    Reader reader = new StringReader(fragment);
-    // XmlSourceCode sourceCode = parseAndCheck(reader, null, fragment, clazz, params);
-
-    // assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, numViolations, sourceCode.getXmlIssues().size());
-  }
-
   protected DefaultFileSystem createFileSystem() {
-    java.io.File workDir = temporaryFolder.newFolder("temp");
+    File workDir = temporaryFolder.newFolder("temp");
 
     DefaultFileSystem fs = new DefaultFileSystem(workDir);
     fs.setEncoding(Charset.defaultCharset());
     fs.setWorkDir(workDir);
 
     return fs;
+  }
+
+  protected File createTempFile(String content) throws IOException {
+    File f = temporaryFolder.newFile("file.xml");
+    FileUtils.write(f, content);
+
+    return f;
   }
 
 }

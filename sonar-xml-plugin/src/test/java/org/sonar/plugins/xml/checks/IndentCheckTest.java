@@ -17,24 +17,38 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.FileNotFoundException;
+import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Matthijs Galesloot
  */
 public class IndentCheckTest extends AbstractCheckTester {
 
+  @Rule
+  public TemporaryFolder testFolder = new TemporaryFolder();
+
   @Test
-  public void checkIndent() throws FileNotFoundException {
-    String fragment = "<html>\n<body><br>hello</br></body>\n</html>";
-    parseCheckAndAssert(fragment, IndentCheck.class, 2);
+  public void checkIndent() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n<body><br>hello</br></body>\n</html>"),
+      new IndentCheck());
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void checkIndentTabs() throws FileNotFoundException {
-    String fragment = "<html>\n\t<body>\t\t<br>hello</br>\t</body>\n</html>";
-    parseCheckAndAssert(fragment, IndentCheck.class, 0);
+  public void checkIndentTabs() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\n\t<body>\t\t<br>hello</br>\t</body>\n</html>"),
+      new IndentCheck());
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
+
 }

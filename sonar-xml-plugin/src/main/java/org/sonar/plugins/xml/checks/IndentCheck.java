@@ -95,22 +95,6 @@ public class IndentCheck extends AbstractXmlCheck {
     return depth;
   }
 
-  public int getIndentSize() {
-    return indentSize;
-  }
-
-  public int getTabSize() {
-    return tabSize;
-  }
-
-  public void setIndentSize(int indentSize) {
-    this.indentSize = indentSize;
-  }
-
-  public void setTabSize(int tabSize) {
-    this.tabSize = tabSize;
-  }
-
   @Override
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);

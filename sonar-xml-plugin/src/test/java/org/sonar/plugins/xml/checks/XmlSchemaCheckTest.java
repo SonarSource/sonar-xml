@@ -81,7 +81,6 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, createCheck("http://java.sun.com/jsf/core", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
-    // assertEquals((Integer) , sourceCode.getIssues().get(0).getLineId()); FIXME
   }
 
   @Test

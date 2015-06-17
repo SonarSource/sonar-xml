@@ -17,7 +17,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.FileNotFoundException;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -27,17 +29,29 @@ import org.junit.Test;
 public class IllegalTabCheckTest extends AbstractCheckTester {
 
   @Test
-  public void checkIllegalTabMarkall() throws FileNotFoundException {
-    String fragment = "<html>\t\t\t<body>\t<br>hello</br></body>\n</html>";
+  public void checkIllegalTabMarkall() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\t\t\t<body>\t<br>hello</br></body>\n</html>"),
+      createCheck(true));
 
-    parseCheckAndAssert(fragment, IllegalTabCheck.class, 2, "markAll", "true");
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
   }
-  
+
   @Test
-  public void checkIllegalTabMarkone() throws FileNotFoundException {
-    String fragment = "<html>\t\t\t<body>\t<br>hello</br></body>\n</html>";
+  public void checkIllegalTabMarkone() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html>\t\t\t<body>\t<br>hello</br></body>\n</html>"),
+      createCheck(false));
 
-    parseCheckAndAssert(fragment, IllegalTabCheck.class, 1, "markAll", "false");
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
-  
+
+  private static IllegalTabCheck createCheck(boolean markAll) {
+    IllegalTabCheck check = new IllegalTabCheck();
+
+    check.setMarkAll(markAll);
+
+    return check;
+  }
+
 }

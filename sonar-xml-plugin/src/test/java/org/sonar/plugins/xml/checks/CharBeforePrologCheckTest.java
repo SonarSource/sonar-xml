@@ -31,12 +31,12 @@ public class CharBeforePrologCheckTest extends AbstractCheckTester {
   @Test
   public void ko() throws FileNotFoundException {
     XmlSourceCode sourceCode = parseAndCheck(CHAR_BEFORE_ROLOG_FILE, new CharBeforePrologCheck());
-    assertEquals("Incorrect number of violations", 1, sourceCode.getXmlIssues().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
   public void ok() throws FileNotFoundException {
     XmlSourceCode sourceCode = parseAndCheck(POM_FILE, new CharBeforePrologCheck());
-    assertEquals("Incorrect number of violations", 0, sourceCode.getXmlIssues().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 }
