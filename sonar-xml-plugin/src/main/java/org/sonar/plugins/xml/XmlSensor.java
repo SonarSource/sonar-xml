@@ -61,8 +61,9 @@ public class XmlSensor implements Sensor {
   }
 
   /**
-   * Analyze the XML files.
+   * @inheritDoc
    */
+  @Override
   public void analyse(Project project, SensorContext sensorContext) {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
 
@@ -99,9 +100,7 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  /**
-   * This sensor only executes on projects with active XML rules.
-   */
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return fileSystem.hasFiles(mainFilesPredicate);
   }

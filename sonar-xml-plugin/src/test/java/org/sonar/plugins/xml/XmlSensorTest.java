@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Collections;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,12 +37,17 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -54,6 +60,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private DefaultFileSystem fs;
   private XmlSensor sensor;
   private SensorContext context;
+  private ResourcePerspectives perspectives;
 
   @Before
   public void setUp() throws Exception {
@@ -63,13 +70,13 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     fs = new DefaultFileSystem(new File("src/test/resources/"));
     fs.setWorkDir(temporaryFolder.newFolder("temp"));
 
-    CheckFactory checkFactory = new CheckFactory(new DefaultActiveRules(Collections.EMPTY_LIST));
+    CheckFactory checkFactory = new CheckFactory(new DefaultActiveRules(
+      ImmutableList.of(new ActiveRulesBuilder().create(RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck")))));
 
-    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(mock(Issuable.class));
+    perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(any(Class.class), any(InputFile.class))).thenReturn(mock(Issuable.class));
 
-    sensor = spy(new XmlSensor(fs, perspectives, checkFactory));
-    when(perspectives.as(any(Class.class), any(org.sonar.api.resources.File.class))).thenReturn(mock(Issuable.class));
+    sensor = new XmlSensor(fs, perspectives, checkFactory);
   }
 
   @Test
@@ -91,7 +98,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.analyse(new Project(""), context);
 
-    verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
+    verify(perspectives, atLeastOnce()).as(any(Class.class), any(InputFile.class));
   }
 
   /**
@@ -105,7 +112,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.analyse(new Project(""), context);
 
-    verify(sensor, atLeastOnce()).saveIssue(any(XmlSourceCode.class));
+    verify(perspectives, atLeastOnce()).as(any(Class.class), any(InputFile.class));
   }
 
   /**
@@ -117,7 +124,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.analyse(new Project(""), context);
 
-    verify(sensor, never()).saveIssue(any(XmlSourceCode.class));
+    verify(perspectives, never()).as(any(Class.class), any(InputFile.class));
   }
 
   private DefaultInputFile createInputFile(String name) {

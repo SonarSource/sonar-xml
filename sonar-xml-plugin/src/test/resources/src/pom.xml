@@ -7,12 +7,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   <version>1.0</version>
   <packaging>pom</packaging>
   <name>test</name>
- 
+
   <dependencies>
     <dependency>
       <groupId>group</groupId>
       <artifactId>artifact</artifactId>
       <version>notallowed</version>
     </dependency>
-  </dependencies>
-</project>
+  </dependencies> </project>
