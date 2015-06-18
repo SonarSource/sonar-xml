@@ -39,7 +39,7 @@ public class XmlRulesDefinitionTest {
 
     RulesDefinition.Rule alertUseRule = repository.rule("IndentCheck");
     assertThat(alertUseRule).isNotNull();
-    assertThat(alertUseRule.name()).isEqualTo("Indent");
+    assertThat(alertUseRule.name()).isEqualTo("Source code should be indented consistently");
 
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {

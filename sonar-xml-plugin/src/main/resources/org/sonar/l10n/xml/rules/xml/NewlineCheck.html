@@ -1,4 +1,16 @@
 <p>
-Verify presence of newline after elements in your XML files.
+  Each element should be on a line to itself.
 </p>
+
+<h2>Noncompliant Code Sample</h2>
+<pre>
+&ltparent&gt&ltchild /&gt&lt/parent&gt &lt!-- Noncompliant --&gt
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+&ltparent&gt
+  &ltchild /&gt
+&lt/parent&gt
+</pre>
 

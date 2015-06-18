@@ -46,7 +46,9 @@ public class XPathCheck extends AbstractXmlCheck {
   @RuleProperty(key = "filePattern")
   private String filePattern;
 
-  @RuleProperty(key = "message")
+  @RuleProperty(
+    key = "message",
+    defaultValue = "The XPath expression matches this piece of code")
   private String message;
 
   private static final class DocumentNamespaceContext implements NamespaceContext {
