@@ -1,9 +1,9 @@
 <p>
-Perform validation of the XML file against XML Schema using Xerces parser.
+  This rule allows validation of XML files against XML Schema using Xerces parser.
 </p>
 
 <p>
-  "schemas" parameter can be set to:
+  The "schemas" parameter can be set to:
   <ul>
     <li>the namespace or short name of a built-in schema (ex: xhtml1-strict or http://www.w3.org/1999/xhtml)</li>
     <li>or the URL to a schema (ex: http://www.springframework.org/schema/beans/spring-beans-3.2.xsd)</li>
@@ -11,6 +11,10 @@ Perform validation of the XML file against XML Schema using Xerces parser.
   </ul>
   <br/>
   Default value: autodetect. In this case, the parser will try to load the schema based on the doctype or the namespace declaration in the document.
+</p>
+
+<p>
+  Files to be validated by the schema can be specified through inclusion pattern using the "filePattern" parameter.
 </p>
 
 <p>
@@ -22,16 +26,16 @@ Built-in schemas:
 <tr><th>Namespace or Short name</th><th>Doctype</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td>http://www.w3.org/2001/xml.xsd</td><td>&nbsp;</td><td>XML</td></tr>
-<tr><td>http://www.w3.org/XML/1998/namespace</td><td>&nbsp;</td><td>XML</td></tr>
-<tr><td>http://www.w3.org/1999/xhtml</td><td>&nbsp;</td><td>XHTML1.0 Strict</td></tr>
-<tr><td>xhtml1-strict</td><td>-//W3C//DTD XHTML 1.0 Strict//EN</td><td>XHTML1.0 Strict</td></tr>
-<tr><td>xhtml1-transitional</td><td>-//W3C//DTD XHTML 1.0 Transitional//EN</td><td>XHTML1.0 Transitional</td></tr>
-<tr><td>xhtml1-frameset</td><td>-//W3C//DTD XHTML 1.0 Frameset//EN</td><td>XHTML1.0 Frameset</td></tr>
-<tr><td>&nbsp;</td><td>-//W3C//DTD XHTML 1.1 Strict//EN</td><td>XHTML1.1</td></tr>
-<tr><td>http://java.sun.com/jsf/core</td><td>&nbsp;</td><td>JSF Core</td></tr>
-<tr><td>http://java.sun.com/jsf/html</td><td>&nbsp;</td><td>JSF HTML Basic</td></tr>
-<tr><td>http://java.sun.com/jsf/facelets</td><td>&nbsp;</td><td>JSF Facelets</td></tr>
-<tr><td>http://maven.apache.org/POM/4.0.0</td><td>&nbsp;</td><td>Maven Project Model</td></tr>
+<tr><td>XML</td><td>http://www.w3.org/2001/xml.xsd</td><td>&nbsp;</td></tr>
+<tr><td>XML</td><td>http://www.w3.org/XML/1998/namespace</td><td>&nbsp;</td></tr>
+<tr><td>XHTML1.0 Strict</td><td>http://www.w3.org/1999/xhtml</td><td>&nbsp;</td></tr>
+<tr><td>XHTML1.0 Strict</td><td>xhtml1-strict</td><td>-//W3C//DTD XHTML 1.0 Strict//EN</td></tr>
+<tr><td>XHTML1.0 Transitional</td><td>xhtml1-transitional</td><td>-//W3C//DTD XHTML 1.0 Transitional//EN</td></tr>
+<tr><td>XHTML1.0 Frameset</td><td>xhtml1-frameset</td><td>-//W3C//DTD XHTML 1.0 Frameset//EN</td></tr>
+<tr><td>XHTML1.1</td><td>&nbsp;</td><td>-//W3C//DTD XHTML 1.1 Strict//EN</td></tr>
+<tr><td>JSF Core</td><td>http://java.sun.com/jsf/core</td><td>&nbsp;</td></tr>
+<tr><td>JSF HTML Basic</td><td>http://java.sun.com/jsf/html</td><td>&nbsp;</td></tr>
+<tr><td>JSF Facelets</td><td>http://java.sun.com/jsf/facelets</td><td>&nbsp;</td></tr>
+<tr><td>Maven Project Model</td><td>http://maven.apache.org/POM/4.0.0</td><td>&nbsp;</td></tr>
 </tbody>
 </table>
