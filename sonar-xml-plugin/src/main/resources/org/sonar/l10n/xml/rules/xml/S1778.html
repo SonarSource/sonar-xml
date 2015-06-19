@@ -2,30 +2,30 @@
 The prolog header is the following piece of code starting some XML documents:
 </p>
 <pre>
-&lt?xml version="y.x" encoding="zzzzz"?&gt
+&lt;?xml version="y.x" encoding="zzzzz"?&gt;
 </pre>
 
 <p>
 This requirement is explicitly defined in the XML specification:
 </p>
 <blockquote>
-Because each XML entity not accompanied by external encoding information and not in UTF-8 or UTF-16 encoding must begin with an XML encoding declaration, in which the first characters must be '&lt?xml', any conforming processor can detect, after two to four octets of input, which of the following cases apply.
+Because each XML entity not accompanied by external encoding information and not in UTF-8 or UTF-16 encoding must begin with an XML encoding declaration, in which the first characters must be '&lt;?xml', any conforming processor can detect, after two to four octets of input, which of the following cases apply.
 </blockquote>
 
 <h2>Noncompliant Code Sample</h2>
 <pre>
-&lt!-- Generated file --&gt
-&lt?xml version="1.0" encoding="UTF-8"?&gt
-&ltfirstNode&gt
+&lt;!-- Generated file --&gt;
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;firstNode&gt;;
   content
-&lt/firstNode&gt
+&lt;/firstNode&gt;
 </pre>
 
 <h2>Compliant Solution</h2>
 <pre>
-&lt?xml version="1.0" encoding="UTF-8"?&gt
-&lt!-- Generated file --&gt
-&ltfirstNode&gt
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!-- Generated file --&gt;
+&lt;firstNode&gt;
   content
-&lt/firstNode&gt
+&lt;/firstNode&gt;
 </pre>
