@@ -65,7 +65,7 @@ public final class LineCountSensor implements Sensor {
       String fileContent = FileUtils.readFileToString(inputFile.file(), encoding.name());
 
       // Count the last empty line
-      if (fileContent.endsWith(System.lineSeparator())) {
+      if (fileContent.endsWith("\n\r") || fileContent.endsWith("\n")) {
         numLines++;
         numBlankLines++;
       }
