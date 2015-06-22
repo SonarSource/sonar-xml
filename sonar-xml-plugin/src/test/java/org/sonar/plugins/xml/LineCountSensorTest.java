@@ -18,12 +18,16 @@
 package org.sonar.plugins.xml;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -56,27 +60,33 @@ public class LineCountSensorTest {
   }
 
   @Test
-  public void testLineCountSensor() {
-    fs.add(createInputFile("complex.xml"));
-    fs.add(createInputFile("simple.xml"));
+  public void test_simple_file() {
+    DefaultFileSystem localFS = new DefaultFileSystem(new File("src/test/resources/parsers/linecount/"));
+    localFS.add(createInputFile("simple.xml"));
 
-    MockSensorContext sensorContext = new MockSensorContext();
+    SensorContext context = mock(SensorContext.class);
 
-    new LineCountSensor(fs).analyse(project, sensorContext);
+    new LineCountSensor(localFS).analyse(project, context);
 
-    for (Resource resource : sensorContext.getResources()) {
-      if (resource.getKey().equals("complex.xml")) {
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(26);
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(21);
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.COMMENT_LINES).getIntValue()).isEqualTo(4);
-      } else if (resource.getKey().equals("simple.xml")) {
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue()).isEqualTo(18);
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.NCLOC).getIntValue()).isEqualTo(15);
-        assertThat(sensorContext.getMeasure(resource, CoreMetrics.COMMENT_LINES).getIntValue()).isEqualTo(1);
-      } else {
-        fail("Unexpected resource: " + resource.getKey());
-      }
-    }
+
+    // No empty line at end of file
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(18.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(15.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(1.0));
+  }
+
+  @Test
+  public void test_complex() {
+    DefaultFileSystem localFS = new DefaultFileSystem(new File("src/test/resources/parsers/linecount/"));
+    localFS.add(createInputFile("complex.xml"));
+
+    SensorContext context = mock(SensorContext.class);
+
+    new LineCountSensor(localFS).analyse(project, context);
+
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(4.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(27.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(21.0));
   }
 
   private DefaultInputFile createInputFile(String name) {

@@ -18,6 +18,8 @@
 package org.sonar.plugins.xml;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -52,17 +54,22 @@ public final class LineCountSensor implements Sensor {
       fileSystem.predicates().hasLanguage(Xml.KEY));
   }
 
-  private static void addMeasures(SensorContext sensorContext, InputFile inputFile) {
+  private static void addMeasures(SensorContext sensorContext, InputFile inputFile, Charset encoding) {
 
     LineIterator iterator = null;
     int numLines = 0;
     int numBlankLines = 0;
 
     try {
-      iterator = FileUtils.lineIterator(inputFile.file());
+      String fileContent = FileUtils.readFileToString(inputFile.file(), encoding.name());
 
-      while (iterator.hasNext()) {
-        String line = iterator.nextLine();
+      // Count the last empty line
+      if (fileContent.endsWith(System.lineSeparator())) {
+        numLines++;
+        numBlankLines++;
+      }
+
+      for (String line : fileContent.split(System.lineSeparator())) {
         numLines++;
         if (StringUtils.isBlank(line)) {
           numBlankLines++;
@@ -94,7 +101,7 @@ public final class LineCountSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext sensorContext) {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
-      addMeasures(sensorContext, inputFile);
+      addMeasures(sensorContext, inputFile, fileSystem.encoding());
     }
   }
 
