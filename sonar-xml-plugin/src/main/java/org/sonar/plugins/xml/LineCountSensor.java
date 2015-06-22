@@ -59,6 +59,7 @@ public final class LineCountSensor implements Sensor {
     LineIterator iterator = null;
     int numLines = 0;
     int numBlankLines = 0;
+    String lineSeparatorRegexp = "(?:\r)?\n|\r";
 
     try {
       String fileContent = FileUtils.readFileToString(inputFile.file(), encoding.name());
@@ -69,7 +70,7 @@ public final class LineCountSensor implements Sensor {
         numBlankLines++;
       }
 
-      for (String line : fileContent.split(System.lineSeparator())) {
+      for (String line : fileContent.split(lineSeparatorRegexp)) {
         numLines++;
         if (StringUtils.isBlank(line)) {
           numBlankLines++;
