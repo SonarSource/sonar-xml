@@ -56,7 +56,6 @@ public final class LineCountSensor implements Sensor {
 
   private static void addMeasures(SensorContext sensorContext, InputFile inputFile, Charset encoding) {
 
-    LineIterator iterator = null;
     int numLines = 0;
     int numBlankLines = 0;
     String lineSeparatorRegexp = "(?:\r)?\n|\r";
@@ -72,23 +71,21 @@ public final class LineCountSensor implements Sensor {
 
       for (String line : fileContent.split(lineSeparatorRegexp)) {
         numLines++;
+
         if (StringUtils.isBlank(line)) {
           numBlankLines++;
         }
+
       }
     } catch (IOException e) {
       LOG.warn("Unable to count lines for file: " + inputFile.file().getAbsolutePath());
       LOG.warn("Cause: {}", e);
-    } finally {
-      LineIterator.closeQuietly(iterator);
     }
 
     try {
-
       LOG.debug("Count comment in " + inputFile.file().getPath());
 
-      LineCountParser lineCountParser = new LineCountParser();
-      int numCommentLines = lineCountParser.countLinesOfComment(FileUtils.openInputStream(inputFile.file()));
+      int numCommentLines = new LineCountParser().countLinesOfComment(FileUtils.openInputStream(inputFile.file()));
       sensorContext.saveMeasure(inputFile, CoreMetrics.LINES, (double) numLines);
       sensorContext.saveMeasure(inputFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
       sensorContext.saveMeasure(inputFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - numCommentLines);
