@@ -34,7 +34,7 @@ import org.sonar.colorizer.Tokenizer;
  */
 public class DoctypeTokenizer extends Tokenizer {
 
-  private static enum DoctypeParts {
+  private enum DoctypeParts {
     DOCTYPE("<!DOCTYPE", ">"),
     DOCTYPE_INTERNAL("[", "]"),
     ELEMENT("<!ELEMENT", ">"),

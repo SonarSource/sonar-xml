@@ -19,10 +19,8 @@ package org.sonar.plugins.xml;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
