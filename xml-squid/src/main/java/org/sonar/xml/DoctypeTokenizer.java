@@ -27,7 +27,7 @@ import org.sonar.colorizer.HtmlCodeBuilder;
 import org.sonar.colorizer.Tokenizer;
 
 /**
- * This tokenizer takes care of DOCTYPE elements including declaration of internal DTDs, external DTDs and a 
+ * This tokenizer takes care of DOCTYPE elements including declaration of internal DTDs, external DTDs and a
  * combination of both.
  *
  * @author Ren&eacute; Wolfert
@@ -35,10 +35,10 @@ import org.sonar.colorizer.Tokenizer;
 public class DoctypeTokenizer extends Tokenizer {
 
   private static enum DoctypeParts {
-    Doctype("<!DOCTYPE", ">"),
-    DoctypeInternal("[", "]"),
-    Element("<!ELEMENT", ">"),
-    AttList("<!ATTLIST", ">");
+    DOCTYPE("<!DOCTYPE", ">"),
+    DOCTYPE_INTERNAL("[", "]"),
+    ELEMENT("<!ELEMENT", ">"),
+    ATT_LIST("<!ATTLIST", ">");
 
     private final String selectorStart;
     private final String selectorEnd;
@@ -73,7 +73,7 @@ public class DoctypeTokenizer extends Tokenizer {
   }
 
   private static final String DOCTYPE_PART = "DOCTYPE_PARTS";
-  
+
   private final String tagBefore;
   private final String tagAfter;
 
@@ -85,76 +85,76 @@ public class DoctypeTokenizer extends Tokenizer {
   @Override
   public boolean consume(final CodeReader code, final HtmlCodeBuilder codeBuilder) {
     final boolean consumed;
-    
-    if (getCurrentOpenedDoctypePart(codeBuilder) == null 
-        && DoctypeParts.Doctype.matchesStartSelector(code)) {
-      addOpenedDoctypePart(codeBuilder, DoctypeParts.Doctype);
+
+    if (getCurrentOpenedDoctypePart(codeBuilder) == null
+        && DoctypeParts.DOCTYPE.matchesStartSelector(code)) {
+      addOpenedDoctypePart(codeBuilder, DoctypeParts.DOCTYPE);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
       // Consume DOCTYPE start
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.Doctype.getSelectorStart())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.DOCTYPE.getSelectorStart())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
-    } else if (DoctypeParts.Doctype == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.DoctypeInternal.matchesStartSelector(code)) {
-      addOpenedDoctypePart(codeBuilder, DoctypeParts.DoctypeInternal);
+    } else if (DoctypeParts.DOCTYPE == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.DOCTYPE_INTERNAL.matchesStartSelector(code)) {
+      addOpenedDoctypePart(codeBuilder, DoctypeParts.DOCTYPE_INTERNAL);
       consumed = true;
 
-    } else if (DoctypeParts.DoctypeInternal == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.Element.matchesStartSelector(code)) {
-      addOpenedDoctypePart(codeBuilder, DoctypeParts.Element);
+    } else if (DoctypeParts.DOCTYPE_INTERNAL == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.ELEMENT.matchesStartSelector(code)) {
+      addOpenedDoctypePart(codeBuilder, DoctypeParts.ELEMENT);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
 
       // Consume ELEMENT start
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.Element.getSelectorStart())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.ELEMENT.getSelectorStart())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
-    } else if (DoctypeParts.DoctypeInternal == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.AttList.matchesStartSelector(code)) {
-      addOpenedDoctypePart(codeBuilder, DoctypeParts.AttList);
+    } else if (DoctypeParts.DOCTYPE_INTERNAL == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.ATT_LIST.matchesStartSelector(code)) {
+      addOpenedDoctypePart(codeBuilder, DoctypeParts.ATT_LIST);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
 
       // Consume ATTLIST start
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.AttList.getSelectorStart())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.ATT_LIST.getSelectorStart())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
-    } else if (DoctypeParts.AttList == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.AttList.matchesEndSelector(code)) {
-      removeOpenedDoctypePart(codeBuilder, DoctypeParts.AttList);
+    } else if (DoctypeParts.ATT_LIST == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.ATT_LIST.matchesEndSelector(code)) {
+      removeOpenedDoctypePart(codeBuilder);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
       // Consume ATTLIST end
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.AttList.getSelectorEnd())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.ATT_LIST.getSelectorEnd())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
-    } else if (DoctypeParts.Element == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.Element.matchesEndSelector(code)) {
-      removeOpenedDoctypePart(codeBuilder, DoctypeParts.Element);
+    } else if (DoctypeParts.ELEMENT == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.ELEMENT.matchesEndSelector(code)) {
+      removeOpenedDoctypePart(codeBuilder);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
       // Consume ELEMENT end
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.Element.getSelectorEnd())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.ELEMENT.getSelectorEnd())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
-    } else if (DoctypeParts.DoctypeInternal == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.DoctypeInternal.matchesEndSelector(code)) {
-      removeOpenedDoctypePart(codeBuilder, DoctypeParts.DoctypeInternal);
+    } else if (DoctypeParts.DOCTYPE_INTERNAL == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.DOCTYPE_INTERNAL.matchesEndSelector(code)) {
+      removeOpenedDoctypePart(codeBuilder);
       consumed = true;
 
-    } else if (DoctypeParts.Doctype == getCurrentOpenedDoctypePart(codeBuilder)
-        && DoctypeParts.Doctype.matchesEndSelector(code)) {
-      removeOpenedDoctypePart(codeBuilder, DoctypeParts.Doctype);
+    } else if (DoctypeParts.DOCTYPE == getCurrentOpenedDoctypePart(codeBuilder)
+        && DoctypeParts.DOCTYPE.matchesEndSelector(code)) {
+      removeOpenedDoctypePart(codeBuilder);
 
       codeBuilder.appendWithoutTransforming(tagBefore);
       // Consume DOCTYPE end
-      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.Doctype.getSelectorEnd())).matcher(""), codeBuilder);
+      code.popTo(Pattern.compile(Pattern.quote(DoctypeParts.DOCTYPE.getSelectorEnd())).matcher(""), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       consumed = true;
 
@@ -169,7 +169,7 @@ public class DoctypeTokenizer extends Tokenizer {
     return consumed;
   }
 
-  private DoctypeParts getCurrentOpenedDoctypePart(final HtmlCodeBuilder codeBuilder) {
+  private static DoctypeParts getCurrentOpenedDoctypePart(final HtmlCodeBuilder codeBuilder) {
     final List<DoctypeParts> types = (List<DoctypeParts>) codeBuilder.getVariable(DoctypeTokenizer.DOCTYPE_PART, null);
 
     final DoctypeParts openedDoctypePart;
@@ -182,7 +182,7 @@ public class DoctypeTokenizer extends Tokenizer {
     return openedDoctypePart;
   }
 
-  private void addOpenedDoctypePart(final HtmlCodeBuilder codeBuilder, final DoctypeParts type) {
+  private static void addOpenedDoctypePart(final HtmlCodeBuilder codeBuilder, final DoctypeParts type) {
     final List<DoctypeParts> existingTypes = (List<DoctypeParts>) codeBuilder.getVariable(DoctypeTokenizer.DOCTYPE_PART, null);
 
     final List<DoctypeParts> types = existingTypes != null ? existingTypes : new ArrayList<DoctypeParts>();
@@ -192,7 +192,7 @@ public class DoctypeTokenizer extends Tokenizer {
     codeBuilder.setVariable(DoctypeTokenizer.DOCTYPE_PART, types);
   }
 
-  private void removeOpenedDoctypePart(final HtmlCodeBuilder codeBuilder, final DoctypeParts type) {
+  private static void removeOpenedDoctypePart(final HtmlCodeBuilder codeBuilder) {
     final List<DoctypeParts> existingTypes = (List<DoctypeParts>) codeBuilder.getVariable(DoctypeTokenizer.DOCTYPE_PART, null);
 
     final List<DoctypeParts> types = existingTypes != null ? existingTypes : new ArrayList<DoctypeParts>();
