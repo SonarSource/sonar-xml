@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar-plugins.xml</groupId>
+    <groupId>org.sonarsource.sonar-xml-plugin</groupId>
     <artifactId>xml</artifactId>
     <version>1.3-SNAPSHOT</version>
   </parent>
