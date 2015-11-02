@@ -17,7 +17,14 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Iterator;
+import org.apache.xml.utils.PrefixResolver;
+import org.apache.xml.utils.PrefixResolverDefault;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.squidbridge.annotations.RuleTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -25,16 +32,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.apache.xml.utils.PrefixResolver;
-import org.apache.xml.utils.PrefixResolverDefault;
-import org.sonar.api.utils.SonarException;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.squidbridge.annotations.RuleTemplate;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.util.Iterator;
 
 @Rule(key = "XPathCheck", priority = Priority.MAJOR)
 @RuleTemplate
@@ -76,20 +74,42 @@ public class XPathCheck extends AbstractXmlCheck {
 
   private void evaluateXPath() {
     Document document = getWebSourceCode().getDocument(expression.contains(":"));
+    XPathExpression xPathExpression = getXPathExpressionForDocument(document);
 
     try {
-      NodeList nodes = (NodeList) getXPathExpressionForDocument(document).evaluate(document, XPathConstants.NODESET);
-      for (int i = 0; i < nodes.getLength(); i++) {
+      evaluateXPathForNodeSet(document, xPathExpression);
+    } catch (XPathExpressionException exceptionNodeSet) {
+      evaluateXPathForBoolean(document, xPathExpression);
+    }
 
-        int lineNumber = getWebSourceCode().getLineForNode(nodes.item(i));
-        if (message == null) {
-          createViolation(lineNumber, "--");
-        } else {
-          createViolation(lineNumber, message);
-        }
+  }
+
+  private void evaluateXPathForNodeSet(Document document, XPathExpression xPathExpression) throws XPathExpressionException {
+    NodeList nodes = (NodeList) xPathExpression.evaluate(document, XPathConstants.NODESET);
+
+    for (int i = 0; i < nodes.getLength(); i++) {
+      int lineNumber = getWebSourceCode().getLineForNode(nodes.item(i));
+      createViolation(lineNumber);
+    }
+  }
+
+  private void evaluateXPathForBoolean(Document document, XPathExpression xPathExpression) {
+    try {
+      Boolean result = (Boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
+      if (result) {
+        createViolation(0);
       }
-    } catch (XPathExpressionException e) {
-      throw new SonarException(e);
+
+    } catch (XPathExpressionException exceptionBoolean) {
+      throw new IllegalStateException(String.format("Can't evaluate XPath expression \"%s\"", expression), exceptionBoolean);
+    }
+  }
+
+  private void createViolation(int lineNumber) {
+    if (message == null) {
+      createViolation(lineNumber, "--");
+    } else {
+      createViolation(lineNumber, message);
     }
   }
 
@@ -106,17 +126,14 @@ public class XPathCheck extends AbstractXmlCheck {
   }
 
   private XPathExpression getXPathExpressionForDocument(Document document) {
-    if (expression != null) {
-      try {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        PrefixResolver resolver = new PrefixResolverDefault(document.getDocumentElement());
-        xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
-        return xpath.compile(expression);
-      } catch (XPathExpressionException e) {
-        throw new SonarException(e);
-      }
+    try {
+      XPath xpath = XPathFactory.newInstance().newXPath();
+      PrefixResolver resolver = new PrefixResolverDefault(document.getDocumentElement());
+      xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
+      return xpath.compile(expression);
+    } catch (XPathExpressionException e) {
+      throw new IllegalStateException(String.format("Can't compile XPath expression \"%s\"", expression), e);
     }
-    return null;
   }
 
   public void setExpression(String expression) {

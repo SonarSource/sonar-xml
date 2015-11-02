@@ -17,12 +17,12 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
@@ -39,6 +39,29 @@ public class XPathCheckTest extends AbstractCheckTester {
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
     assertEquals(1, sourceCode.getXmlIssues().get(0).getLine());
+  }
+
+  @Test
+  public void violateXPathOnFile() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html xmlns=\"http://www.w3.org/1999/xhtml\" "
+        + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
+        + "<body><br /></body></html>"),
+      createCheck("count(//br)>0"));
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
+    assertEquals(0, sourceCode.getXmlIssues().get(0).getLine());
+  }
+
+  @Test
+  public void noIssueOnFile() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<html xmlns=\"http://www.w3.org/1999/xhtml\" "
+        + "xmlns:ui=\"http://java.sun.com/jsf/facelets\">"
+        + "<body></body></html>"),
+      createCheck("count(//br)>0"));
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
