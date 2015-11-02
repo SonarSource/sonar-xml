@@ -51,6 +51,8 @@ public class NewlineCheck extends AbstractXmlCheck {
     for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
       switch (child.getNodeType()) {
         case Node.COMMENT_NODE:
+          lastChild = child;
+          break;
         case Node.ELEMENT_NODE:
           // check if there is a new node before we have had any newlines.
           if (!newline) {

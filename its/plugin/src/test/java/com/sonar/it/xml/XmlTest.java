@@ -29,9 +29,9 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class XmlTest {
 
@@ -54,7 +54,7 @@ public class XmlTest {
     assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(1.4);
     assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(4);
     assertThat(getProjectMeasure("files").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(52);
+    assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(46);
   }
 
   private static void inspectProject(String name) throws InterruptedException {

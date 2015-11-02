@@ -17,11 +17,11 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
@@ -35,6 +35,25 @@ public class NewlineCheckTest extends AbstractCheckTester {
       new NewlineCheck());
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
+  }
+
+  @Test
+  public void checkCommentSameLineNoIssue() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<tag> <!-- comment: should not raise an issue --> \n" +
+        "</tag>"),
+      new NewlineCheck());
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
+  }
+
+  @Test
+  public void checkCommentContent() throws IOException {
+    XmlSourceCode sourceCode = parseAndCheck(
+      createTempFile("<tag> <!-- comment: should not raise an issue --> </tag>"),
+      new NewlineCheck());
+
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
@@ -61,7 +80,7 @@ public class NewlineCheckTest extends AbstractCheckTester {
       createTempFile("<html>\n<body>\n<!-- hello --></body>\n</html>"),
       new NewlineCheck());
 
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
