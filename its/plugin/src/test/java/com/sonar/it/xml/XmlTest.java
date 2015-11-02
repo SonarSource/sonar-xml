@@ -19,10 +19,8 @@
  */
 package com.sonar.it.xml;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-import java.io.File;
-
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarRunner;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,8 +29,9 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import static org.fest.assertions.Assertions.assertThat;
+
+import java.io.File;
 
 public class XmlTest {
 
@@ -50,32 +49,20 @@ public class XmlTest {
 
   @Test
   public void testBaseMetrics() {
-    // FIXME(Godin): SQ 5.1 computes correct value (SONAR-5077) and there is a bug in plugin (SONARXML-20)
-
-    if (XmlTestSuite.is_plugin_at_least("1.3")) {
-      assertThat(getProjectMeasure("lines").getValue()).isEqualTo(317);
-      assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(282);
-      assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(2.1);
-      assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(6);
-    } else {
-      if (XmlTestSuite.is_at_least_sonar_5_1()) {
-        assertThat(getProjectMeasure("lines").getValue()).isEqualTo(317);
-      } else {
-        assertThat(getProjectMeasure("lines").getValue()).isEqualTo(315);
-      }
-      assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(277);
-      assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(3.8);
-      assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(11);
-    }
-
+    assertThat(getProjectMeasure("lines").getValue()).isEqualTo(317);
+    assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(282);
+    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(2.1);
+    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(6);
     assertThat(getProjectMeasure("files").getValue()).isEqualTo(4);
     assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(52);
   }
 
   private static void inspectProject(String name) throws InterruptedException {
+    orchestrator.getServer().provisionProject(name, name);
+    orchestrator.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
+
     SonarRunner build = XmlTestSuite.createSonarRunner()
-      .setProjectDir(new File("projects/" + name))
-      .setProfile("it-profile");
+      .setProjectDir(new File("projects/" + name));
     orchestrator.executeBuild(build);
   }
 

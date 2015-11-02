@@ -31,12 +31,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({XmlTest.class})
 public class XmlTestSuite {
 
-  private static final String PLUGIN_KEY = "xml";
-
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(PLUGIN_KEY)
-    .setMainPluginKey(PLUGIN_KEY)
+    .addPlugin(FileLocation.of("../../sonar-xml-plugin/target/sonar-xml-plugin.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-it-profile_xml.xml"))
     .build();
 
@@ -51,7 +48,4 @@ public class XmlTestSuite {
     return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1");
   }
 
-  public static boolean is_plugin_at_least(String version) {
-    return ORCHESTRATOR.getConfiguration().getPluginVersion(PLUGIN_KEY).isGreaterThanOrEquals(version);
-  }
 }
