@@ -41,6 +41,8 @@ import org.w3c.dom.Node;
 @SqaleConstantRemediation("1min")
 public class IndentCheck extends AbstractXmlCheck {
 
+  private static final String MESSAGE = "Make this line start at column %s.";
+
   @RuleProperty(key = "indentSize", defaultValue = "2")
   private int indentSize = 2;
 
@@ -114,25 +116,40 @@ public class IndentCheck extends AbstractXmlCheck {
   /**
    * Validate the indent for this node.
    */
-  private void validateIndent(Node node) {
+  private boolean validateIndent(Node node) {
 
     int depth = getDepth(node);
     int indent = collectIndent(node);
 
-    if (depth * indentSize != indent) {
-      createViolation(getWebSourceCode().getLineForNode(node), "Wrong indentation");
+    int expectedIndent = depth * indentSize;
+
+    if (expectedIndent != indent) {
+      createViolation(getWebSourceCode().getLineForNode(node), String.format(MESSAGE, expectedIndent + 1));
+      return true;
     }
 
     // check the child elements
+
+    boolean issueOnLine = false;
+
     for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
       switch (child.getNodeType()) {
         case Node.ELEMENT_NODE:
-        case Node.COMMENT_NODE:
-          validateIndent(child);
+          if (!issueOnLine) {
+            issueOnLine = validateIndent(child);
+          }
           break;
+        case Node.TEXT_NODE:
+          if (child.getTextContent().contains("\n")) {
+            issueOnLine = false;
+          }
+          break;
+        case Node.COMMENT_NODE:
         default:
           break;
       }
     }
+
+    return false;
   }
 }
