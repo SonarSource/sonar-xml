@@ -18,7 +18,6 @@
 package org.sonar.plugins.xml.parsers;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,28 +35,24 @@ public class LineCountParserTest {
 
   @Test
   public void testSimpleLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser();
-    int numCommentLine = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/simple.xml")));
+    LineCountParser parser = new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/simple.xml")));
 
-    assertThat(numCommentLine).isEqualTo(1);
+    assertThat(parser.getEffectiveCommentLineNumber()).isEqualTo(1);
+    assertThat(parser.getCommentLineNumber()).isEqualTo(1);
   }
 
   @Test
   public void testComplexLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser();
-    int numCommentLine = parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/complex.xml")));
+    LineCountParser parser = new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/complex.xml")));
 
-    assertThat(numCommentLine).isEqualTo(4);
+    assertThat(parser.getEffectiveCommentLineNumber()).isEqualTo(12);
+    assertThat(parser.getCommentLineNumber()).isEqualTo(16);
   }
 
   // SONARPLUGINS-1760
-  @Test
+  @Test(expected = SonarException.class)
   public void shouldNotInfiniteLoopWhenParsingInvalidXml() throws IOException {
-    LineCountParser parser = new LineCountParser();
-
-    thrown.expect(SonarException.class);
-
-    parser.countLinesOfComment(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/invalid.xml")));
+    new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/invalid.xml")));
   }
 
 }

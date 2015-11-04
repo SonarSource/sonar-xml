@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- A OnJava Journal Catalog -->
+ 1. A OnJava Journal Catalog -->
+<!-- 2. A OnJava Journal Catalog
+  -->
+<!--
+3. A OnJava
+4. Journal
+5. Catalog -->
 <catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" title="OnJava.com" publisher="O'Reilly">
   <journal wrongattribute="" 
   date="April 2004">
@@ -11,13 +17,19 @@
       <author>Narayanan Jayaratchagan<!-- Mixed comment --></author>
     </article>
   </journal>
-  <journal date="January 2004"><!-- Inline comment --><!-- Inline comment -->
+  <journal date="January 2004"><!-- Inline comment --><!--
+    6. Inline comment -->
     <article>
-    <!-- Two comment blocks on 1 line --><!-- Multiline
-    comment -->
+    <!-- 7. Two comment blocks on 1 line --><!-- Multiline
+    8. comment -->
       <title>Data Binding with XMLBeans</title><!-- Multiline
-      comment --><author>Daniel Steinberg</author><!-- Inline comment -->
-    </article>
+      comment --><author>Daniel Steinberg</author>
+      <!-- Inline comment --></article>
+      <!-- 9. comment
+      --> <!-- 10. comment -->
+      <!-- 11. comment
+      --> <!--
+      12. comment -->
     text
     <![CDATA[<title>Data Binding with XMLBeans</title><!-- Multiline
       comment --><author>Daniel Steinberg</author>

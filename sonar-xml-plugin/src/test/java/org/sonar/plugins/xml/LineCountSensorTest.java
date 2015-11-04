@@ -17,14 +17,6 @@
  */
 package org.sonar.plugins.xml;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import java.io.File;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
@@ -33,8 +25,15 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.plugins.xml.language.Xml;
+
+import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class LineCountSensorTest {
 
@@ -48,7 +47,7 @@ public class LineCountSensorTest {
   }
 
   @Test
-  public void should_execute_on_javascript_project() {
+  public void should_execute_on_xml_project() {
     LineCountSensor sensor = new LineCountSensor(fs);
 
     // No XML file
@@ -84,8 +83,8 @@ public class LineCountSensorTest {
 
     new LineCountSensor(localFS).analyse(project, context);
 
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(4.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(27.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(12.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(39.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(21.0));
   }
 

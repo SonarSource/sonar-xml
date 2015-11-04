@@ -51,8 +51,8 @@ public class XmlTest {
   public void testBaseMetrics() {
     assertThat(getProjectMeasure("lines").getValue()).isEqualTo(317);
     assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(282);
-    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(2.1);
-    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(6);
+    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(1.4);
+    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(4);
     assertThat(getProjectMeasure("files").getValue()).isEqualTo(4);
     assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(52);
   }

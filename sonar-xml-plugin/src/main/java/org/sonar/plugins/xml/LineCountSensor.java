@@ -17,9 +17,6 @@
  */
 package org.sonar.plugins.xml;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +30,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.LineCountParser;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Count lines of code in XML files.
@@ -83,10 +83,10 @@ public final class LineCountSensor implements Sensor {
     try {
       LOG.debug("Count comment in " + inputFile.file().getPath());
 
-      int numCommentLines = new LineCountParser().countLinesOfComment(FileUtils.openInputStream(inputFile.file()));
+      LineCountParser lineCountParser = new LineCountParser(FileUtils.openInputStream(inputFile.file()));
       sensorContext.saveMeasure(inputFile, CoreMetrics.LINES, (double) numLines);
-      sensorContext.saveMeasure(inputFile, CoreMetrics.COMMENT_LINES, (double) numCommentLines);
-      sensorContext.saveMeasure(inputFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - numCommentLines);
+      sensorContext.saveMeasure(inputFile, CoreMetrics.COMMENT_LINES, (double) lineCountParser.getEffectiveCommentLineNumber());
+      sensorContext.saveMeasure(inputFile, CoreMetrics.NCLOC, (double) numLines - numBlankLines - lineCountParser.getCommentLineNumber());
     } catch (Exception e) {
       LOG.debug("Fail to count lines in " + inputFile.file().getPath(), e);
     }

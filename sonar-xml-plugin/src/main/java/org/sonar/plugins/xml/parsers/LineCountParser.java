@@ -27,9 +27,10 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * Comment Counting in XML files
@@ -38,46 +39,75 @@ import java.io.InputStream;
  */
 public final class LineCountParser extends AbstractParser {
 
+  private final CommentHandler commentHandler;
+
   private static class CommentHandler extends DefaultHandler implements LexicalHandler {
 
-    private int lastLineNumberCode = 0;
-    private int lastLineNumberComment = 0;
+    private Deque<Integer> commentLines = new ArrayDeque<>();
+    private Deque<Integer> effectiveCommentLines = new ArrayDeque<>();
+
+    private int lastCodeLine = 0;
 
     private Locator locator;
-    private int numCommentLines;
 
     private void registerLineOfCode() {
-      lastLineNumberCode = locator.getLineNumber();
-      if (lastLineNumberComment >= lastLineNumberCode) {
-        numCommentLines--;
+      lastCodeLine = locator.getLineNumber();
+      if (lastEffectiveCommentLine() == lastCodeLine) {
+        effectiveCommentLines.pop();
       }
+      if (lastCommentLine() == lastCodeLine) {
+        commentLines.pop();
+      }
+    }
+
+    private int lastEffectiveCommentLine() {
+      return effectiveCommentLines.isEmpty() ? 0 : effectiveCommentLines.peek();
+    }
+
+    private int lastCommentLine() {
+      return commentLines.isEmpty() ? 0 : commentLines.peek();
     }
 
     public void comment(char[] ch, int start, int length) throws SAXException {
-      int numberCurrentCommentLines = 0;
-      for (int i = 0; i < length; i++) {
-        if (ch[start + i] == '\n') {
-          numberCurrentCommentLines++;
-        }
-      }
+      String comment = new String(ch).substring(start, start + length);
+      String[] lines = comment.split("\\n", -1);
 
-      for (int i = numberCurrentCommentLines; i >= 0; i--) {
-        int lineNumber = locator.getLineNumber() - i;
-        if (lastLineNumberCode < lineNumber && lastLineNumberComment < lineNumber) {
-          numCommentLines++;
-          lastLineNumberComment = lineNumber;
+      int currentLine = locator.getLineNumber() - lines.length + 1;
+
+      for (String line : lines) {
+        if (lastCommentLine() < currentLine && lastCodeLine < currentLine) {
+          commentLines.push(currentLine);
         }
+
+        String commentLine = line.trim();
+
+        if (!commentLine.isEmpty() && lastEffectiveCommentLine() < currentLine && lastCodeLine < currentLine) {
+          effectiveCommentLines.push(currentLine);
+        }
+
+        currentLine++;
       }
     }
 
+    private int getNumCommentLines() {
+      return commentLines.size();
+    }
+
+    private int getNumEffectiveCommentLines() {
+      return effectiveCommentLines.size();
+    }
+
+    @Override
     public void endCDATA() throws SAXException {
       registerLineOfCode();
     }
 
+    @Override
     public void endDTD() throws SAXException {
       registerLineOfCode();
     }
 
+    @Override
     public void endEntity(String name) throws SAXException {
       registerLineOfCode();
     }
@@ -89,19 +119,17 @@ public final class LineCountParser extends AbstractParser {
       }
     }
 
-    protected int getNumCommentLines() {
-      return numCommentLines;
-    }
-
     @Override
     public void setDocumentLocator(Locator locator) {
       this.locator = locator;
     }
 
+    @Override
     public void startCDATA() throws SAXException {
       registerLineOfCode();
     }
 
+    @Override
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
       registerLineOfCode();
     }
@@ -111,26 +139,39 @@ public final class LineCountParser extends AbstractParser {
       registerLineOfCode();
     }
 
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+      registerLineOfCode();
+    }
+
+    @Override
     public void startEntity(String name) throws SAXException {
       registerLineOfCode();
     }
   }
 
-  public int countLinesOfComment(InputStream input) {
+  public int getCommentLineNumber() {
+    return commentHandler.getNumCommentLines();
+  }
+
+  public int getEffectiveCommentLineNumber() {
+    return commentHandler.getNumEffectiveCommentLines();
+  }
+
+  public LineCountParser(InputStream input) {
     SAXParser parser = newSaxParser(false);
     try {
-
       XMLReader xmlReader = parser.getXMLReader();
-      CommentHandler commentHandler = new CommentHandler();
+      commentHandler = new CommentHandler();
       xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
       parser.parse(input, commentHandler);
-      return commentHandler.getNumCommentLines();
+
     } catch (IOException e) {
       throw new SonarException(e);
+
     } catch (SAXException e) {
       throw new SonarException(e);
-    } catch (UnrecoverableParseError e) {
-      return 0;
+
     }
   }
 
