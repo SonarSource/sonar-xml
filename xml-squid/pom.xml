@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.sonar-xml-plugin</groupId>
+    <groupId>org.sonarsource.xml</groupId>
     <artifactId>xml</artifactId>
     <version>1.4-SNAPSHOT</version>
   </parent>
