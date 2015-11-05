@@ -54,7 +54,7 @@ public class XmlTest {
     assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(1.4);
     assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(4);
     assertThat(getProjectMeasure("files").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(25);
+    assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(19);
   }
 
   private static void inspectProject(String name) throws InterruptedException {
