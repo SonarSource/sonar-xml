@@ -17,7 +17,8 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import org.sonar.api.utils.SonarException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -27,23 +28,80 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Comment Counting in XML files
+ * Counting comment lines, blank lines in XML files
  *
  * @author Matthijs Galesloot
  */
 public final class LineCountParser extends AbstractParser {
 
-  private final CommentHandler commentHandler;
+  private CommentHandler commentHandler;
+  private int linesNumber;
+  private Set<Integer> linesOfCodeLines;
+
+  public LineCountParser(File file, Charset encoding) throws IOException, SAXException {
+    processCommentLines(file);
+    processBlankLines(file, encoding);
+  }
+
+  private void processCommentLines(File file) throws SAXException, IOException {
+    SAXParser parser = newSaxParser(false);
+    XMLReader xmlReader = parser.getXMLReader();
+    commentHandler = new CommentHandler();
+    xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
+    parser.parse(FileUtils.openInputStream(file), commentHandler);
+  }
+
+  private void processBlankLines(File file, Charset encoding) throws IOException {
+    Set<Integer> blankLines = new HashSet<>();
+    String lineSeparatorRegexp = "(?:\r)?\n|\r";
+
+    String fileContent = FileUtils.readFileToString(file, encoding.name());
+
+    int currentLine = 0;
+
+    for (String line : fileContent.split(lineSeparatorRegexp, -1)) {
+      currentLine++;
+
+      if (StringUtils.isBlank(line)) {
+        blankLines.add(currentLine);
+      }
+
+    }
+
+    linesNumber = currentLine;
+
+    linesOfCodeLines = new HashSet<>();
+    for (int line = 1; line <= linesNumber; line++) {
+      if (!blankLines.contains(line) && !commentHandler.commentLines.contains(line)) {
+        linesOfCodeLines.add(line);
+      }
+    }
+  }
+
+  public Set<Integer> getEffectiveCommentLines() {
+    return new HashSet<>(commentHandler.effectiveCommentLines);
+  }
+
+  public Set<Integer> getLinesOfCodeLines() {
+    return linesOfCodeLines;
+  }
+
+  public int getLinesNumber() {
+    return linesNumber;
+  }
 
   private static class CommentHandler extends DefaultHandler implements LexicalHandler {
-
     private Deque<Integer> commentLines = new ArrayDeque<>();
+
     private Deque<Integer> effectiveCommentLines = new ArrayDeque<>();
 
     private int lastCodeLine = 0;
@@ -68,6 +126,7 @@ public final class LineCountParser extends AbstractParser {
       return commentLines.isEmpty() ? 0 : commentLines.peek();
     }
 
+    @Override
     public void comment(char[] ch, int start, int length) throws SAXException {
       String comment = new String(ch).substring(start, start + length);
       String[] lines = comment.split("\\n", -1);
@@ -87,14 +146,6 @@ public final class LineCountParser extends AbstractParser {
 
         currentLine++;
       }
-    }
-
-    private int getNumCommentLines() {
-      return commentLines.size();
-    }
-
-    private int getNumEffectiveCommentLines() {
-      return effectiveCommentLines.size();
     }
 
     @Override
@@ -148,31 +199,6 @@ public final class LineCountParser extends AbstractParser {
     public void startEntity(String name) throws SAXException {
       registerLineOfCode();
     }
+
   }
-
-  public int getCommentLineNumber() {
-    return commentHandler.getNumCommentLines();
-  }
-
-  public int getEffectiveCommentLineNumber() {
-    return commentHandler.getNumEffectiveCommentLines();
-  }
-
-  public LineCountParser(InputStream input) {
-    SAXParser parser = newSaxParser(false);
-    try {
-      XMLReader xmlReader = parser.getXMLReader();
-      commentHandler = new CommentHandler();
-      xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
-      parser.parse(input, commentHandler);
-
-    } catch (IOException e) {
-      throw new SonarException(e);
-
-    } catch (SAXException e) {
-      throw new SonarException(e);
-
-    }
-  }
-
 }

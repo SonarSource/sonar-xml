@@ -40,6 +40,7 @@ public class XmlTest {
 
   private static Sonar sonar;
   private static final String PROJECT = "org.codehaus.sonar:example-xml-sonar-runner";
+  private static final String FILE_TOKEN_PARSER = "org.codehaus.sonar:example-xml-sonar-runner" + ":src/spring.xml";
 
   @BeforeClass
   public static void inspect() throws Exception {
@@ -57,6 +58,12 @@ public class XmlTest {
     assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(19);
   }
 
+  @Test
+  public void should_be_compatible_with_DevCockpit() {
+    assertThat(getFileMeasure("ncloc_data").getData()).contains(";6=0;7=0;8=0;9=1;");
+    assertThat(getFileMeasure("comment_lines_data").getData()).contains(";6=0;7=1;8=0;9=0;");
+  }
+
   private static void inspectProject(String name) throws InterruptedException {
     orchestrator.getServer().provisionProject(name, name);
     orchestrator.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
@@ -68,6 +75,11 @@ public class XmlTest {
 
   private Measure getProjectMeasure(String metricKey) {
     return getMeasure(PROJECT, metricKey);
+  }
+
+  private Measure getFileMeasure(String metricKey) {
+    Resource resource = sonar.find(ResourceQuery.createForMetrics(FILE_TOKEN_PARSER, metricKey.trim()));
+    return resource == null ? null : resource.getMeasure(metricKey.trim());
   }
 
   private Measure getMeasure(String resource, String metricKey) {

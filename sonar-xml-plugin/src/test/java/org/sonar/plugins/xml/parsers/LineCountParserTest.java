@@ -17,14 +17,13 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.SonarException;
+import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -34,25 +33,30 @@ public class LineCountParserTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testSimpleLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/simple.xml")));
+  public void testSimpleLineCountParser() throws Exception {
+    LineCountParser parser = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), Charsets.UTF_8);
 
-    assertThat(parser.getEffectiveCommentLineNumber()).isEqualTo(1);
-    assertThat(parser.getCommentLineNumber()).isEqualTo(1);
+    assertThat(parser.getEffectiveCommentLines()).containsOnly(3);
+    assertThat(parser.getLinesNumber()).isEqualTo(18);
+    assertThat(parser.getLinesOfCodeLines()).hasSize(15);
+    assertThat(parser.getLinesOfCodeLines()).containsOnly(1, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18);
   }
 
   @Test
-  public void testComplexLineCountParser() throws IOException {
-    LineCountParser parser = new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/complex.xml")));
+  public void testComplexLineCountParser() throws Exception {
+    LineCountParser parser = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), Charsets.UTF_8);
 
-    assertThat(parser.getEffectiveCommentLineNumber()).isEqualTo(12);
-    assertThat(parser.getCommentLineNumber()).isEqualTo(16);
+    assertThat(parser.getEffectiveCommentLines()).hasSize(12);
+    assertThat(parser.getEffectiveCommentLines()).containsOnly(4, 5, 8, 9, 10, 21, 23, 24, 28, 29, 30, 33);
+    assertThat(parser.getLinesOfCodeLines()).hasSize(21);
+    assertThat(parser.getLinesOfCodeLines()).containsOnly(1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
+    assertThat(parser.getLinesNumber()).isEqualTo(40);
   }
 
   // SONARPLUGINS-1760
-  @Test(expected = SonarException.class)
-  public void shouldNotInfiniteLoopWhenParsingInvalidXml() throws IOException {
-    new LineCountParser(FileUtils.openInputStream(new File("src/test/resources/parsers/linecount/invalid.xml")));
+  @Test(expected = SAXException.class)
+  public void shouldNotInfiniteLoopWhenParsingInvalidXml() throws Exception {
+    new LineCountParser(new File("src/test/resources/parsers/linecount/invalid.xml"), Charsets.UTF_8);
   }
 
 }

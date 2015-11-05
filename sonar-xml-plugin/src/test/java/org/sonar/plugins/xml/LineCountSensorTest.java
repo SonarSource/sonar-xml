@@ -24,6 +24,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -34,21 +36,27 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LineCountSensorTest {
 
   private Project project;
   private DefaultFileSystem fs;
+  private FileLinesContextFactory fileLinesContextFactory;
 
   @Before
   public void setUp() throws Exception {
     project = new Project("");
     fs = new DefaultFileSystem(new File("tmp/"));
+
+    fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
   }
 
   @Test
   public void should_execute_on_xml_project() {
-    LineCountSensor sensor = new LineCountSensor(fs);
+    LineCountSensor sensor = new LineCountSensor(fs, fileLinesContextFactory);
 
     // No XML file
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
@@ -65,7 +73,7 @@ public class LineCountSensorTest {
 
     SensorContext context = mock(SensorContext.class);
 
-    new LineCountSensor(localFS).analyse(project, context);
+    new LineCountSensor(localFS, fileLinesContextFactory).analyse(project, context);
 
 
     // No empty line at end of file
@@ -81,10 +89,10 @@ public class LineCountSensorTest {
 
     SensorContext context = mock(SensorContext.class);
 
-    new LineCountSensor(localFS).analyse(project, context);
+    new LineCountSensor(localFS, fileLinesContextFactory).analyse(project, context);
 
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(12.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(39.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(40.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(21.0));
   }
 
@@ -97,7 +105,7 @@ public class LineCountSensorTest {
 
   @Test
   public void test_toString() throws Exception {
-    assertThat(new LineCountSensor(fs).toString()).isEqualTo(LineCountSensor.class.getSimpleName());
+    assertThat(new LineCountSensor(fs, fileLinesContextFactory).toString()).isEqualTo(LineCountSensor.class.getSimpleName());
 
   }
 }
