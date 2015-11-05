@@ -97,7 +97,8 @@ public class XPathCheck extends AbstractXmlCheck {
     try {
       Boolean result = (Boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
       if (result) {
-        createViolation(0);
+        // File level issue
+        createViolation(null);
       }
 
     } catch (XPathExpressionException exceptionBoolean) {
@@ -105,7 +106,7 @@ public class XPathCheck extends AbstractXmlCheck {
     }
   }
 
-  private void createViolation(int lineNumber) {
+  private void createViolation(Integer lineNumber) {
     if (message == null) {
       createViolation(lineNumber, "--");
     } else {

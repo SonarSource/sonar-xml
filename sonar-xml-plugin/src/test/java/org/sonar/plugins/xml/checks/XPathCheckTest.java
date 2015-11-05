@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @author Matthijs Galesloot
@@ -38,7 +40,7 @@ public class XPathCheckTest extends AbstractCheckTester {
       createCheck("//br"));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(1, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(1);
   }
 
   @Test
@@ -50,7 +52,7 @@ public class XPathCheckTest extends AbstractCheckTester {
       createCheck("count(//br)>0"));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(0, sourceCode.getXmlIssues().get(0).getLine());
+    assertNull(sourceCode.getXmlIssues().get(0).getLine());
   }
 
   @Test
@@ -69,7 +71,7 @@ public class XPathCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, createCheck("//ui:define[@name='title']"));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(26, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(26);
   }
 
   /**
@@ -80,7 +82,7 @@ public class XPathCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(CHAR_BEFORE_ROLOG_FILE, createCheck("//dependency/version"));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(18, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(18);
   }
 
   /**

@@ -22,6 +22,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -74,7 +75,7 @@ public class IndentCheckTest extends AbstractCheckTester {
 
     assertEquals(1, issues.size());
     assertEquals("Make this line start at column 3.", issues.get(0).getMessage());
-    assertEquals(2, issues.get(0).getLine());
+    assertThat(issues.get(0).getLine()).isEqualTo(2);
   }
 
   @Test
@@ -89,17 +90,17 @@ public class IndentCheckTest extends AbstractCheckTester {
 
     assertEquals(1, issues.size());
     assertEquals("Make this line start at column 5.", issues.get(0).getMessage());
-    assertEquals(3, issues.get(0).getLine());
+    assertThat(issues.get(0).getLine()).isEqualTo(3);
   }
 
   @Test
   public void check_tabs_indent() throws IOException {
     List<XmlIssue> issues = getIssues(
       "<html>\n" +
-      "\t<body>\n" +
-      "\t\t<br>hello</br>\n" +
-      "\t</body>\n" +
-      "</html>"
+        "\t<body>\n" +
+        "\t\t<br>hello</br>\n" +
+        "\t</body>\n" +
+        "</html>"
     );
 
     assertEquals(0, issues.size());

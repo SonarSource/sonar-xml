@@ -27,10 +27,10 @@ import org.sonar.api.rule.RuleKey;
 public class XmlIssue {
 
   private final RuleKey ruleKey;
-  private final int line;
+  private final Integer line;
   private final String message;
 
-  public XmlIssue(RuleKey ruleKey, int line, String message) {
+  public XmlIssue(RuleKey ruleKey, Integer line, String message) {
     this.ruleKey = ruleKey;
     this.line = line;
     this.message = message;
@@ -40,7 +40,7 @@ public class XmlIssue {
     return ruleKey;
   }
 
-  public int getLine() {
+  public Integer getLine() {
     return line;
   }
 

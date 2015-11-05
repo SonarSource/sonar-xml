@@ -17,12 +17,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
+import org.sonar.api.utils.SonarException;
 
 import java.io.FileNotFoundException;
 
-import org.junit.Test;
-import org.sonar.api.utils.SonarException;
+import static junit.framework.Assert.assertEquals;
+import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @author Matthijs Galesloot
@@ -73,7 +74,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, createCheck("xhtml1-transitional", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
-    assertEquals(16, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(16);
   }
 
   @Test
@@ -88,7 +89,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, createCheck("http://java.sun.com/jsf/html", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(8, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(8);
   }
 
   @Test
@@ -96,7 +97,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck("src/test/resources/checks/generic/catalog.xsd", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
-    assertEquals(5, sourceCode.getXmlIssues().get(0).getLine());
+    assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(5);
   }
 
   @Test
