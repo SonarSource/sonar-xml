@@ -17,8 +17,7 @@
  */
 package org.sonar.plugins.xml;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -35,16 +34,12 @@ import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * XmlSensor provides analysis of xml files.
  *
  * @author Matthijs Galesloot
  */
 public class XmlSensor implements Sensor {
-
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
   private final Checks<Object> checks;
   private final FileSystem fileSystem;
@@ -79,7 +74,7 @@ public class XmlSensor implements Sensor {
           saveIssue(sourceCode);
         }
       } catch (Exception e) {
-        LOG.error("Could not analyze the file " + inputFile.file().getAbsolutePath(), e);
+        throw new IllegalStateException("Could not analyze the file " + inputFile.file().getAbsolutePath(), e);
       }
     }
   }

@@ -17,18 +17,6 @@
  */
 package org.sonar.plugins.xml;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.util.Collections;
-
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,19 +25,28 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.plugins.xml.checks.CheckRepository;
-import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
+
+import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
@@ -75,6 +72,18 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(any(Class.class), any(InputFile.class))).thenReturn(mock(Issuable.class));
+
+    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
+    Issue issue = mock(Issue.class);
+    Issuable issuable = mock(Issuable.class);
+
+    when(perspectives.as(eq(Issuable.class), any(InputFile.class))).thenReturn(issuable);
+    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
+    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
+    when(issueBuilder.line(anyInt())).thenReturn(issueBuilder);
+    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
+    when(issueBuilder.build()).thenReturn(issue);
+    when(issuable.addIssue(issue)).thenReturn(true);
 
     sensor = new XmlSensor(fs, perspectives, checkFactory);
   }
