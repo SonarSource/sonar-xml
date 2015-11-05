@@ -28,13 +28,16 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({XmlTest.class})
+@SuiteClasses({
+  XmlTest.class,
+  SchemaCheckTest.class})
 public class XmlTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(FileLocation.of("../../sonar-xml-plugin/target/sonar-xml-plugin.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-it-profile_xml.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .build();
 
   public static SonarRunner createSonarRunner() {

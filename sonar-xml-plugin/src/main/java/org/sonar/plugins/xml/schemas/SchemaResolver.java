@@ -109,8 +109,6 @@ public final class SchemaResolver implements LSResourceResolver {
 
   private static LSInput createLSInput(InputStream inputStream) {
     if (inputStream != null) {
-      System.setProperty(DOMImplementationRegistry.PROPERTY, "org.apache.xerces.dom.DOMImplementationSourceImpl");
-
       try {
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         DOMImplementation impl = registry.getDOMImplementation("XML 1.0 LS 3.0");
