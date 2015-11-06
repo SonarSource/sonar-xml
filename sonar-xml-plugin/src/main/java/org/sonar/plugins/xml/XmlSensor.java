@@ -18,6 +18,9 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -25,14 +28,22 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
+import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Project;
+import org.sonar.api.source.Highlightable;
+import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.highlighting.HighlightingData;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -45,6 +56,7 @@ public class XmlSensor implements Sensor {
   private final FileSystem fileSystem;
   private final ResourcePerspectives resourcePerspectives;
   private final FilePredicate mainFilesPredicate;
+  private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
   public XmlSensor(FileSystem fileSystem, ResourcePerspectives resourcePerspectives, CheckFactory checkFactory) {
     this.checks = checkFactory.create(CheckRepository.REPOSITORY_KEY).addAnnotatedChecks(CheckRepository.getCheckClasses());
@@ -72,11 +84,36 @@ public class XmlSensor implements Sensor {
             ((AbstractXmlCheck) check).validate(sourceCode);
           }
           saveIssue(sourceCode);
+
+          saveSyntaxHighlighting(new XMLHighlighting(inputFile.file(), fileSystem.encoding()).getHighlightingData(), inputFile);
         }
       } catch (Exception e) {
         throw new IllegalStateException("Could not analyze the file " + inputFile.file().getAbsolutePath(), e);
       }
     }
+  }
+
+  private void saveSyntaxHighlighting(List<HighlightingData> highlightingDataList, InputFile inputFile) {
+    Highlightable highlightable = perspective(Highlightable.class, inputFile);
+    if (highlightable != null) {
+      HighlightingBuilder highlightingBuilder = highlightable.newHighlighting();
+
+      for (HighlightingData highlightingData : highlightingDataList) {
+        highlightingBuilder.highlight(highlightingData.startOffset(), highlightingData.endOffset(), highlightingData.highlightCode());
+      }
+
+      highlightingBuilder.done();
+    }
+
+  }
+
+  @Nullable
+  <P extends Perspective<?>> P perspective(Class<P> clazz, InputFile file) {
+    P result = resourcePerspectives.as(clazz, file);
+    if (result == null) {
+      LOG.warn("Could not get " + clazz.getCanonicalName() + " for " + file);
+    }
+    return result;
   }
 
   @VisibleForTesting

@@ -15,23 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sonar.plugins.xml.language;
+package org.sonar.plugins.xml.highlighting;
 
-import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.Tokenizer;
-import org.sonar.xml.XmlColorizer;
+public class HighlightingData {
 
-import java.util.List;
+  private Integer startOffset;
+  private Integer endOffset;
+  private String highlightCode;
 
-public class XmlCodeColorizerFormat extends CodeColorizerFormat {
-
-  public XmlCodeColorizerFormat() {
-    super(Xml.KEY);
+  public HighlightingData(Integer startOffset, Integer endOffset, String highlightCode) {
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
+    this.highlightCode = highlightCode;
   }
 
-  @Override
-  public List<Tokenizer> getTokenizers() {
-    return XmlColorizer.createTokenizers();
+  public Integer startOffset() {
+    return startOffset;
+  }
+
+  public Integer endOffset() {
+    return endOffset;
+  }
+
+  public String highlightCode() {
+    return highlightCode;
   }
 
 }

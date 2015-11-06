@@ -71,7 +71,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
       ImmutableList.of(new ActiveRulesBuilder().create(RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck")))));
 
     perspectives = mock(ResourcePerspectives.class);
-    when(perspectives.as(any(Class.class), any(InputFile.class))).thenReturn(mock(Issuable.class));
 
     Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
     Issue issue = mock(Issue.class);
