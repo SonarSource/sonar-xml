@@ -55,6 +55,10 @@ public abstract class AbstractXmlCheck {
     this.ruleKey = ruleKey;
   }
 
+  public RuleKey getRuleKey() {
+    return ruleKey;
+  }
+
   protected void setWebSourceCode(XmlSourceCode xmlSourceCode) {
     this.xmlSourceCode = xmlSourceCode;
   }

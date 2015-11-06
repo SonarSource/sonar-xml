@@ -102,7 +102,7 @@ public class XPathCheck extends AbstractXmlCheck {
       }
 
     } catch (XPathExpressionException exceptionBoolean) {
-      throw new IllegalStateException(String.format("Can't evaluate XPath expression \"%s\"", expression), exceptionBoolean);
+      throw createExpressionException(exceptionBoolean);
     }
   }
 
@@ -133,8 +133,13 @@ public class XPathCheck extends AbstractXmlCheck {
       xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
       return xpath.compile(expression);
     } catch (XPathExpressionException e) {
-      throw new IllegalStateException(String.format("Can't compile XPath expression \"%s\"", expression), e);
+      throw createExpressionException(e);
     }
+  }
+
+  private IllegalStateException createExpressionException(XPathExpressionException e) {
+    return new IllegalStateException(
+      String.format("Can't compile XPath expression \"%s\" for rule %s", expression, getRuleKey()), e);
   }
 
   public void setExpression(String expression) {
