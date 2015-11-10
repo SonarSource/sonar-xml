@@ -31,6 +31,7 @@ import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.checks.CheckRepository;
@@ -84,7 +85,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     when(issueBuilder.build()).thenReturn(issue);
     when(issuable.addIssue(issue)).thenReturn(true);
 
-    sensor = new XmlSensor(fs, perspectives, checkFactory);
+    sensor = new XmlSensor(fs, perspectives, checkFactory, mock(FileLinesContextFactory.class));
   }
 
   @Test

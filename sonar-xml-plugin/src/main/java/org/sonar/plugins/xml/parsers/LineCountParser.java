@@ -19,6 +19,7 @@ package org.sonar.plugins.xml.parsers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -46,10 +47,15 @@ public final class LineCountParser extends AbstractParser {
   private CommentHandler commentHandler;
   private int linesNumber;
   private Set<Integer> linesOfCodeLines;
+  private LineCountData data;
 
   public LineCountParser(File file, Charset encoding) throws IOException, SAXException {
     processCommentLines(file);
     processBlankLines(file, encoding);
+    this.data = new LineCountData(
+      linesNumber,
+      linesOfCodeLines,
+      new HashSet<>(commentHandler.effectiveCommentLines));
   }
 
   private void processCommentLines(File file) throws SAXException, IOException {
@@ -87,16 +93,8 @@ public final class LineCountParser extends AbstractParser {
     }
   }
 
-  public Set<Integer> getEffectiveCommentLines() {
-    return new HashSet<>(commentHandler.effectiveCommentLines);
-  }
-
-  public Set<Integer> getLinesOfCodeLines() {
-    return linesOfCodeLines;
-  }
-
-  public int getLinesNumber() {
-    return linesNumber;
+  public LineCountData getLineCountData() {
+    return data;
   }
 
   private static class CommentHandler extends DefaultHandler implements LexicalHandler {

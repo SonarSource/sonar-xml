@@ -17,17 +17,16 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
-
-import com.google.common.io.Files;
-import org.sonar.api.batch.fs.InputFile;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -48,8 +47,9 @@ public class XmlFile {
   private int lineDeltaForIssue = 0;
   private boolean hasCharsBeforeProlog = false;
 
-  public XmlFile(InputFile inputFile) {
+  public XmlFile(InputFile inputFile, FileSystem fileSystem) {
     this.inputFile = inputFile;
+    checkForCharactersBeforeProlog(fileSystem);
   }
 
   public String getFilePath() {
@@ -60,7 +60,7 @@ public class XmlFile {
    * Check if the xml file starts with a prolog "&lt?xml version="1.0" ?&gt"
    * if so, check if there is any characters prefixing it.
    */
-  public void checkForCharactersBeforeProlog(FileSystem fileSystem) {
+  private void checkForCharactersBeforeProlog(FileSystem fileSystem) {
     try {
       int lineNb = 1;
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");

@@ -39,18 +39,18 @@ public class XmlTest {
   public static Orchestrator orchestrator = XmlTestSuite.ORCHESTRATOR;
 
   private static Sonar sonar;
-  private static final String PROJECT = "org.codehaus.sonar:example-xml-sonar-runner";
-  private static final String FILE_TOKEN_PARSER = "org.codehaus.sonar:example-xml-sonar-runner" + ":src/spring.xml";
+  private static final String PROJECT = "xml-sonar-runner";
+  private static final String FILE_TOKEN_PARSER = "xml-sonar-runner" + ":src/spring.xml";
 
   @BeforeClass
   public static void inspect() throws Exception {
     sonar = orchestrator.getServer().getWsClient();
-    inspectProject("xml-sonar-runner");
+    inspectProject(PROJECT);
   }
 
   @Test
   public void testBaseMetrics() {
-    assertThat(getProjectMeasure("lines").getValue()).isEqualTo(317);
+    assertThat(getProjectMeasure("lines").getValue()).isEqualTo(319);
     assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(282);
     assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(1.4);
     assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(4);
@@ -60,8 +60,13 @@ public class XmlTest {
 
   @Test
   public void should_be_compatible_with_DevCockpit() {
-    assertThat(getFileMeasure("ncloc_data").getData()).contains(";6=0;7=0;8=0;9=1;");
-    assertThat(getFileMeasure("comment_lines_data").getData()).contains(";6=0;7=1;8=0;9=0;");
+    assertThat(getFileMeasure("ncloc_data").getData()).contains(";7=1;8=0;9=0;10=0;11=1");
+    assertThat(getFileMeasure("comment_lines_data").getData()).contains(";6=0;7=0;8=0;9=1;");
+  }
+
+  @Test // SONARXML-19
+  public void should_correctly_count_lines_when_char_before_prolog() {
+    assertThat(getFileMeasure("lines").getValue()).isEqualTo(14);
   }
 
   private static void inspectProject(String name) throws InterruptedException {
@@ -69,6 +74,8 @@ public class XmlTest {
     orchestrator.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
 
     SonarRunner build = XmlTestSuite.createSonarRunner()
+      .setProjectName(name)
+      .setProjectKey(name)
       .setProjectDir(new File("projects/" + name));
     orchestrator.executeBuild(build);
   }

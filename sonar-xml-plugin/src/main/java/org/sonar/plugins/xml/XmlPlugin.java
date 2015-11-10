@@ -53,8 +53,6 @@ public final class XmlPlugin extends SonarPlugin {
       XmlSonarWayProfile.class,
 
       // Sensors
-      XmlSensor.class,
-      LineCountSensor.class
-    );
+      XmlSensor.class);
   }
 }

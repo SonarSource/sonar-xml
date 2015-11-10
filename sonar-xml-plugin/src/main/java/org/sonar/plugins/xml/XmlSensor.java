@@ -18,7 +18,6 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -31,16 +30,18 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.highlighting.HighlightingData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -57,8 +58,10 @@ public class XmlSensor implements Sensor {
   private final ResourcePerspectives resourcePerspectives;
   private final FilePredicate mainFilesPredicate;
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
+  private final FileLinesContextFactory fileLinesContextFactory;
 
-  public XmlSensor(FileSystem fileSystem, ResourcePerspectives resourcePerspectives, CheckFactory checkFactory) {
+  public XmlSensor(FileSystem fileSystem, ResourcePerspectives resourcePerspectives, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
+    this.fileLinesContextFactory = fileLinesContextFactory;
     this.checks = checkFactory.create(CheckRepository.REPOSITORY_KEY).addAnnotatedChecks(CheckRepository.getCheckClasses());
     this.fileSystem = fileSystem;
     this.resourcePerspectives = resourcePerspectives;
@@ -73,23 +76,33 @@ public class XmlSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext sensorContext) {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
+      XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
 
-      try {
-        XmlSourceCode sourceCode = new XmlSourceCode(inputFile);
+      computeLinesMeasures(sensorContext, xmlFile);
+      runChecks(xmlFile);
+    }
+  }
 
-        // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
-        if (sourceCode.parseSource(fileSystem)) {
-          for (Object check : checks.all()) {
-            ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
-            ((AbstractXmlCheck) check).validate(sourceCode);
-          }
-          saveIssue(sourceCode);
+  private void computeLinesMeasures(SensorContext context, XmlFile xmlFile) {
+    LineCounter.analyse(context, fileLinesContextFactory, xmlFile, fileSystem.encoding());
+  }
 
-          saveSyntaxHighlighting(new XMLHighlighting(inputFile.file(), fileSystem.encoding()).getHighlightingData(), inputFile);
+  private void runChecks(XmlFile xmlFile) {
+    try {
+      XmlSourceCode sourceCode = new XmlSourceCode(xmlFile);
+
+      // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
+      if (sourceCode.parseSource()) {
+        for (Object check : checks.all()) {
+          ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
+          ((AbstractXmlCheck) check).validate(sourceCode);
         }
-      } catch (Exception e) {
-        throw new IllegalStateException("Could not analyze the file " + inputFile.file().getAbsolutePath(), e);
+        saveIssue(sourceCode);
+
+        saveSyntaxHighlighting(new XMLHighlighting(xmlFile.getIOFile(), fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile());
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not analyze the file " + xmlFile.getIOFile().getAbsolutePath(), e);
     }
   }
 

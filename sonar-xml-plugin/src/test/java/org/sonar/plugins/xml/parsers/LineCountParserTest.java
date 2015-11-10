@@ -21,6 +21,7 @@ import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -34,23 +35,25 @@ public class LineCountParserTest {
 
   @Test
   public void testSimpleLineCountParser() throws Exception {
-    LineCountParser parser = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), Charsets.UTF_8);
+    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), Charsets.UTF_8)
+      .getLineCountData();
 
-    assertThat(parser.getEffectiveCommentLines()).containsOnly(3);
-    assertThat(parser.getLinesNumber()).isEqualTo(18);
-    assertThat(parser.getLinesOfCodeLines()).hasSize(15);
-    assertThat(parser.getLinesOfCodeLines()).containsOnly(1, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18);
+    assertThat(data.effectiveCommentLines()).containsOnly(3);
+    assertThat(data.linesNumber()).isEqualTo(18);
+    assertThat(data.linesOfCodeLines()).hasSize(15);
+    assertThat(data.linesOfCodeLines()).containsOnly(1, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18);
   }
 
   @Test
   public void testComplexLineCountParser() throws Exception {
-    LineCountParser parser = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), Charsets.UTF_8);
+    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), Charsets.UTF_8)
+      .getLineCountData();
 
-    assertThat(parser.getEffectiveCommentLines()).hasSize(12);
-    assertThat(parser.getEffectiveCommentLines()).containsOnly(4, 5, 8, 9, 10, 21, 23, 24, 28, 29, 30, 33);
-    assertThat(parser.getLinesOfCodeLines()).hasSize(21);
-    assertThat(parser.getLinesOfCodeLines()).containsOnly(1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
-    assertThat(parser.getLinesNumber()).isEqualTo(40);
+    assertThat(data.effectiveCommentLines()).hasSize(12);
+    assertThat(data.effectiveCommentLines()).containsOnly(4, 5, 8, 9, 10, 21, 23, 24, 28, 29, 30, 33);
+    assertThat(data.linesOfCodeLines()).hasSize(21);
+    assertThat(data.linesOfCodeLines()).containsOnly(1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
+    assertThat(data.linesNumber()).isEqualTo(40);
   }
 
   // SONARPLUGINS-1760

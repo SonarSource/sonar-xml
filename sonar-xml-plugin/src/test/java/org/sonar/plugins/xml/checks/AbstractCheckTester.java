@@ -17,15 +17,15 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
@@ -44,9 +44,9 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   protected static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
   protected XmlSourceCode parseAndCheck(File file, AbstractXmlCheck check) {
-    XmlSourceCode xmlSourceCode = new XmlSourceCode(new DefaultInputFile(file.getPath()).setAbsolutePath(file.getAbsolutePath()));
+    XmlSourceCode xmlSourceCode = new XmlSourceCode(new XmlFile(new DefaultInputFile(file.getPath()).setAbsolutePath(file.getAbsolutePath()), createFileSystem()));
 
-    if (xmlSourceCode.parseSource(createFileSystem())) {
+    if (xmlSourceCode.parseSource()) {
       check.validate(xmlSourceCode);
     }
 

@@ -18,7 +18,6 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.xml.parsers.SaxParser;
@@ -46,8 +45,8 @@ public class XmlSourceCode {
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
 
-  public XmlSourceCode(InputFile sonarFile) {
-    this.xmlFile = new XmlFile(sonarFile);
+  public XmlSourceCode(XmlFile xmlFile) {
+    this.xmlFile = xmlFile;
   }
 
   public void addViolation(XmlIssue xmlIssue) {
@@ -73,9 +72,7 @@ public class XmlSourceCode {
   /**
    * Parses the source and returns true if succeeded false if the file is corrupted.
    */
-  public boolean parseSource(FileSystem fileSystem) {
-    xmlFile.checkForCharactersBeforeProlog(fileSystem);
-
+  public boolean parseSource() {
     documentNamespaceUnaware = parseFile(false);
     if (documentNamespaceUnaware != null) {
       documentNamespaceAware = parseFile(true);
