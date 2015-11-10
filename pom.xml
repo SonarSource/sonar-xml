@@ -50,7 +50,6 @@
   <modules>
     <module>xml-squid</module>
     <module>sonar-xml-plugin</module>
-    <module>sslr-xml-toolkit</module>
   </modules>
 
   <scm>
@@ -100,11 +99,6 @@
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>${sslrVersion}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
-        <artifactId>sslr-toolkit</artifactId>
         <version>${sslrVersion}</version>
       </dependency>
       <dependency>
