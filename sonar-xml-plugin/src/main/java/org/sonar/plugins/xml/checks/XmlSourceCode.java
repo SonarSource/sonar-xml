@@ -17,12 +17,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,6 +25,12 @@ import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
  *
@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
  */
 public class XmlSourceCode {
 
-  private final List<XmlIssue> xmlIssues = new ArrayList<XmlIssue>();
+  private final List<XmlIssue> xmlIssues = new ArrayList<>();
 
   private String code;
 

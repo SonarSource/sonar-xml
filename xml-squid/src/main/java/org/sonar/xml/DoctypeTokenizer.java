@@ -17,14 +17,14 @@
  */
 package org.sonar.xml;
 
+import org.sonar.channel.CodeReader;
+import org.sonar.colorizer.HtmlCodeBuilder;
+import org.sonar.colorizer.Tokenizer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.sonar.channel.CodeReader;
-import org.sonar.colorizer.HtmlCodeBuilder;
-import org.sonar.colorizer.Tokenizer;
 
 /**
  * This tokenizer takes care of DOCTYPE elements including declaration of internal DTDs, external DTDs and a

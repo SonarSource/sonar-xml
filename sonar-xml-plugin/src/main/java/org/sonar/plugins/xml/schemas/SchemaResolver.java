@@ -44,8 +44,8 @@ import java.util.Map;
 public final class SchemaResolver implements LSResourceResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
-  private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<String, String>();
-  private static final Map<String, String> DTD_BUILTIN = new HashMap<String, String>();
+  private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<>();
+  private static final Map<String, String> DTD_BUILTIN = new HashMap<>();
 
   // SCHEMA's
   static {
@@ -237,7 +237,7 @@ public final class SchemaResolver implements LSResourceResolver {
 
     LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
 
-    InputStream input = null;
+    InputStream input;
 
     // try as DTD
     if (publicId != null && publicId.contains("//DTD")) {

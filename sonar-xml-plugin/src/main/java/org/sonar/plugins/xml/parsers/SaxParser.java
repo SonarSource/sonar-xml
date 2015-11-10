@@ -55,7 +55,7 @@ public final class SaxParser extends AbstractParser {
     private Locator locator;
     private Element current;
 
-    private final Map<String, String> prefixMappings = new HashMap<String, String>();
+    private final Map<String, String> prefixMappings = new HashMap<>();
 
     // The docs say that parsers are "highly encouraged" to set this
     public LocationRecordingHandler(Document doc) {
@@ -107,7 +107,7 @@ public final class SaxParser extends AbstractParser {
     // Admittedly, this is largely lifted from other examples
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attrs) {
-      Element e = null;
+      Element e;
       if (localName != null && !"".equals(localName)) {
         e = doc.createElementNS(uri, localName);
       } else {
