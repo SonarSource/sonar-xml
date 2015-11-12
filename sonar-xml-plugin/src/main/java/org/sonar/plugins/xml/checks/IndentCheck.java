@@ -43,10 +43,18 @@ public class IndentCheck extends AbstractXmlCheck {
 
   private static final String MESSAGE = "Make this line start at column %s.";
 
-  @RuleProperty(key = "indentSize", defaultValue = "2")
+  @RuleProperty(
+    key = "indentSize",
+    description = "Number of white-spaces of an indent. If this property is not set, we just check that the code is indented.",
+    type = "INTEGER",
+    defaultValue = "2")
   private int indentSize = 2;
 
-  @RuleProperty(key = "tabSize", defaultValue = "2")
+  @RuleProperty(
+    key = "tabSize",
+    description = "Equivalent number of spaces of a tabulation",
+    type = "INTEGER",
+    defaultValue = "2")
   private int tabSize = 2;
 
   /**
