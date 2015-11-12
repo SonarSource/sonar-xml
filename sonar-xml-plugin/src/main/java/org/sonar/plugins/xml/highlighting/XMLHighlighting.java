@@ -18,6 +18,8 @@
 package org.sonar.plugins.xml.highlighting;
 
 import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLInputFactory;
@@ -26,6 +28,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -40,14 +43,25 @@ public class XMLHighlighting {
   private List<HighlightingData> highlighting = new ArrayList<>();
   private String content;
 
-  public XMLHighlighting(File file, Charset charset) throws Exception{
+  private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
+
+  public XMLHighlighting(File file, Charset charset) throws IOException {
     content = Files.toString(file, charset);
-    highlightXML(new InputStreamReader(new FileInputStream(file), charset));
+
+    try {
+      highlightXML(new InputStreamReader(new FileInputStream(file), charset));
+    } catch (XMLStreamException e) {
+      LOG.warn("Can't highlight following file : " + file.getAbsolutePath(), e);
+    }
   }
 
-  public XMLHighlighting(String xmlStrContent) throws XMLStreamException{
+  public XMLHighlighting(String xmlStrContent) {
     content = xmlStrContent;
-    highlightXML(new StringReader(xmlStrContent));
+    try {
+      highlightXML(new StringReader(xmlStrContent));
+    } catch (XMLStreamException e) {
+      LOG.warn("Can't highlight following code : \n" + xmlStrContent, e);
+    }
   }
 
   public List<HighlightingData> getHighlightingData() {
