@@ -45,6 +45,10 @@ public class XmlFile {
    * Number of lines removed before xml prolog if present
    */
   private int lineDeltaForIssue = 0;
+  /**
+   * Number of characters removed before xml prolog if present
+   */
+  private int characterDeltaForHighlight = 0;
   private boolean hasCharsBeforeProlog = false;
 
   public XmlFile(InputFile inputFile, FileSystem fileSystem) {
@@ -102,6 +106,11 @@ public class XmlFile {
       Files.write(content.substring(index), tempFile, fileSystem.encoding());
 
       noCharBeforePrologFile = tempFile;
+
+      if (characterDeltaForHighlight != -1) {
+        characterDeltaForHighlight = index;
+      }
+
       if (lineDelta > 1) {
         lineDeltaForIssue = lineDelta - 1;
       }
@@ -118,6 +127,11 @@ public class XmlFile {
   public int getLineDelta() {
     return lineDeltaForIssue;
   }
+
+  public int getOffsetDelta() {
+    return characterDeltaForHighlight;
+  }
+
 
   public File getIOFile() {
     return noCharBeforePrologFile != null ? noCharBeforePrologFile : inputFile.file();

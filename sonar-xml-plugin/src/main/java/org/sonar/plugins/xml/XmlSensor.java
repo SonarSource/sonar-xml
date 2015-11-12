@@ -99,7 +99,7 @@ public class XmlSensor implements Sensor {
         }
         saveIssue(sourceCode);
 
-        saveSyntaxHighlighting(new XMLHighlighting(xmlFile.getIOFile(), fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile());
+        saveSyntaxHighlighting(new XMLHighlighting(xmlFile, fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile());
       }
     } catch (Exception e) {
       throw new IllegalStateException("Could not analyze the file " + xmlFile.getIOFile().getAbsolutePath(), e);

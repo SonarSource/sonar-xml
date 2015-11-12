@@ -20,13 +20,13 @@ package org.sonar.plugins.xml.highlighting;
 import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.plugins.xml.checks.XmlFile;
 
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,23 +39,26 @@ import java.util.List;
 public class XMLHighlighting {
 
   private static final String XML_DECLARATION_TAG = "<?xml";
+  private final int delta;
 
   private List<HighlightingData> highlighting = new ArrayList<>();
   private String content;
 
   private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
 
-  public XMLHighlighting(File file, Charset charset) throws IOException {
-    content = Files.toString(file, charset);
+  public XMLHighlighting(XmlFile xmlFile, Charset charset) throws IOException {
+    content = Files.toString(xmlFile.getIOFile(), charset);
+    delta = xmlFile.getOffsetDelta();
 
     try {
-      highlightXML(new InputStreamReader(new FileInputStream(file), charset));
+      highlightXML(new InputStreamReader(new FileInputStream(xmlFile.getIOFile()), charset));
     } catch (XMLStreamException e) {
-      LOG.warn("Can't highlight following file : " + file.getAbsolutePath(), e);
+      LOG.warn("Can't highlight following file : " + xmlFile.getIOFile().getAbsolutePath(), e);
     }
   }
 
   public XMLHighlighting(String xmlStrContent) {
+    delta = 0;
     content = xmlStrContent;
     try {
       highlightXML(new StringReader(xmlStrContent));
@@ -78,7 +81,7 @@ public class XMLHighlighting {
     while (xmlReader.hasNext()) {
       Location prevLocation = xmlReader.getLocation();
       xmlReader.next();
-      int startOffset = xmlReader.getLocation().getCharacterOffset();
+      int startOffset = xmlReader.getLocation().getCharacterOffset() ;//+ offsetDelta;
 
       switch (xmlReader.getEventType()) {
         case XMLStreamConstants.START_ELEMENT:
@@ -152,10 +155,10 @@ public class XMLHighlighting {
   private void highlightXmlDeclaration() {
     if (content.startsWith(XML_DECLARATION_TAG)) {
       int startOffset = 0;
-      int closingBracketStartOffset = getTagClosingBracketStartOffset(0);
+      int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
 
       addHighlighting(startOffset, startOffset + XML_DECLARATION_TAG.length(), "k");
-      highlightAttributes(XML_DECLARATION_TAG.length(), closingBracketStartOffset);
+      highlightAttributes(startOffset + XML_DECLARATION_TAG.length(), closingBracketStartOffset);
       addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset + 1, "k");
     }
   }
@@ -232,7 +235,7 @@ public class XMLHighlighting {
   }
 
   private void addHighlighting(int startOffset, int endOffset, String code) {
-    highlighting.add(new HighlightingData(startOffset, endOffset, code));
+    highlighting.add(new HighlightingData(startOffset + delta, endOffset + delta, code));
   }
 
 }

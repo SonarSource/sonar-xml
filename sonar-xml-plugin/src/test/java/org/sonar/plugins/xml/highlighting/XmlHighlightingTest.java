@@ -17,15 +17,27 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.plugins.xml.checks.XmlFile;
+import org.sonar.plugins.xml.language.Xml;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.File;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class XmlHighlightingTest {
+
+  @Rule
+  public TemporaryFolder tmpFolder = new TemporaryFolder();
 
   @Test
   public void testCDATAWithTagsInside() throws Exception {
@@ -226,6 +238,35 @@ public class XmlHighlightingTest {
   @Test
   public void entity() throws Exception {
     assertThat(new XMLHighlighting("<a>&ouml;</a>").getHighlightingData()).isNotEmpty();
+  }
+
+  @Test
+  public void tesCharBeforeProlog() throws Exception {
+    File file = tmpFolder.newFile("char_before_prolog.xml");
+    FileUtils.write(file, "\n\n\n<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
+      DefaultInputFile inputFile = new DefaultInputFile("char_before_prolog.xml")
+        .setLanguage(Xml.KEY)
+        .setType(InputFile.Type.MAIN)
+        .setAbsolutePath(file.getAbsolutePath());
+    DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
+    localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
+
+    XmlFile xmlFile = new XmlFile(inputFile, localFS);
+    List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile, localFS.encoding()).getHighlightingData();
+    assertEquals(9, highlightingData.size());
+    // <?xml
+    assertData(highlightingData.get(0), 3, 8, "k");
+    // ?>
+    assertData(highlightingData.get(5), 40, 42, "k");
+
+    // version
+    assertData(highlightingData.get(1), 9, 16, "c");
+    // "1.0"
+    assertData(highlightingData.get(2), 17, 22, "s");
+    // encoding
+    assertData(highlightingData.get(3), 23, 31, "c");
+    // "UTF-8"
+    assertData(highlightingData.get(4), 32, 39, "s");
   }
 
   private void assertData(HighlightingData data, Integer start, Integer end, String code) {
