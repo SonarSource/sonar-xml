@@ -17,6 +17,7 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -298,6 +299,7 @@ public class XmlHighlightingTest {
         .setType(InputFile.Type.MAIN)
         .setAbsolutePath(file.getAbsolutePath());
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
+    localFS.setEncoding(Charsets.UTF_8);
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
     XmlFile xmlFile = new XmlFile(inputFile, localFS);
