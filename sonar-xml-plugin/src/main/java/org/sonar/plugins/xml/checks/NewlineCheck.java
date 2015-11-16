@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "NewlineCheck",
+  name = "Newlines should follow each element",
   priority = Priority.MINOR)
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)

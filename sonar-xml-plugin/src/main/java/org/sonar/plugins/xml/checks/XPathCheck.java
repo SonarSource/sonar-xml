@@ -34,18 +34,22 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.Iterator;
 
-@Rule(key = "XPathCheck", priority = Priority.MAJOR)
+@Rule(
+  key = "XPathCheck",
+  name = "XPath rule",
+  priority = Priority.MAJOR)
 @RuleTemplate
 public class XPathCheck extends AbstractXmlCheck {
 
-  @RuleProperty(key = "expression", type = "TEXT")
+  @RuleProperty(key = "expression", description = "The XPath query", type = "TEXT")
   private String expression;
 
-  @RuleProperty(key = "filePattern")
+  @RuleProperty(key = "filePattern", description = "Files to be validated using Ant-style matching patterns.")
   private String filePattern;
 
   @RuleProperty(
     key = "message",
+    description = "The issue message",
     defaultValue = "The XPath expression matches this piece of code")
   private String message;
 

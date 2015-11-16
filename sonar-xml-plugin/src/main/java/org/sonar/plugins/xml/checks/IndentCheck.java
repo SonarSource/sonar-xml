@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "IndentCheck",
+  name = "Source code should be indented consistently",
   priority = Priority.MINOR,
   tags = {"convention"})
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)

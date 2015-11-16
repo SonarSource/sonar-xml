@@ -27,6 +27,7 @@ import org.sonar.check.Rule;
  * @author Matthijs Galesloot
  */
 @Rule(key = "S1778",
+  name = "XML files containing a prolog header should start first with \"<?xml\" characters",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MAJOR)
 public class CharBeforePrologCheck extends AbstractXmlCheck {

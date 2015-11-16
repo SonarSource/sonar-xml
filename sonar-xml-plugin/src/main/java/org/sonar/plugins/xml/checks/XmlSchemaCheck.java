@@ -54,20 +54,28 @@ import java.util.Map;
  *
  * @author Matthijs Galesloot
  */
-@Rule(key = "XmlSchemaCheck", priority = Priority.MAJOR)
+@Rule(
+  key = "XmlSchemaCheck",
+  name = "XML schemas should be valid",
+  priority = Priority.MAJOR
+)
 @RuleTemplate
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
    * filePattern indicates which files should be checked.
    */
-  @RuleProperty(key = "filePattern")
+  @RuleProperty(key = "filePattern", description = "Files to be validated using Ant-style matching patterns.")
   private String filePattern;
 
   /**
    * schemas may refer to a schema that is provided as a built-in resource, a web resource or a file resource.
    */
-  @RuleProperty(key = "schemas", defaultValue = DEFAULT_SCHEMA, type = "TEXT")
+  @RuleProperty(
+    key = "schemas",
+    description = "Whitespace-separated list of schemas to use for validation.",
+    defaultValue = DEFAULT_SCHEMA,
+    type = "TEXT")
   private String schemas;
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);

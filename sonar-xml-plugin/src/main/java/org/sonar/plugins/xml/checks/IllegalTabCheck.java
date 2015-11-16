@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
  * @author Matthijs Galesloot
  */
 @Rule(key = "IllegalTabCheck",
+  name = "Tabulation characters should not be used",
   priority = Priority.MINOR,
   tags = {"convention"})
 @BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
@@ -41,7 +42,7 @@ import org.w3c.dom.Node;
 @SqaleConstantRemediation("2min")
 public class IllegalTabCheck extends AbstractXmlCheck {
 
-  @RuleProperty(key = "markAll", defaultValue = "false")
+  @RuleProperty(key = "markAll", description = "Mark all tab errors", defaultValue = "false")
   private boolean markAll;
 
   private boolean validationReady;
