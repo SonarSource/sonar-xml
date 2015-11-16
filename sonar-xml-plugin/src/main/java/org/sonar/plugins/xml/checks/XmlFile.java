@@ -37,10 +37,11 @@ public class XmlFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlFile.class);
   private static final String XML_PROLOG_START_TAG = "<?xml";
+  private static final String BOM_CHAR = "\ufeff";
 
   private final InputFile inputFile;
-  private File noCharBeforePrologFile;
 
+  private File noCharBeforePrologFile;
   /**
    * Number of lines removed before xml prolog if present
    */
@@ -70,6 +71,10 @@ public class XmlFile {
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
 
       for (String line : Files.readLines(inputFile.file(), fileSystem.encoding())) {
+        if (lineNb == 1) {
+          checkBOM(line);
+        }
+
         Matcher m = firstTagPattern.matcher(line);
         if (m.find()) {
           int groupIndex = line.indexOf(m.group());
@@ -90,6 +95,12 @@ public class XmlFile {
     }
   }
 
+  private void checkBOM(String line) {
+    if (line.startsWith(BOM_CHAR)) {
+      characterDeltaForHighlight = -1;
+    }
+  }
+
   /**
    * Create a temporary file without any character before the prolog and update the following
    * attributes in order to correctly report issues:
@@ -107,8 +118,8 @@ public class XmlFile {
 
       noCharBeforePrologFile = tempFile;
 
-      if (characterDeltaForHighlight != -1) {
-        characterDeltaForHighlight = index;
+      if (index != -1) {
+        characterDeltaForHighlight += index;
       }
 
       if (lineDelta > 1) {

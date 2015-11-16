@@ -29,6 +29,7 @@ import org.sonar.plugins.xml.language.Xml;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -241,10 +242,10 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void tesCharBeforeProlog() throws Exception {
+  public void testCharBeforeProlog() throws Exception {
     File file = tmpFolder.newFile("char_before_prolog.xml");
     FileUtils.write(file, "\n\n\n<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
-      DefaultInputFile inputFile = new DefaultInputFile("char_before_prolog.xml")
+    DefaultInputFile inputFile = new DefaultInputFile("char_before_prolog.xml")
         .setLanguage(Xml.KEY)
         .setType(InputFile.Type.MAIN)
         .setAbsolutePath(file.getAbsolutePath());
@@ -267,6 +268,40 @@ public class XmlHighlightingTest {
     assertData(highlightingData.get(3), 23, 31, "c");
     // "UTF-8"
     assertData(highlightingData.get(4), 32, 39, "s");
+  }
+
+  @Test
+  public void testBOM() throws Exception {
+    HighlightingData firstHighlightingData = getFirstHighlightingData("bom.xml");
+    // <beans
+    assertData(firstHighlightingData, 0, 6, "k");
+  }
+
+  @Test
+  public void testBOMWithProlog() throws Exception {
+    HighlightingData firstHighlightingData = getFirstHighlightingData("bomWithProlog.xml");
+    // <?xml
+    assertData(firstHighlightingData, 0, 5, "k");
+  }
+
+  @Test
+  public void testBOMWithCharBeforeProlog() throws Exception {
+    HighlightingData firstHighlightingData = getFirstHighlightingData("bomCharBeforeProlog.xml");
+    // <?xml
+    assertData(firstHighlightingData, 1, 6, "k");
+  }
+
+  private HighlightingData getFirstHighlightingData(String filename) throws IOException {
+    File file = new File("src/test/resources/highlighting/" + filename);
+    DefaultInputFile inputFile = new DefaultInputFile(filename)
+        .setLanguage(Xml.KEY)
+        .setType(InputFile.Type.MAIN)
+        .setAbsolutePath(file.getAbsolutePath());
+    DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
+    localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
+
+    XmlFile xmlFile = new XmlFile(inputFile, localFS);
+    return new XMLHighlighting(xmlFile, localFS.encoding()).getHighlightingData().get(0);
   }
 
   private void assertData(HighlightingData data, Integer start, Integer end, String code) {

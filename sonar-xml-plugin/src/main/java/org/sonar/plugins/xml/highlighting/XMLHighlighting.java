@@ -81,7 +81,7 @@ public class XMLHighlighting {
     while (xmlReader.hasNext()) {
       Location prevLocation = xmlReader.getLocation();
       xmlReader.next();
-      int startOffset = xmlReader.getLocation().getCharacterOffset() ;//+ offsetDelta;
+      int startOffset = xmlReader.getLocation().getCharacterOffset();
 
       switch (xmlReader.getEventType()) {
         case XMLStreamConstants.START_ELEMENT:
