@@ -59,16 +59,16 @@ public final class LineCounter {
   public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile, Charset encoding) {
     LOG.debug("Count lines in " + xmlFile.getIOFile().getPath());
 
-      try {
-        saveMeasures(
-          xmlFile,
-          new LineCountParser(xmlFile.getIOFile(), encoding).getLineCountData(),
-          fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
+    try {
+      saveMeasures(
+        xmlFile,
+        new LineCountParser(xmlFile.getIOFile(), encoding).getLineCountData(),
+        fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
 
-      } catch (Exception e) {
-        LOG.warn("Unable to count lines for file: " + xmlFile.getIOFile().getAbsolutePath());
-        LOG.warn("Cause: ", e);
-      }
+    } catch (Exception e) {
+      LOG.warn("Unable to count lines for file: " + xmlFile.getIOFile().getAbsolutePath());
+      LOG.warn("Cause: ", e);
+    }
   }
 
 }

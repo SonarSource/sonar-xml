@@ -36,6 +36,7 @@ public final class XmlPlugin extends SonarPlugin {
 
   public static final String FILE_SUFFIXES_KEY = "sonar.xml.file.suffixes";
 
+  @Override
   public List getExtensions() {
     return ImmutableList.of(
 

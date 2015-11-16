@@ -54,6 +54,7 @@ public class Xml extends AbstractLanguage {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String[] getFileSuffixes() {
     String[] suffixes = filterEmptyStrings(settings.getStringArray(XmlPlugin.FILE_SUFFIXES_KEY));
     if (suffixes.length == 0) {

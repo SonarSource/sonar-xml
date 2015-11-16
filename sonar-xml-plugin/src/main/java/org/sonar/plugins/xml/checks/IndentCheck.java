@@ -33,7 +33,8 @@ import org.w3c.dom.Node;
  *
  * @author Matthijs Galesloot
  */
-@Rule(key = "IndentCheck",
+@Rule(
+  key = "IndentCheck",
   name = "Source code should be indented consistently",
   priority = Priority.MINOR,
   tags = {"convention"})
@@ -47,15 +48,15 @@ public class IndentCheck extends AbstractXmlCheck {
   @RuleProperty(
     key = "indentSize",
     description = "Number of white-spaces of an indent. If this property is not set, we just check that the code is indented.",
-    type = "INTEGER",
-    defaultValue = "2")
+    defaultValue = "2",
+    type = "INTEGER")
   private int indentSize = 2;
 
   @RuleProperty(
     key = "tabSize",
     description = "Equivalent number of spaces of a tabulation",
-    type = "INTEGER",
-    defaultValue = "2")
+    defaultValue = "2",
+    type = "INTEGER")
   private int tabSize = 2;
 
   /**
