@@ -19,6 +19,8 @@
  */
 package com.sonar.it.xml;
 
+import com.google.common.collect.Iterables;
+import com.google.common.io.PatternFilenameFilter;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
@@ -26,6 +28,9 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+
+import java.io.File;
+import java.util.Arrays;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -35,7 +40,9 @@ public class XmlTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(FileLocation.of("../../sonar-xml-plugin/target/sonar-xml-plugin.jar"))
+    .addPlugin(FileLocation.of(Iterables.getOnlyElement(Arrays.asList(
+      new File("../../sonar-xml-plugin/target/").listFiles(
+        new PatternFilenameFilter("sonar-xml-plugin-[\\.0-9]+(-SNAPSHOT)?.jar"))))))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-it-profile_xml.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .build();
