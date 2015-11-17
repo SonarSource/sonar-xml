@@ -129,6 +129,14 @@ public class XmlHighlightingTest {
   }
 
   @Test
+  public void testWindowsLineEndingInComment() throws Exception {
+    List<HighlightingData> highlightingData = new XMLHighlighting("<tag><!-- hello \r\n" +
+      " world!! --></tag>").getHighlightingData();
+    assertEquals(4, highlightingData.size());
+    assertData(highlightingData.get(2), 5, 30, "j");
+  }
+
+  @Test
   public void testAttributeValueWithEqual() throws Exception {
     List<HighlightingData> highlightingData = new XMLHighlighting("<meta content=\"charset=UTF-8\" />").getHighlightingData();
     assertEquals(5, highlightingData.size());

@@ -44,6 +44,9 @@ public class XMLHighlighting {
   private List<HighlightingData> highlighting = new ArrayList<>();
   private String content;
 
+  private int currentStartOffset = -1;
+  private String currentCode = null;
+
   private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
 
   public XMLHighlighting(XmlFile xmlFile, Charset charset) throws IOException {
@@ -82,6 +85,7 @@ public class XMLHighlighting {
       Location prevLocation = xmlReader.getLocation();
       xmlReader.next();
       int startOffset = xmlReader.getLocation().getCharacterOffset();
+      closeHighlighting(startOffset);
 
       switch (xmlReader.getEventType()) {
         case XMLStreamConstants.START_ELEMENT:
@@ -101,8 +105,7 @@ public class XMLHighlighting {
           break;
 
         case XMLStreamConstants.COMMENT:
-          // 7 is length of opening and closing symbols : "<!--" and "-->"
-          addHighlighting(startOffset, startOffset + xmlReader.getTextLength() + 7, "j");
+          addUnclosedHighlighting(startOffset, "j");
           break;
 
         default:
@@ -236,6 +239,18 @@ public class XMLHighlighting {
 
   private void addHighlighting(int startOffset, int endOffset, String code) {
     highlighting.add(new HighlightingData(startOffset + delta, endOffset + delta, code));
+  }
+
+  private void addUnclosedHighlighting(int startOffset, String code) {
+    currentStartOffset = startOffset;
+    currentCode = code;
+  }
+
+  private void closeHighlighting(int endOffset) {
+    if (currentCode != null) {
+      addHighlighting(currentStartOffset, endOffset, currentCode);
+      currentCode = null;
+    }
   }
 
 }
