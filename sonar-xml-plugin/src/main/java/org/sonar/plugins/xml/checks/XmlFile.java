@@ -37,7 +37,7 @@ public class XmlFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlFile.class);
   private static final String XML_PROLOG_START_TAG = "<?xml";
-  private static final String BOM_CHAR = "\ufeff";
+  public static final String BOM_CHAR = "\ufeff";
 
   private final InputFile inputFile;
 
@@ -69,17 +69,19 @@ public class XmlFile {
     try {
       int lineNb = 1;
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
+      boolean hasBOM = false;
 
       for (String line : Files.readLines(inputFile.file(), fileSystem.encoding())) {
-        if (lineNb == 1) {
-          checkBOM(line);
+        if (lineNb == 1 && line.startsWith(BOM_CHAR)) {
+          hasBOM = true;
+          characterDeltaForHighlight = -1;
         }
 
         Matcher m = firstTagPattern.matcher(line);
         if (m.find()) {
-          int groupIndex = line.indexOf(m.group());
+          int column = line.indexOf(m.group());
 
-          if (XML_PROLOG_START_TAG.equals(m.group()) && (groupIndex > 0 || lineNb > 1)) {
+          if (XML_PROLOG_START_TAG.equals(m.group()) && !isFileBeginning(lineNb, column, hasBOM)) {
             hasCharsBeforeProlog = true;
           }
           break;
@@ -95,10 +97,11 @@ public class XmlFile {
     }
   }
 
-  private void checkBOM(String line) {
-    if (line.startsWith(BOM_CHAR)) {
-      characterDeltaForHighlight = -1;
+  private static boolean isFileBeginning(int line, int column, boolean hasBOM) {
+    if (line == 1) {
+      return column <= (hasBOM ? 1 : 0);
     }
+    return false;
   }
 
   /**
@@ -155,4 +158,5 @@ public class XmlFile {
   public boolean hasCharsBeforeProlog() {
     return hasCharsBeforeProlog;
   }
+
 }

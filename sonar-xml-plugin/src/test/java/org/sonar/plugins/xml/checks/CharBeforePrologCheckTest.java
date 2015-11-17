@@ -39,4 +39,11 @@ public class CharBeforePrologCheckTest extends AbstractCheckTester {
     XmlSourceCode sourceCode = parseAndCheck(POM_FILE, new CharBeforePrologCheck());
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
+
+  @Test
+  public void ok_with_bom() throws Exception {
+    XmlSourceCode sourceCode = parseAndCheck(UTF8_BOM_FILE, new CharBeforePrologCheck());
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());    
+  }
+
 }

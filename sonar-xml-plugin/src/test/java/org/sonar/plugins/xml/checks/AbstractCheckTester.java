@@ -39,6 +39,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
   protected static final File SALES_ORDER_FILE = new File("src/test/resources/checks/generic/create-salesorder.xhtml");
   protected static final File SALES_ORDER2_FILE = new File("src/test/resources/checks/generic/create-salesorder2.xhtml");
   protected static final File CHAR_BEFORE_ROLOG_FILE = new File("src/test/resources/src/pom_with_chars_before_prolog.xml");
+  protected static final File UTF8_BOM_FILE = new File("src/test/resources/checks/generic/utf8-bom.xml");
   protected static final File SONARSOURCE_FILE = new File("src/test/resources/checks/generic/sonarsource.html");
 
   protected static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";

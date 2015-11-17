@@ -156,8 +156,8 @@ public class XMLHighlighting {
   }
 
   private void highlightXmlDeclaration() {
-    if (content.startsWith(XML_DECLARATION_TAG)) {
-      int startOffset = 0;
+    int startOffset = content.startsWith(XmlFile.BOM_CHAR) ? 1 : 0;
+    if (content.startsWith(XML_DECLARATION_TAG, startOffset)) {
       int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
 
       addHighlighting(startOffset, startOffset + XML_DECLARATION_TAG.length(), "k");
