@@ -3,7 +3,7 @@ Sonar XML plugin
 
 ### Build status
 
-[![Build Status](https://travis-ci.org/SonarCommunity/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarCommunity/sonar-xml)
+[![Build Status](https://travis-ci.org/SonarCommunity/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
 
 This is the Sonar XML plugin
 
