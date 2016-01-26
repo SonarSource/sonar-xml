@@ -122,13 +122,19 @@ public class XMLHighlighting {
   }
 
   private void highlightCData(int startOffset) {
+	if (!content.substring(startOffset).startsWith("<![CDATA[")) {
+		// Ignoring secondary CDATA event
+		// This has something to do with non-coalescing option of the XML parser
+		return;
+	}
+
     int closingBracketStartOffset = getCDATAClosingBracketStartOffset(startOffset);
 
     // 9 is length of "<![CDATA["
     addHighlighting(startOffset, startOffset + 9, "k");
 
     // highlight "]]>"
-    addHighlighting(closingBracketStartOffset - 2, closingBracketStartOffset + 1, "k");
+    addHighlighting(closingBracketStartOffset - 2, closingBracketStartOffset + 1, "k");	
   }
 
   private void highlightEndElement(XMLStreamReader xmlReader, Location prevLocation, int startOffset) {
@@ -211,10 +217,10 @@ public class XMLHighlighting {
   private int getCDATAClosingBracketStartOffset(int startOffset) {
     return getClosingBracketStartOffset(startOffset, true);
   }
-
+  
   private int getClosingBracketStartOffset(int startOffset, boolean isCDATA) {
     int counter = startOffset + 1;
-    while (startOffset < content.length()) {
+    while (counter < content.length()) {
       if (content.charAt(counter) == '>' && bracketsBefore(isCDATA, counter)) {
         return counter;
       }

@@ -41,4 +41,43 @@ public class HighlightingData {
     return highlightCode;
   }
 
+  
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((endOffset == null) ? 0 : endOffset.hashCode());
+    result = prime * result + ((highlightCode == null) ? 0 : highlightCode.hashCode());
+    result = prime * result + ((startOffset == null) ? 0 : startOffset.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    HighlightingData other = (HighlightingData) obj;
+    if (endOffset == null) {
+      if (other.endOffset != null)
+        return false;
+    } else if (!endOffset.equals(other.endOffset))
+      return false;
+    if (highlightCode == null) {
+      if (other.highlightCode != null)
+        return false;
+    } else if (!highlightCode.equals(other.highlightCode))
+      return false;
+    if (startOffset == null) {
+      if (other.startOffset != null)
+        return false;
+    } else if (!startOffset.equals(other.startOffset))
+      return false;
+    return true;
+  }
+
 }
