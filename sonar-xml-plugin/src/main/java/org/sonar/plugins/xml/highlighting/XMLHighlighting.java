@@ -122,6 +122,12 @@ public class XMLHighlighting {
   }
 
   private void highlightCData(int startOffset) {
+    if (!content.substring(startOffset).startsWith("<![CDATA[")) {
+      // Ignoring secondary CDATA event
+      // See https://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamReader.html#next()
+      return;
+    }
+
     int closingBracketStartOffset = getCDATAClosingBracketStartOffset(startOffset);
 
     // 9 is length of "<![CDATA["
@@ -214,7 +220,7 @@ public class XMLHighlighting {
 
   private int getClosingBracketStartOffset(int startOffset, boolean isCDATA) {
     int counter = startOffset + 1;
-    while (startOffset < content.length()) {
+    while (counter < content.length()) {
       if (content.charAt(counter) == '>' && bracketsBefore(isCDATA, counter)) {
         return counter;
       }

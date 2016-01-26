@@ -18,6 +18,11 @@
 package org.sonar.plugins.xml.highlighting;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,11 +32,6 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.language.Xml;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -175,6 +175,17 @@ public class XmlHighlightingTest {
     assertEquals(5, highlightingData.size());
     assertData(highlightingData.get(2), 5, 14, "k");
     assertData(highlightingData.get(3), 22, 25, "k");
+  }
+
+  @Test
+  public void testBigCDATA() throws Exception {
+    String cdataContent = Strings.repeat("x", 100000);
+    List<HighlightingData> highlightingData = new XMLHighlighting(
+      "<tag><![CDATA[" + cdataContent + "]]></tag>").getHighlightingData();
+    assertEquals(5, highlightingData.size());
+    assertData(highlightingData.get(2), 5, 14, "k");
+    int expectedCDataEndOffset = 14 + cdataContent.length();
+    assertData(highlightingData.get(3), expectedCDataEndOffset, expectedCDataEndOffset + 3, "k");
   }
 
   @Test
