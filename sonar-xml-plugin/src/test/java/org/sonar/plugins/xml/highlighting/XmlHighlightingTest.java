@@ -31,7 +31,9 @@ import org.sonar.plugins.xml.language.Xml;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -59,6 +61,24 @@ public class XmlHighlightingTest {
     assertData(highlightingData.get(4), 39, 45, "k");
   }
 
+  
+  @Test
+  public void testCDATAWithJavaCodeInside() throws Exception {
+	String content = "<bpelx:exec xmlns:bpelx=\"http://schemas.oracle.com/bpel/extension\" name=\"SetTitleForDashboard\" version=\"1.5\"\r\n" + 
+    		"                            language=\"java\">\r\n" + 
+    		"                    <![CDATA[String orderId = ((oracle.xml.parser.v2.XMLElement) getVariableData(\"inputVariable\",\"payload\",\"/ns5:StartRatingPlatformOmsAdapterProcessRequest/ns2:OrderId\")).getFirstChild().getNodeValue();         \r\n" + 
+    		"String title = \"RatingPlatformOmsAdapterProcess\" + \" for Order \" + orderId;      \r\n" + 
+    		"setCompositeInstanceTitle(title);]]>\r\n" + 
+    		"                </bpelx:exec>";
+    List<HighlightingData> highlightingDataList = new XMLHighlighting(content).getHighlightingData();
+    
+    Set<HighlightingData> highlightingSet = new HashSet<HighlightingData>(highlightingDataList);
+    assertThat(!highlightingDataList.isEmpty());
+    assertEquals(highlightingSet.size(), highlightingDataList.size());
+  }
+  
+  
+  
   @Test
   public void testCDATAWithBracketInside() throws Exception {
     List<HighlightingData> highlightingData = new XMLHighlighting("<tag><![CDATA[aa]>bb]]></tag>").getHighlightingData();
