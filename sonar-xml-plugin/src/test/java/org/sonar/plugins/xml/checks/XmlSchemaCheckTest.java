@@ -117,8 +117,12 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
   @Test(expected = IllegalStateException.class)
   public void unknown_dom_implementation() throws Exception {
-    System.setProperty(DOMImplementationRegistry.PROPERTY, "unknown.class.name");
-    parseAndCheck(SALES_ORDER_FILE, createCheck("xhtml1-transitional", null));
+    try {
+      System.setProperty(DOMImplementationRegistry.PROPERTY, "unknown.class.name");
+      parseAndCheck(SALES_ORDER_FILE, createCheck("xhtml1-transitional", null));
+    } finally {
+      System.clearProperty(DOMImplementationRegistry.PROPERTY);
+    }
   }
   
   @Test
