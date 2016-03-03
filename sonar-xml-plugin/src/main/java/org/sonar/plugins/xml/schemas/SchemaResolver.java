@@ -35,6 +35,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 
 /**
  * Resolves references to XML schema's, if possible built-in.
@@ -148,6 +149,7 @@ public final class SchemaResolver implements LSResourceResolver {
   /**
    * Get a built-in XML schema.
    */
+  @CheckForNull
   public static InputStream getBuiltinSchema(String systemId) {
     InputStream input;
 
