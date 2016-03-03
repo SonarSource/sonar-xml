@@ -19,12 +19,9 @@ package org.sonar.plugins.xml.parsers;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.xml.parsers.SAXParser;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.xerces.impl.Constants;
-import org.sonar.api.utils.SonarException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -69,18 +66,22 @@ public final class DetectSchemaParser extends AbstractParser {
 
     private Doctype doctype = new Doctype();
 
+    @Override
     public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
       // empty
     }
 
+    @Override
     public void endCDATA() throws SAXException {
       // empty
     }
 
+    @Override
     public void endDTD() throws SAXException {
       // empty
     }
 
+    @Override
     public void endEntity(String name) throws SAXException {
       // empty
     }
@@ -90,10 +91,12 @@ public final class DetectSchemaParser extends AbstractParser {
       // ignore
     }
 
+    @Override
     public void startCDATA() throws SAXException {
       // empty
     }
 
+    @Override
     public void startDTD(String name, String publicId, String systemId) throws SAXException {
       doctype.dtd = publicId;
     }
@@ -106,6 +109,7 @@ public final class DetectSchemaParser extends AbstractParser {
       throw new StopParserException();
     }
 
+    @Override
     public void startEntity(String name) throws SAXException {
       // empty
     }
@@ -124,12 +128,10 @@ public final class DetectSchemaParser extends AbstractParser {
       xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
       parser.parse(input, handler);
       return handler.doctype;
-    } catch (IOException e) {
-      throw new SonarException(e);
     } catch (StopParserException e) {
       return handler.doctype;
-    } catch (SAXException e) {
-      throw new SonarException(e);
+    } catch (IOException | SAXException e) {
+      throw new IllegalStateException(e);
     } finally {
       IOUtils.closeQuietly(input);
     }

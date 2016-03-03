@@ -17,6 +17,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.util.Iterator;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.check.Priority;
@@ -25,14 +32,6 @@ import org.sonar.check.RuleProperty;
 import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.util.Iterator;
 
 @Rule(
   key = "XPathCheck",
@@ -61,15 +60,18 @@ public class XPathCheck extends AbstractXmlCheck {
       this.resolver = resolver;
     }
 
+    @Override
     public String getNamespaceURI(String prefix) {
       return resolver.getNamespaceForPrefix(prefix);
     }
 
+    @Override
     // Dummy implementation - not used!
     public String getPrefix(String uri) {
       return null;
     }
 
+    @Override
     // Dummy implementation - not used!
     public Iterator<Object> getPrefixes(String val) {
       return null;

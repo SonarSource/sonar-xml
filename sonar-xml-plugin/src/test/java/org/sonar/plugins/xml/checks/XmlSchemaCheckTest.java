@@ -17,10 +17,8 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
-import org.sonar.api.utils.SonarException;
-
 import java.io.FileNotFoundException;
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.Assertions.assertThat;
@@ -31,7 +29,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class XmlSchemaCheckTest extends AbstractCheckTester {
 
 
-  @Test(expected = SonarException.class)
+  @Test(expected = IllegalStateException.class)
   public void missing_schema() throws FileNotFoundException {
     parseAndCheck(AANKONDIGINGEN_FILE, createCheck("does-not-exist", null));
   }

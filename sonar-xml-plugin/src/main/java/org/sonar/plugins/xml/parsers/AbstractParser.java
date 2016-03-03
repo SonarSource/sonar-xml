@@ -17,13 +17,11 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import org.apache.xerces.jaxp.SAXParserFactoryImpl;
-import org.sonar.api.utils.SonarException;
-import org.xml.sax.SAXException;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.xerces.jaxp.SAXParserFactoryImpl;
+import org.xml.sax.SAXException;
 
 /**
  * Provides reusable code for Xml parsers.
@@ -53,10 +51,8 @@ public abstract class AbstractParser {
   protected SAXParser newSaxParser(boolean namespaceAware) {
     try {
       return namespaceAware ? SAX_FACTORY_NAMESPCE_AWARE.newSAXParser() : SAX_FACTORY_NAMESPCE_UNAWARE.newSAXParser();
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
+    } catch (SAXException | ParserConfigurationException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -68,10 +64,8 @@ public abstract class AbstractParser {
       factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
       factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
       factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    } catch (SAXException e) {
-      throw new SonarException(e);
-    } catch (ParserConfigurationException e) {
-      throw new SonarException(e);
+    } catch (SAXException | ParserConfigurationException e) {
+      throw new IllegalStateException(e);
     }
   }
 

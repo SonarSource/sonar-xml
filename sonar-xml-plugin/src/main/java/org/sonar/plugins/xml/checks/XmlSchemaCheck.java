@@ -17,12 +17,23 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -35,19 +46,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
-
-import javax.xml.XMLConstants;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Perform schema check using xerces parser.
@@ -95,14 +93,17 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       }
     }
 
+    @Override
     public void error(SAXParseException e) throws SAXException {
       createViolation(e);
     }
 
+    @Override
     public void fatalError(SAXParseException e) throws SAXException {
       createViolation(e);
     }
 
+    @Override
     public void warning(SAXParseException e) throws SAXException {
       createViolation(e);
     }
@@ -140,7 +141,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     for (String schemaReference : schemaList) {
       InputStream input = SchemaResolver.getBuiltinSchema(schemaReference);
       if (input == null) {
-        throw new SonarException("Could not load schema: " + schemaReference);
+        throw new IllegalStateException("Could not load schema: " + schemaReference);
       }
       schemaSources.add(new StreamSource(input));
     }
@@ -154,7 +155,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       CACHED_SCHEMAS.put(cacheKey, schema);
       return schema;
     } catch (SAXException e) {
-      throw new SonarException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -209,10 +210,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   private static void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);
-    } catch (SAXNotRecognizedException e) {
-      throw new SonarException(e);
-    } catch (SAXNotSupportedException e) {
-      throw new SonarException(e);
+    } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -252,7 +251,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       }
 
     } catch (IOException e) {
-      throw new SonarException(e);
+      throw new IllegalStateException(e);
 
     } catch (UnrecoverableParseError e) {
       // ignore, message already reported.

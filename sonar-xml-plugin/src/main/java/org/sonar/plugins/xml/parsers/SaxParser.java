@@ -17,6 +17,13 @@
  */
 package org.sonar.plugins.xml.parsers;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -28,14 +35,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Parse XML files and add linenumbers in the document.
@@ -160,6 +159,7 @@ public final class SaxParser extends AbstractParser {
     /**
      * Comment node (needed for white space checking).
      */
+    @Override
     public void comment(char[] buf, int offset, int length) throws SAXException {
       Node n = doc.createComment(new String(buf, offset, length));
       setLocationData(n);
@@ -170,26 +170,32 @@ public final class SaxParser extends AbstractParser {
       }
     }
 
+    @Override
     public void endCDATA() throws SAXException {
       // empty - Lexical Handler method
     }
 
+    @Override
     public void endDTD() throws SAXException {
       // empty - Lexical Handler method
     }
 
+    @Override
     public void endEntity(String arg0) throws SAXException {
       // empty - Lexical Handler method
     }
 
+    @Override
     public void startCDATA() throws SAXException {
       // empty - Lexical Handler method
     }
 
+    @Override
     public void startDTD(String arg0, String arg1, String arg2) throws SAXException {
       // empty - Lexical Handler method
     }
 
+    @Override
     public void startEntity(String arg0) throws SAXException {
       // empty - Lexical Handler method
     }
