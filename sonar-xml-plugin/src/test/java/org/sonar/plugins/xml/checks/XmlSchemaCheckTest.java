@@ -17,8 +17,17 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.Assertions.assertThat;
@@ -28,6 +37,8 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class XmlSchemaCheckTest extends AbstractCheckTester {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test(expected = IllegalStateException.class)
   public void missing_schema() throws FileNotFoundException {
@@ -102,6 +113,22 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   public void violate_strict_html1_check() throws FileNotFoundException {
     XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, createCheck("xhtml1-strict", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void unknown_dom_implementation() throws Exception {
+    System.setProperty(DOMImplementationRegistry.PROPERTY, "unknown.class.name");
+    parseAndCheck(SALES_ORDER_FILE, createCheck("xhtml1-transitional", null));
+  }
+  
+  @Test
+  public void invalid_sax_feature() throws Exception {
+    FileInputStream inputStream = new FileInputStream("src/main/resources/org/sonar/plugins/xml/schemas/xml.xsd");
+    Schema schema = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new StreamSource(inputStream));
+    Validator validator = schema.newValidator();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("xxx");
+    XmlSchemaCheck.setFeature(validator, "xxx", true);
   }
 
   private static XmlSchemaCheck createCheck(String schema, String filePattern) {

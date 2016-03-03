@@ -17,6 +17,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -207,7 +208,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     return schemas;
   }
 
-  private static void setFeature(Validator validator, String feature, boolean value) {
+  @VisibleForTesting
+  static void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);
     } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
