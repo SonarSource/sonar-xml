@@ -53,7 +53,7 @@ public class NewlineCheck extends AbstractXmlCheck {
       short nodeType = child.getNodeType();
 
       if (nodeType == Node.COMMENT_NODE) {
-          lastChild = child;
+        lastChild = child;
 
       } else if (nodeType == Node.ELEMENT_NODE) {
         // check if there is a new node before we have had any newlines.

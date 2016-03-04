@@ -118,6 +118,19 @@ public class IndentCheckTest extends AbstractCheckTester {
     assertThat(issues.get(0).getLine()).isEqualTo(3);
   }
 
+  @Test
+  public void comment_before_tag() throws Exception {
+    List<XmlIssue> issues = getIssues(
+      "<html>\n" +
+        "  <body>\n" +
+        "     <!--comment--><tag/>\n" +
+        "  </body>\n" +
+        "</html>");
+
+    assertEquals(1, issues.size());
+    assertThat(issues.get(0).getLine()).isEqualTo(3);
+  }
+
   private List<XmlIssue> getIssues(String content) throws IOException {
     XmlSourceCode sourceCode = parseAndCheck(
       createTempFile(content),

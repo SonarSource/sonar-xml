@@ -65,37 +65,35 @@ public class IndentCheck extends AbstractXmlCheck {
   private int collectIndent(Node node) {
     int indent = 0;
     for (Node sibling = node.getPreviousSibling(); sibling != null; sibling = sibling.getPreviousSibling()) {
-      switch (sibling.getNodeType()) {
-        case Node.COMMENT_NODE:
-        case Node.ELEMENT_NODE:
+      short nodeType = sibling.getNodeType();
+
+      if (nodeType == Node.COMMENT_NODE || nodeType == Node.ELEMENT_NODE) {
+        return indent;
+
+      } else if (nodeType == Node.TEXT_NODE) {
+        String text = sibling.getTextContent();
+        if (!StringUtils.isWhitespace(text)) {
+          // non whitespace found, we are done
           return indent;
-        case Node.TEXT_NODE:
-          String text = sibling.getTextContent();
-          if (!StringUtils.isWhitespace(text)) {
-            // non whitespace found, we are done
-            return indent;
+        }
+        for (int i = text.length() - 1; i >= 0; i--) {
+          char c = text.charAt(i);
+          switch (c) {
+            case '\n':
+              // newline found, we are done
+              return indent;
+            case '\t':
+              // add tabsize
+              indent += tabSize;
+              break;
+            case ' ':
+              // add one space
+              indent++;
+              break;
+            default:
+              break;
           }
-          for (int i = text.length() - 1; i >= 0; i--) {
-            char c = text.charAt(i);
-            switch (c) {
-              case '\n':
-                // newline found, we are done
-                return indent;
-              case '\t':
-                // add tabsize
-                indent += tabSize;
-                break;
-              case ' ':
-                // add one space
-                indent++;
-                break;
-              default:
-                break;
-            }
-          }
-          break;
-        default:
-          break;
+        }
       }
     }
     return indent;
