@@ -17,6 +17,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import javax.xml.XMLConstants;
@@ -112,6 +113,19 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   @Test(expected = IllegalStateException.class)
   public void invalid_schema() throws Exception {
     parseAndCheck(CATALOG_FILE, createCheck("src/test/resources/checks/XmlSchemaCheck/invalid.xsd", null));
+  }
+
+  @Test
+  public void schema_as_resource() throws FileNotFoundException {
+    XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck("/org/sonar/plugins/xml/schemas/xml.xsd", null));
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
+  }
+
+  @Test
+  public void schema_as_url() throws FileNotFoundException {
+    String url = "file://" + new File(".").getAbsolutePath() + "/src/test/resources/checks/generic/catalog.xsd";
+    XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck(url, null));
+    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
