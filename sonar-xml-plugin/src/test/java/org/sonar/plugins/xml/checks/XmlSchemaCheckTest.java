@@ -123,7 +123,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
   @Test
   public void schema_as_url() throws FileNotFoundException {
-    String url = "file://" + new File(".").getAbsolutePath() + "/src/test/resources/checks/generic/catalog.xsd";
+    String url = new File("src/test/resources/checks/generic/catalog.xsd").getAbsoluteFile().toURI().toString();
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck(url, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
