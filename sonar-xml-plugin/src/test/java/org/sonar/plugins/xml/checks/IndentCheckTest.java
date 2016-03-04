@@ -17,10 +17,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.List;
+import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -104,6 +103,19 @@ public class IndentCheckTest extends AbstractCheckTester {
     );
 
     assertEquals(0, issues.size());
+  }
+
+  @Test
+  public void non_whitespace_characters() throws Exception {
+    List<XmlIssue> issues = getIssues(
+      "<html>\n" +
+        "  <body>\n" +
+        "     xx<tag/>\n" +
+        "  </body>\n" +
+        "</html>");
+
+    assertEquals(1, issues.size());
+    assertThat(issues.get(0).getLine()).isEqualTo(3);
   }
 
   private List<XmlIssue> getIssues(String content) throws IOException {
