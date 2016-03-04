@@ -30,27 +30,27 @@ import org.xml.sax.SAXException;
  */
 public abstract class AbstractParser {
 
-  private static final SAXParserFactory SAX_FACTORY_NAMESPCE_AWARE;
-  private static final SAXParserFactory SAX_FACTORY_NAMESPCE_UNAWARE;
+  private static final SAXParserFactory SAX_FACTORY_NAMESPACE_AWARE;
+  private static final SAXParserFactory SAX_FACTORY_NAMESPACE_UNAWARE;
 
   /**
    * Build the SAXParserFactory.
    */
   static {
 
-    SAX_FACTORY_NAMESPCE_AWARE = new SAXParserFactoryImpl();
-    SAX_FACTORY_NAMESPCE_UNAWARE = new SAXParserFactoryImpl();
+    SAX_FACTORY_NAMESPACE_AWARE = new SAXParserFactoryImpl();
+    SAX_FACTORY_NAMESPACE_UNAWARE = new SAXParserFactoryImpl();
 
-    setCommonConf(SAX_FACTORY_NAMESPCE_AWARE);
-    SAX_FACTORY_NAMESPCE_AWARE.setNamespaceAware(true);
+    setCommonConf(SAX_FACTORY_NAMESPACE_AWARE);
+    SAX_FACTORY_NAMESPACE_AWARE.setNamespaceAware(true);
 
-    setCommonConf(SAX_FACTORY_NAMESPCE_UNAWARE);
-    SAX_FACTORY_NAMESPCE_UNAWARE.setNamespaceAware(false);
+    setCommonConf(SAX_FACTORY_NAMESPACE_UNAWARE);
+    SAX_FACTORY_NAMESPACE_UNAWARE.setNamespaceAware(false);
   }
 
   protected SAXParser newSaxParser(boolean namespaceAware) {
     try {
-      return namespaceAware ? SAX_FACTORY_NAMESPCE_AWARE.newSAXParser() : SAX_FACTORY_NAMESPCE_UNAWARE.newSAXParser();
+      return namespaceAware ? SAX_FACTORY_NAMESPACE_AWARE.newSAXParser() : SAX_FACTORY_NAMESPACE_UNAWARE.newSAXParser();
     } catch (SAXException | ParserConfigurationException e) {
       throw new IllegalStateException(e);
     }
