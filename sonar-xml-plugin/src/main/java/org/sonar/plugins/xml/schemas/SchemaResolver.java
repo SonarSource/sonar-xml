@@ -42,6 +42,7 @@ import org.w3c.dom.ls.LSResourceResolver;
  */
 public final class SchemaResolver implements LSResourceResolver {
 
+  private static final String XHTML1_STRICT_XSD = "xhtml1/xhtml1-strict.xsd";
   private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<>();
   private static final Map<String, String> DTD_BUILTIN = new HashMap<>();
@@ -54,15 +55,15 @@ public final class SchemaResolver implements LSResourceResolver {
     SCHEMAS_BUILTIN.put("http://www.w3.org/XML/1998/namespace", "xml.xsd");
 
     // XHTML 1.0 - by Doctype
-    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", "xhtml1/xhtml1-strict.xsd");
+    SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Strict//EN", XHTML1_STRICT_XSD);
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Transitional//EN", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("-//W3C//DTD XHTML 1.0 Frameset//EN", "xhtml1/xhtml1-frameset.xsd");
 
     // XHTML 1.0 - by namespace
-    SCHEMAS_BUILTIN.put("http://www.w3.org/1999/xhtml", "xhtml1/xhtml1-strict.xsd");
+    SCHEMAS_BUILTIN.put("http://www.w3.org/1999/xhtml", XHTML1_STRICT_XSD);
 
     // XHTML 1.0 - by shortname
-    SCHEMAS_BUILTIN.put("xhtml1-strict", "xhtml1/xhtml1-strict.xsd");
+    SCHEMAS_BUILTIN.put("xhtml1-strict", XHTML1_STRICT_XSD);
     SCHEMAS_BUILTIN.put("xhtml1-transitional", "xhtml1/xhtml1-transitional.xsd");
     SCHEMAS_BUILTIN.put("xhtml1-frameset", "xhtml1/xhtml1-frameset.xsd");
 

@@ -71,28 +71,27 @@ public class IndentCheck extends AbstractXmlCheck {
           return indent;
         case Node.TEXT_NODE:
           String text = sibling.getTextContent();
-          if (StringUtils.isWhitespace(text)) {
-            for (int i = text.length() - 1; i >= 0; i--) {
-              char c = text.charAt(i);
-              switch (c) {
-                case '\n':
-                  // newline found, we are done
-                  return indent;
-                case '\t':
-                  // add tabsize
-                  indent += tabSize;
-                  break;
-                case ' ':
-                  // add one space
-                  indent++;
-                  break;
-                default:
-                  break;
-              }
-            }
-          } else {
+          if (!StringUtils.isWhitespace(text)) {
             // non whitespace found, we are done
             return indent;
+          }
+          for (int i = text.length() - 1; i >= 0; i--) {
+            char c = text.charAt(i);
+            switch (c) {
+              case '\n':
+                // newline found, we are done
+                return indent;
+              case '\t':
+                // add tabsize
+                indent += tabSize;
+                break;
+              case ' ':
+                // add one space
+                indent++;
+                break;
+              default:
+                break;
+            }
           }
           break;
         default:
