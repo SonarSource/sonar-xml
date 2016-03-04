@@ -109,6 +109,11 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     assertThat(sourceCode.getXmlIssues().get(0).getLine()).isEqualTo(5);
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void invalid_schema() throws Exception {
+    parseAndCheck(CATALOG_FILE, createCheck("src/test/resources/checks/XmlSchemaCheck/invalid.xsd", null));
+  }
+
   @Test
   public void violate_strict_html1_check() throws FileNotFoundException {
     XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, createCheck("xhtml1-strict", null));

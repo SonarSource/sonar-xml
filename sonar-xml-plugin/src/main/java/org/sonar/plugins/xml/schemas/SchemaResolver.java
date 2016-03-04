@@ -150,28 +150,30 @@ public final class SchemaResolver implements LSResourceResolver {
 
     // try as namespace
     input = getBuiltinSchemaByNamespace(systemId);
-
+    if (input != null) {
+      return input;
+    }
+    
     // try as built-in resource
-    if (input == null) {
-      input = getBuiltinSchemaByFileName(systemId);
-
-      // try as url resource
-      if (input == null) {
-        input = getSchemaByURL(systemId);
-
-        // try as file system resource
-        if (input == null) {
-          try {
-            input = new FileInputStream(systemId);
-          } catch (FileNotFoundException e) {
-            LOG.warn("Could not find schema " + systemId);
-            return null;
-          }
-        }
-      }
+    input = getBuiltinSchemaByFileName(systemId);
+    if (input != null) {
+      return input;
     }
 
-    return input;
+    // try as url resource
+    input = getSchemaByURL(systemId);
+    if (input != null) {
+      return input;
+    }
+
+    // try as file system resource
+
+    try {
+      return new FileInputStream(systemId);
+    } catch (FileNotFoundException e) {
+      LOG.warn("Could not find schema " + systemId);
+      return null;
+    }
   }
 
   /**

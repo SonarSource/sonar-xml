@@ -78,7 +78,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   private String schemas;
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
-  private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap();
+  private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<>();
   public static final String DEFAULT_SCHEMA = "autodetect";
 
   /**
