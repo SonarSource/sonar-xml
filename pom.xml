@@ -10,7 +10,7 @@
 
   <groupId>org.sonarsource.xml</groupId>
   <artifactId>xml</artifactId>
-  <version>1.4.1</version>
+  <version>1.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>XML</name>
@@ -56,7 +56,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-xml.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-xml.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-xml</url>
-    <tag>1.4.1</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
