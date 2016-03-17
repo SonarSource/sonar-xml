@@ -1,7 +1,7 @@
 /*
- * XML :: IT
- * Copyright (C) 2013 ${owner}
- * dev@sonar.codehaus.org
+ * SonarQube XML Plugin
+ * Copyright (C) 2013-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -13,9 +13,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package com.sonar.it.xml;
 
@@ -40,9 +40,7 @@ public class XmlTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(FileLocation.of(Iterables.getOnlyElement(Arrays.asList(
-      new File("../../sonar-xml-plugin/target/").listFiles(
-        new PatternFilenameFilter("sonar-xml-plugin-[\\.0-9]+(-SNAPSHOT)?.jar"))))))
+    .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-it-profile_xml.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .build();

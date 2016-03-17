@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>29</version>
+    <version>31</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -71,6 +71,7 @@
     <sonar.version>4.5.4</sonar.version>
     <sslrVersion>1.20</sslrVersion>
     <sslrSquidVersion>2.6</sslrSquidVersion>
+    <gitRepositoryName>sonar-xml</gitRepositoryName>
   </properties>
 
   <dependencyManagement>
@@ -145,4 +146,12 @@
     </dependencies>
   </dependencyManagement>
 
+  <profiles>
+    <profile>
+      <id>its</id>
+      <modules>
+        <module>its</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
