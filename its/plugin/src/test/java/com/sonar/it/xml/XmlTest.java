@@ -60,8 +60,16 @@ public class XmlTest {
 
   @Test
   public void should_be_compatible_with_DevCockpit() {
-    assertThat(getFileMeasure("ncloc_data").getData()).contains(";7=1;8=0;9=0;10=0;11=1");
-    assertThat(getFileMeasure("comment_lines_data").getData()).contains(";6=0;7=0;8=0;9=1;");
+    assertThat(getFileMeasure("ncloc_data").getData())
+      .contains(";7=1")
+      .doesNotContain("8=1")
+      .doesNotContain("9=1")
+      .doesNotContain("10=1")
+      .contains(";11=1");
+
+    assertThat(getFileMeasure("comment_lines_data").getData())
+      .contains("9=1")
+      .doesNotContain("10=1");
   }
 
   @Test // SONARXML-19
