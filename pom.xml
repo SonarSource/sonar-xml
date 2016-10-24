@@ -72,6 +72,9 @@
     <sslrVersion>1.20</sslrVersion>
     <sslrSquidVersion>2.6</sslrSquidVersion>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
+
+    <!-- Release: enable publication to Bintray -->
+    <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
   </properties>
 
   <dependencyManagement>
