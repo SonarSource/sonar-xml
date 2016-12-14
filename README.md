@@ -1,11 +1,6 @@
-Sonar XML plugin
-=========================
+# SonarXML [![Build Status](https://travis-ci.org/SonarCommunity/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
 
-### Build status
-
-[![Build Status](https://travis-ci.org/SonarCommunity/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
-
-This is the Sonar XML plugin
+SonarXML is a code analyzer for XML files.
 
 Project homepage:
 http://docs.sonarqube.org/display/PLUG/XML+Plugin
