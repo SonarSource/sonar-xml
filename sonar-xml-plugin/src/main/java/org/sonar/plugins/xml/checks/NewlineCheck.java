@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
@@ -78,7 +79,10 @@ public class NewlineCheck extends AbstractXmlCheck {
     // validate first last child.
     validateLastChild(newline, lastChild);
 
-    // check the child elements
+    checkChildElements(node);
+  }
+
+  private void checkChildElements(Node node) {
     for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
       if (child.getNodeType() == Node.ELEMENT_NODE) {
         validateNewline(child);
@@ -86,7 +90,7 @@ public class NewlineCheck extends AbstractXmlCheck {
     }
   }
 
-  private void validateLastChild(boolean newlineAfterLastChild, Node lastChild) {
+  private void validateLastChild(boolean newlineAfterLastChild, @Nullable Node lastChild) {
     if (!newlineAfterLastChild && lastChild != null) {
       createViolation(getWebSourceCode().getLineForNode(lastChild), "Missing newline after last element");
     }

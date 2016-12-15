@@ -55,8 +55,8 @@ public class XMLHighlighting {
     content = Files.toString(xmlFile.getIOFile(), charset);
     delta = xmlFile.getOffsetDelta();
 
-    try {
-      highlightXML(new InputStreamReader(new FileInputStream(xmlFile.getIOFile()), charset));
+    try (FileInputStream fileInputStream = new FileInputStream(xmlFile.getIOFile())) {
+      highlightXML(new InputStreamReader(fileInputStream, charset));
     } catch (XMLStreamException e) {
       LOG.warn("Can't highlight following file : " + xmlFile.getIOFile().getAbsolutePath(), e);
     }

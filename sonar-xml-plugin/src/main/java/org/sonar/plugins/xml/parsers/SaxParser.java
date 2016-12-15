@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public final class SaxParser extends AbstractParser {
 
     // Admittedly, this is largely lifted from other examples
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attrs) {
+    public void startElement(String uri, @Nullable String localName, String qName, @Nullable Attributes attrs) {
       Element e;
       if (localName != null && !"".equals(localName)) {
         e = doc.createElementNS(uri, localName);

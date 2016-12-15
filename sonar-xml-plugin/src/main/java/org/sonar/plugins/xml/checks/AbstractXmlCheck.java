@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -43,7 +44,7 @@ public abstract class AbstractXmlCheck {
   /**
    * Check with ant style filepattern if the file is included.
    */
-  protected boolean isFileIncluded(String filePattern) {
+  protected boolean isFileIncluded(@Nullable String filePattern) {
     if (filePattern != null) {
       return WildcardPattern.create(filePattern)
         .match(getWebSourceCode().getLogicalPath());
