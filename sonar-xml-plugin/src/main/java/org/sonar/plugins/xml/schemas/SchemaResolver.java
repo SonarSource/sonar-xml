@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +110,7 @@ public final class SchemaResolver implements LSResourceResolver {
 
   private static final String[] SCHEMA_FOLDERS = new String[] {"xhtml1", "jsf"};
 
-  private static LSInput createLSInput(InputStream inputStream) {
+  private static LSInput createLSInput(@Nullable InputStream inputStream) {
     if (inputStream != null) {
       try {
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
@@ -233,7 +234,7 @@ public final class SchemaResolver implements LSResourceResolver {
    * ResourceResolver tries to resolve schema's and dtd's with built-in resources or external files.
    */
   @Override
-  public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
+  public LSInput resolveResource(String type, String namespaceURI, @Nullable String publicId, String systemId, String baseURI) {
 
     LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
 
