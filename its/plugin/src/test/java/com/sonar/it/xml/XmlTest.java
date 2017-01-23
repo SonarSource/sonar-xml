@@ -21,16 +21,14 @@ package com.sonar.it.xml;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
+import java.io.File;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Measure;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.WsMeasures.Measure;
 
-import java.io.File;
-
+import static com.sonar.it.xml.XmlTestSuite.getMeasure;
+import static com.sonar.it.xml.XmlTestSuite.getMeasureAsDouble;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class XmlTest {
@@ -38,43 +36,41 @@ public class XmlTest {
   @ClassRule
   public static Orchestrator orchestrator = XmlTestSuite.ORCHESTRATOR;
 
-  private static Sonar sonar;
   private static final String PROJECT = "xml-sonar-runner";
   private static final String FILE_TOKEN_PARSER = "xml-sonar-runner" + ":src/spring.xml";
 
   @BeforeClass
   public static void inspect() throws Exception {
-    sonar = orchestrator.getServer().getWsClient();
     inspectProject(PROJECT);
   }
 
   @Test
   public void testBaseMetrics() {
-    assertThat(getProjectMeasure("lines").getValue()).isEqualTo(319);
-    assertThat(getProjectMeasure("ncloc").getValue()).isEqualTo(282);
-    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(1.4);
-    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("files").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("violations").getIntValue()).isEqualTo(19);
+    assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(319);
+    assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(282);
+    assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(1.4);
+    assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(4);
+    assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4);
+    assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(19);
   }
 
   @Test
   public void should_be_compatible_with_DevCockpit() {
-    assertThat(getFileMeasure("ncloc_data").getData())
+    assertThat(getFileMeasure("ncloc_data").getValue())
       .contains(";7=1")
       .doesNotContain("8=1")
       .doesNotContain("9=1")
       .doesNotContain("10=1")
       .contains(";11=1");
 
-    assertThat(getFileMeasure("comment_lines_data").getData())
+    assertThat(getFileMeasure("comment_lines_data").getValue())
       .contains("9=1")
       .doesNotContain("10=1");
   }
 
   @Test // SONARXML-19
   public void should_correctly_count_lines_when_char_before_prolog() {
-    assertThat(getFileMeasure("lines").getValue()).isEqualTo(14);
+    assertThat(getFileMeasureAsDouble("lines")).isEqualTo(14);
   }
 
   private static void inspectProject(String name) throws InterruptedException {
@@ -88,21 +84,16 @@ public class XmlTest {
     orchestrator.executeBuild(build);
   }
 
-  private Measure getProjectMeasure(String metricKey) {
-    return getMeasure(PROJECT, metricKey);
+  private Double getProjectMeasureAsDouble(String metricKey) {
+    return getMeasureAsDouble(PROJECT, metricKey);
+  }
+
+  private Double getFileMeasureAsDouble(String metricKey) {
+    return getMeasureAsDouble(FILE_TOKEN_PARSER, metricKey.trim());
   }
 
   private Measure getFileMeasure(String metricKey) {
-    Resource resource = sonar.find(ResourceQuery.createForMetrics(FILE_TOKEN_PARSER, metricKey.trim()));
-    return resource == null ? null : resource.getMeasure(metricKey.trim());
-  }
-
-  private Measure getMeasure(String resource, String metricKey) {
-    Resource res = sonar.find(ResourceQuery.createForMetrics(resource, metricKey));
-    if (res == null) {
-      return null;
-    }
-    return res.getMeasure(metricKey);
+    return getMeasure(FILE_TOKEN_PARSER, metricKey.trim());
   }
 
 }
