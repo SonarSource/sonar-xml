@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.parent</groupId>
+    <groupId>com.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>36</version>
+    <version>39</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -68,7 +68,7 @@
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>4.5.4</sonar.version>
+    <sonar.version>6.2</sonar.version>
     <sslrVersion>1.20</sslrVersion>
     <sslrSquidVersion>2.6</sslrSquidVersion>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
@@ -80,12 +80,12 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${sonar.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>
         <version>${sonar.version}</version>
       </dependency>

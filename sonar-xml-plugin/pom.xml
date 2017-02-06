@@ -38,7 +38,7 @@
       <artifactId>xercesImpl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -50,7 +50,7 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
