@@ -7,10 +7,11 @@ package org.sonar.plugins.xml.language;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.plugins.xml.XmlPlugin;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlTest {
 
@@ -19,7 +20,7 @@ public class XmlTest {
 
   @Before
   public void setUp() {
-    settings = new Settings();
+    settings = new MapSettings();
     xml = new Xml(settings);
   }
 

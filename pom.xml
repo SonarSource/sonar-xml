@@ -65,12 +65,17 @@
 
   <properties>
     <license.title>SonarQube XML Plugin</license.title>
+    <!-- backward compatible with LTS -->
+    <sonarQubeMinVersion>5.6</sonarQubeMinVersion>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>6.2</sonar.version>
-    <sslrVersion>1.20</sslrVersion>
-    <sslrSquidVersion>2.6</sslrSquidVersion>
+    <sslr.version>1.20</sslr.version>
+    <sslr-squid-bridge.version>2.6</sslr-squid-bridge.version>
+    <!-- TODO -->
+    <!--<sslr.version>1.21</sslr.version>-->
+    <!--<sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>-->
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <!-- Release: enable publication to Bintray -->
@@ -94,25 +99,27 @@
         <artifactId>maven-project</artifactId>
         <version>2.0.7</version>
       </dependency>
+
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
       </dependency>
+
       <dependency>
         <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
         <artifactId>sslr-squid-bridge</artifactId>
-        <version>${sslrSquidVersion}</version>
+        <version>${sslr-squid-bridge.version}</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>

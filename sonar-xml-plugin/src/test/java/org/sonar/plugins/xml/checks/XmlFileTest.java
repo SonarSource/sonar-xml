@@ -5,6 +5,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +16,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
-import static org.fest.assertions.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlFileTest {
 
@@ -26,10 +28,12 @@ public class XmlFileTest {
     String fileName = "char_before_prolog.xml";
     File file = tmpFolder.newFile(fileName);
     FileUtils.write(file, content);
-    DefaultInputFile inputFile = new DefaultInputFile(fileName)
-      .setLanguage(Xml.KEY)
+    // TODO verify, but should be ok
+    DefaultInputFile inputFile = new DefaultInputFile("modulekey", fileName)
+      .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
-      .setAbsolutePath(file.getAbsolutePath());
+      .setLanguage(Xml.KEY)
+      .setCharset(StandardCharsets.UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 

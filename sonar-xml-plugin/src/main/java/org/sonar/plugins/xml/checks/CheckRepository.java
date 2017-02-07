@@ -5,9 +5,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
+import java.util.stream.Collectors;
 
 public class CheckRepository {
 
@@ -19,7 +19,7 @@ public class CheckRepository {
   }
 
   public static List<AbstractXmlCheck> getChecks() {
-    return ImmutableList.of(
+    return Arrays.asList(
       new IllegalTabCheck(),
       new IndentCheck(),
       new NewlineCheck(),
@@ -29,13 +29,7 @@ public class CheckRepository {
   }
 
   public static List<Class> getCheckClasses() {
-    ImmutableList.Builder<Class> builder = ImmutableList.builder();
-
-    for (AbstractXmlCheck check : getChecks()) {
-      builder.add(check.getClass());
-    }
-
-    return builder.build();
+    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
   }
 
 }

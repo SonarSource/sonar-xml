@@ -18,10 +18,11 @@ public class XmlSourceCodeTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void unknown_file() throws Exception {
+  public void unknown_file() {
     File file = new File("src/test/resources/unknown.xml");
-    DefaultInputFile inputFile = new DefaultInputFile(file.getPath()).setAbsolutePath(file.getAbsolutePath());
-    DefaultFileSystem fileSystem = new DefaultFileSystem(new File(file.getParent()));
+    File moduleBaseDir = file.getParentFile().getAbsoluteFile();
+    DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
+    DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
     XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
     XmlSourceCode xmlSourceCode = new XmlSourceCode(xmlFile);
 

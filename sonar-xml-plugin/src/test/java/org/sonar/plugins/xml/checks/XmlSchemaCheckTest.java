@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
-import static junit.framework.Assert.assertEquals;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
