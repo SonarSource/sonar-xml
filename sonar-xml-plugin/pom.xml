@@ -53,6 +53,18 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Required at runtime by sslr-squid-bridge.
+         It *should not* be this way, because it's supposed to be provided by the SonarQube plugin API,
+         but it seems not to be the case, evidenced by ITs running against SQ 5.6 and DEV.
+         When that's fixed, remove this dependency, and the shading below,
+         and set skipDependenciesPackaging=false below.
+      -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
@@ -68,6 +80,38 @@
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version><!-- Must remove as soon as parent pom is updated -->
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <minimizeJar>true</minimizeJar>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>cglib:cglib-nodep</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>xerces:xercesImpl</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
