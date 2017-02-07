@@ -72,13 +72,13 @@
 
     <sonar.version>6.2</sonar.version>
     <sslr.version>1.21</sslr.version>
-    <sslr-squid-bridge.version>2.6</sslr-squid-bridge.version>
-    <!-- TODO -->
-    <!--<sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>-->
+    <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
+
+    <commons-lang.version>2.6</commons-lang.version>
   </properties>
 
   <dependencyManagement>
@@ -116,9 +116,40 @@
       </dependency>
 
       <dependency>
-        <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
+        <groupId>org.sonarsource.sslr-squid-bridge</groupId>
         <artifactId>sslr-squid-bridge</artifactId>
         <version>${sslr-squid-bridge.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.sonar.sslr</groupId>
+            <artifactId>sslr-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.sonar.sslr</groupId>
+            <artifactId>sslr-xpath</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-plugin-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commons-lang.version}</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>
