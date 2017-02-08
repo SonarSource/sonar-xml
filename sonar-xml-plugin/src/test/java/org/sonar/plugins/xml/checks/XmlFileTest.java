@@ -28,7 +28,6 @@ public class XmlFileTest {
     String fileName = "char_before_prolog.xml";
     File file = tmpFolder.newFile(fileName);
     FileUtils.write(file, content);
-    // TODO verify, but should be ok
     DefaultInputFile inputFile = new DefaultInputFile("modulekey", fileName)
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
