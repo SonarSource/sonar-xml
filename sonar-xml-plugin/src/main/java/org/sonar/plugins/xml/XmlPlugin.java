@@ -6,7 +6,6 @@
 package org.sonar.plugins.xml;
 
 import java.util.Arrays;
-import java.util.Collections;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
