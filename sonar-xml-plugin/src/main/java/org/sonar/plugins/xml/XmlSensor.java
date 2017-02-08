@@ -90,7 +90,7 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
+  private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
     NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
 
     for (HighlightingData highlightingData : highlightingDataList) {
