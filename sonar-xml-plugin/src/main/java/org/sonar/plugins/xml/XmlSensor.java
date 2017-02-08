@@ -94,15 +94,10 @@ public class XmlSensor implements Sensor {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
         .on(sourceCode.getInputFile())
-        .at(newTextRange(xmlIssue.getLine()))
+        .at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()))
         .message(xmlIssue.getMessage());
       newIssue.at(location).save();
     }
-  }
-
-  private TextRange newTextRange(int line) {
-    // TODO
-    return new DefaultTextRange(new DefaultTextPointer(line, 0), new DefaultTextPointer(line, 0));
   }
 
   @Override
