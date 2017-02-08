@@ -19,10 +19,13 @@
  */
 package org.sonar.plugins.xml.parsers;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -52,7 +55,7 @@ public final class LineCountParser extends AbstractParser {
   private LineCountData data;
 
   public LineCountParser(File file, Charset encoding) throws IOException, SAXException {
-    processCommentLines(file);
+    processCommentLines(file, encoding);
     processBlankLines(file, encoding);
     this.data = new LineCountData(
       linesNumber,
@@ -60,12 +63,15 @@ public final class LineCountParser extends AbstractParser {
       new HashSet<>(commentHandler.effectiveCommentLines));
   }
 
-  private void processCommentLines(File file) throws SAXException, IOException {
+  private void processCommentLines(File file, Charset encoding) throws SAXException, IOException {
     SAXParser parser = newSaxParser(false);
     XMLReader xmlReader = parser.getXMLReader();
     commentHandler = new CommentHandler();
     xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
-    parser.parse(FileUtils.openInputStream(file), commentHandler);
+    try (BufferedReader reader = Files.newBufferedReader(file.toPath(), encoding)) {
+      InputSource inputSource = new InputSource(reader);
+      parser.parse(inputSource, commentHandler);
+    }
   }
 
   private void processBlankLines(File file, Charset encoding) throws IOException {

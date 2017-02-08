@@ -64,4 +64,10 @@ public class LineCountParserTest {
     new LineCountParser(new File("src/test/resources/parsers/linecount/invalid.xml"), Charsets.UTF_8);
   }
 
+  @Test
+  public void testParseUtf16() throws Exception {
+    LineCountData data = new LineCountParser(new File("src/test/resources/checks/generic/utf16.xml"), Charsets.UTF_16)
+      .getLineCountData();
+    assertThat(data.linesNumber()).isEqualTo(7);
+  }
 }
