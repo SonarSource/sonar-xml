@@ -14,9 +14,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-colorizer</artifactId>
-      <version>4.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sslr</groupId>
@@ -30,6 +29,10 @@
       <groupId>org.sonarsource.sslr</groupId>
       <artifactId>sslr-testing-harness</artifactId>
       <scope>test</scope>
+    </dependency>
+      <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
     <dependency>
