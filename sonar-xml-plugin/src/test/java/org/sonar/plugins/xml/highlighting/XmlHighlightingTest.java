@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
@@ -326,7 +325,7 @@ public class XmlHighlightingTest {
       .setLanguage(Xml.KEY)
       .setCharset(StandardCharsets.UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
-    localFS.setEncoding(Charsets.UTF_8);
+    localFS.setEncoding(StandardCharsets.UTF_8);
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
     XmlFile xmlFile = new XmlFile(inputFile, localFS);

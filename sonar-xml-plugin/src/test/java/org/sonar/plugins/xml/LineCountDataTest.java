@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 
@@ -31,7 +31,7 @@ public class LineCountDataTest {
 
   @Test
   public void test_updateAccordingTo_a_delta() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), Charsets.UTF_8)
+    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), StandardCharsets.UTF_8)
       .getLineCountData();
 
     data.updateAccordingTo(3);

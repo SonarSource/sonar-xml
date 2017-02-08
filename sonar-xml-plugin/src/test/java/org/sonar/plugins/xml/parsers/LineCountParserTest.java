@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,7 +37,7 @@ public class LineCountParserTest {
 
   @Test
   public void testSimpleLineCountParser() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), Charsets.UTF_8)
+    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), StandardCharsets.UTF_8)
       .getLineCountData();
 
     assertThat(data.effectiveCommentLines()).containsOnly(3);
@@ -48,7 +48,7 @@ public class LineCountParserTest {
 
   @Test
   public void testComplexLineCountParser() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), Charsets.UTF_8)
+    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), StandardCharsets.UTF_8)
       .getLineCountData();
 
     assertThat(data.effectiveCommentLines()).hasSize(12);
@@ -61,12 +61,12 @@ public class LineCountParserTest {
   // SONARPLUGINS-1760
   @Test(expected = SAXException.class)
   public void shouldNotInfiniteLoopWhenParsingInvalidXml() throws Exception {
-    new LineCountParser(new File("src/test/resources/parsers/linecount/invalid.xml"), Charsets.UTF_8);
+    new LineCountParser(new File("src/test/resources/parsers/linecount/invalid.xml"), StandardCharsets.UTF_8);
   }
 
   @Test
   public void testParseUtf16() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/checks/generic/utf16.xml"), Charsets.UTF_16)
+    LineCountData data = new LineCountParser(new File("src/test/resources/checks/generic/utf16.xml"), StandardCharsets.UTF_16)
       .getLineCountData();
     assertThat(data.linesNumber()).isEqualTo(7);
   }

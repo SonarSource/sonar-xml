@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -83,7 +82,7 @@ public class LineCounterTest {
     localFS.setWorkDir(tmpFolder.newFolder());
 
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
-    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), Charsets.UTF_8);
+    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), StandardCharsets.UTF_8);
 
     // No empty line at end of file
     assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(lines);

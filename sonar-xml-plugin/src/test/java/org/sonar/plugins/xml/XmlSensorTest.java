@@ -34,7 +34,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.checks.CheckRepository;
@@ -115,7 +114,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(StandardCharsets.UTF_8);
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), Charsets.UTF_8));
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), StandardCharsets.UTF_8));
     return defaultInputFile;
   }
 }
