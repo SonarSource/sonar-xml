@@ -116,7 +116,7 @@ public class XmlFile {
   private void processCharBeforePrologInFile(FileSystem fileSystem, int lineDelta) {
     try {
       String content = inputFile.contents();
-      File tempFile = new File(fileSystem.workDir(), inputFile.file().getName());
+      File tempFile = new File(fileSystem.workDir(), inputFile.fileName());
 
       int index = content.indexOf(XML_PROLOG_START_TAG);
       Files.write(content.substring(index), tempFile, inputFile.charset());
@@ -171,7 +171,7 @@ public class XmlFile {
   }
 
   public String getAbsolutePath() {
-    return inputFile.file().getAbsolutePath();
+    return inputFile.absolutePath();
   }
 
   public Charset getCharset() {

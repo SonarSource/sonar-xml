@@ -19,13 +19,11 @@
  */
 package org.sonar.plugins.xml.compat;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 
 /**
@@ -33,7 +31,6 @@ import org.sonar.api.batch.fs.TextRange;
  *
  * All methods of this class simply delegate to the wrapped instance, except `wrapped`.
  */
-// TODO remove all unused methods
 public class CompatibleInputFile {
 
   private final InputFile wrapped;
@@ -55,14 +52,6 @@ public class CompatibleInputFile {
     return wrapped.absolutePath();
   }
 
-  public String relativePath() {
-    return wrapped.relativePath();
-  }
-
-  public File file() {
-    return wrapped.file();
-  }
-
   public Path path() {
     return wrapped.path();
   }
@@ -77,14 +66,6 @@ public class CompatibleInputFile {
 
   public String fileName() {
     return path().getFileName().toString();
-  }
-
-  public TextPointer newPointer(int line, int lineOffset) {
-    return wrapped.newPointer(line, lineOffset);
-  }
-
-  public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    return wrapped.newRange(startLine, startLineOffset, endLine, endLineOffset);
   }
 
   public TextRange selectLine(int line) {
