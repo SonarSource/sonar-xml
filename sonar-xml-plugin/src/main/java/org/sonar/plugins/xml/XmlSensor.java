@@ -86,7 +86,7 @@ public class XmlSensor implements Sensor {
         }
         saveIssue(context, sourceCode);
 
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile, fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile().wrapped());
+        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
       }
     } catch (Exception e) {
       throw new IllegalStateException("Could not analyze the file " + xmlFile.getAbsolutePath(), e);

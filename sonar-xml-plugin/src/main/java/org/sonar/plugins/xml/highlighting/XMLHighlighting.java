@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +50,12 @@ public class XMLHighlighting {
 
   private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
 
-  public XMLHighlighting(XmlFile xmlFile, Charset charset) throws IOException {
+  public XMLHighlighting(XmlFile xmlFile) throws IOException {
     content = xmlFile.getContents();
     delta = xmlFile.getOffsetDelta();
 
     try (InputStream inputStream = xmlFile.getInputStream()) {
-      highlightXML(new InputStreamReader(inputStream, charset));
+      highlightXML(new InputStreamReader(inputStream, xmlFile.getCharset()));
     } catch (XMLStreamException e) {
       LOG.warn("Can't highlight following file : " + xmlFile.getAbsolutePath(), e);
     }
