@@ -34,6 +34,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.xml.checks.XmlFile;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class LineCounterTest {
 
@@ -75,7 +77,7 @@ public class LineCounterTest {
 
   private void verifyMetrics(String filename, int lines, int ncloc, int commentLines) throws IOException {
     File moduleBaseDir = new File("src/test/resources/parsers/linecount");
-    DefaultInputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
+    CompatibleInputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
     String componentKey = getComponentKey(filename);
 
     DefaultFileSystem localFS = new DefaultFileSystem(moduleBaseDir);
@@ -106,12 +108,12 @@ public class LineCounterTest {
     verify(fileLinesContext).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), eq(5), eq(1));
   }
 
-  private DefaultInputFile createInputFile(Path moduleBaseDir, String name) {
-    return new DefaultInputFile(MODULE_KEY, name)
+  private CompatibleInputFile createInputFile(Path moduleBaseDir, String name) {
+    return wrap(new DefaultInputFile(MODULE_KEY, name)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8);
+      .setCharset(StandardCharsets.UTF_8));
   }
 
 }

@@ -32,6 +32,7 @@ import org.sonar.plugins.xml.language.Xml;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class XmlFileTest {
 
@@ -50,7 +51,7 @@ public class XmlFileTest {
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
-    XmlFile xmlFile = new XmlFile(inputFile, localFS);
+    XmlFile xmlFile = new XmlFile(wrap(inputFile), localFS);
 
     assertThat(xmlFile.getOffsetDelta()).isEqualTo(offsetDeltaExpected);
     assertThat(xmlFile.getLineDelta()).isEqualTo(lineDeltaExpected);

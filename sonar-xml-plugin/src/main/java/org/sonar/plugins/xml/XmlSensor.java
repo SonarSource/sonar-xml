@@ -86,7 +86,7 @@ public class XmlSensor implements Sensor {
         }
         saveIssue(context, sourceCode);
 
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile, fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile());
+        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile, fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile().wrapped());
       }
     } catch (Exception e) {
       throw new IllegalStateException("Could not analyze the file " + xmlFile.getAbsolutePath(), e);
@@ -107,7 +107,7 @@ public class XmlSensor implements Sensor {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
-        .on(sourceCode.getInputFile())
+        .on(sourceCode.getInputFile().wrapped())
         .at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()))
         .message(xmlIssue.getMessage());
       newIssue.at(location).save();
@@ -129,8 +129,7 @@ public class XmlSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     for (CompatibleInputFile inputFile : wrap(fileSystem.inputFiles(mainFilesPredicate), context)) {
-      // TODO
-      XmlFile xmlFile = new XmlFile(inputFile.wrapped(), fileSystem);
+      XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
 
       computeLinesMeasures(context, xmlFile);
       runChecks(context, xmlFile);

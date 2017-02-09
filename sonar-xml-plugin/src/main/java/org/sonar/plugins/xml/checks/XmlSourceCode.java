@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -76,7 +76,7 @@ public class XmlSourceCode {
     return new SaxParser().parseDocument(xmlFile.getFilePath(), createInputStream(), namespaceAware);
   }
 
-  public InputFile getInputFile() {
+  public CompatibleInputFile getInputFile() {
     return xmlFile.getInputFile();
   }
 

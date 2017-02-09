@@ -26,6 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
+
 public class XmlSourceCodeTest {
 
   @Rule
@@ -37,7 +39,7 @@ public class XmlSourceCodeTest {
     File moduleBaseDir = file.getParentFile().getAbsoluteFile();
     DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
     DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
-    XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
+    XmlFile xmlFile = new XmlFile(wrap(inputFile), fileSystem);
     XmlSourceCode xmlSourceCode = new XmlSourceCode(xmlFile);
 
     thrown.expect(IllegalStateException.class);

@@ -71,18 +71,8 @@ public class CompatibleInputFile {
     return wrapped.inputStream();
   }
 
-  public static class InputFileIOException extends RuntimeException {
-    InputFileIOException(Throwable cause) {
-      super(cause);
-    }
-  }
-
-  public String contents() {
-    try {
-      return wrapped.contents();
-    } catch (IOException e) {
-      throw new InputFileIOException(e);
-    }
+  public String contents() throws IOException {
+    return wrapped.contents();
   }
 
   public String fileName() {

@@ -39,11 +39,7 @@ class InputFileV60Compat extends CompatibleInputFile {
   }
 
   @Override
-  public String contents() {
-    try {
-      return new String(Files.readAllBytes(this.path()), this.charset());
-    } catch (IOException e) {
-      throw new CompatibleInputFile.InputFileIOException(e);
-    }
+  public String contents() throws IOException {
+    return new String(Files.readAllBytes(this.path()), this.charset());
   }
 }

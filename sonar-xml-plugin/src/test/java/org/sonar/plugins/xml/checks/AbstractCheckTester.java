@@ -20,18 +20,18 @@
 package org.sonar.plugins.xml.checks;
 
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
+
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
@@ -61,10 +61,10 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     return xmlSourceCode;
   }
 
-  private InputFile newInputFile(File file) {
-    return new DefaultInputFile("modulekey", file.getName())
+  private CompatibleInputFile newInputFile(File file) {
+    return wrap(new DefaultInputFile("modulekey", file.getName())
       .setModuleBaseDir(file.getParentFile().toPath())
-      .setCharset(StandardCharsets.UTF_8);
+      .setCharset(StandardCharsets.UTF_8));
   }
 
   protected DefaultFileSystem createFileSystem() {

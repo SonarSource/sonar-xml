@@ -25,13 +25,13 @@ import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.plugins.xml.FileUtils;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -44,7 +44,7 @@ public class XmlFile {
   private static final String XML_PROLOG_START_TAG = "<?xml";
   public static final String BOM_CHAR = "\ufeff";
 
-  private final InputFile inputFile;
+  private final CompatibleInputFile inputFile;
 
   private File noCharBeforePrologFile;
   /**
@@ -57,7 +57,7 @@ public class XmlFile {
   private int characterDeltaForHighlight = 0;
   private boolean hasCharsBeforeProlog = false;
 
-  public XmlFile(InputFile inputFile, FileSystem fileSystem) {
+  public XmlFile(CompatibleInputFile inputFile, FileSystem fileSystem) {
     this.inputFile = inputFile;
     checkForCharactersBeforeProlog(fileSystem);
   }
@@ -136,7 +136,7 @@ public class XmlFile {
     }
   }
 
-  public InputFile getInputFile() {
+  public CompatibleInputFile getInputFile() {
     return inputFile;
   }
 
