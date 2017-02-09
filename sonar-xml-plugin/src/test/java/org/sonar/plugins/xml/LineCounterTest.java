@@ -82,7 +82,7 @@ public class LineCounterTest {
     localFS.setWorkDir(tmpFolder.newFolder());
 
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
-    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), StandardCharsets.UTF_8);
+    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS));
 
     // No empty line at end of file
     assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(lines);

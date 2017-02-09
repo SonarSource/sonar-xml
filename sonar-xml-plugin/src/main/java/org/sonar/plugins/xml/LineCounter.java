@@ -21,7 +21,6 @@ package org.sonar.plugins.xml;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -68,17 +67,16 @@ public final class LineCounter {
       .save();
   }
 
-  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile, Charset encoding) {
-    LOG.debug("Count lines in " + xmlFile.getIOFile().getPath());
+  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
+    LOG.debug("Count lines in " + xmlFile.getAbsolutePath());
 
     try {
       saveMeasures(
         xmlFile,
-        new LineCountParser(xmlFile.getIOFile(), encoding).getLineCountData(),
+        new LineCountParser(xmlFile.getContents(), xmlFile.getCharset()).getLineCountData(),
         fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
-
     } catch (Exception e) {
-      LOG.warn("Unable to count lines for file: " + xmlFile.getIOFile().getAbsolutePath());
+      LOG.warn("Unable to count lines for file: " + xmlFile.getAbsolutePath());
       LOG.warn("Cause: ", e);
     }
   }

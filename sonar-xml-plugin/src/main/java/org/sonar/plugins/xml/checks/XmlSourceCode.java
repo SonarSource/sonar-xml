@@ -19,12 +19,10 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
@@ -39,8 +37,6 @@ public class XmlSourceCode {
 
   private final List<XmlIssue> xmlIssues = new ArrayList<>();
 
-  private String code;
-
   private XmlFile xmlFile;
   private Document documentNamespaceAware = null;
   private Document documentNamespaceUnaware = null;
@@ -54,14 +50,10 @@ public class XmlSourceCode {
   }
 
   InputStream createInputStream() {
-    if (xmlFile.getIOFile() != null) {
-      try {
-        return FileUtils.openInputStream(xmlFile.getIOFile());
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
-    } else {
-      return new ByteArrayInputStream(code.getBytes());
+    try {
+      return xmlFile.getInputStream();
+    } catch (IOException e) {
+      throw new IllegalStateException(xmlFile.getAbsolutePath(), e);
     }
   }
 
@@ -94,10 +86,6 @@ public class XmlSourceCode {
 
   public List<XmlIssue> getXmlIssues() {
     return xmlIssues;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
   }
 
   public int getLineForNode(Node node) {

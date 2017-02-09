@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
-import com.google.common.io.Files;
+import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -30,7 +30,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -53,13 +52,13 @@ public class XMLHighlighting {
   private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
 
   public XMLHighlighting(XmlFile xmlFile, Charset charset) throws IOException {
-    content = Files.toString(xmlFile.getIOFile(), charset);
+    content = xmlFile.getContents();
     delta = xmlFile.getOffsetDelta();
 
-    try (FileInputStream fileInputStream = new FileInputStream(xmlFile.getIOFile())) {
-      highlightXML(new InputStreamReader(fileInputStream, charset));
+    try (InputStream inputStream = xmlFile.getInputStream()) {
+      highlightXML(new InputStreamReader(inputStream, charset));
     } catch (XMLStreamException e) {
-      LOG.warn("Can't highlight following file : " + xmlFile.getIOFile().getAbsolutePath(), e);
+      LOG.warn("Can't highlight following file : " + xmlFile.getAbsolutePath(), e);
     }
   }
 

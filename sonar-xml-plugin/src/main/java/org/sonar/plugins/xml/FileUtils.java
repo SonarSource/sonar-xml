@@ -19,29 +19,32 @@
  */
 package org.sonar.plugins.xml;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.junit.Test;
-import org.sonar.plugins.xml.parsers.LineCountParser;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.api.batch.fs.InputFile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class LineCountDataTest {
-
-  @Test
-  public void test_updateAccordingTo_a_delta() throws Exception {
-    Path path = Paths.get("src/test/resources/parsers/linecount/simple.xml");
-    Charset charset = StandardCharsets.UTF_8;
-    LineCountData data = new LineCountParser(FileUtils.contents(path, charset), charset).getLineCountData();
-
-    data.updateAccordingTo(3);
-
-    assertThat(data.effectiveCommentLines()).containsOnly(6);
-    assertThat(data.linesNumber()).isEqualTo(21);
-    assertThat(data.linesOfCodeLines()).hasSize(15);
-    assertThat(data.linesOfCodeLines()).containsOnly(4, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21);
+public class FileUtils {
+  private FileUtils() {
+    // utility class, forbidden constructor
   }
 
+  public static List<String> readLines(InputFile file) throws IOException {
+    try (BufferedReader reader = newBufferedReader(file)) {
+      return reader.lines().collect(Collectors.toList());
+    }
+  }
+
+  private static BufferedReader newBufferedReader(InputFile file) throws IOException {
+    return new BufferedReader(new StringReader(file.contents()));
+  }
+
+  public static String contents(Path path, Charset charset) throws IOException {
+    return new String(Files.readAllBytes(path), charset);
+  }
 }

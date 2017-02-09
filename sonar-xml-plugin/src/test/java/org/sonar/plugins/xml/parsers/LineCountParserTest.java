@@ -19,26 +19,28 @@
  */
 package org.sonar.plugins.xml.parsers;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.plugins.xml.FileUtils;
 import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.SAXException;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LineCountParserTest {
 
+  private static final Charset CHARSET = StandardCharsets.UTF_8;
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testSimpleLineCountParser() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/simple.xml"), StandardCharsets.UTF_8)
-      .getLineCountData();
+    LineCountData data = newLineCountData("src/test/resources/parsers/linecount/simple.xml");
 
     assertThat(data.effectiveCommentLines()).containsOnly(3);
     assertThat(data.linesNumber()).isEqualTo(18);
@@ -48,8 +50,7 @@ public class LineCountParserTest {
 
   @Test
   public void testComplexLineCountParser() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/parsers/linecount/complex.xml"), StandardCharsets.UTF_8)
-      .getLineCountData();
+    LineCountData data = newLineCountData("src/test/resources/parsers/linecount/complex.xml");
 
     assertThat(data.effectiveCommentLines()).hasSize(12);
     assertThat(data.effectiveCommentLines()).containsOnly(4, 5, 8, 9, 10, 21, 23, 24, 28, 29, 30, 33);
@@ -61,13 +62,25 @@ public class LineCountParserTest {
   // SONARPLUGINS-1760
   @Test(expected = SAXException.class)
   public void shouldNotInfiniteLoopWhenParsingInvalidXml() throws Exception {
-    new LineCountParser(new File("src/test/resources/parsers/linecount/invalid.xml"), StandardCharsets.UTF_8);
+    newLineCountData("src/test/resources/parsers/linecount/invalid.xml");
   }
 
   @Test
   public void testParseUtf16() throws Exception {
-    LineCountData data = new LineCountParser(new File("src/test/resources/checks/generic/utf16.xml"), StandardCharsets.UTF_16)
-      .getLineCountData();
+    Charset charset = StandardCharsets.UTF_16;
+    LineCountData data = new LineCountParser(newInputFile("src/test/resources/checks/generic/utf16.xml", charset), charset).getLineCountData();
     assertThat(data.linesNumber()).isEqualTo(7);
+  }
+
+  private String newInputFile(String path) throws IOException {
+    return newInputFile(path, CHARSET);
+  }
+
+  private String newInputFile(String path, Charset charset) throws IOException {
+    return FileUtils.contents(Paths.get(path), charset);
+  }
+
+  private LineCountData newLineCountData(String path) throws Exception {
+    return new LineCountParser(newInputFile(path), CHARSET).getLineCountData();
   }
 }
