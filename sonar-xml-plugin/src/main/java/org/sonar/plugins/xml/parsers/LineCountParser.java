@@ -19,7 +19,8 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import org.apache.commons.io.FileUtils;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.Attributes;
@@ -31,9 +32,7 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -51,38 +50,35 @@ public final class LineCountParser extends AbstractParser {
   private Set<Integer> linesOfCodeLines;
   private LineCountData data;
 
-  public LineCountParser(File file, Charset encoding) throws IOException, SAXException {
-    processCommentLines(file);
-    processBlankLines(file, encoding);
+  public LineCountParser(String contents, Charset charset) throws IOException, SAXException {
+    processCommentLines(contents, charset);
+    processBlankLines(contents);
     this.data = new LineCountData(
       linesNumber,
       linesOfCodeLines,
       new HashSet<>(commentHandler.effectiveCommentLines));
   }
 
-  private void processCommentLines(File file) throws SAXException, IOException {
+  private void processCommentLines(String contents, Charset charset) throws SAXException, IOException {
     SAXParser parser = newSaxParser(false);
     XMLReader xmlReader = parser.getXMLReader();
     commentHandler = new CommentHandler();
     xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", commentHandler);
-    parser.parse(FileUtils.openInputStream(file), commentHandler);
+    parser.parse(new ByteArrayInputStream(contents.getBytes(charset)), commentHandler);
   }
 
-  private void processBlankLines(File file, Charset encoding) throws IOException {
+  private void processBlankLines(String contents) throws IOException {
     Set<Integer> blankLines = new HashSet<>();
     String lineSeparatorRegexp = "(?:\r)?\n|\r";
 
-    String fileContent = FileUtils.readFileToString(file, encoding.name());
-
     int currentLine = 0;
 
-    for (String line : fileContent.split(lineSeparatorRegexp, -1)) {
+    for (String line : contents.split(lineSeparatorRegexp, -1)) {
       currentLine++;
 
       if (StringUtils.isBlank(line)) {
         blankLines.add(currentLine);
       }
-
     }
 
     linesNumber = currentLine;

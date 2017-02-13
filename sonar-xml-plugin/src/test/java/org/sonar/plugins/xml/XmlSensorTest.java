@@ -19,8 +19,13 @@
  */
 package org.sonar.plugins.xml;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,14 +39,17 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.google.common.base.Charsets;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
@@ -115,7 +123,50 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(StandardCharsets.UTF_8);
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), Charsets.UTF_8));
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), StandardCharsets.UTF_8));
     return defaultInputFile;
   }
+
+  @Test
+  public void should_analyze_file_with_its_own_encoding() throws IOException {
+    Charset fileSystemCharset = StandardCharsets.UTF_8;
+    Charset fileCharset = StandardCharsets.UTF_16;
+
+    Path moduleBaseDir = temporaryFolder.newFolder().toPath();
+    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
+
+    DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
+    fileSystem.setEncoding(fileSystemCharset);
+    context.setFileSystem(fileSystem);
+
+    String filename = "utf16.xml";
+    try (BufferedWriter writer = Files.newBufferedWriter(moduleBaseDir.resolve(filename), fileCharset)) {
+      writer.write("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>\n");
+      writer.write("<tag></tag>");
+    }
+
+    String modulekey = "modulekey";
+    DefaultInputFile defaultInputFile = new DefaultInputFile(modulekey, filename)
+      .setModuleBaseDir(moduleBaseDir)
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(fileCharset);
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), fileCharset));
+    fileSystem.add(defaultInputFile);
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .create(ruleKey)
+      .activate()
+      .build();
+    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory);
+    sensor.analyse(context);
+
+    String componentKey = modulekey + ":" + filename;
+    assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(2);
+  }
+
 }

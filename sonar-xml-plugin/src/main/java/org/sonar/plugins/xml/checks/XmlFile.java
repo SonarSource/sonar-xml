@@ -20,15 +20,18 @@
 package org.sonar.plugins.xml.checks;
 
 import com.google.common.io.Files;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sonar.plugins.xml.FileUtils;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -41,7 +44,7 @@ public class XmlFile {
   private static final String XML_PROLOG_START_TAG = "<?xml";
   public static final String BOM_CHAR = "\ufeff";
 
-  private final InputFile inputFile;
+  private final CompatibleInputFile inputFile;
 
   private File noCharBeforePrologFile;
   /**
@@ -54,7 +57,7 @@ public class XmlFile {
   private int characterDeltaForHighlight = 0;
   private boolean hasCharsBeforeProlog = false;
 
-  public XmlFile(InputFile inputFile, FileSystem fileSystem) {
+  public XmlFile(CompatibleInputFile inputFile, FileSystem fileSystem) {
     this.inputFile = inputFile;
     checkForCharactersBeforeProlog(fileSystem);
   }
@@ -73,7 +76,7 @@ public class XmlFile {
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
       boolean hasBOM = false;
 
-      for (String line : Files.readLines(inputFile.file(), fileSystem.encoding())) {
+      for (String line : FileUtils.readLines(inputFile)) {
         if (lineNb == 1 && line.startsWith(BOM_CHAR)) {
           hasBOM = true;
           characterDeltaForHighlight = -1;
@@ -100,10 +103,7 @@ public class XmlFile {
   }
 
   private static boolean isFileBeginning(int line, int column, boolean hasBOM) {
-    if (line == 1) {
-      return column <= (hasBOM ? 1 : 0);
-    }
-    return false;
+    return line == 1 && column <= (hasBOM ? 1 : 0);
   }
 
   /**
@@ -115,11 +115,11 @@ public class XmlFile {
    */
   private void processCharBeforePrologInFile(FileSystem fileSystem, int lineDelta) {
     try {
-      String content = Files.toString(inputFile.file(), fileSystem.encoding());
-      File tempFile = new File(fileSystem.workDir(), inputFile.file().getName());
+      String content = inputFile.contents();
+      File tempFile = new File(fileSystem.workDir(), inputFile.fileName());
 
       int index = content.indexOf(XML_PROLOG_START_TAG);
-      Files.write(content.substring(index), tempFile, fileSystem.encoding());
+      Files.write(content.substring(index), tempFile, inputFile.charset());
 
       noCharBeforePrologFile = tempFile;
 
@@ -136,7 +136,7 @@ public class XmlFile {
     }
   }
 
-  public InputFile getInputFile() {
+  public CompatibleInputFile getInputFile() {
     return inputFile;
   }
 
@@ -148,9 +148,18 @@ public class XmlFile {
     return characterDeltaForHighlight;
   }
 
+  public InputStream getInputStream() throws IOException {
+    if (noCharBeforePrologFile == null) {
+      return inputFile.inputStream();
+    }
+    return java.nio.file.Files.newInputStream(noCharBeforePrologFile.toPath());
+  }
 
-  public File getIOFile() {
-    return noCharBeforePrologFile != null ? noCharBeforePrologFile : inputFile.file();
+  public String getContents() throws IOException {
+    if (noCharBeforePrologFile == null) {
+      return inputFile.contents();
+    }
+    return FileUtils.contents(noCharBeforePrologFile.toPath(), inputFile.charset());
   }
 
   public int getPrologLine() {
@@ -161,4 +170,11 @@ public class XmlFile {
     return hasCharsBeforeProlog;
   }
 
+  public String getAbsolutePath() {
+    return inputFile.absolutePath();
+  }
+
+  public Charset getCharset() {
+    return inputFile.charset();
+  }
 }

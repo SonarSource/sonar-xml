@@ -17,49 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xml;
+package org.sonar.plugins.xml.compat;
 
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import org.sonar.api.batch.fs.InputFile;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class XmlParserConfiguration {
-
-  private final Charset charset;
-
-  private XmlParserConfiguration(Builder builder) {
-    this.charset = builder.charset;
+/**
+ * Makes the wrapped API 6.0+ InputFile instance compatible with API 6.2,
+ * by providing the inputStream() and contents() methods.
+ */
+class InputFileV60Compat extends CompatibleInputFile {
+  InputFileV60Compat(InputFile wrapped) {
+    super(wrapped);
   }
 
-  public Charset getCharset() {
-    return charset;
+  @Override
+  public InputStream inputStream() throws IOException {
+    return Files.newInputStream(this.path());
   }
 
-  public static Builder builder() {
-    return new Builder();
+  @Override
+  public String contents() throws IOException {
+    return new String(Files.readAllBytes(this.path()), this.charset());
   }
-
-  public static final class Builder {
-
-    private Charset charset = null;
-
-    private Builder() {
-    }
-
-    public Builder setCharset(Charset charset) {
-      this.charset = charset;
-      return this;
-    }
-
-    public Charset getCharset() {
-      return charset;
-    }
-
-    public XmlParserConfiguration build() {
-      checkNotNull(charset, "charset is mandatory and cannot be left null");
-      return new XmlParserConfiguration(this);
-    }
-
-  }
-
 }

@@ -38,9 +38,12 @@ import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
+
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -68,7 +71,7 @@ public class XmlSensor implements Sensor {
   }
 
   private void computeLinesMeasures(SensorContext context, XmlFile xmlFile) {
-    LineCounter.analyse(context, fileLinesContextFactory, xmlFile, fileSystem.encoding());
+    LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
   }
 
   private void runChecks(SensorContext context, XmlFile xmlFile) {
@@ -82,11 +85,10 @@ public class XmlSensor implements Sensor {
           ((AbstractXmlCheck) check).validate(sourceCode);
         }
         saveIssue(context, sourceCode);
-
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile, fileSystem.encoding()).getHighlightingData(), xmlFile.getInputFile());
+        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Could not analyze the file " + xmlFile.getIOFile().getAbsolutePath(), e);
+      throw new IllegalStateException("Could not analyze the file " + xmlFile.getAbsolutePath(), e);
     }
   }
 
@@ -104,7 +106,7 @@ public class XmlSensor implements Sensor {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
-        .on(sourceCode.getInputFile())
+        .on(sourceCode.getInputFile().wrapped())
         .at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()))
         .message(xmlIssue.getMessage());
       newIssue.at(location).save();
@@ -125,7 +127,7 @@ public class XmlSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
+    for (CompatibleInputFile inputFile : wrap(fileSystem.inputFiles(mainFilesPredicate), context)) {
       XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
 
       computeLinesMeasures(context, xmlFile);

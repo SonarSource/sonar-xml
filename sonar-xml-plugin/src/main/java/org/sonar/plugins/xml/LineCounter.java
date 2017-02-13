@@ -21,16 +21,15 @@ package org.sonar.plugins.xml;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.plugins.xml.checks.XmlFile;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 import org.xml.sax.SAXException;
 
@@ -60,25 +59,24 @@ public final class LineCounter {
     saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, data.linesOfCodeLines().size());
   }
 
-  private static <T extends Serializable> void saveMeasure(SensorContext context, InputFile inputFile, Metric<T> metric, T value) {
+  private static <T extends Serializable> void saveMeasure(SensorContext context, CompatibleInputFile inputFile, Metric<T> metric, T value) {
     context.<T>newMeasure()
       .withValue(value)
       .forMetric(metric)
-      .on(inputFile)
+      .on(inputFile.wrapped())
       .save();
   }
 
-  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile, Charset encoding) {
-    LOG.debug("Count lines in " + xmlFile.getIOFile().getPath());
+  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
+    LOG.debug("Count lines in " + xmlFile.getAbsolutePath());
 
     try {
       saveMeasures(
         xmlFile,
-        new LineCountParser(xmlFile.getIOFile(), encoding).getLineCountData(),
-        fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
-
+        new LineCountParser(xmlFile.getContents(), xmlFile.getCharset()).getLineCountData(),
+        fileLinesContextFactory.createFor(xmlFile.getInputFile().wrapped()), context);
     } catch (Exception e) {
-      LOG.warn("Unable to count lines for file: " + xmlFile.getIOFile().getAbsolutePath());
+      LOG.warn("Unable to count lines for file: " + xmlFile.getAbsolutePath());
       LOG.warn("Cause: ", e);
     }
   }

@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
@@ -33,12 +36,15 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class XmlHighlightingTest {
 
@@ -269,7 +275,6 @@ public class XmlHighlightingTest {
   public void testCharBeforeProlog() throws Exception {
     File file = tmpFolder.newFile("char_before_prolog.xml");
     FileUtils.write(file, "\n\n\n<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
-    // TODO verify, but should be ok
     DefaultInputFile inputFile = new DefaultInputFile("module", "char_before_prolog.xml")
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
@@ -278,8 +283,8 @@ public class XmlHighlightingTest {
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
-    XmlFile xmlFile = new XmlFile(inputFile, localFS);
-    List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile, localFS.encoding()).getHighlightingData();
+    XmlFile xmlFile = new XmlFile(wrap(inputFile), localFS);
+    List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile).getHighlightingData();
     assertEquals(9, highlightingData.size());
     // <?xml
     assertData(highlightingData.get(0), 3, 8, TypeOfText.KEYWORD);
@@ -319,18 +324,17 @@ public class XmlHighlightingTest {
 
   private HighlightingData getFirstHighlightingData(String filename) throws IOException {
     File file = new File("src/test/resources/highlighting/" + filename);
-    // TODO verify, but should be ok
     DefaultInputFile inputFile = new DefaultInputFile("modulekey", filename)
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(StandardCharsets.UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
-    localFS.setEncoding(Charsets.UTF_8);
+    localFS.setEncoding(StandardCharsets.UTF_8);
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
-    XmlFile xmlFile = new XmlFile(inputFile, localFS);
-    return new XMLHighlighting(xmlFile, localFS.encoding()).getHighlightingData().get(0);
+    XmlFile xmlFile = new XmlFile(wrap(inputFile), localFS);
+    return new XMLHighlighting(xmlFile).getHighlightingData().get(0);
   }
 
   private void assertData(HighlightingData data, Integer start, Integer end, TypeOfText code) {
@@ -339,4 +343,35 @@ public class XmlHighlightingTest {
     assertEquals(code, data.highlightCode());
   }
 
+  @Test
+  public void should_parse_file_with_its_own_encoding() throws IOException, XMLStreamException {
+    Charset fileSystemCharset = StandardCharsets.UTF_8;
+    Charset fileCharset = StandardCharsets.UTF_16;
+
+    Path moduleBaseDir = tmpFolder.newFolder().toPath();
+    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
+
+    DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
+    fileSystem.setEncoding(fileSystemCharset);
+    context.setFileSystem(fileSystem);
+
+    String filename = "utf16.xml";
+    try (BufferedWriter writer = Files.newBufferedWriter(moduleBaseDir.resolve(filename), fileCharset)) {
+      writer.write("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>\n");
+      writer.write("<tag></tag>");
+    }
+
+    String modulekey = "modulekey";
+    DefaultInputFile defaultInputFile = new DefaultInputFile(modulekey, filename)
+      .setModuleBaseDir(moduleBaseDir)
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(fileCharset);
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), fileCharset));
+    fileSystem.add(defaultInputFile);
+
+    XmlFile xmlFile = new XmlFile(wrap(defaultInputFile), fileSystem);
+    List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile).getHighlightingData();
+    assertThat(highlightingData).hasSize(11);
+  }
 }
