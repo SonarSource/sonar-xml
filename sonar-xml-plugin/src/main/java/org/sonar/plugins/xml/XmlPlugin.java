@@ -19,29 +19,25 @@
  */
 package org.sonar.plugins.xml;
 
-import java.util.Arrays;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.rules.XmlRulesDefinition;
 import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
-import java.util.List;
-
 /**
  * XML Plugin publishes extensions to sonar engine.
  *
  * @author Matthijs Galesloot
  */
-public final class XmlPlugin extends SonarPlugin {
+public final class XmlPlugin implements Plugin {
 
   public static final String FILE_SUFFIXES_KEY = "sonar.xml.file.suffixes";
 
   @Override
-  public List getExtensions() {
-    return Arrays.asList(
-
+  public void define(Context context) {
+    context.addExtensions(
       PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze.")
@@ -49,13 +45,10 @@ public final class XmlPlugin extends SonarPlugin {
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
-
       Xml.class,
-
       XmlRulesDefinition.class,
       XmlSonarWayProfile.class,
-
-      // Sensors
       XmlSensor.class);
   }
+
 }
