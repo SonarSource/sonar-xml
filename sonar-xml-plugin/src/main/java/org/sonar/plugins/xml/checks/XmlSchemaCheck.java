@@ -169,7 +169,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     if (doctype.getDtd() != null) {
       InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
       if (input == null) {
-        LOG.error("Could not validate " + getWebSourceCode().toString() + " for doctype " + doctype.getDtd());
+        LOG.error("Could not validate {} for doctype {}", getWebSourceCode(), doctype.getDtd());
       } else {
         IOUtils.closeQuietly(input);
         validate(new String[]{doctype.getDtd()});
@@ -179,7 +179,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
       validate(new String[]{doctype.getNamespace()});
     } else {
-      LOG.info("Could not autodetect schema for " + getWebSourceCode().toString() + ", skip validation.");
+      LOG.info("Could not autodetect schema for {}, skip validation.", getWebSourceCode());
     }
   }
 
@@ -246,7 +246,9 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
     // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
-      LOG.info("Validate " + getWebSourceCode() + " with schema " + StringUtils.join(schemaList, ","));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
+      }
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
 
     } catch (SAXException e) {

@@ -264,7 +264,7 @@ public final class SchemaResolver implements LSResourceResolver {
     }
 
     if (input == null) {
-      LOG.debug("Could not resolve resource: " + systemId);
+      LOG.debug("Could not resolve resource {}", systemId);
       return null;
     } else {
       return createLSInput(input);

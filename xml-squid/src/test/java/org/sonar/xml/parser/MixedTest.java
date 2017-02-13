@@ -20,7 +20,6 @@
 package org.sonar.xml.parser;
 
 import com.sonar.sslr.api.Grammar;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.xml.api.XmlGrammar;
 
