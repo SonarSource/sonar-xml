@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,18 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 public class HighlightingData {
 
   private Integer startOffset;
   private Integer endOffset;
-  private String highlightCode;
+  private TypeOfText typeOfText;
 
-  public HighlightingData(Integer startOffset, Integer endOffset, String highlightCode) {
+  HighlightingData(Integer startOffset, Integer endOffset, TypeOfText typeOfText) {
     this.startOffset = startOffset;
     this.endOffset = endOffset;
-    this.highlightCode = highlightCode;
+    this.typeOfText = typeOfText;
   }
 
   public Integer startOffset() {
@@ -39,8 +41,8 @@ public class HighlightingData {
     return endOffset;
   }
 
-  public String highlightCode() {
-    return highlightCode;
+  public TypeOfText highlightCode() {
+    return typeOfText;
   }
 
 }

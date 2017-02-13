@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +30,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import java.io.File;
-import static org.fest.assertions.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlFileTest {
 
@@ -40,10 +42,11 @@ public class XmlFileTest {
     String fileName = "char_before_prolog.xml";
     File file = tmpFolder.newFile(fileName);
     FileUtils.write(file, content);
-    DefaultInputFile inputFile = new DefaultInputFile(fileName)
-      .setLanguage(Xml.KEY)
+    DefaultInputFile inputFile = new DefaultInputFile("modulekey", fileName)
+      .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
-      .setAbsolutePath(file.getAbsolutePath());
+      .setLanguage(Xml.KEY)
+      .setCharset(StandardCharsets.UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 

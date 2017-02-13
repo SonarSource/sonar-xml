@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@ package org.sonar.plugins.xml.highlighting;
 import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.plugins.xml.checks.XmlFile;
 
 import javax.xml.stream.Location;
@@ -47,7 +48,7 @@ public class XMLHighlighting {
   private String content;
 
   private int currentStartOffset = -1;
-  private String currentCode = null;
+  private TypeOfText currentCode = null;
 
   private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
 
@@ -107,7 +108,7 @@ public class XMLHighlighting {
           break;
 
         case XMLStreamConstants.COMMENT:
-          addUnclosedHighlighting(startOffset, "j");
+          addUnclosedHighlighting(startOffset, TypeOfText.STRUCTURED_COMMENT);
           break;
 
         default:
@@ -119,8 +120,8 @@ public class XMLHighlighting {
   private void highlightDTD( int startOffset) {
     int closingBracketStartOffset;
     closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
-    addHighlighting(startOffset, startOffset + 9, "j");
-    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, "j");
+    addHighlighting(startOffset, startOffset + 9, TypeOfText.STRUCTURED_COMMENT);
+    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, TypeOfText.STRUCTURED_COMMENT);
   }
 
   private void highlightCData(int startOffset) {
@@ -133,10 +134,10 @@ public class XMLHighlighting {
     int closingBracketStartOffset = getCDATAClosingBracketStartOffset(startOffset);
 
     // 9 is length of "<![CDATA["
-    addHighlighting(startOffset, startOffset + 9, "k");
+    addHighlighting(startOffset, startOffset + 9, TypeOfText.KEYWORD);
 
     // highlight "]]>"
-    addHighlighting(closingBracketStartOffset - 2, closingBracketStartOffset + 1, "k");
+    addHighlighting(closingBracketStartOffset - 2, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
   }
 
   private void highlightEndElement(XMLStreamReader xmlReader, Location prevLocation, int startOffset) {
@@ -147,10 +148,10 @@ public class XMLHighlighting {
 
     if (isEmptyElement) {
       // empty (or autoclosing) element is raised twice as start and end element, so we need to highlight closing "/" which is placed just before ">"
-      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset, "k");
+      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset, TypeOfText.KEYWORD);
 
     } else {
-      addHighlighting(startOffset, closingBracketStartOffset + 1, "k");
+      addHighlighting(startOffset, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
     }
   }
 
@@ -158,9 +159,9 @@ public class XMLHighlighting {
     int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
     int endOffset = startOffset + getNameWithNamespaceLength(xmlReader) + 1;
 
-    addHighlighting(startOffset, endOffset, "k");
+    addHighlighting(startOffset, endOffset, TypeOfText.KEYWORD);
     highlightAttributes(endOffset, closingBracketStartOffset);
-    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, "k");
+    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
   }
 
   private void highlightXmlDeclaration() {
@@ -168,9 +169,9 @@ public class XMLHighlighting {
     if (content.startsWith(XML_DECLARATION_TAG, startOffset)) {
       int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
 
-      addHighlighting(startOffset, startOffset + XML_DECLARATION_TAG.length(), "k");
+      addHighlighting(startOffset, startOffset + XML_DECLARATION_TAG.length(), TypeOfText.KEYWORD);
       highlightAttributes(startOffset + XML_DECLARATION_TAG.length(), closingBracketStartOffset);
-      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset + 1, "k");
+      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
     }
   }
 
@@ -189,14 +190,14 @@ public class XMLHighlighting {
 
 
       if (attributeValueQuote != null && attributeValueQuote == c) {
-        addHighlighting(startOffset, counter + 1, "s");
+        addHighlighting(startOffset, counter + 1, TypeOfText.STRING);
         counter++;
         startOffset = null;
         attributeValueQuote = null;
       }
 
       if (c == '=' && attributeValueQuote == null) {
-        addHighlighting(startOffset, counter, "c");
+        addHighlighting(startOffset, counter, TypeOfText.CONSTANT);
 
         do {
           counter++;
@@ -245,11 +246,11 @@ public class XMLHighlighting {
     return prefixLength + streamReader.getLocalName().length();
   }
 
-  private void addHighlighting(int startOffset, int endOffset, String code) {
-    highlighting.add(new HighlightingData(startOffset + delta, endOffset + delta, code));
+  private void addHighlighting(int startOffset, int endOffset, TypeOfText typeOfText) {
+    highlighting.add(new HighlightingData(startOffset + delta, endOffset + delta, typeOfText));
   }
 
-  private void addUnclosedHighlighting(int startOffset, String code) {
+  private void addUnclosedHighlighting(int startOffset, TypeOfText code) {
     currentStartOffset = startOffset;
     currentCode = code;
   }

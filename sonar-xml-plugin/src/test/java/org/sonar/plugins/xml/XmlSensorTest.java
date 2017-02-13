@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,85 +19,56 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.DefaultActiveRules;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 
-import java.io.File;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private Project project;
   private DefaultFileSystem fs;
   private XmlSensor sensor;
-  private SensorContext context;
-  private ResourcePerspectives perspectives;
+  private SensorContextTester context;
+
+  private final RuleKey ruleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck");
 
   @Before
   public void setUp() throws Exception {
-    project = new Project("");
-    context = mock(SensorContext.class);
+    File moduleBaseDir = new File("src/test/resources");
+    context = SensorContextTester.create(moduleBaseDir);
 
-    fs = new DefaultFileSystem(new File("src/test/resources/"));
+    fs = new DefaultFileSystem(moduleBaseDir);
     fs.setWorkDir(temporaryFolder.newFolder("temp"));
 
-    CheckFactory checkFactory = new CheckFactory(new DefaultActiveRules(
-      ImmutableList.of(new ActiveRulesBuilder().create(RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck")))));
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .create(ruleKey)
+      .activate()
+      .build();
+    CheckFactory checkFactory = new CheckFactory(activeRules);
 
-    perspectives = mock(ResourcePerspectives.class);
-
-    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
-    Issue issue = mock(Issue.class);
-    Issuable issuable = mock(Issuable.class);
-
-    when(perspectives.as(eq(Issuable.class), any(InputFile.class))).thenReturn(issuable);
-    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
-    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
-    when(issueBuilder.line(anyInt())).thenReturn(issueBuilder);
-    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
-    when(issueBuilder.build()).thenReturn(issue);
-    when(issuable.addIssue(issue)).thenReturn(true);
-
-    sensor = new XmlSensor(fs, perspectives, checkFactory, mock(FileLinesContextFactory.class));
-  }
-
-  @Test
-  public void should_execute_on_javascript_project() {
-    // No XML file
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-
-    // Has XML file
-    fs.add(createInputFile("file.xml"));
-    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    sensor = new XmlSensor(fs, checkFactory, mock(FileLinesContextFactory.class));
   }
 
   /**
@@ -107,9 +78,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void testSensor() throws Exception {
     fs.add(createInputFile("src/pom.xml"));
 
-    sensor.analyse(new Project(""), context);
+    sensor.analyse(context);
 
-    verify(perspectives, atLeastOnce()).as(any(Class.class), any(InputFile.class));
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
   }
 
   /**
@@ -121,9 +92,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void should_execute_on_file_with_chars_before_prolog() throws Exception {
     fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
 
-    sensor.analyse(new Project(""), context);
+    sensor.analyse(context);
 
-    verify(perspectives, atLeastOnce()).as(any(Class.class), any(InputFile.class));
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
   }
 
   /**
@@ -133,16 +104,18 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void should_not_execute_test_on_corrupted_file() throws Exception {
     fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
-    sensor.analyse(new Project(""), context);
+    sensor.analyse(context);
 
-    verify(perspectives, never()).as(any(Class.class), any(InputFile.class));
+    assertThat(context.allIssues()).isEmpty();
   }
 
   private DefaultInputFile createInputFile(String name) {
-    return new DefaultInputFile(name)
-      .setLanguage(Xml.KEY)
+    DefaultInputFile defaultInputFile = new DefaultInputFile("modulekey", name)
+      .setModuleBaseDir(Paths.get("src/test/resources"))
       .setType(InputFile.Type.MAIN)
-      .setAbsolutePath(new File("src/test/resources/" + name).getAbsolutePath());
+      .setLanguage(Xml.KEY)
+      .setCharset(StandardCharsets.UTF_8);
+    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), Charsets.UTF_8));
+    return defaultInputFile;
   }
-
 }

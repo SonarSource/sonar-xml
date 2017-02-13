@@ -12,7 +12,8 @@
   <packaging>sonar-plugin</packaging>
 
   <name>XML :: SonarQube Plugin</name>
-  <description>Enable analysis and reporting on XML files.</description>
+  <!-- Be careful when altering <description> as its value shows up in the SonarQube GUI -->
+  <description>Enables analysis and reporting on XML files</description>
   <url>http://redirect.sonarsource.com/plugins/xml.html</url>
 
   <scm>
@@ -30,6 +31,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
       <groupId>xalan</groupId>
       <artifactId>xalan</artifactId>
     </dependency>
@@ -38,7 +43,7 @@
       <artifactId>xercesImpl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -50,7 +55,7 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
@@ -60,5 +65,21 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <configuration>
+          <pluginName>SonarXML</pluginName>
+          <pluginClass>org.sonar.plugins.xml.XmlPlugin</pluginClass>
+          <skipDependenciesPackaging>false</skipDependenciesPackaging>
+          <sonarLintSupported>false</sonarLintSupported>
+          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

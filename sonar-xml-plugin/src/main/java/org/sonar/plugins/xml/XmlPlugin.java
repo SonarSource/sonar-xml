@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -40,7 +40,7 @@ public final class XmlPlugin extends SonarPlugin {
 
   @Override
   public List getExtensions() {
-    return ImmutableList.of(
+    return Arrays.asList(
 
       PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")

@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,14 +20,17 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.base.Charsets;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -43,12 +46,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class LineCounterTest {
+
+  private static final String MODULE_KEY = "modulekey";
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
   private FileLinesContextFactory fileLinesContextFactory;
-  FileLinesContext fileLinesContext;
+  private FileLinesContext fileLinesContext;
 
   @Before
   public void setUp() throws Exception {
@@ -58,55 +65,40 @@ public class LineCounterTest {
   }
 
   @Test
-  public void test_simple_file() {
-    DefaultFileSystem localFS = new DefaultFileSystem(new File("src/test/resources/parsers/linecount/"));
-    DefaultInputFile inputFile = createInputFile("simple.xml");
-    localFS.add(inputFile);
-
-    SensorContext context = mock(SensorContext.class);
-
-    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), Charsets.UTF_8);
-
-    // No empty line at end of file
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(18.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(15.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(1.0));
+  public void test_simple_file() throws IOException {
+    verifyMetrics("simple.xml", 18, 15, 1);
   }
 
   @Test
-  public void test_complex() {
-    DefaultFileSystem localFS = new DefaultFileSystem(new File("src/test/resources/parsers/linecount/"));
-    DefaultInputFile inputFile = createInputFile("complex.xml");
-    localFS.add(createInputFile("complex.xml"));
+  public void test_complex() throws IOException {
+    verifyMetrics("complex.xml", 40, 21, 12);
+  }
 
-    SensorContext context = mock(SensorContext.class);
+  private void verifyMetrics(String filename, int lines, int ncloc, int commentLines) throws IOException {
+    File moduleBaseDir = new File("src/test/resources/parsers/linecount");
+    DefaultInputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
+    String componentKey = getComponentKey(filename);
 
+    DefaultFileSystem localFS = new DefaultFileSystem(moduleBaseDir);
+    localFS.setWorkDir(tmpFolder.newFolder());
+
+    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
     LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), Charsets.UTF_8);
 
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(12.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(40.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(21.0));
+    // No empty line at end of file
+    assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(lines);
+    assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(ncloc);
+    assertThat(context.measure(componentKey, CoreMetrics.COMMENT_LINES).value()).isEqualTo(commentLines);
+  }
+
+  private String getComponentKey(String filename) {
+    return MODULE_KEY + ":" + filename;
   }
 
   @Test // SONARXML-19
   public void test_file_with_char_before_prolog() throws Exception {
-    DefaultFileSystem localFS = new DefaultFileSystem(new File("src/test/resources/parsers/linecount/"));
-    DefaultInputFile inputFile = createInputFile("char_before_prolog.xml");
-    localFS.add(createInputFile("char_before_prolog.xml"));
-    localFS.setWorkDir(tmpFolder.newFolder());
+    verifyMetrics("char_before_prolog.xml", 21, 15, 1);
 
-    SensorContext context = mock(SensorContext.class);
-
-    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS), Charsets.UTF_8);
-
-    verify_line_data();
-
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(1.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(21.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(15.0));
-  }
-
-  private void verify_line_data() {
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(1), eq(0));
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(2), eq(0));
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(3), eq(1));
@@ -115,11 +107,12 @@ public class LineCounterTest {
     verify(fileLinesContext).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), eq(5), eq(1));
   }
 
-  private DefaultInputFile createInputFile(String name) {
-    return new DefaultInputFile(name)
-      .setLanguage(Xml.KEY)
+  private DefaultInputFile createInputFile(Path moduleBaseDir, String name) {
+    return new DefaultInputFile(MODULE_KEY, name)
+      .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
-      .setAbsolutePath(new File("src/test/resources/parsers/linecount/" + name).getAbsolutePath());
+      .setLanguage(Xml.KEY)
+      .setCharset(StandardCharsets.UTF_8);
   }
 
 }

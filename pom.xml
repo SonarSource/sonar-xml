@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>36</version>
+    <version>38</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -65,28 +65,38 @@
 
   <properties>
     <license.title>SonarQube XML Plugin</license.title>
+    <!-- backward compatible with LTS -->
+    <sonarQubeMinVersion>5.6</sonarQubeMinVersion>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>4.5.4</sonar.version>
-    <sslrVersion>1.20</sslrVersion>
-    <sslrSquidVersion>2.6</sslrSquidVersion>
+    <sonar.version>6.2</sonar.version>
+    <sslr.version>1.21</sslr.version>
+    <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
+
+    <commons-lang.version>2.6</commons-lang.version>
+    <commons-io.version>2.5</commons-io.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${sonar.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>
+        <version>${sonar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-colorizer</artifactId>
         <version>${sonar.version}</version>
       </dependency>
       <dependency>
@@ -94,25 +104,63 @@
         <artifactId>maven-project</artifactId>
         <version>2.0.7</version>
       </dependency>
+
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
-        <version>${sslrVersion}</version>
+        <version>${sslr.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sonarsource.sslr-squid-bridge</groupId>
+        <artifactId>sslr-squid-bridge</artifactId>
+        <version>${sslr-squid-bridge.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.sonar.sslr</groupId>
+            <artifactId>sslr-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.sonar.sslr</groupId>
+            <artifactId>sslr-xpath</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-plugin-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
-        <artifactId>sslr-squid-bridge</artifactId>
-        <version>${sslrSquidVersion}</version>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commons-lang.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>

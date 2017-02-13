@@ -1,7 +1,7 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2010-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,18 +19,20 @@
  */
 package org.sonar.plugins.xml;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.measures.Metric;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * Count lines of code in XML files.
@@ -53,9 +55,17 @@ public final class LineCounter {
     }
     fileLinesContext.save();
 
-    context.saveMeasure(xmlFile.getInputFile(), CoreMetrics.LINES, (double) data.linesNumber());
-    context.saveMeasure(xmlFile.getInputFile(), CoreMetrics.COMMENT_LINES, (double) data.effectiveCommentLines().size());
-    context.saveMeasure(xmlFile.getInputFile(), CoreMetrics.NCLOC, (double) data.linesOfCodeLines().size());
+    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.LINES, data.linesNumber());
+    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.COMMENT_LINES, data.effectiveCommentLines().size());
+    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, data.linesOfCodeLines().size());
+  }
+
+  private static <T extends Serializable> void saveMeasure(SensorContext context, InputFile inputFile, Metric<T> metric, T value) {
+    context.<T>newMeasure()
+      .withValue(value)
+      .forMetric(metric)
+      .on(inputFile)
+      .save();
   }
 
   public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile, Charset encoding) {
