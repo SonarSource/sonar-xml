@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class CheckRepository {
 
   public static final String REPOSITORY_KEY = "xml";
-  public static final String REPOSITORY_NAME = "SonarQube";
+  public static final String REPOSITORY_NAME = "SonarAnalyzer";
   public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
 
   private CheckRepository() {
