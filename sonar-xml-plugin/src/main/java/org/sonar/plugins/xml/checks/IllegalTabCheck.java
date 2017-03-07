@@ -21,7 +21,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -39,7 +38,6 @@ import org.w3c.dom.Node;
   name = "Tabulation characters should not be used",
   priority = Priority.MINOR,
   tags = {"convention"})
-@BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MINOR)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
 public class IllegalTabCheck extends AbstractXmlCheck {
