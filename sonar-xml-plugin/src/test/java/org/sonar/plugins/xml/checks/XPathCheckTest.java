@@ -20,7 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import org.junit.Test;
-
+import org.sonar.plugins.xml.parsers.ParseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -90,10 +90,9 @@ public class XPathCheckTest extends AbstractCheckTester {
   /**
    * SONARPLUGINS-1765
    */
-  @Test
-  public void xpathRuleShouldNotCreateViolationForInvalidDocument() throws FileNotFoundException {
-    XmlSourceCode sourceCode = parseAndCheck(SONARSOURCE_FILE, createCheck("//link[@rel]"));
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
+  @Test(expected = ParseException.class)
+  public void xpathRuleShouldRaiseExceptionOnInvalidDocument() throws FileNotFoundException {
+    parseAndCheck(SONARSOURCE_FILE, createCheck("//link[@rel]"));
   }
 
   private static XPathCheck createCheck(String expression) {

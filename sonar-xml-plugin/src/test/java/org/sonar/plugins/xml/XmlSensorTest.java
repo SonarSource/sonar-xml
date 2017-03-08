@@ -22,6 +22,7 @@ package org.sonar.plugins.xml;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -62,28 +64,16 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   private final RuleKey ruleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck");
 
-  @Before
-  public void setUp() throws Exception {
-    File moduleBaseDir = new File("src/test/resources");
-    context = SensorContextTester.create(moduleBaseDir);
+  private final String parsingErrorCheckKey = "S2260";
 
-    fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder("temp"));
-
-    ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(ruleKey)
-      .activate()
-      .build();
-    CheckFactory checkFactory = new CheckFactory(activeRules);
-
-    sensor = new XmlSensor(fs, checkFactory, mock(FileLinesContextFactory.class));
-  }
+  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
 
   /**
    * Expect issue for rule: NewlineCheck
    */
   @Test
   public void testSensor() throws Exception {
+    init(false);
     fs.add(createInputFile("src/pom.xml"));
 
     sensor.analyse(context);
@@ -93,11 +83,11 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   /**
    * SONARXML-19
-   *
    * Expect issue for rule: NewlineCheck
    */
   @Test
   public void should_execute_on_file_with_chars_before_prolog() throws Exception {
+    init(false);
     fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
 
     sensor.analyse(context);
@@ -106,15 +96,63 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   /**
-   * Has issue for rule: NewlineCheck, but should not be reported
+   * Has issue for rule NewlineCheck, but should not be reported.
+   * As rule ParsingErrorCheck is enabled, should report a parsing issue.
    */
   @Test
-  public void should_not_execute_test_on_corrupted_file() throws Exception {
+  public void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
+    init(true);
+    fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
+
+    sensor.analyse(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
+  }
+
+  /**
+   * Has issue for rule NewlineCheck, but should not be reported.
+   * As rule ParsingErrorCheck is not enabled, should not report any issue.
+   */
+  @Test
+  public void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
+    init(false);
     fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
     sensor.analyse(context);
 
     assertThat(context.allIssues()).isEmpty();
+  }
+
+  private void init(boolean activateParsingErrorCheck) throws Exception {
+    File moduleBaseDir = new File("src/test/resources");
+    context = SensorContextTester.create(moduleBaseDir);
+
+    fs = new DefaultFileSystem(moduleBaseDir);
+    fs.setWorkDir(temporaryFolder.newFolder("temp"));
+
+    ActiveRules activeRules = null;
+    if (activateParsingErrorCheck) {
+      activeRules = new ActiveRulesBuilder()
+        .create(ruleKey)
+        .activate()
+        .create(parsingErrorCheckRuleKey)
+        .setInternalKey(parsingErrorCheckKey)
+        .activate()
+        .build();
+    } else {
+      activeRules = new ActiveRulesBuilder()
+        .create(ruleKey)
+        .activate()
+        .build();
+    }
+    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+
+    sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
   }
 
   private DefaultInputFile createInputFile(String name) {
@@ -138,7 +176,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
     fileSystem.setEncoding(fileSystemCharset);
     context.setFileSystem(fileSystem);
-
     String filename = "utf16.xml";
     try (BufferedWriter writer = Files.newBufferedWriter(moduleBaseDir.resolve(filename), fileCharset)) {
       writer.write("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>\n");

@@ -30,6 +30,7 @@ import javax.xml.validation.Validator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.plugins.xml.parsers.ParseException;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,10 +76,9 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   /**
    * SONARXML-13
    */
-  @Test
-  public void no_issue_on_corrupted_file() throws FileNotFoundException {
-    XmlSourceCode sourceCode = parseAndCheck(WRONG_AMPERSAND_FILE, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
-    assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
+  @Test(expected = ParseException.class)
+  public void should_raise_exception_on_corrupted_file() throws FileNotFoundException {
+    parseAndCheck(WRONG_AMPERSAND_FILE, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
   }
 
   @Test
