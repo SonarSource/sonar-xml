@@ -22,8 +22,6 @@ package org.sonar.plugins.xml;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,6 +36,8 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
@@ -60,7 +60,10 @@ import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
  */
 public class XmlSensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
+  /**
+   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
+   */
+  private static final Logger LOG = Loggers.get(XmlSensor.class);
 
   private static final Version V6_0 = Version.create(6, 0);
 
@@ -168,14 +171,14 @@ public class XmlSensor implements Sensor {
   }
 
   private void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile) {
-    if (LOG.isWarnEnabled()) {
-      LOG.warn("Unable to parse file {}", inputFile.absolutePath());
-      LOG.warn("Cause: {}", e.getMessage());
-    }
-
     reportAnalysisError(e, context, inputFile);
 
-    if (parsingErrorRuleKey != null) {
+    if (parsingErrorRuleKey == null) {
+      // the ParsingErrorCheck rule is not activated: we issue a trace in the SQ log file
+      LOG.warn("Unable to parse file {}", inputFile.absolutePath());
+      LOG.warn("Cause: {}", e.getMessage());
+    } else {
+      // the ParsingErrorCheck rule is activated: we create a beautiful issue
       NewIssue newIssue = context.newIssue();
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message("Parse error: " + e.getMessage())

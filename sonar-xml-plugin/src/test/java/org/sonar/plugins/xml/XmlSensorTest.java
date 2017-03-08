@@ -22,13 +22,13 @@ package org.sonar.plugins.xml;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Before;
+import java.util.regex.Pattern;
+import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +45,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -57,6 +58,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DefaultFileSystem fs;
   private XmlSensor sensor;
@@ -97,7 +101,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   /**
    * Has issue for rule NewlineCheck, but should not be reported.
-   * As rule ParsingErrorCheck is enabled, should report a parsing issue.
+   * As rule ParsingErrorCheck is enabled, this test should report a parsing issue.
    */
   @Test
   public void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
@@ -109,11 +113,13 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
+
+    assertNoLog("Unable to parse file .*", true);
   }
 
   /**
    * Has issue for rule NewlineCheck, but should not be reported.
-   * As rule ParsingErrorCheck is not enabled, should not report any issue.
+   * As rule ParsingErrorCheck is not enabled, this test should not report any issue. It should log a trace instead.
    */
   @Test
   public void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
@@ -123,6 +129,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     sensor.analyse(context);
 
     assertThat(context.allIssues()).isEmpty();
+
+    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 
   private void init(boolean activateParsingErrorCheck) throws Exception {
@@ -204,6 +213,30 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     String componentKey = modulekey + ":" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(2);
+  }
+
+  private void assertLog(String expected, boolean isRegexp) {
+    if (isRegexp) {
+      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(expected).matcher(log).matches(), "");
+      assertThat(logTester.logs())
+        .filteredOn(regexpMatches)
+        .as("None of the lines in " + logTester.logs() + " matches regexp [" + expected + "], but one line was expected to match")
+        .isNotEmpty();
+    } else {
+      assertThat(logTester.logs()).contains(expected);
+    }
+  }
+
+  private void assertNoLog(String notExpected, boolean isRegexp) {
+    if (isRegexp) {
+      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(notExpected).matcher(log).matches(), "");
+      assertThat(logTester.logs())
+        .filteredOn(regexpMatches)
+        .as("One of the lines in " + logTester.logs() + " matches regexp [" + notExpected + "], but no line was expected to match")
+        .isEmpty();
+    } else {
+      assertThat(logTester.logs()).doesNotContain(notExpected);
+    }
   }
 
 }
