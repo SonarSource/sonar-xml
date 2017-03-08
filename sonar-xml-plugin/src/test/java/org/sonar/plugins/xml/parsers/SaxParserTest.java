@@ -40,7 +40,7 @@ public class SaxParserTest {
         "</xml>",
         "<!-- Baz -->");
     InputStream input = new ByteArrayInputStream(s.getBytes());
-    Document doc = new SaxParser().parseDocument(null, input, false);
+    Document doc = new SaxParser().parseDocument(input, false);
 
     Node node;
 

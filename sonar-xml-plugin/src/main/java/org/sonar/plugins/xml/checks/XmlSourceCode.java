@@ -73,7 +73,7 @@ public class XmlSourceCode {
   }
 
   private Document parseFile(boolean namespaceAware) {
-    return new SaxParser().parseDocument(xmlFile.getFilePath(), createInputStream(), namespaceAware);
+    return new SaxParser().parseDocument(createInputStream(), namespaceAware);
   }
 
   public CompatibleInputFile getInputFile() {
