@@ -171,6 +171,9 @@ public class XmlSensor implements Sensor {
   private static void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile, Optional<RuleKey> parsingErrorKey) {
     reportAnalysisError(e, context, inputFile);
 
+    LOG.warn("Unable to parse file {}", inputFile.absolutePath());
+    LOG.warn("Cause: {}", e.getMessage());
+
     if (parsingErrorKey.isPresent()) {
       // the ParsingErrorCheck rule is activated: we create a beautiful issue
       NewIssue newIssue = context.newIssue();
@@ -181,10 +184,6 @@ public class XmlSensor implements Sensor {
         .forRule(parsingErrorKey.get())
         .at(primaryLocation)
         .save();
-    } else {
-      // the ParsingErrorCheck rule is not activated: we issue a trace in the SQ log file
-      LOG.warn("Unable to parse file {}", inputFile.absolutePath());
-      LOG.warn("Cause: {}", e.getMessage());
     }
   }
 
