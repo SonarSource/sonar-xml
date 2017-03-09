@@ -50,9 +50,6 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
   static final String INCORRECT_NUMBER_OF_VIOLATIONS = "Incorrect number of violations";
 
-  /**
-   * Intended for testing.
-   */
   XmlSourceCode parseAndCheck(File file, AbstractXmlCheck check) {
     XmlSourceCode xmlSourceCode = new XmlSourceCode(new XmlFile(newInputFile(file), createFileSystem()));
 

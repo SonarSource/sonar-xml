@@ -105,7 +105,7 @@ public class XmlSensor implements Sensor {
       try {
         saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
       } catch (IOException e) {
-        throw new IllegalStateException(e);
+        throw new IllegalStateException("Could not analyze file " + xmlFile.getAbsolutePath(), e);
       }
     }
   }
