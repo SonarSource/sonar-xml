@@ -22,6 +22,7 @@ package org.sonar.plugins.xml;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -71,9 +72,6 @@ public class XmlSensor implements Sensor {
   private final FileSystem fileSystem;
   private final FilePredicate mainFilesPredicate;
   private final FileLinesContextFactory fileLinesContextFactory;
-
-  // parsingErrorRuleKey is null if ParsingErrorCheck is not activated
-  private RuleKey parsingErrorRuleKey = null;
 
   public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
     this.fileLinesContextFactory = fileLinesContextFactory;
@@ -145,7 +143,7 @@ public class XmlSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    initParsingErrorKey();
+    Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
 
     for (CompatibleInputFile inputFile : wrap(fileSystem.inputFiles(mainFilesPredicate), context)) {
       XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
@@ -153,40 +151,40 @@ public class XmlSensor implements Sensor {
         computeLinesMeasures(context, xmlFile);
         runChecks(context, xmlFile);
       } catch (ParseException e) {
-        processParseException(e, context, inputFile);
+        processParseException(e, context, inputFile, parsingErrorKey);
       } catch (RuntimeException e) {
         processException(e, context, inputFile);
       }
     }
   }
 
-  private void initParsingErrorKey() {
+  private Optional<RuleKey> getParsingErrorKey() {
     for (Object obj : checks.all()) {
       AbstractXmlCheck check = (AbstractXmlCheck) obj;
       if (check instanceof ParsingErrorCheck) {
-        parsingErrorRuleKey = checks.ruleKey(check);
-        break;
+        return Optional.of(checks.ruleKey(check));
       }
     }
+    return Optional.empty();
   }
 
-  private void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile) {
+  private static void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile, Optional<RuleKey> parsingErrorKey) {
     reportAnalysisError(e, context, inputFile);
 
-    if (parsingErrorRuleKey == null) {
-      // the ParsingErrorCheck rule is not activated: we issue a trace in the SQ log file
-      LOG.warn("Unable to parse file {}", inputFile.absolutePath());
-      LOG.warn("Cause: {}", e.getMessage());
-    } else {
+    if (parsingErrorKey.isPresent()) {
       // the ParsingErrorCheck rule is activated: we create a beautiful issue
       NewIssue newIssue = context.newIssue();
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message("Parse error: " + e.getMessage())
         .on(inputFile.wrapped());
       newIssue
-        .forRule(parsingErrorRuleKey)
+        .forRule(parsingErrorKey.get())
         .at(primaryLocation)
         .save();
+    } else {
+      // the ParsingErrorCheck rule is not activated: we issue a trace in the SQ log file
+      LOG.warn("Unable to parse file {}", inputFile.absolutePath());
+      LOG.warn("Cause: {}", e.getMessage());
     }
   }
 
