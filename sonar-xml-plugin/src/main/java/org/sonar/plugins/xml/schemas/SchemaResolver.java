@@ -193,7 +193,7 @@ public final class SchemaResolver implements LSResourceResolver {
     try {
       return url.openStream();
     } catch (IOException e) {
-      LOG.warn("Unable to get {}", urlStr, e);
+      LOG.debug("Could not get URL {}, due to {}", urlStr, e.toString());
       return null;
     }
   }

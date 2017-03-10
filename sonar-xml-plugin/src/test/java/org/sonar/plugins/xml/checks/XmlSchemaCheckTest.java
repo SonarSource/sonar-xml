@@ -50,9 +50,12 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void missing_schema() throws FileNotFoundException {
     parseAndCheck(AANKONDIGINGEN_FILE, createCheck("does-not-exist", null));
+
+    assertLog("Cannot validate file .*xhtml", true);
+    assertLog("Cause: .*SchemaNotFoundException: Could not load schema \"does-not-exist\"", true);
   }
 
   @Test
@@ -163,13 +166,22 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void fail_due_to_mixture_of_dtd_and_xsd() throws Exception {
+  public void fail_due_to_mixture_of_dtd_and_xsd_with_schema_provided() throws Exception {
     File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xml");
     String schema = "src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xsd";
     parseAndCheck(xmlFile, createCheck(schema, null));
     
     assertLog("Unable to validate file .*entities\\.xml.*", true);
     assertLog("Cause: .*nested\\.xml.*No such file or directory.*", true);
+  }
+
+  @Test
+  public void fail_due_to_mixture_of_dtd_and_xsd_with_autodetect() throws Exception {
+    File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xml");
+    parseAndCheck(xmlFile, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
+
+    assertLog("Cannot validate file .*entities\\.xml.*", true);
+    assertLog("Cause: .*SchemaNotFoundException: Could not load schema \"http://redone/cbs/apiEntities\"", true);
   }
 
   private static XmlSchemaCheck createCheck(String schema, String filePattern) {

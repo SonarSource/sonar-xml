@@ -148,7 +148,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     for (String schemaReference : schemaList) {
       InputStream input = SchemaResolver.getBuiltinSchema(schemaReference);
       if (input == null) {
-        throw new IllegalStateException("Could not load schema: " + schemaReference);
+        throw new SchemaNotFoundException("Could not load schema \"" + schemaReference + "\"");
       }
       schemaSources.add(new StreamSource(input));
     }
@@ -232,12 +232,16 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   }
 
   private void validate() {
-    if ("autodetect".equalsIgnoreCase(schemas)) {
-      autodetectSchemaAndValidate();
-    } else {
-      String[] schemaList = StringUtils.split(schemas, " \t\n");
-
-      validate(schemaList);
+    try {
+      if ("autodetect".equalsIgnoreCase(schemas)) {
+        autodetectSchemaAndValidate();
+      } else {
+        String[] schemaList = StringUtils.split(schemas, " \t\n");
+        validate(schemaList);
+      }
+    } catch (SchemaNotFoundException e) {
+      LOG.warn("Cannot validate file {}", getWebSourceCode());
+      LOG.warn("Cause: {}", e.toString());
     }
   }
 
@@ -275,4 +279,11 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       validate();
     }
   }
+
+  private static class SchemaNotFoundException extends RuntimeException {
+    SchemaNotFoundException(String msg) {
+      super(msg);
+    }
+  }
+
 }
