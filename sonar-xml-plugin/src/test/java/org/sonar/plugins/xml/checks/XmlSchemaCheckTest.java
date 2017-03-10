@@ -51,7 +51,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void missing_schema() throws FileNotFoundException {
+  public void missing_schema() {
     parseAndCheck(AANKONDIGINGEN_FILE, createCheck("does-not-exist", null));
 
     assertLog("Cannot validate file .*xhtml", true);
@@ -59,25 +59,25 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void schema_as_external_path() throws FileNotFoundException {
+  public void schema_as_external_path() {
     XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, createCheck("src/main/resources/org/sonar/plugins/xml/schemas/xhtml1/xhtml1-frameset.xsd", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 162, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void test_file_pattern() throws FileNotFoundException {
+  public void test_file_pattern() {
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck("src/test/resources/checks/generic/catalog.xsd", "**/generic/**.xml"));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void validate_maven_pom() throws FileNotFoundException {
+  public void validate_maven_pom() {
     XmlSourceCode sourceCode = parseAndCheck(POM_FILE, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void violate_auto_detect_check() throws FileNotFoundException {
+  public void violate_auto_detect_check() {
     XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
@@ -91,7 +91,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void violate_builtin_xhtml_schema_check() throws FileNotFoundException {
+  public void violate_builtin_xhtml_schema_check() {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER_FILE, createCheck("xhtml1-transitional", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 2, sourceCode.getXmlIssues().size());
@@ -99,14 +99,14 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void violate_facelets_schema() throws FileNotFoundException {
+  public void violate_facelets_schema() {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, createCheck("http://java.sun.com/jsf/core", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 0, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void violate_jsf_schema() throws FileNotFoundException {
+  public void violate_jsf_schema() {
     XmlSourceCode sourceCode = parseAndCheck(SALES_ORDER2_FILE, createCheck("http://java.sun.com/jsf/html", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
@@ -114,7 +114,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void violate_local_xml_schema_check() throws FileNotFoundException {
+  public void violate_local_xml_schema_check() {
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck("src/test/resources/checks/generic/catalog.xsd", null));
 
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
@@ -127,20 +127,20 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void schema_as_resource() throws FileNotFoundException {
+  public void schema_as_resource() {
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck("/org/sonar/plugins/xml/schemas/xml.xsd", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void schema_as_url() throws FileNotFoundException {
+  public void schema_as_url() {
     String url = new File("src/test/resources/checks/generic/catalog.xsd").getAbsoluteFile().toURI().toString();
     XmlSourceCode sourceCode = parseAndCheck(CATALOG_FILE, createCheck(url, null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 1, sourceCode.getXmlIssues().size());
   }
 
   @Test
-  public void violate_strict_html1_check() throws FileNotFoundException {
+  public void violate_strict_html1_check() {
     XmlSourceCode sourceCode = parseAndCheck(AANKONDIGINGEN_FILE, createCheck("xhtml1-strict", null));
     assertEquals(INCORRECT_NUMBER_OF_VIOLATIONS, 164, sourceCode.getXmlIssues().size());
   }
@@ -166,7 +166,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void fail_due_to_mixture_of_dtd_and_xsd_with_schema_provided() throws Exception {
+  public void fail_due_to_mixture_of_dtd_and_xsd_with_schema_provided() {
     File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xml");
     String schema = "src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xsd";
     parseAndCheck(xmlFile, createCheck(schema, null));
@@ -176,7 +176,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
   }
 
   @Test
-  public void fail_due_to_mixture_of_dtd_and_xsd_with_autodetect() throws Exception {
+  public void fail_due_to_mixture_of_dtd_and_xsd_with_autodetect() {
     File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xml");
     parseAndCheck(xmlFile, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
 
