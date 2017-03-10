@@ -36,15 +36,19 @@ public class XmlSourceCodeTest {
   @Test
   public void unknown_file() {
     File file = new File("src/test/resources/unknown.xml");
-    File moduleBaseDir = file.getParentFile().getAbsoluteFile();
-    DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
-    DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
-    XmlFile xmlFile = new XmlFile(wrap(inputFile), fileSystem);
-    XmlSourceCode xmlSourceCode = new XmlSourceCode(xmlFile);
+    XmlSourceCode xmlSourceCode = createXmlSourceCode(file);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage(file.getAbsolutePath());
     xmlSourceCode.parseSource();
+  }
+
+  private XmlSourceCode createXmlSourceCode(File file) {
+    File moduleBaseDir = file.getParentFile().getAbsoluteFile();
+    DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
+    DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
+    XmlFile xmlFile = new XmlFile(wrap(inputFile), fileSystem);
+    return new XmlSourceCode(xmlFile);
   }
 
 }
