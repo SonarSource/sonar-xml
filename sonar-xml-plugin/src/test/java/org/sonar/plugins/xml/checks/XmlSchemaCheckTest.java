@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import java.io.File;
+import java.util.regex.Pattern;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import javax.xml.XMLConstants;
@@ -27,10 +28,12 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.plugins.xml.parsers.ParseException;
+import org.sonar.api.utils.log.LogTester;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +43,9 @@ import static org.junit.Assert.assertEquals;
  * @author Matthijs Galesloot
  */
 public class XmlSchemaCheckTest extends AbstractCheckTester {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -156,6 +162,16 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     XmlSchemaCheck.setFeature(validator, "xxx", true);
   }
 
+  @Test
+  public void fail_due_to_mixture_of_dtd_and_xsd() throws Exception {
+    File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xml");
+    String schema = "src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xsd";
+    parseAndCheck(xmlFile, createCheck(schema, null));
+    
+    assertLog("Unable to validate file .*entities\\.xml.*", true);
+    assertLog("Cause: .*nested\\.xml.*No such file or directory.*", true);
+  }
+
   private static XmlSchemaCheck createCheck(String schema, String filePattern) {
     XmlSchemaCheck check = new XmlSchemaCheck();
     check.setSchemas(schema);
@@ -163,4 +179,17 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
 
     return check;
   }
+  
+  private void assertLog(String expected, boolean isRegexp) {
+    if (isRegexp) {
+      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(expected).matcher(log).matches(), "");
+         assertThat(logTester.logs())
+           .filteredOn(regexpMatches)
+           .as("None of the lines in " + logTester.logs() + " matches regexp [" + expected + "], but one line was expected to match")
+           .isNotEmpty();
+     } else {
+         assertThat(logTester.logs()).contains(expected);
+     }
+   }
+
 }

@@ -35,8 +35,8 @@ import javax.xml.validation.Validator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -79,7 +79,11 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     type = "TEXT")
   private String schemas;
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
+  /**
+   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
+   */
+  private static final Logger LOG = Loggers.get(XmlSchemaCheck.class);
+
   private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<>();
   public static final String DEFAULT_SCHEMA = "autodetect";
 
@@ -246,9 +250,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
     // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
-      }
+      LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
 
     } catch (SAXException e) {
@@ -257,7 +259,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       }
 
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      LOG.warn("Unable to validate file {}", getWebSourceCode());
+      LOG.warn("Cause: {}", e.getMessage());
 
     } catch (UnrecoverableParseError e) {
       // ignore, message already reported.
