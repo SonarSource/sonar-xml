@@ -27,8 +27,6 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,8 +43,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Matthijs Galesloot
  */
 public final class SaxParser extends AbstractParser {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SaxParser.class);
 
   /**
    * From http://will.thestranathans.com/post/1026712315/getting-line-numbers-from-xpath-in-java
@@ -223,16 +219,14 @@ public final class SaxParser extends AbstractParser {
     parser.parse(input, handler);
   }
 
-  public Document parseDocument(String originalFilePath, InputStream input, boolean namespaceAware) {
+  public Document parseDocument(InputStream input, boolean namespaceAware) {
     try {
       Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
       LocationRecordingHandler handler = new LocationRecordingHandler(document);
       parse(input, handler, namespaceAware);
       return document;
     } catch (Exception e) {
-      LOG.warn("Unable to anayle file {}", originalFilePath);
-      LOG.warn("Cause: {}", e.toString());
-      return null;
+      throw new ParseException(e);
     }
   }
 

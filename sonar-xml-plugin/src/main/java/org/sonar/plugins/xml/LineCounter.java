@@ -31,6 +31,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.parsers.LineCountParser;
+import org.sonar.plugins.xml.parsers.ParseException;
 import org.xml.sax.SAXException;
 
 /**
@@ -75,9 +76,9 @@ public final class LineCounter {
         xmlFile,
         new LineCountParser(xmlFile.getContents(), xmlFile.getCharset()).getLineCountData(),
         fileLinesContextFactory.createFor(xmlFile.getInputFile().wrapped()), context);
-    } catch (Exception e) {
-      LOG.warn("Unable to count lines for file: " + xmlFile.getAbsolutePath());
-      LOG.warn("Cause: ", e);
+    } catch (IOException | SAXException e) {
+      LOG.debug("Unable to count lines for file " + xmlFile.getAbsolutePath());
+      throw new ParseException(e);
     }
   }
 

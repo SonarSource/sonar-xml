@@ -20,7 +20,9 @@
 package org.sonar.plugins.xml;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,8 +35,13 @@ import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
 import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
@@ -42,6 +49,8 @@ import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.parsers.ParseException;
+import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
@@ -51,6 +60,13 @@ import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
  * @author Matthijs Galesloot
  */
 public class XmlSensor implements Sensor {
+
+  /**
+   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
+   */
+  private static final Logger LOG = Loggers.get(XmlSensor.class);
+
+  private static final Version V6_0 = Version.create(6, 0);
 
   private final Checks<Object> checks;
   private final FileSystem fileSystem;
@@ -75,20 +91,20 @@ public class XmlSensor implements Sensor {
   }
 
   private void runChecks(SensorContext context, XmlFile xmlFile) {
-    try {
-      XmlSourceCode sourceCode = new XmlSourceCode(xmlFile);
+    XmlSourceCode sourceCode = new XmlSourceCode(xmlFile);
 
-      // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
-      if (sourceCode.parseSource()) {
-        for (Object check : checks.all()) {
-          ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
-          ((AbstractXmlCheck) check).validate(sourceCode);
-        }
-        saveIssue(context, sourceCode);
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
+    // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
+    if (sourceCode.parseSource()) {
+      for (Object check : checks.all()) {
+        ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
+        ((AbstractXmlCheck) check).validate(sourceCode);
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not analyze the file " + xmlFile.getAbsolutePath(), e);
+      saveIssue(context, sourceCode);
+      try {
+        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
+      } catch (IOException e) {
+        throw new IllegalStateException("Could not analyze file " + xmlFile.getAbsolutePath(), e);
+      }
     }
   }
 
@@ -127,11 +143,63 @@ public class XmlSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
+
     for (CompatibleInputFile inputFile : wrap(fileSystem.inputFiles(mainFilesPredicate), context)) {
       XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
-
-      computeLinesMeasures(context, xmlFile);
-      runChecks(context, xmlFile);
+      try {
+        computeLinesMeasures(context, xmlFile);
+        runChecks(context, xmlFile);
+      } catch (ParseException e) {
+        processParseException(e, context, inputFile, parsingErrorKey);
+      } catch (RuntimeException e) {
+        processException(e, context, inputFile);
+      }
     }
   }
+
+  private Optional<RuleKey> getParsingErrorKey() {
+    for (Object obj : checks.all()) {
+      AbstractXmlCheck check = (AbstractXmlCheck) obj;
+      if (check instanceof ParsingErrorCheck) {
+        return Optional.of(checks.ruleKey(check));
+      }
+    }
+    return Optional.empty();
+  }
+
+  private static void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile, Optional<RuleKey> parsingErrorKey) {
+    reportAnalysisError(e, context, inputFile);
+
+    LOG.warn("Unable to parse file {}", inputFile.absolutePath());
+    LOG.warn("Cause: {}", e.getMessage());
+
+    if (parsingErrorKey.isPresent()) {
+      // the ParsingErrorCheck rule is activated: we create a beautiful issue
+      NewIssue newIssue = context.newIssue();
+      NewIssueLocation primaryLocation = newIssue.newLocation()
+        .message("Parse error: " + e.getMessage())
+        .on(inputFile.wrapped());
+      newIssue
+        .forRule(parsingErrorKey.get())
+        .at(primaryLocation)
+        .save();
+    }
+  }
+
+  private static void processException(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
+    reportAnalysisError(e, context, inputFile);
+
+    throw new AnalysisException("Unable to analyse file " + inputFile.absolutePath(), e);
+  }
+
+  private static void reportAnalysisError(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
+      context.newAnalysisError()
+        .onFile(inputFile.wrapped())
+        .message(e.getMessage())
+        .save();
+    }
+  }
+
 }

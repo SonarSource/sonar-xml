@@ -19,32 +19,19 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
 
-public class CheckRepository {
+@Rule(
+  key = "S2260",
+  name = "XML parser failure",
+  priority = Priority.MAJOR)
+public class ParsingErrorCheck extends AbstractXmlCheck {
 
-  public static final String REPOSITORY_KEY = "xml";
-  public static final String REPOSITORY_NAME = "SonarAnalyzer";
-  public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
-
-  private CheckRepository() {
-  }
-
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new IllegalTabCheck(),
-      new IndentCheck(),
-      new NewlineCheck(),
-      new XmlSchemaCheck(),
-      new CharBeforePrologCheck(),
-      new ParsingErrorCheck(),
-      new XPathCheck());
-  }
-
-  public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
+  @Override
+  public void validate(XmlSourceCode xmlSourceCode) {
+    // we don't do anything here. Having the XML file parsable (well formed) is a precondition
+    // for all rules and thus checked up front.
   }
 
 }

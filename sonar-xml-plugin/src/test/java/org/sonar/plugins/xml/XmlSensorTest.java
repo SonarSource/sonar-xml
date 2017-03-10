@@ -27,7 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Before;
+import java.util.regex.Pattern;
+import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,10 +40,12 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 
@@ -56,34 +59,25 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private DefaultFileSystem fs;
   private XmlSensor sensor;
   private SensorContextTester context;
 
   private final RuleKey ruleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck");
 
-  @Before
-  public void setUp() throws Exception {
-    File moduleBaseDir = new File("src/test/resources");
-    context = SensorContextTester.create(moduleBaseDir);
+  private final String parsingErrorCheckKey = "S2260";
 
-    fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder("temp"));
-
-    ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(ruleKey)
-      .activate()
-      .build();
-    CheckFactory checkFactory = new CheckFactory(activeRules);
-
-    sensor = new XmlSensor(fs, checkFactory, mock(FileLinesContextFactory.class));
-  }
+  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
 
   /**
    * Expect issue for rule: NewlineCheck
    */
   @Test
   public void testSensor() throws Exception {
+    init(false);
     fs.add(createInputFile("src/pom.xml"));
 
     sensor.analyse(context);
@@ -93,11 +87,11 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   /**
    * SONARXML-19
-   *
    * Expect issue for rule: NewlineCheck
    */
   @Test
   public void should_execute_on_file_with_chars_before_prolog() throws Exception {
+    init(false);
     fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
 
     sensor.analyse(context);
@@ -106,15 +100,69 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   /**
-   * Has issue for rule: NewlineCheck, but should not be reported
+   * Has issue for rule NewlineCheck, but should not be reported.
+   * As rule ParsingErrorCheck is enabled, this test should report a parsing issue. It should also log a trace.
    */
   @Test
-  public void should_not_execute_test_on_corrupted_file() throws Exception {
+  public void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
+    init(true);
+    fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
+
+    sensor.analyse(context);
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next();
+    assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
+
+    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
+  }
+
+  /**
+   * Has issue for rule NewlineCheck, but should not be reported.
+   * As rule ParsingErrorCheck is not enabled, this test should not report any issue. It should log a trace instead.
+   */
+  @Test
+  public void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
+    init(false);
     fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
     sensor.analyse(context);
 
     assertThat(context.allIssues()).isEmpty();
+
+    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
+  }
+
+  private void init(boolean activateParsingErrorCheck) throws Exception {
+    File moduleBaseDir = new File("src/test/resources");
+    context = SensorContextTester.create(moduleBaseDir);
+
+    fs = new DefaultFileSystem(moduleBaseDir);
+    fs.setWorkDir(temporaryFolder.newFolder("temp"));
+
+    ActiveRules activeRules = null;
+    if (activateParsingErrorCheck) {
+      activeRules = new ActiveRulesBuilder()
+        .create(ruleKey)
+        .activate()
+        .create(parsingErrorCheckRuleKey)
+        .setInternalKey(parsingErrorCheckKey)
+        .activate()
+        .build();
+    } else {
+      activeRules = new ActiveRulesBuilder()
+        .create(ruleKey)
+        .activate()
+        .build();
+    }
+    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+
+    sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
   }
 
   private DefaultInputFile createInputFile(String name) {
@@ -138,7 +186,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
     fileSystem.setEncoding(fileSystemCharset);
     context.setFileSystem(fileSystem);
-
     String filename = "utf16.xml";
     try (BufferedWriter writer = Files.newBufferedWriter(moduleBaseDir.resolve(filename), fileCharset)) {
       writer.write("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>\n");
@@ -167,6 +214,30 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     String componentKey = modulekey + ":" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(2);
+  }
+
+  private void assertLog(String expected, boolean isRegexp) {
+    if (isRegexp) {
+      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(expected).matcher(log).matches(), "");
+      assertThat(logTester.logs())
+        .filteredOn(regexpMatches)
+        .as("None of the lines in " + logTester.logs() + " matches regexp [" + expected + "], but one line was expected to match")
+        .isNotEmpty();
+    } else {
+      assertThat(logTester.logs()).contains(expected);
+    }
+  }
+
+  private void assertNoLog(String notExpected, boolean isRegexp) {
+    if (isRegexp) {
+      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(notExpected).matcher(log).matches(), "");
+      assertThat(logTester.logs())
+        .filteredOn(regexpMatches)
+        .as("One of the lines in " + logTester.logs() + " matches regexp [" + notExpected + "], but no line was expected to match")
+        .isEmpty();
+    } else {
+      assertThat(logTester.logs()).doesNotContain(notExpected);
+    }
   }
 
 }

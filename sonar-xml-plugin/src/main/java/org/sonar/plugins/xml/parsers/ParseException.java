@@ -17,34 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.parsers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+public class ParseException extends RuntimeException {
 
-public class CheckRepository {
+  private static final long serialVersionUID = -3118758075218569915L;
 
-  public static final String REPOSITORY_KEY = "xml";
-  public static final String REPOSITORY_NAME = "SonarAnalyzer";
-  public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
-
-  private CheckRepository() {
-  }
-
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new IllegalTabCheck(),
-      new IndentCheck(),
-      new NewlineCheck(),
-      new XmlSchemaCheck(),
-      new CharBeforePrologCheck(),
-      new ParsingErrorCheck(),
-      new XPathCheck());
-  }
-
-  public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
+  public ParseException(Exception cause) {
+    super(cause);
   }
 
 }
