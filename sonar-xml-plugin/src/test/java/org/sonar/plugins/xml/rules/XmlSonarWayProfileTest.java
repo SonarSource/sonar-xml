@@ -42,7 +42,7 @@ public class XmlSonarWayProfileTest {
     ValidationMessages validation = ValidationMessages.create();
 
     RuleFinder ruleFinder = ruleFinder();
-    XmlSonarWayProfile definition = new XmlSonarWayProfile(new AnnotationProfileParser(ruleFinder));
+    XmlSonarWayProfile definition = new XmlSonarWayProfile(ruleFinder);
     RulesProfile profile = definition.createProfile(validation);
 
     assertThat(profile.getLanguage()).isEqualTo(Xml.KEY);
