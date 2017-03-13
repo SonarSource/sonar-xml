@@ -21,24 +21,16 @@ package org.sonar.plugins.xml.checks;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
+ * RSPEC-2321.
  * Perform check for newline after elements.
- *
  * @author Matthijs Galesloot
  */
-@Rule(key = "NewlineCheck",
-  name = "Newlines should follow each element",
-  priority = Priority.MINOR)
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("2min")
+@Rule(key = "NewlineCheck")
 public class NewlineCheck extends AbstractXmlCheck {
 
   /**
@@ -59,7 +51,7 @@ public class NewlineCheck extends AbstractXmlCheck {
       } else if (nodeType == Node.ELEMENT_NODE) {
         // check if there is a new node before we have had any newlines.
         if (!newline) {
-          createViolation(getWebSourceCode().getLineForNode(child), "Node should be on the next line");
+          createViolation(getWebSourceCode().getLineForNode(child), "Start every element on a separate line.");
         } else {
           newline = false;
         }

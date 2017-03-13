@@ -35,17 +35,17 @@ import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-@Rule(
-  key = "XPathCheck",
-  name = "XPath rule",
-  priority = Priority.MAJOR)
+/**
+ * RSPEC-140.
+ */
+@Rule(key = "XPathCheck")
 @RuleTemplate
 public class XPathCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "expression", description = "The XPath query", type = "TEXT")
   private String expression;
 
-  @RuleProperty(key = "filePattern", description = "Files to be validated using Ant-style matching patterns.")
+  @RuleProperty(key = "filePattern", description = "The files to be validated using Ant-style matching patterns")
   private String filePattern;
 
   @RuleProperty(

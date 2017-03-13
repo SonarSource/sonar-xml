@@ -19,13 +19,9 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 
-@Rule(
-  key = "S2260",
-  name = "XML parser failure",
-  priority = Priority.MAJOR)
+@Rule(key = "S2260")
 public class ParsingErrorCheck extends AbstractXmlCheck {
 
   @Override

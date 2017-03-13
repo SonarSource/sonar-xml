@@ -20,27 +20,17 @@
 package org.sonar.plugins.xml.checks;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
+ * RSPEC-1120.
  * Perform check for indenting of elements.
- *
  * @author Matthijs Galesloot
  */
-@Rule(
-  key = "IndentCheck",
-  name = "Source code should be indented consistently",
-  priority = Priority.MINOR,
-  tags = {"convention"})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("1min")
+@Rule(key = "IndentCheck")
 public class IndentCheck extends AbstractXmlCheck {
 
   private static final String MESSAGE = "Make this line start at column %s.";

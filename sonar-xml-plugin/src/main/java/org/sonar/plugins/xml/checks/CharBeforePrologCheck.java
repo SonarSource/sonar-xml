@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 
 /**
@@ -28,10 +26,7 @@ import org.sonar.check.Rule;
  *
  * @author Matthijs Galesloot
  */
-@Rule(key = "S1778",
-  name = "XML files containing a prolog header should start first with \"<?xml\" characters",
-  priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckRepository.SONAR_WAY_PROFILE_NAME, priority = Priority.MAJOR)
+@Rule(key = "S1778")
 public class CharBeforePrologCheck extends AbstractXmlCheck {
 
   @Override
@@ -39,7 +34,7 @@ public class CharBeforePrologCheck extends AbstractXmlCheck {
     setWebSourceCode(xmlSourceCode);
 
     if (getWebSourceCode().isPrologFirstInSource()) {
-      createViolation(getWebSourceCode().getXMLPrologLine(), "Remove all character before \"<?xml\".");
+      createViolation(getWebSourceCode().getXMLPrologLine(), "Remove all characters located before \"<?xml\".");
     }
   }
 
