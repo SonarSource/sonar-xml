@@ -184,6 +184,17 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     assertLog("Cause: .*SchemaNotFoundException: Could not load schema \"http://redone/cbs/apiEntities\"", true);
   }
 
+  /**
+   * XSD files are never checked.
+   */
+  @Test
+  public void skip_schema() {
+    File xmlFile = new File("src/test/resources/checks/XmlSchemaCheck/dtd_and_xsd/entities.xsd");
+    parseAndCheck(xmlFile, createCheck(XmlSchemaCheck.DEFAULT_SCHEMA, null));
+
+    assertLog(".*entities\\.xsd is XSD, so not checked", true);
+  }
+
   private static XmlSchemaCheck createCheck(String schema, String filePattern) {
     XmlSchemaCheck check = new XmlSchemaCheck();
     check.setSchemas(schema);

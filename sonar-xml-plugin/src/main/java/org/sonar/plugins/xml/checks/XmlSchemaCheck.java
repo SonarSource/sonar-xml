@@ -273,10 +273,13 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
   @Override
   public void validate(XmlSourceCode xmlSourceCode) {
-    setWebSourceCode(xmlSourceCode);
-
-    if (schemas != null && isFileIncluded(filePattern)) {
-      validate();
+    if (xmlSourceCode.isXsd()) {
+      LOG.debug("File {} is XSD, so not checked", xmlSourceCode);
+    } else {
+      setWebSourceCode(xmlSourceCode);
+      if (schemas != null && isFileIncluded(filePattern)) {
+        validate();
+      }
     }
   }
 

@@ -103,6 +103,10 @@ public class XmlSourceCode {
     return xmlFile.hasCharsBeforeProlog();
   }
 
+  public boolean isXsd() {
+    return xmlFile.getFilePath().endsWith(".xsd");
+  }
+
   @Override
   public String toString() {
     return xmlFile.getInputFile().absolutePath();
