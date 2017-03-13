@@ -55,7 +55,6 @@ public final class LineCounter {
     }
     fileLinesContext.save();
 
-    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.LINES, data.linesNumber());
     saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.COMMENT_LINES, data.effectiveCommentLines().size());
     saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, data.linesOfCodeLines().size());
   }
