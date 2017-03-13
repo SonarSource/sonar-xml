@@ -35,8 +35,8 @@ import javax.xml.validation.Validator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -79,7 +79,11 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     type = "TEXT")
   private String schemas;
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
+  /**
+   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
+   */
+  private static final Logger LOG = Loggers.get(XmlSchemaCheck.class);
+
   private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<>();
   public static final String DEFAULT_SCHEMA = "autodetect";
 
@@ -144,7 +148,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     for (String schemaReference : schemaList) {
       InputStream input = SchemaResolver.getBuiltinSchema(schemaReference);
       if (input == null) {
-        throw new IllegalStateException("Could not load schema: " + schemaReference);
+        throw new SchemaNotFoundException("Could not load schema \"" + schemaReference + "\"");
       }
       schemaSources.add(new StreamSource(input));
     }
@@ -228,12 +232,16 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   }
 
   private void validate() {
-    if ("autodetect".equalsIgnoreCase(schemas)) {
-      autodetectSchemaAndValidate();
-    } else {
-      String[] schemaList = StringUtils.split(schemas, " \t\n");
-
-      validate(schemaList);
+    try {
+      if ("autodetect".equalsIgnoreCase(schemas)) {
+        autodetectSchemaAndValidate();
+      } else {
+        String[] schemaList = StringUtils.split(schemas, " \t\n");
+        validate(schemaList);
+      }
+    } catch (SchemaNotFoundException e) {
+      LOG.warn("Cannot validate file {}", getWebSourceCode());
+      LOG.warn("Cause: {}", e.toString());
     }
   }
 
@@ -246,9 +254,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
     // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
-      }
+      LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
       validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
 
     } catch (SAXException e) {
@@ -257,7 +263,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       }
 
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      LOG.warn("Unable to validate file {}", getWebSourceCode());
+      LOG.warn("Cause: {}", e.getMessage());
 
     } catch (UnrecoverableParseError e) {
       // ignore, message already reported.
@@ -266,10 +273,20 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
 
   @Override
   public void validate(XmlSourceCode xmlSourceCode) {
-    setWebSourceCode(xmlSourceCode);
-
-    if (schemas != null && isFileIncluded(filePattern)) {
-      validate();
+    if (xmlSourceCode.isXsd()) {
+      LOG.debug("File {} is XSD, so not checked", xmlSourceCode);
+    } else {
+      setWebSourceCode(xmlSourceCode);
+      if (schemas != null && isFileIncluded(filePattern)) {
+        validate();
+      }
     }
   }
+
+  private static class SchemaNotFoundException extends RuntimeException {
+    SchemaNotFoundException(String msg) {
+      super(msg);
+    }
+  }
+
 }

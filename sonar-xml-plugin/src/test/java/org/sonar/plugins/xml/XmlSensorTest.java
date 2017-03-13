@@ -213,7 +213,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     sensor.analyse(context);
 
     String componentKey = modulekey + ":" + filename;
-    assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(2);
+    assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(2);
   }
 
   private void assertLog(String expected, boolean isRegexp) {
