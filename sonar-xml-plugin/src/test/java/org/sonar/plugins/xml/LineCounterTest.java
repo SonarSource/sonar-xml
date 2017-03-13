@@ -67,15 +67,15 @@ public class LineCounterTest {
 
   @Test
   public void test_simple_file() throws IOException {
-    verifyMetrics("simple.xml", 18, 15, 1);
+    verifyMetrics("simple.xml", 15, 1);
   }
 
   @Test
   public void test_complex() throws IOException {
-    verifyMetrics("complex.xml", 40, 21, 12);
+    verifyMetrics("complex.xml", 21, 12);
   }
 
-  private void verifyMetrics(String filename, int lines, int ncloc, int commentLines) throws IOException {
+  private void verifyMetrics(String filename, int ncloc, int commentLines) throws IOException {
     File moduleBaseDir = new File("src/test/resources/parsers/linecount");
     CompatibleInputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
     String componentKey = getComponentKey(filename);
@@ -87,7 +87,6 @@ public class LineCounterTest {
     LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS));
 
     // No empty line at end of file
-    assertThat(context.measure(componentKey, CoreMetrics.LINES).value()).isEqualTo(lines);
     assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(ncloc);
     assertThat(context.measure(componentKey, CoreMetrics.COMMENT_LINES).value()).isEqualTo(commentLines);
   }
@@ -98,7 +97,7 @@ public class LineCounterTest {
 
   @Test // SONARXML-19
   public void test_file_with_char_before_prolog() throws Exception {
-    verifyMetrics("char_before_prolog.xml", 21, 15, 1);
+    verifyMetrics("char_before_prolog.xml", 15, 1);
 
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(1), eq(0));
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(2), eq(0));
