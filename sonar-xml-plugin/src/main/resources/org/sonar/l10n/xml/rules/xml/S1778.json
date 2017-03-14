@@ -1,0 +1,9 @@
+{
+  "title": "XML files containing a prolog header should start with \"<?xml\" characters",
+  "type": "BUG",
+  "status": "ready",
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical"
+}

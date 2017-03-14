@@ -1,0 +1,9 @@
+{
+  "title": "XML files should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}

@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
@@ -51,15 +50,11 @@ import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
 /**
+ * RSPEC-2322.
  * Perform schema check using xerces parser.
- *
  * @author Matthijs Galesloot
  */
-@Rule(
-  key = "XmlSchemaCheck",
-  name = "XML schemas should be valid",
-  priority = Priority.MAJOR
-)
+@Rule(key = "XmlSchemaCheck")
 @RuleTemplate
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
