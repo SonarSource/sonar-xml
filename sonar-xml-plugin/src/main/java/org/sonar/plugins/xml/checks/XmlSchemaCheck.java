@@ -35,8 +35,8 @@ import javax.xml.validation.Validator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
@@ -74,7 +74,11 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     type = "TEXT")
   private String schemas;
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlSchemaCheck.class);
+  /**
+   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
+   */
+  private static final Logger LOG = Loggers.get(XmlSchemaCheck.class);
+
   private static final Map<String, Schema> CACHED_SCHEMAS = new HashMap<>();
   public static final String DEFAULT_SCHEMA = "autodetect";
 
@@ -124,7 +128,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   /**
    * Create xsd schema for a list of schema's.
    */
-  private static Schema createSchema(String[] schemaList) {
+  private Schema createSchema(String[] schemaList) {
 
     final String cacheKey = StringUtils.join(schemaList, ",");
     // first try to load a cached schema.
@@ -139,7 +143,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     for (String schemaReference : schemaList) {
       InputStream input = SchemaResolver.getBuiltinSchema(schemaReference);
       if (input == null) {
-        throw new IllegalStateException("Could not load schema: " + schemaReference);
+        throw new SchemaNotFoundException("Could not load schema \"" + schemaReference + "\"");
       }
       schemaSources.add(new StreamSource(input));
     }
@@ -153,15 +157,18 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       CACHED_SCHEMAS.put(cacheKey, schema);
       return schema;
     } catch (SAXException e) {
-      throw new IllegalStateException(e);
+      LOG.warn("Could not validate file {}", getWebSourceCode());
+      LOG.warn("Reason: Unable to create schema for [{}]", cacheKey);
+      LOG.warn("Cause:  {}", e.toString());
+      return null;
     }
   }
 
   private void autodetectSchemaAndValidate() {
     final Doctype doctype = detectSchema();
 
-    // first try doctype as this is more specific
     if (doctype.getDtd() != null) {
+      // first try doctype as this is more specific
       InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
       if (input == null) {
         LOG.error("Could not validate {} for doctype {}", getWebSourceCode(), doctype.getDtd());
@@ -169,9 +176,8 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
         IOUtils.closeQuietly(input);
         validate(new String[]{doctype.getDtd()});
       }
-    }
-    // try namespace
-    else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
+    } else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
+      // try namespace
       validate(new String[]{doctype.getNamespace()});
     } else {
       LOG.info("Could not autodetect schema for {}, skip validation.", getWebSourceCode());
@@ -223,48 +229,60 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
   }
 
   private void validate() {
-    if ("autodetect".equalsIgnoreCase(schemas)) {
-      autodetectSchemaAndValidate();
-    } else {
-      String[] schemaList = StringUtils.split(schemas, " \t\n");
-
-      validate(schemaList);
+    try {
+      if ("autodetect".equalsIgnoreCase(schemas)) {
+        autodetectSchemaAndValidate();
+      } else {
+        String[] schemaList = StringUtils.split(schemas, " \t\n");
+        validate(schemaList);
+      }
+    } catch (SchemaNotFoundException e) {
+      LOG.warn("Cannot validate file {}", getWebSourceCode());
+      LOG.warn("Cause: {}", e.toString());
     }
   }
 
   private void validate(String[] schemaList) {
-    // Create a new validator
-    Validator validator = createSchema(schemaList).newValidator();
-    setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
-    validator.setErrorHandler(new MessageHandler());
-    validator.setResourceResolver(new SchemaResolver());
+    Schema schema = createSchema(schemaList);
+    if (schema != null) {
+      Validator validator = schema.newValidator();
+      setFeature(validator, Constants.XERCES_FEATURE_PREFIX + "continue-after-fatal-error", true);
+      validator.setErrorHandler(new MessageHandler());
+      validator.setResourceResolver(new SchemaResolver());
 
-    // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
-    try {
-      if (LOG.isInfoEnabled()) {
+      // Validate and catch the exceptions. MessageHandler will receive the errors and warnings.
+      try {
         LOG.info("Validating {} with schema {}", getWebSourceCode(), StringUtils.join(schemaList, ","));
+        validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
+
+      } catch (SAXException e) {
+        if (!containsMessage(e)) {
+          createViolation(0, e.getMessage());
+        }
+
+      } catch (IOException e) {
+        LOG.warn("Unable to validate file {}", getWebSourceCode());
+        LOG.warn("Cause: {}", e.getMessage());
+
+      } catch (UnrecoverableParseError e) {
+        // ignore, message already reported.
       }
-      validator.validate(new StreamSource(getWebSourceCode().createInputStream()));
-
-    } catch (SAXException e) {
-      if (!containsMessage(e)) {
-        createViolation(0, e.getMessage());
-      }
-
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-
-    } catch (UnrecoverableParseError e) {
-      // ignore, message already reported.
     }
   }
 
   @Override
   public void validate(XmlSourceCode xmlSourceCode) {
     setWebSourceCode(xmlSourceCode);
-
     if (schemas != null && isFileIncluded(filePattern)) {
       validate();
     }
   }
+
+  @SuppressWarnings("serial")
+  private static class SchemaNotFoundException extends RuntimeException {
+    SchemaNotFoundException(String msg) {
+      super(msg);
+    }
+  }
+
 }
