@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 import javax.annotation.Nullable;
-import org.sonar.api.internal.google.gson.Gson;
+import com.google.gson.Gson;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;

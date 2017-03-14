@@ -21,10 +21,10 @@ package org.sonar.plugins.xml.rules;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
-import org.sonar.api.internal.google.gson.Gson;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
