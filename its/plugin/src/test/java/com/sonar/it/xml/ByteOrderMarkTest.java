@@ -19,15 +19,14 @@
  */
 package com.sonar.it.xml;
 
-import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
+import java.io.File;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.SonarClient;
+import org.sonarqube.ws.client.GetRequest;
 
+import static com.sonar.it.xml.XmlTestSuite.newWsClient;
 import static org.fest.assertions.Assertions.assertThat;
-
-import java.io.File;
 
 public class ByteOrderMarkTest {
 
@@ -48,9 +47,10 @@ public class ByteOrderMarkTest {
       .setSourceEncoding("utf-8")
       .setSourceDirs("."));
 
-    SonarClient sonarClient = orchestrator.getServer().adminWsClient();
     Object fileKey = PROJECT_KEY + ":utf8-bom.xml";
-    String highlighting = sonarClient.get("/api/sources/show", ImmutableMap.of("key", fileKey));
+    String highlighting = newWsClient().wsConnector().call(new GetRequest("api/sources/show").setParam("key", fileKey))
+      .failIfNotSuccessful()
+      .content();
     assertThat(highlighting).contains("<span class=\\\"k\\\">&lt;?xml</span>");
   }
 

@@ -19,20 +19,21 @@
  */
 package com.sonar.it.xml;
 
-import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
-
-import static org.fest.assertions.Assertions.assertThat;
-
 import java.io.File;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+
+import static com.sonar.it.xml.XmlTestSuite.newAdminWsClient;
+import static com.sonar.it.xml.XmlTestSuite.newWsClient;
+import static java.lang.String.format;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SchemaCheckTest {
 
@@ -44,27 +45,7 @@ public class SchemaCheckTest {
   @Test
   public void test() {
     String ruleKey = "schemaCheck1";
-    SonarClient sonarClient = orchestrator.getServer().adminWsClient();
-    sonarClient.post("/api/rules/create", ImmutableMap.<String, Object>builder()
-      .put("name", "rule1")
-      .put("markdown_description", "rule1")
-      .put("severity", "INFO")
-      .put("status", "READY")
-      .put("template_key", "xml:XmlSchemaCheck")
-      .put("custom_key", ruleKey)
-      .put("prevent_reactivation", "true")
-      .put("params", "schemas=autodetect")
-      .build());
-    String profiles = sonarClient.get("api/rules/app");
-    Pattern pattern = Pattern.compile("xml-empty-\\d+");
-    Matcher matcher = pattern.matcher(profiles);
-    assertThat(matcher.find());
-    String profilekey = matcher.group();
-    sonarClient.post("api/qualityprofiles/activate_rule",
-      "profile_key", profilekey,
-      "rule_key", "xml:" + ruleKey,
-      "severity", "INFO",
-      "params", "");
+    createAndActivateRuleFromTemplate(ruleKey);
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xml", "empty");
@@ -81,6 +62,31 @@ public class SchemaCheckTest {
     Issue issue = issues.get(0);
     assertThat(issue.componentKey()).isEqualTo(PROJECT_KEY + ":invalid-html.xml");
     assertThat(issue.line()).isEqualTo(7);
+  }
+
+  private void createAndActivateRuleFromTemplate(String ruleKey) {
+    String language = "xml";
+    String qualityProfileName = "empty";
+    newAdminWsClient().wsConnector().call(new PostRequest("api/rules/create")
+      .setParam("name", "rule1")
+      .setParam("markdown_description", "rule1")
+      .setParam("severity", "INFO")
+      .setParam("status", "READY")
+      .setParam("template_key", "xml:XmlSchemaCheck")
+      .setParam("custom_key", ruleKey)
+      .setParam("prevent_reactivation", "true")
+      .setParam("params", "schemas=autodetect")).failIfNotSuccessful();
+
+    QualityProfiles.SearchWsResponse.QualityProfile qualityProfile = newWsClient().qualityProfiles().search(new SearchWsRequest()).getProfilesList().stream()
+      .filter(qp -> qp.getLanguage().equals(language))
+      .filter(qp -> qp.getName().equals(qualityProfileName))
+      .findFirst().orElseThrow(() -> new IllegalStateException(format("Could not find quality profile '%s' for language '%s' ", qualityProfileName, language)));
+    String profileKey = qualityProfile.getKey();
+
+    newAdminWsClient().wsConnector().call(new PostRequest("api/qualityprofiles/activate_rule")
+      .setParam("profile_key", profileKey)
+      .setParam("rule_key", "xml:" + ruleKey)
+      .setParam("severity", "INFO")).failIfNotSuccessful();
   }
 
 }
