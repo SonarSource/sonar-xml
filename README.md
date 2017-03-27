@@ -1,9 +1,9 @@
-# SonarXML [![Build Status](https://travis-ci.org/SonarCommunity/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
+# SonarXML [![Build Status](https://travis-ci.org/SonarSource/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
 
 SonarXML is a code analyzer for XML files.
 
 Project homepage:
-http://docs.sonarqube.org/display/PLUG/XML+Plugin
+https://redirect.sonarsource.com/plugins/xml.html
 
 Issue tracking:
 https://jira.sonarsource.com/browse/SONARXML/
