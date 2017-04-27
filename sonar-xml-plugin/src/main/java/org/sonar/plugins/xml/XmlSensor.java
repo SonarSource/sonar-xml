@@ -123,8 +123,10 @@ public class XmlSensor implements Sensor {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
         .on(sourceCode.getInputFile().wrapped())
-        .at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()))
         .message(xmlIssue.getMessage());
+      if (xmlIssue.getLine() != null) {
+        location.at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()));
+      }
       newIssue.at(location).save();
     }
   }

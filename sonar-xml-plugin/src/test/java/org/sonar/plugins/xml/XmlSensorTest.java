@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml;
 
+import com.google.common.collect.ImmutableList;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +48,9 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.checks.XmlIssue;
+import org.sonar.plugins.xml.checks.XmlSourceCode;
+import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -173,6 +177,22 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
       .setCharset(StandardCharsets.UTF_8);
     defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), StandardCharsets.UTF_8));
     return defaultInputFile;
+  }
+
+  @Test
+  public void should_store_issue_with_no_line() throws Exception {
+    init(false);
+
+    XmlSourceCode sourceCode = mock(XmlSourceCode.class);
+    XmlIssue issueWithNoLine = new XmlIssue(RuleKey.parse("SomeRepo:SomeCheck"), null, "Hello, the line is null");
+    when(sourceCode.getXmlIssues()).thenReturn(ImmutableList.of(issueWithNoLine));
+    when(sourceCode.getInputFile()).thenReturn(new CompatibleInputFile(createInputFile("src/pom.xml")));  // any file fits
+
+    sensor.saveIssue(context, sourceCode);
+
+    assertThat(context.allIssues()).hasSize(1);
+    Issue issue = context.allIssues().iterator().next(); 
+    assertThat(issue.primaryLocation().textRange()).isNull();
   }
 
   @Test
