@@ -46,7 +46,7 @@ public final class LineCounter {
   private LineCounter() {
   }
 
-  private static void saveMeasures(XmlFile xmlFile, LineCountData data, FileLinesContext fileLinesContext, SensorContext context) throws IOException, SAXException {
+  private static void saveMeasures(XmlFile xmlFile, LineCountData data, FileLinesContext fileLinesContext, SensorContext context) {
     data.updateAccordingTo(xmlFile.getLineDelta());
 
     for (int line = 1; line <= data.linesNumber(); line++) {

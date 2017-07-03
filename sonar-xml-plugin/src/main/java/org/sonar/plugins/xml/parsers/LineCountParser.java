@@ -20,7 +20,13 @@
 package org.sonar.plugins.xml.parsers;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
+import javax.xml.parsers.SAXParser;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.Attributes;
@@ -30,13 +36,6 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.parsers.SAXParser;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Counting comment lines, blank lines in XML files
@@ -67,7 +66,7 @@ public final class LineCountParser extends AbstractParser {
     parser.parse(new ByteArrayInputStream(contents.getBytes(charset)), commentHandler);
   }
 
-  private void processBlankLines(String contents) throws IOException {
+  private void processBlankLines(String contents) {
     Set<Integer> blankLines = new HashSet<>();
     String lineSeparatorRegexp = "(?:\r)?\n|\r";
 
