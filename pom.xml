@@ -10,7 +10,7 @@
 
   <groupId>org.sonarsource.xml</groupId>
   <artifactId>xml</artifactId>
-  <version>1.5-SNAPSHOT</version>
+  <version>1.4.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>XML</name>
