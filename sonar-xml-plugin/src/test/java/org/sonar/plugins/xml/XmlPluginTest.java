@@ -33,13 +33,13 @@ public class XmlPluginTest {
   @Test
   public void count_extensions_for_sonarqube_server_6_0() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 0), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.0").hasSize(6);
+    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.0").hasSize(5);
   }
 
   @Test
   public void count_extensions_for_sonarqube_server_6_2() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.2").hasSize(6);
+    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.2").hasSize(5);
   }
 
   private Plugin.Context setupContext(SonarRuntime runtime) {
