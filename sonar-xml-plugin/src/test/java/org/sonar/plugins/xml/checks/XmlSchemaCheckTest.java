@@ -28,6 +28,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
@@ -176,7 +177,7 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     parseAndCheck(xmlFile, createCheck(schema, null));
     
     assertLog("Unable to validate file .*entities\\.xml.*", true);
-    assertLog("Cause: .*nested\\.xml.*No such file or directory.*", true);
+    assertLog("Cause: .*nested\\.xml.*(No such file or directory|The system cannot find the file specified).*", true);
   }
 
   @Test

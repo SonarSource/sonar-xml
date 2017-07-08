@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- could be a Spring, Maven, or other config file. This file is used to validate that lines of code are counted for this kind of XML resource. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>test</groupId>
+  <artifactId>test</artifactId>
+  <version>1.0</version>
+  <packaging>pom</packaging>
+  <name>test</name>
+  <build>
+    <sourceDirectory>src/main/code</sourceDirectory>
+  </build> 
+  <properties>
+  	<sonar.xml.sourceDirectory>src</sonar.xml.sourceDirectory>
+  	<sonar.language>xml</sonar.language>
+    <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
+    <sonar.xml.fileExtensions>xml</sonar.xml.fileExtensions>
+    <sonar.xml.schemas>xhtml1-strict</sonar.xml.schemas>
+  </properties>
+</project>

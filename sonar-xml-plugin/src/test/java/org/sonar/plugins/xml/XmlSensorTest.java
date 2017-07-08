@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.regex.Pattern;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
@@ -42,6 +43,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -102,6 +104,48 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
   }
+  
+  @Test
+  public void should_skip_line_count_for_only_specified_filenames() throws Exception {
+    init(true, "some-data-file.xml,bogus-filename.xml");
+    fs.add(createInputFile("xmlsensor/some-data-file.xml"));
+    fs.add(createInputFile("xmlsensor/some-configuration-is-code-file.xml"));
+
+    // Run
+    sensor.analyse(context);
+
+    // Check
+    Measure<Integer> nclocMeasure = context.measure("modulekey:xmlsensor/some-configuration-is-code-file.xml", "ncloc");
+    assertThat(nclocMeasure.value()).isEqualTo(20);
+    System.out.println(nclocMeasure.value());
+
+    nclocMeasure = context.measure("xmlsensor/some-data-file.xml", "ncloc");
+    assertThat(nclocMeasure).isNull();
+
+    assertLog("Skipping lines of code computation for file 'some-data-file.xml'", false);
+    assertNoLog("Skipping lines of code computation for file 'some-configuration-is-code-file.xml'", false);
+  }
+
+  @Test
+  public void should_skip_line_count_for_only_specified_filenames_REGEX() throws Exception {
+    init(true, "some-(data|spring-config)-file.xml,bogus-filename.xml");
+    fs.add(createInputFile("xmlsensor/some-data-file.xml"));
+    fs.add(createInputFile("xmlsensor/some-configuration-is-code-file.xml"));
+
+    // Run
+    sensor.analyse(context);
+
+    // Check
+    Measure<Integer> nclocMeasure = context.measure("modulekey:xmlsensor/some-configuration-is-code-file.xml", "ncloc");
+    assertThat(nclocMeasure.value()).isEqualTo(20);
+    System.out.println(nclocMeasure.value());
+
+    nclocMeasure = context.measure("xmlsensor/some-data-file.xml", "ncloc");
+    assertThat(nclocMeasure).isNull();
+
+    assertLog("Skipping lines of code computation for file 'some-data-file.xml'", false);
+    assertNoLog("Skipping lines of code computation for file 'some-configuration-is-code-file.xml'", false);
+  }
 
   /**
    * Has issue for rule NewlineCheck, but should not be reported.
@@ -140,9 +184,17 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   private void init(boolean activateParsingErrorCheck) throws Exception {
+    init(activateParsingErrorCheck, null);
+  }
+  
+  private void init(boolean activateParsingErrorCheck, String linesOfCodeCountingExclusionPatternsSetting) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
-
+    if (linesOfCodeCountingExclusionPatternsSetting != null) {
+      context.settings().appendProperty(XmlSensor.FILENAME_LIST_TO_EXCLUDE_FROM_LOC_METRIC_KEY, 
+                                        linesOfCodeCountingExclusionPatternsSetting);
+    }
+    
     fs = new DefaultFileSystem(moduleBaseDir);
     fs.setWorkDir(temporaryFolder.newFolder("temp"));
 
@@ -166,7 +218,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
 
-    sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
+    sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory, context);
   }
 
   private DefaultInputFile createInputFile(String name) {
@@ -229,7 +281,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
-    sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory);
+    sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory, context);
     sensor.analyse(context);
 
     String componentKey = modulekey + ":" + filename;

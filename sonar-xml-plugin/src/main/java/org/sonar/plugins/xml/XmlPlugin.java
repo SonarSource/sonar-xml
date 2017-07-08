@@ -45,6 +45,12 @@ public final class XmlPlugin implements Plugin {
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
+      PropertyDefinition.builder(XmlSensor.FILENAME_LIST_TO_EXCLUDE_FROM_LOC_METRIC_KEY)
+        .name("Filenames to ignore when counting lines of code")
+        .description("Comma-separated list of file name patterns to skip when counting lines of code. You may use regular expressions as long as they don't contain commas. Usage example: You generate an effective-pom.xml file during your scan and want your Sonarqube rules to run against it BUT don't want the line count for that file captured.")
+        .defaultValue("")
+        .category("XML")
+        .build(),
       Xml.class,
       XmlRulesDefinition.class,
       XmlSonarWayProfile.class,

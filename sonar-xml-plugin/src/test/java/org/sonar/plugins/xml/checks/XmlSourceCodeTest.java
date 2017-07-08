@@ -20,6 +20,8 @@
 package org.sonar.plugins.xml.checks;
 
 import java.io.File;
+
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,10 +41,18 @@ public class XmlSourceCodeTest {
     XmlSourceCode xmlSourceCode = createXmlSourceCode(file);
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage(file.getAbsolutePath());
+    thrown.expectMessage(applyThisExceptionsSeparatorConvention(file.getAbsolutePath()));
     xmlSourceCode.parseSource();
   }
-
+  
+  /**
+   * Our exception uses the linux filename convention even on MS Windows. Expect that.
+   * @param path
+   * @return
+   */
+  private String applyThisExceptionsSeparatorConvention(String path) {
+    return path.replace("\\", "/");
+  }
   private XmlSourceCode createXmlSourceCode(File file) {
     File moduleBaseDir = file.getParentFile().getAbsoluteFile();
     DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
