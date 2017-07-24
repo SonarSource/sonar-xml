@@ -21,8 +21,11 @@ package org.sonar.plugins.xml;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
+
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -66,20 +69,24 @@ public class XmlSensor implements Sensor {
    */
   private static final Logger LOG = Loggers.get(XmlSensor.class);
 
+  public static final String FILENAME_LIST_TO_EXCLUDE_FROM_LOC_METRIC_KEY = "sonar-xml.filename-list-to-exclude-from-lines-of-code-metric";
   private static final Version V6_0 = Version.create(6, 0);
 
   private final Checks<Object> checks;
   private final FileSystem fileSystem;
   private final FilePredicate mainFilesPredicate;
   private final FileLinesContextFactory fileLinesContextFactory;
+  private final Pattern linesOfCodeCountingExclusionsRegexPattern;
 
-  public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
+  public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, SensorContext context) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.checks = checkFactory.create(CheckRepository.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses());
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(Xml.KEY));
+    String locExclusionRegexPatternString = buildLOCCountExclusionFilePatternsRegex(context.settings().getStringArray(FILENAME_LIST_TO_EXCLUDE_FROM_LOC_METRIC_KEY));
+    this.linesOfCodeCountingExclusionsRegexPattern = "".equals(locExclusionRegexPatternString) ? null : Pattern.compile(locExclusionRegexPatternString);
   }
 
   public void analyse(SensorContext sensorContext) {
@@ -87,7 +94,11 @@ public class XmlSensor implements Sensor {
   }
 
   private void computeLinesMeasures(SensorContext context, XmlFile xmlFile) {
-    LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+    if (shouldCountLinesOfCode(context, xmlFile)) {
+      LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+    } else {
+      LOG.debug("Skipping lines of code computation for file '" + xmlFile.getInputFile().fileName() + "'");
+    }
   }
 
   private void runChecks(SensorContext context, XmlFile xmlFile) {
@@ -106,6 +117,37 @@ public class XmlSensor implements Sensor {
         throw new IllegalStateException("Could not analyze file " + xmlFile.getAbsolutePath(), e);
       }
     }
+  }
+
+  private boolean shouldCountLinesOfCode(SensorContext context, XmlFile xmlFile) {
+    boolean result = true;
+    
+    if (linesOfCodeCountingExclusionsRegexPattern != null &&
+        linesOfCodeCountingExclusionsRegexPattern.matcher(xmlFile.getInputFile().fileName()).matches()) {
+      result = false;
+    }
+    
+    return result;
+  }
+  
+  private String buildLOCCountExclusionFilePatternsRegex(final String[] exclusionSettingValue) {
+    List<String> ignoreTheseFiles = Arrays.asList(exclusionSettingValue);
+    
+    StringBuilder regex = new StringBuilder();
+    boolean firstPass = true;
+    
+    for (String currentFilePattern : ignoreTheseFiles) {
+      if (firstPass) {
+        firstPass = false;
+      }
+      else {
+        regex.append("|");
+      }
+      
+      regex.append(currentFilePattern);
+    }
+    
+    return regex.toString();
   }
 
   private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
