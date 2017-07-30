@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import java.io.File;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +40,7 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Matthijs Galesloot
@@ -177,7 +179,10 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
     parseAndCheck(xmlFile, createCheck(schema, null));
     
     assertLog("Unable to validate file .*entities\\.xml.*", true);
-    assertLog("Cause: .*nested\\.xml.*(No such file or directory|The system cannot find the file specified).*", true);
+
+    String expectedErrorOnLinux = "Cause: .*nested\\.xml.*No such file or directory.*";
+    String expectedErrorOnWindows = "Cause: .*nested\\.xml.*The system cannot find the file specified.*";
+    assertTrue(logsContain(expectedErrorOnLinux) || logsContain(expectedErrorOnWindows));
   }
 
   @Test
@@ -230,6 +235,18 @@ public class XmlSchemaCheckTest extends AbstractCheckTester {
      } else {
          assertThat(logTester.logs()).contains(expected);
      }
-   }
+  }
+
+  private boolean logsContain(String expectedLogStringRegex) {
+    boolean patternFound = false;
+    Matcher matcher = Pattern.compile(expectedLogStringRegex).matcher("");
+    for (String currentLogLine : logTester.logs()) {
+      matcher.reset(currentLogLine);
+      if (matcher.matches()) {
+        patternFound = true;
+      }
+    }
+    return patternFound;
+  }
 
 }

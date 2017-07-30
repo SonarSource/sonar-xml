@@ -321,9 +321,9 @@ public class XmlHighlightingTest {
     HighlightingData firstHighlightingData = getFirstHighlightingData("bomCharBeforeProlog.xml");
     // <?xml
     // Below allows for carriage return and newline character usage differences between the Linux and Windows platforms
-    assertTrue(firstHighlightingData.startOffset() == 1 || firstHighlightingData.startOffset() == 2);
-    assertTrue(firstHighlightingData.endOffset() == 6 || firstHighlightingData.endOffset() == 7);
-    assertTrue(TypeOfText.KEYWORD.equals(firstHighlightingData.highlightCode()));
+    int expectedStartOffset = System.getProperty("os.name").contains("Windows") ? 2 : 1;
+    int expectedEndOffset = System.getProperty("os.name").contains("Windows") ? 7 : 6;
+    assertData(firstHighlightingData, expectedStartOffset, expectedEndOffset, TypeOfText.KEYWORD);
   }
 
   private HighlightingData getFirstHighlightingData(String filename) throws IOException {
