@@ -19,23 +19,24 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
-import java.io.InputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.plugins.xml.checks.XmlFile;
-
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.xml.checks.XmlFile;
+
+import static java.lang.String.format;
 
 public class XMLHighlighting {
 
@@ -48,7 +49,7 @@ public class XMLHighlighting {
   private int currentStartOffset = -1;
   private TypeOfText currentCode = null;
 
-  private static final Logger LOG = LoggerFactory.getLogger(XMLHighlighting.class);
+  private static final Logger LOG = Loggers.get(XMLHighlighting.class);
 
   public XMLHighlighting(XmlFile xmlFile) throws IOException {
     content = xmlFile.getContents();
@@ -57,7 +58,7 @@ public class XMLHighlighting {
     try (InputStream inputStream = xmlFile.getInputStream()) {
       highlightXML(new InputStreamReader(inputStream, xmlFile.getCharset()));
     } catch (XMLStreamException e) {
-      LOG.warn("Can't highlight following file : " + xmlFile.getAbsolutePath(), e);
+      LOG.warn(format("Can't highlight following file : %s", xmlFile.getAbsolutePath()), e);
     }
   }
 
@@ -115,7 +116,7 @@ public class XMLHighlighting {
     }
   }
 
-  private void highlightDTD( int startOffset) {
+  private void highlightDTD(int startOffset) {
     int closingBracketStartOffset;
     closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
     addHighlighting(startOffset, startOffset + 9, TypeOfText.STRUCTURED_COMMENT);
@@ -145,7 +146,8 @@ public class XMLHighlighting {
       && prevLocation.getColumnNumber() == xmlReader.getLocation().getColumnNumber();
 
     if (isEmptyElement) {
-      // empty (or autoclosing) element is raised twice as start and end element, so we need to highlight closing "/" which is placed just before ">"
+      // empty (or autoclosing) element is raised twice as start and end element, so we need to highlight closing "/" which is placed just before
+      // ">"
       addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset, TypeOfText.KEYWORD);
 
     } else {
@@ -186,7 +188,6 @@ public class XMLHighlighting {
         startOffset = counter;
       }
 
-
       if (attributeValueQuote != null && attributeValueQuote == c) {
         addHighlighting(startOffset, counter + 1, TypeOfText.STRING);
         counter++;
@@ -205,7 +206,6 @@ public class XMLHighlighting {
         startOffset = counter;
         attributeValueQuote = c;
       }
-
 
       counter++;
     }

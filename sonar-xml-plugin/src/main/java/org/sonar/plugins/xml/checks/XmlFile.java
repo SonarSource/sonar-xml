@@ -20,18 +20,19 @@
 package org.sonar.plugins.xml.checks;
 
 import com.google.common.io.Files;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.Utils;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
+
+import static java.lang.String.format;
 
 /**
  * Checks and analyzes report measurements, issues and other findings in WebSourceCode.
@@ -40,7 +41,7 @@ import org.sonar.plugins.xml.compat.CompatibleInputFile;
  */
 public class XmlFile {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XmlFile.class);
+  private static final Logger LOG = Loggers.get(XmlFile.class);
   private static final String XML_PROLOG_START_TAG = "<?xml";
   public static final String BOM_CHAR = "\ufeff";
 
@@ -98,7 +99,7 @@ public class XmlFile {
         processCharBeforePrologInFile(fileSystem, lineNb);
       }
     } catch (IOException e) {
-      LOG.warn("Unable to analyse file {}", inputFile.absolutePath(), e);
+      LOG.warn(format("Unable to analyse file %s", inputFile.absolutePath()), e);
     }
   }
 
