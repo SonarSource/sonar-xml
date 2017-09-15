@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
@@ -27,10 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
-public class FileUtils {
-  private FileUtils() {
+public class Utils {
+  private Utils() {
     // utility class, forbidden constructor
   }
 
@@ -46,5 +48,20 @@ public class FileUtils {
 
   public static String contents(Path path, Charset charset) throws IOException {
     return new String(Files.readAllBytes(path), charset);
+  }
+
+  /**
+   * Close and ignore exception on errors.
+   * It's not recommended to use this method, or at least its implementation
+   * should be improved in order to log the exception.
+   */
+  public static void closeQuietly(@Nullable Closeable closeable) {
+    try {
+      if (closeable != null) {
+        closeable.close();
+      }
+    } catch (IOException ioe) {
+      // ignore
+    }
   }
 }

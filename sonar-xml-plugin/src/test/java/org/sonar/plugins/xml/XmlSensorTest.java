@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.collect.ImmutableList;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +52,7 @@ import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -185,7 +185,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     XmlSourceCode sourceCode = mock(XmlSourceCode.class);
     XmlIssue issueWithNoLine = new XmlIssue(RuleKey.parse("SomeRepo:SomeCheck"), null, "Hello, the line is null");
-    when(sourceCode.getXmlIssues()).thenReturn(ImmutableList.of(issueWithNoLine));
+    when(sourceCode.getXmlIssues()).thenReturn(singletonList(issueWithNoLine));
     when(sourceCode.getInputFile()).thenReturn(new CompatibleInputFile(createInputFile("src/pom.xml")));  // any file fits
 
     sensor.saveIssue(context, sourceCode);

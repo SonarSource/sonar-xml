@@ -19,11 +19,11 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -64,7 +64,7 @@ public final class XmlSonarWayProfile extends ProfileDefinition {
     URL profileUrl = XmlSonarWayProfile.class.getResource("/org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json");
     try {
       Gson gson = new Gson();
-      return gson.fromJson(Resources.toString(profileUrl, Charsets.UTF_8), Profile.class).ruleKeys;
+      return gson.fromJson(Resources.toString(profileUrl, StandardCharsets.UTF_8), Profile.class).ruleKeys;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read " + profileUrl, e);
     }

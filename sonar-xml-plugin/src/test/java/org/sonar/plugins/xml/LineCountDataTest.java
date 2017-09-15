@@ -34,7 +34,7 @@ public class LineCountDataTest {
   public void test_updateAccordingTo_a_delta() throws Exception {
     Path path = Paths.get("src/test/resources/parsers/linecount/simple.xml");
     Charset charset = StandardCharsets.UTF_8;
-    LineCountData data = new LineCountParser(FileUtils.contents(path, charset), charset).getLineCountData();
+    LineCountData data = new LineCountParser(Utils.contents(path, charset), charset).getLineCountData();
 
     data.updateAccordingTo(3);
 

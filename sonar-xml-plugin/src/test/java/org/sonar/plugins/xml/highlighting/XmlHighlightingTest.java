@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.highlighting;
 
-import com.google.common.base.Strings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.nio.file.Path;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -189,7 +189,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void testBigCDATA() throws Exception {
-    String cdataContent = Strings.repeat("x", 100000);
+    String cdataContent = StringUtils.repeat("x", 100000);
     List<HighlightingData> highlightingData = new XMLHighlighting(
       "<tag><![CDATA[" + cdataContent + "]]></tag>").getHighlightingData();
     assertEquals(5, highlightingData.size());

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,13 +31,13 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.impl.Constants;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.xml.Utils;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
@@ -173,7 +172,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
       if (input == null) {
         LOG.error("Could not validate {} for doctype {}", getWebSourceCode(), doctype.getDtd());
       } else {
-        IOUtils.closeQuietly(input);
+        Utils.closeQuietly(input);
         validate(new String[]{doctype.getDtd()});
       }
     } else if (doctype.getNamespace() != null && !StringUtils.isEmpty(doctype.getNamespace())) {
@@ -211,7 +210,7 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     return schemas;
   }
 
-  @VisibleForTesting
+  // VisibleForTesting
   static void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);

@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.xml.language;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.plugins.xml.XmlPlugin;
-
-import java.util.List;
 
 /**
  * This class defines the XML language.
@@ -66,7 +65,7 @@ public class Xml extends AbstractLanguage {
   }
 
   private static String[] filterEmptyStrings(String[] stringArray) {
-    List<String> nonEmptyStrings = Lists.newArrayList();
+    List<String> nonEmptyStrings = new ArrayList<>();
     for (String string : stringArray) {
       if (StringUtils.isNotBlank(string.trim())) {
         nonEmptyStrings.add(string.trim());
