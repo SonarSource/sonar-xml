@@ -33,7 +33,7 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static com.sonar.it.xml.XmlTestSuite.newAdminWsClient;
 import static com.sonar.it.xml.XmlTestSuite.newWsClient;
 import static java.lang.String.format;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchemaCheckTest {
 
@@ -49,7 +49,7 @@ public class SchemaCheckTest {
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xml", "empty");
-    orchestrator.executeBuild(XmlTestSuite.createSonarRunner()
+    orchestrator.executeBuild(XmlTestSuite.createSonarScanner()
       .setProjectDir(new File("projects/schema-check"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)

@@ -20,7 +20,7 @@
 package com.sonar.it.xml;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.util.List;
@@ -54,8 +54,8 @@ public class XmlTestSuite {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .build();
 
-  public static SonarRunner createSonarRunner() {
-    SonarRunner build = SonarRunner.create();
+  public static SonarScanner createSonarScanner() {
+    SonarScanner build = SonarScanner.create();
     // xhtml has been removed from default file suffixes (SONARXML-5)
     build.setProperty("sonar.xml.file.suffixes", ".xml,.xhtml");
     return build;

@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Matthijs Galesloot
