@@ -19,9 +19,10 @@
  */
 package org.sonar.plugins.xml.parsers;
 
-import com.google.common.base.Joiner;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -61,7 +62,7 @@ public class SaxParserTest {
   }
 
   private static String lines(String... lines) {
-    return Joiner.on('\n').join(lines);
+    return Arrays.stream(lines).collect(Collectors.joining("\n"));
   }
 
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -117,7 +116,7 @@ public class XmlSensor implements Sensor {
     highlighting.save();
   }
 
-  @VisibleForTesting
+  // VisibleForTesting
   protected void saveIssue(SensorContext context, XmlSourceCode sourceCode) {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());

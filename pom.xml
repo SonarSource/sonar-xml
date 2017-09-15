@@ -80,7 +80,6 @@
     <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
 
     <commons-lang.version>2.6</commons-lang.version>
-    <commons-io.version>2.5</commons-io.version>
   </properties>
 
   <dependencyManagement>
@@ -159,9 +158,9 @@
         <version>${commons-lang.version}</version>
       </dependency>
       <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>3.0.2</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>

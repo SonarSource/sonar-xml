@@ -22,8 +22,8 @@ package org.sonar.plugins.xml.parsers;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
-import org.apache.commons.io.IOUtils;
 import org.apache.xerces.impl.Constants;
+import org.sonar.plugins.xml.Utils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -135,7 +135,7 @@ public final class DetectSchemaParser extends AbstractParser {
     } catch (IOException | SAXException e) {
       throw new IllegalStateException(e);
     } finally {
-      IOUtils.closeQuietly(input);
+      Utils.closeQuietly(input);
     }
   }
 }

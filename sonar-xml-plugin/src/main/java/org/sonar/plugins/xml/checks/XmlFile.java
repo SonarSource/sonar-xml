@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.plugins.xml.FileUtils;
+import org.sonar.plugins.xml.Utils;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
 /**
@@ -76,7 +76,7 @@ public class XmlFile {
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
       boolean hasBOM = false;
 
-      for (String line : FileUtils.readLines(inputFile)) {
+      for (String line : Utils.readLines(inputFile)) {
         if (lineNb == 1 && line.startsWith(BOM_CHAR)) {
           hasBOM = true;
           characterDeltaForHighlight = -1;
@@ -159,7 +159,7 @@ public class XmlFile {
     if (noCharBeforePrologFile == null) {
       return inputFile.contents();
     }
-    return FileUtils.contents(noCharBeforePrologFile.toPath(), inputFile.charset());
+    return Utils.contents(noCharBeforePrologFile.toPath(), inputFile.charset());
   }
 
   public int getPrologLine() {

@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.plugins.xml.FileUtils;
+import org.sonar.plugins.xml.Utils;
 import org.sonar.plugins.xml.LineCountData;
 import org.xml.sax.SAXException;
 
@@ -77,7 +77,7 @@ public class LineCountParserTest {
   }
 
   private String newInputFile(String path, Charset charset) throws IOException {
-    return FileUtils.contents(Paths.get(path), charset);
+    return Utils.contents(Paths.get(path), charset);
   }
 
   private LineCountData newLineCountData(String path) throws Exception {
