@@ -10,7 +10,7 @@
 
   <artifactId>xml-squid</artifactId>
 
-  <name>XML :: Squid</name>
+  <name>SonarXML :: Squid</name>
 
   <dependencies>
     <dependency>
