@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>xml-its</artifactId>
-  <name>XML :: IT</name>
+  <name>SonarXML :: IT</name>
   <packaging>pom</packaging>
 
   <modules>

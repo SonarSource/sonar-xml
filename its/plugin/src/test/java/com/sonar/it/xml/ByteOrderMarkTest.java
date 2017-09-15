@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 
 import static com.sonar.it.xml.XmlTestSuite.newWsClient;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByteOrderMarkTest {
 
@@ -39,7 +39,7 @@ public class ByteOrderMarkTest {
   public void test() throws Exception {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xml", "it-profile");
-    orchestrator.executeBuild(XmlTestSuite.createSonarRunner()
+    orchestrator.executeBuild(XmlTestSuite.createSonarScanner()
       .setProjectDir(new File("projects/" + PROJECT_KEY))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)

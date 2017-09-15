@@ -27,8 +27,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SaxParserTest {
 
@@ -46,19 +45,19 @@ public class SaxParserTest {
     Node node;
 
     node = doc.getChildNodes().item(0);
-    assertThat(node.getNodeType(), is(Node.COMMENT_NODE));
-    assertThat(node.getNodeValue(), is(" Foo "));
-    assertThat(SaxParser.getLineNumber(node), is(1));
+    assertThat(node.getNodeType()).isEqualTo(Node.COMMENT_NODE);
+    assertThat(node.getNodeValue()).isEqualTo(" Foo ");
+    assertThat(SaxParser.getLineNumber(node)).isEqualTo(1);
 
     node = doc.getChildNodes().item(1).getChildNodes().item(1);
-    assertThat(node.getNodeType(), is(Node.COMMENT_NODE));
-    assertThat(node.getNodeValue(), is(" Bar "));
-    assertThat(SaxParser.getLineNumber(node), is(3));
+    assertThat(node.getNodeType()).isEqualTo(Node.COMMENT_NODE);
+    assertThat(node.getNodeValue()).isEqualTo(" Bar ");
+    assertThat(SaxParser.getLineNumber(node)).isEqualTo(3);
 
     node = doc.getChildNodes().item(2);
-    assertThat(node.getNodeType(), is(Node.COMMENT_NODE));
-    assertThat(node.getNodeValue(), is(" Baz "));
-    assertThat(SaxParser.getLineNumber(node), is(5));
+    assertThat(node.getNodeType()).isEqualTo(Node.COMMENT_NODE);
+    assertThat(node.getNodeValue()).isEqualTo(" Baz ");
+    assertThat(SaxParser.getLineNumber(node)).isEqualTo(5);
   }
 
   private static String lines(String... lines) {

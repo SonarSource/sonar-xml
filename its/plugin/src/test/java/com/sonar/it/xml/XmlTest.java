@@ -20,7 +20,7 @@
 package com.sonar.it.xml;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -29,7 +29,7 @@ import org.sonarqube.ws.WsMeasures.Measure;
 
 import static com.sonar.it.xml.XmlTestSuite.getMeasure;
 import static com.sonar.it.xml.XmlTestSuite.getMeasureAsDouble;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlTest {
 
@@ -77,7 +77,7 @@ public class XmlTest {
     orchestrator.getServer().provisionProject(name, name);
     orchestrator.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
 
-    SonarRunner build = XmlTestSuite.createSonarRunner()
+    SonarScanner build = XmlTestSuite.createSonarScanner()
       .setProjectName(name)
       .setProjectKey(name)
       .setProjectDir(new File("projects/" + name));
