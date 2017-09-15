@@ -30,8 +30,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -46,7 +46,7 @@ import org.w3c.dom.ls.LSResourceResolver;
 public final class SchemaResolver implements LSResourceResolver {
 
   private static final String XHTML1_STRICT_XSD = "xhtml1/xhtml1-strict.xsd";
-  private static final Logger LOG = LoggerFactory.getLogger(SchemaResolver.class);
+  private static final Logger LOG = Loggers.get(SchemaResolver.class);
   private static final Map<String, String> SCHEMAS_BUILTIN = new HashMap<>();
   private static final Map<String, String> DTD_BUILTIN = new HashMap<>();
 
@@ -156,7 +156,7 @@ public final class SchemaResolver implements LSResourceResolver {
     if (input != null) {
       return input;
     }
-    
+
     // try as built-in resource
     input = getBuiltinSchemaByFileName(systemId);
     if (input != null) {
@@ -236,7 +236,7 @@ public final class SchemaResolver implements LSResourceResolver {
   @Override
   public LSInput resolveResource(String type, String namespaceURI, @Nullable String publicId, String systemId, String baseURI) {
 
-    LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", new String[] {type, namespaceURI, publicId, systemId, baseURI});
+    LOG.debug("Trying to resolve type = {} namespace = {} publicId = {} systemId = {} baseURI = {}", type, namespaceURI, publicId, systemId, baseURI);
 
     InputStream input;
 

@@ -21,13 +21,13 @@ package org.sonar.plugins.xml;
 
 import java.io.IOException;
 import java.io.Serializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.parsers.LineCountParser;
@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
  */
 public final class LineCounter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LineCounter.class);
+  private static final Logger LOG = Loggers.get(LineCounter.class);
 
   private LineCounter() {
   }
@@ -68,7 +68,7 @@ public final class LineCounter {
   }
 
   public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
-    LOG.debug("Count lines in " + xmlFile.getAbsolutePath());
+    LOG.debug("Count lines in {}", xmlFile.getAbsolutePath());
 
     try {
       saveMeasures(
