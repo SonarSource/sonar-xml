@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
-import java.io.File;
-
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
@@ -42,12 +41,12 @@ public class XmlFileTest {
   public void assertDelta(String content, int offsetDeltaExpected, int lineDeltaExpected) throws Exception {
     String fileName = "char_before_prolog.xml";
     File file = tmpFolder.newFile(fileName);
-    FileUtils.write(file, content);
+    FileUtils.write(file, content, UTF_8);
     DefaultInputFile inputFile = new DefaultInputFile("modulekey", fileName)
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8);
+      .setCharset(UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
