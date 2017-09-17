@@ -29,6 +29,8 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
+      <!-- required for sslr-squid-bridge
+           (org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition) -->
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
