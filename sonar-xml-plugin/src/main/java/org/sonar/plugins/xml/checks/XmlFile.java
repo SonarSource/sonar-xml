@@ -19,11 +19,11 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FileSystem;
@@ -120,7 +120,7 @@ public class XmlFile {
       File tempFile = new File(fileSystem.workDir(), inputFile.fileName());
 
       int index = content.indexOf(XML_PROLOG_START_TAG);
-      Files.write(content.substring(index), tempFile, inputFile.charset());
+      Files.write(tempFile.toPath(), content.substring(index).getBytes(inputFile.charset()));
 
       noCharBeforePrologFile = tempFile;
 
@@ -153,7 +153,7 @@ public class XmlFile {
     if (noCharBeforePrologFile == null) {
       return inputFile.inputStream();
     }
-    return java.nio.file.Files.newInputStream(noCharBeforePrologFile.toPath());
+    return Files.newInputStream(noCharBeforePrologFile.toPath());
   }
 
   public String getContents() throws IOException {

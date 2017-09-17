@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import com.google.common.io.Resources;
+import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import javax.annotation.Nullable;
-import com.google.gson.Gson;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -33,6 +34,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Repository for XML rules.
@@ -51,7 +54,8 @@ public final class XmlRulesDefinition implements RulesDefinition {
 
     for (NewRule rule : repository.rules()) {
       String metadataKey = rule.key();
-      // Setting internal key is essential for rule templates (see SONAR-6162), and it is not done by AnnotationBasedRulesDefinition from sslr-squid-bridge version 2.5.1:
+      // Setting internal key is essential for rule templates (see SONAR-6162), and it is not done by AnnotationBasedRulesDefinition from
+      // sslr-squid-bridge version 2.5.1:
       rule.setInternalKey(metadataKey);
       rule.setHtmlDescription(readRuleDefinitionResource(metadataKey + ".html"));
       addMetadata(rule, metadataKey);
@@ -61,32 +65,28 @@ public final class XmlRulesDefinition implements RulesDefinition {
   }
 
   @Nullable
-  private static String readRuleDefinitionResource(String fileName) {
-    URL resource = XmlRulesDefinition.class.getResource("/org/sonar/l10n/xml/rules/xml/" + fileName);
-    if (resource == null) {
-      return null;
-    }
-    try {
-      return Resources.toString(resource, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read " + resource, e);
-    }
+  private static URL readRuleDefinitionResource(String fileName) {
+    return XmlRulesDefinition.class.getResource("/org/sonar/l10n/xml/rules/xml/" + fileName);
   }
 
   private void addMetadata(NewRule rule, String metadataKey) {
-    String json = readRuleDefinitionResource(metadataKey + ".json");
-    if (json != null) {
-      RuleMetadata metadata = gson.fromJson(json, RuleMetadata.class);
-      rule.setSeverity(metadata.defaultSeverity.toUpperCase(Locale.US));
-      rule.setName(metadata.title);
-      rule.setTags(metadata.tags);
-      rule.setType(RuleType.valueOf(metadata.type));
-      rule.setStatus(RuleStatus.valueOf(metadata.status.toUpperCase(Locale.US)));
+    URL jsonUrl = readRuleDefinitionResource(metadataKey + ".json");
+    if (jsonUrl != null) {
+      try (Reader reader = new BufferedReader(new InputStreamReader(jsonUrl.openStream(), UTF_8))) {
+        RuleMetadata metadata = gson.fromJson(reader, RuleMetadata.class);
+        rule.setSeverity(metadata.defaultSeverity.toUpperCase(Locale.US));
+        rule.setName(metadata.title);
+        rule.setTags(metadata.tags);
+        rule.setType(RuleType.valueOf(metadata.type));
+        rule.setStatus(RuleStatus.valueOf(metadata.status.toUpperCase(Locale.US)));
 
-      if (metadata.remediation != null) {
-        // metadata.remediation is null for template rules
-        rule.setDebtRemediationFunction(metadata.remediation.remediationFunction(rule.debtRemediationFunctions()));
-        rule.setGapDescription(metadata.remediation.linearDesc);
+        if (metadata.remediation != null) {
+          // metadata.remediation is null for template rules
+          rule.setDebtRemediationFunction(metadata.remediation.remediationFunction(rule.debtRemediationFunctions()));
+          rule.setGapDescription(metadata.remediation.linearDesc);
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("Failed to read " + jsonUrl, e);
       }
     }
   }
@@ -95,7 +95,8 @@ public final class XmlRulesDefinition implements RulesDefinition {
     String title;
     String status;
     String type;
-    @Nullable Remediation remediation;
+    @Nullable
+    Remediation remediation;
     String[] tags;
     String defaultSeverity;
   }

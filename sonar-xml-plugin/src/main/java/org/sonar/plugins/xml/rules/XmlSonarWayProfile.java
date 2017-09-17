@@ -19,11 +19,12 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import com.google.common.io.Resources;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -32,6 +33,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Default XML profile.
@@ -62,9 +65,9 @@ public final class XmlSonarWayProfile extends ProfileDefinition {
 
   public static Set<String> activatedRuleKeys() {
     URL profileUrl = XmlSonarWayProfile.class.getResource("/org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json");
-    try {
+    try (Reader reader = new BufferedReader(new InputStreamReader(profileUrl.openStream(), UTF_8))) {
       Gson gson = new Gson();
-      return gson.fromJson(Resources.toString(profileUrl, StandardCharsets.UTF_8), Profile.class).ruleKeys;
+      return gson.fromJson(reader, Profile.class).ruleKeys;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read " + profileUrl, e);
     }
