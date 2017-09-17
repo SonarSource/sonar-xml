@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.language.Xml;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
@@ -274,12 +275,12 @@ public class XmlHighlightingTest {
   @Test
   public void testCharBeforeProlog() throws Exception {
     File file = tmpFolder.newFile("char_before_prolog.xml");
-    FileUtils.write(file, "\n\n\n<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
+    FileUtils.write(file, "\n\n\n<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>", UTF_8);
     DefaultInputFile inputFile = new DefaultInputFile("module", "char_before_prolog.xml")
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8);
+      .setCharset(UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
@@ -328,9 +329,9 @@ public class XmlHighlightingTest {
       .setModuleBaseDir(file.getParentFile().toPath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8);
+      .setCharset(UTF_8);
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
-    localFS.setEncoding(StandardCharsets.UTF_8);
+    localFS.setEncoding(UTF_8);
     localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
 
     XmlFile xmlFile = new XmlFile(wrap(inputFile), localFS);
@@ -345,7 +346,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void should_parse_file_with_its_own_encoding() throws IOException, XMLStreamException {
-    Charset fileSystemCharset = StandardCharsets.UTF_8;
+    Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
     Path moduleBaseDir = tmpFolder.newFolder().toPath();

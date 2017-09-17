@@ -41,13 +41,13 @@ public class DetectSchemaParserTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   
-  private static String fileName = "src/test/resources/checks/generic/create-salesorder.xhtml";
+  private static final String FILENAME = "src/test/resources/checks/generic/create-salesorder.xhtml";
 
   private DetectSchemaParser detectSchemaParser = new DetectSchemaParser();
 
   @Test
   public void testDetectDTD() throws IOException {
-    Doctype doctype = detectSchemaParser.findDoctype(FileUtils.openInputStream(new File(fileName)));
+    Doctype doctype = detectSchemaParser.findDoctype(FileUtils.openInputStream(new File(FILENAME)));
     assertNotNull(doctype.getDtd());
     InputStream input = SchemaResolver.getBuiltinSchema(doctype.getDtd());
     assertNotNull(input);
