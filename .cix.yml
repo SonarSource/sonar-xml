@@ -5,9 +5,3 @@ TEST:
 
 SQ_VERSION: 
   - DEV
-  - LTS
-
-
-exclude:
-  - TEST: plugin
-    SQ_VERSION: LATEST_RELEASE
