@@ -57,7 +57,7 @@ public class XmlSourceCode {
     }
   }
 
-  protected Document getDocument(boolean namespaceAware) {
+  public Document getDocument(boolean namespaceAware) {
     return namespaceAware ? documentNamespaceAware : documentNamespaceUnaware;
   }
 
