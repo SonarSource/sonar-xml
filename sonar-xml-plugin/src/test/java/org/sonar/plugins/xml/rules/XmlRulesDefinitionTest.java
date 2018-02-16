@@ -19,12 +19,13 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.plugins.xml.checks.CheckRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlRulesDefinitionTest {
 
@@ -42,6 +43,11 @@ public class XmlRulesDefinitionTest {
     RulesDefinition.Rule alertUseRule = repository.rule("IndentCheck");
     assertThat(alertUseRule).isNotNull();
     assertThat(alertUseRule.name()).isEqualTo("Source code should be indented consistently");
+
+    assertThat(Stream.of(repository.rule("XPathCheck"), repository.rule("XmlSchemaCheck")))
+      .isNotEmpty()
+      .allMatch(rule -> rule != null)
+      .allMatch(rule -> rule.template());
 
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {

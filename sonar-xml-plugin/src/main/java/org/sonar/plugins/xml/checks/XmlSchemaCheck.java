@@ -41,7 +41,6 @@ import org.sonar.plugins.xml.Utils;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser;
 import org.sonar.plugins.xml.parsers.DetectSchemaParser.Doctype;
 import org.sonar.plugins.xml.schemas.SchemaResolver;
-import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -54,7 +53,6 @@ import org.xml.sax.SAXParseException;
  * @author Matthijs Galesloot
  */
 @Rule(key = "XmlSchemaCheck")
-@RuleTemplate
 public class XmlSchemaCheck extends AbstractXmlCheck {
 
   /**
@@ -210,7 +208,6 @@ public class XmlSchemaCheck extends AbstractXmlCheck {
     return schemas;
   }
 
-  // VisibleForTesting
   static void setFeature(Validator validator, String feature, boolean value) {
     try {
       validator.setFeature(feature, value);
