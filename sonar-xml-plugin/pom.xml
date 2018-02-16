@@ -29,8 +29,8 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sslr-squid-bridge</groupId>
-      <artifactId>sslr-squid-bridge</artifactId>
+      <groupId>org.sonarsource.analyzer-commons</groupId>
+      <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
     <dependency>
       <groupId>xalan</groupId>
@@ -45,21 +45,11 @@
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <!-- needed by sslr-squid-bridge -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>10.0.1</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -30,7 +30,6 @@ import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.squidbridge.annotations.RuleTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -38,7 +37,6 @@ import org.w3c.dom.NodeList;
  * RSPEC-140.
  */
 @Rule(key = "XPathCheck")
-@RuleTemplate
 public class XPathCheck extends AbstractXmlCheck {
 
   @RuleProperty(key = "expression", description = "The XPath query", type = "TEXT")

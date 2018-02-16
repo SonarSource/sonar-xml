@@ -49,7 +49,6 @@ import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.ParseException;
-import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
@@ -116,7 +115,6 @@ public class XmlSensor implements Sensor {
     highlighting.save();
   }
 
-  // VisibleForTesting
   protected void saveIssue(SensorContext context, XmlSourceCode sourceCode) {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
@@ -191,7 +189,7 @@ public class XmlSensor implements Sensor {
   private static void processException(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
-    throw new AnalysisException("Unable to analyse file " + inputFile.absolutePath(), e);
+    throw new IllegalStateException("Unable to analyse file " + inputFile.absolutePath(), e);
   }
 
   private static void reportAnalysisError(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
