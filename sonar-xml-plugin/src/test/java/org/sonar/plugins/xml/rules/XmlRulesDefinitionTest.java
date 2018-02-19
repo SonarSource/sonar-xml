@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
@@ -44,10 +43,9 @@ public class XmlRulesDefinitionTest {
     assertThat(alertUseRule).isNotNull();
     assertThat(alertUseRule.name()).isEqualTo("Source code should be indented consistently");
 
-    assertThat(Stream.of(repository.rule("XPathCheck"), repository.rule("XmlSchemaCheck")))
-      .isNotEmpty()
-      .allMatch(rule -> rule != null)
-      .allMatch(rule -> rule.template());
+    assertThat(repository.rules().stream().filter(Rule::template).map(Rule::key))
+        .isNotEmpty()
+        .containsOnly("XPathCheck", "XmlSchemaCheck");
 
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {
