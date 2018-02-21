@@ -110,7 +110,7 @@ public class XmlSensor implements Sensor {
     NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
 
     for (HighlightingData highlightingData : highlightingDataList) {
-      highlighting.highlight(highlightingData.startOffset(), highlightingData.endOffset(), highlightingData.highlightCode());
+      highlightingData.highlight(highlighting);
     }
     highlighting.save();
   }

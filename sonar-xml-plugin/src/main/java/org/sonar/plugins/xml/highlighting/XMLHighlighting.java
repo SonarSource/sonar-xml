@@ -20,8 +20,6 @@
 package org.sonar.plugins.xml.highlighting;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -36,39 +34,45 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.XmlFile;
 
-import static java.lang.String.format;
-
 public class XMLHighlighting {
 
+  private static final Logger LOG = Loggers.get(XMLHighlighting.class);
   private static final String XML_DECLARATION_TAG = "<?xml";
-  private final int delta;
 
   private List<HighlightingData> highlighting = new ArrayList<>();
-  private String content;
 
-  private int currentStartOffset = -1;
+  private XmlLocation currentStartLocation = null;
   private TypeOfText currentCode = null;
 
-  private static final Logger LOG = Loggers.get(XMLHighlighting.class);
+  private final XmlLocation xmlFileStartLocation;
+  private final String content;
 
   public XMLHighlighting(XmlFile xmlFile) throws IOException {
-    content = xmlFile.getContents();
-    delta = xmlFile.getOffsetDelta();
-
-    try (InputStream inputStream = xmlFile.getInputStream()) {
-      highlightXML(new InputStreamReader(inputStream, xmlFile.getCharset()));
-    } catch (XMLStreamException e) {
-      LOG.warn(format("Can't highlight following file : %s", xmlFile.getAbsolutePath()), e);
-    }
+    this(xmlFile.getInputFile().contents(), String.format("Can't highlight following file : %s", xmlFile.getAbsolutePath()));
   }
 
   public XMLHighlighting(String xmlStrContent) {
-    delta = 0;
-    content = xmlStrContent;
+    this(xmlStrContent, String.format("Can't highlight following code : %n%s", xmlStrContent));
+  }
+
+  private XMLHighlighting(String xmlStrContent, String errorMessage) {
+    if (xmlStrContent.startsWith(XmlFile.BOM_CHAR)) {
+      // remove it immediately
+      xmlStrContent = xmlStrContent.substring(1);
+    }
+    int realStartIndex = xmlStrContent.indexOf(XML_DECLARATION_TAG);
+    if (realStartIndex == -1) {
+      xmlFileStartLocation = new XmlLocation();
+      content = xmlStrContent;
+    } else {
+      xmlFileStartLocation = new XmlLocation().shift(xmlStrContent.substring(0, realStartIndex));
+      content = xmlStrContent.substring(realStartIndex);
+    }
+
     try {
-      highlightXML(new StringReader(xmlStrContent));
+      highlightXML();
     } catch (XMLStreamException e) {
-      LOG.warn("Can't highlight following code : \n" + xmlStrContent, e);
+      LOG.warn(errorMessage, e);
     }
   }
 
@@ -76,7 +80,9 @@ public class XMLHighlighting {
     return highlighting;
   }
 
-  public void highlightXML(Reader reader) throws XMLStreamException {
+  public void highlightXML() throws XMLStreamException {
+    Reader reader = new StringReader(content);
+
     XMLInputFactory factory = XMLInputFactory.newInstance();
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, "false");
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, "false");
@@ -84,30 +90,30 @@ public class XMLHighlighting {
     highlightXmlDeclaration();
 
     while (xmlReader.hasNext()) {
-      Location prevLocation = xmlReader.getLocation();
+      XmlLocation prevLocation = new XmlLocation(xmlReader.getLocation());
       xmlReader.next();
-      int startOffset = xmlReader.getLocation().getCharacterOffset();
-      closeHighlighting(startOffset);
+      XmlLocation startLocation = new XmlLocation(xmlReader.getLocation());
+      closeHighlighting(startLocation);
 
       switch (xmlReader.getEventType()) {
         case XMLStreamConstants.START_ELEMENT:
-          highlightStartElement(xmlReader, startOffset);
+          highlightStartElement(xmlReader, startLocation);
           break;
 
         case XMLStreamConstants.END_ELEMENT:
-          highlightEndElement(xmlReader, prevLocation, startOffset);
+          highlightEndElement(xmlReader, prevLocation, startLocation);
           break;
 
         case XMLStreamConstants.CDATA:
-          highlightCData(startOffset);
+          highlightCData(startLocation);
           break;
 
         case XMLStreamConstants.DTD:
-          highlightDTD(startOffset);
+          highlightDTD(startLocation);
           break;
 
         case XMLStreamConstants.COMMENT:
-          addUnclosedHighlighting(startOffset, TypeOfText.STRUCTURED_COMMENT);
+          addUnclosedHighlighting(startLocation, TypeOfText.STRUCTURED_COMMENT);
           break;
 
         default:
@@ -116,123 +122,122 @@ public class XMLHighlighting {
     }
   }
 
-  private void highlightDTD(int startOffset) {
-    int closingBracketStartOffset;
-    closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
-    addHighlighting(startOffset, startOffset + 9, TypeOfText.STRUCTURED_COMMENT);
-    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, TypeOfText.STRUCTURED_COMMENT);
+  private void highlightDTD(XmlLocation startLocation) {
+    XmlLocation closingBracketStartOffset = getTagClosingBracketStartOffset(startLocation);
+    addHighlighting(startLocation, startLocation.shift(9), TypeOfText.STRUCTURED_COMMENT);
+    addHighlighting(closingBracketStartOffset, closingBracketStartOffset.shift(1), TypeOfText.STRUCTURED_COMMENT);
   }
 
-  private void highlightCData(int startOffset) {
-    if (!content.substring(startOffset).startsWith("<![CDATA[")) {
+  private void highlightCData(XmlLocation startLocation) {
+    if (!content.substring(startLocation.characterOffset).startsWith("<![CDATA[")) {
       // Ignoring secondary CDATA event
       // See https://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamReader.html#next()
       return;
     }
 
-    int closingBracketStartOffset = getCDATAClosingBracketStartOffset(startOffset);
+    XmlLocation closingBracketStartLocation = getCDATAClosingBracketStartOffset(startLocation);
 
     // 9 is length of "<![CDATA["
-    addHighlighting(startOffset, startOffset + 9, TypeOfText.KEYWORD);
+    addHighlighting(startLocation, startLocation.shift(9), TypeOfText.KEYWORD);
 
     // highlight "]]>"
-    addHighlighting(closingBracketStartOffset - 2, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
+    addHighlighting(closingBracketStartLocation.shift(-2), closingBracketStartLocation.shift(1), TypeOfText.KEYWORD);
   }
 
-  private void highlightEndElement(XMLStreamReader xmlReader, Location prevLocation, int startOffset) {
-    int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
-
-    boolean isEmptyElement = prevLocation.getLineNumber() == xmlReader.getLocation().getLineNumber()
-      && prevLocation.getColumnNumber() == xmlReader.getLocation().getColumnNumber();
+  private void highlightEndElement(XMLStreamReader xmlReader, XmlLocation prevLocation, XmlLocation startLocation) {
+    XmlLocation closingBracketStartLocation = getTagClosingBracketStartOffset(startLocation);
+    XmlLocation currentLocation = new XmlLocation(xmlReader.getLocation());
+    boolean isEmptyElement = prevLocation.line == currentLocation.line && prevLocation.column == currentLocation.column;
 
     if (isEmptyElement) {
-      // empty (or autoclosing) element is raised twice as start and end element, so we need to highlight closing "/" which is placed just before
-      // ">"
-      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset, TypeOfText.KEYWORD);
-
+      // empty (or autoclosing) element is raised twice as start and end element,
+      // so we need to highlight closing "/" which is placed just before ">"
+      addHighlighting(closingBracketStartLocation.shift(-1), closingBracketStartLocation, TypeOfText.KEYWORD);
     } else {
-      addHighlighting(startOffset, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
+      addHighlighting(startLocation, closingBracketStartLocation.shift(1), TypeOfText.KEYWORD);
     }
   }
 
-  private void highlightStartElement(XMLStreamReader xmlReader, int startOffset) {
-    int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
-    int endOffset = startOffset + getNameWithNamespaceLength(xmlReader) + 1;
+  private void highlightStartElement(XMLStreamReader xmlReader, XmlLocation startLocation) {
+    XmlLocation closingBracketStartLocation = getTagClosingBracketStartOffset(startLocation);
+    int nameWithNamespaceLength = getNameWithNamespaceLength(xmlReader) + 1;
+    XmlLocation endLocation = startLocation.shift(nameWithNamespaceLength);
 
-    addHighlighting(startOffset, endOffset, TypeOfText.KEYWORD);
-    highlightAttributes(endOffset, closingBracketStartOffset);
-    addHighlighting(closingBracketStartOffset, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
+    addHighlighting(startLocation, endLocation, TypeOfText.KEYWORD);
+    highlightAttributes(endLocation, closingBracketStartLocation);
+    addHighlighting(closingBracketStartLocation, closingBracketStartLocation.shift(1), TypeOfText.KEYWORD);
   }
 
   private void highlightXmlDeclaration() {
-    int startOffset = content.startsWith(XmlFile.BOM_CHAR) ? 1 : 0;
-    if (content.startsWith(XML_DECLARATION_TAG, startOffset)) {
-      int closingBracketStartOffset = getTagClosingBracketStartOffset(startOffset);
+    if (content.startsWith(XML_DECLARATION_TAG)) {
+      // always starts from origin
+      XmlLocation startLocation = new XmlLocation();
+      XmlLocation closingBracketLocation = getTagClosingBracketStartOffset(startLocation);
 
-      addHighlighting(startOffset, startOffset + XML_DECLARATION_TAG.length(), TypeOfText.KEYWORD);
-      highlightAttributes(startOffset + XML_DECLARATION_TAG.length(), closingBracketStartOffset);
-      addHighlighting(closingBracketStartOffset - 1, closingBracketStartOffset + 1, TypeOfText.KEYWORD);
+      XmlLocation nextLocation = startLocation.shift(XML_DECLARATION_TAG);
+      addHighlighting(startLocation, nextLocation, TypeOfText.KEYWORD);
+      highlightAttributes(nextLocation, closingBracketLocation);
+      addHighlighting(closingBracketLocation.shift(-1), closingBracketLocation.shift(1), TypeOfText.KEYWORD);
     }
   }
 
-  private void highlightAttributes(int from, int to) {
-    int counter = from + 1;
-
-    Integer startOffset = null;
+  private void highlightAttributes(XmlLocation start, XmlLocation end) {
+    XmlLocation currentLocation = start;
+    XmlLocation previousLocation = null;
     Character attributeValueQuote = null;
 
-    while (counter < to) {
-      char c = content.charAt(counter);
+    while (currentLocation.characterOffset < end.characterOffset) {
+      char c = content.charAt(currentLocation.characterOffset);
 
-      if (startOffset == null && !Character.isWhitespace(c)) {
-        startOffset = counter;
+      if (previousLocation == null && !Character.isWhitespace(c)) {
+        previousLocation = currentLocation;
       }
 
-      if (attributeValueQuote != null && attributeValueQuote == c) {
-        addHighlighting(startOffset, counter + 1, TypeOfText.STRING);
-        counter++;
-        startOffset = null;
+      if (attributeValueQuote != null && c == attributeValueQuote) {
+        // closing the attribute value
+        currentLocation = currentLocation.shift(c);
+        // we shifted so we need a new character
+        c = content.charAt(currentLocation.characterOffset);
+        addHighlighting(previousLocation, currentLocation, TypeOfText.STRING);
+        previousLocation = null;
         attributeValueQuote = null;
-      }
-
-      if (c == '=' && attributeValueQuote == null) {
-        addHighlighting(startOffset, counter, TypeOfText.CONSTANT);
-
-        do {
-          counter++;
-          c = content.charAt(counter);
-        } while (c != '\'' && c != '"');
-
-        startOffset = counter;
+      } else if (attributeValueQuote == null && c == '=') {
+        // closing the attribute name
+        addHighlighting(previousLocation, currentLocation, TypeOfText.CONSTANT);
+        previousLocation = null;
+      } else if (attributeValueQuote == null && (c == '\'' || c == '"')) {
+        // starting the attribute value
         attributeValueQuote = c;
+        previousLocation = currentLocation;
       }
 
-      counter++;
+      currentLocation = currentLocation.shift(c);
     }
   }
 
-  private int getTagClosingBracketStartOffset(int startOffset) {
-    return getClosingBracketStartOffset(startOffset, false);
+  private XmlLocation getTagClosingBracketStartOffset(XmlLocation startLocation) {
+    return getClosingBracketStartOffset(startLocation, false);
   }
 
-  private int getCDATAClosingBracketStartOffset(int startOffset) {
-    return getClosingBracketStartOffset(startOffset, true);
+  private XmlLocation getCDATAClosingBracketStartOffset(XmlLocation startLocation) {
+    return getClosingBracketStartOffset(startLocation, true);
   }
 
-  private int getClosingBracketStartOffset(int startOffset, boolean isCDATA) {
-    int counter = startOffset + 1;
-    while (counter < content.length()) {
-      if (content.charAt(counter) == '>' && bracketsBefore(isCDATA, counter)) {
-        return counter;
+  private XmlLocation getClosingBracketStartOffset(XmlLocation startLocation, boolean isCDATA) {
+    XmlLocation currentLocation = startLocation.shift(1);
+    while (currentLocation.characterOffset < content.length()) {
+      char c = content.charAt(currentLocation.characterOffset);
+      if (c == '>' && bracketsBefore(isCDATA, currentLocation)) {
+        return currentLocation;
       }
-      counter++;
+      currentLocation = currentLocation.shift(c);
     }
 
     throw new IllegalStateException("No \">\" found.");
   }
 
-  private boolean bracketsBefore(boolean isCDATA, int counter) {
-    return !isCDATA || (content.charAt(counter - 1) == ']' && content.charAt(counter - 2) == ']');
+  private boolean bracketsBefore(boolean isCDATA, XmlLocation currentLocation) {
+    return !isCDATA || (content.charAt(currentLocation.characterOffset - 1) == ']' && content.charAt(currentLocation.characterOffset - 2) == ']');
   }
 
   private static int getNameWithNamespaceLength(XMLStreamReader streamReader) {
@@ -244,19 +249,72 @@ public class XMLHighlighting {
     return prefixLength + streamReader.getLocalName().length();
   }
 
-  private void addHighlighting(int startOffset, int endOffset, TypeOfText typeOfText) {
-    highlighting.add(new HighlightingData(startOffset + delta, endOffset + delta, typeOfText));
+  private void addHighlighting(XmlLocation start, XmlLocation end, TypeOfText typeOfText) {
+    XmlLocation newStart = start.shift(xmlFileStartLocation);
+    XmlLocation newEnd = end.shift(xmlFileStartLocation);
+    highlighting.add(new HighlightingData(newStart.line, newStart.column, newEnd.line, newEnd.column, typeOfText));
   }
 
-  private void addUnclosedHighlighting(int startOffset, TypeOfText code) {
-    currentStartOffset = startOffset;
+  private void addUnclosedHighlighting(XmlLocation startLocation, TypeOfText code) {
+    currentStartLocation = startLocation;
     currentCode = code;
   }
 
-  private void closeHighlighting(int endOffset) {
+  private void closeHighlighting(XmlLocation endLocation) {
     if (currentCode != null) {
-      addHighlighting(currentStartOffset, endOffset, currentCode);
+      addHighlighting(currentStartLocation, endLocation, currentCode);
       currentCode = null;
+    }
+  }
+
+  private static class XmlLocation {
+
+    private final int line;
+    private final int column;
+    private final int characterOffset;
+
+    private XmlLocation() {
+      // based on XML parser:
+      // - lines start at 1
+      // - columns start at at 1
+      // - offset start at at 0
+      this(1, 1, 0);
+    }
+
+    public XmlLocation(Location location) {
+      this(location.getLineNumber(), location.getColumnNumber(), location.getCharacterOffset());
+    }
+
+    public XmlLocation(int line, int column, int characterOfffset) {
+      this.line = line;
+      this.column = column;
+      this.characterOffset = characterOfffset;
+    }
+
+    public XmlLocation shift(String content) {
+      XmlLocation result = this;
+      for (char c : content.toCharArray()) {
+        result = result.shift(c);
+      }
+      return result;
+    }
+
+    public XmlLocation shift(XmlLocation other) {
+      int newLine = line + other.line - 1;
+      int newColumn = line == 1 ? (column + other.column - 1) : column;
+      int newOffset = characterOffset + other.characterOffset;
+      return new XmlLocation(newLine, newColumn, newOffset);
+    }
+
+    public XmlLocation shift(int nbChar) {
+      return new XmlLocation(line, column + nbChar, characterOffset + nbChar);
+    }
+
+    public XmlLocation shift(char c) {
+      if (c == '\n') {
+        return new XmlLocation(line + 1, 1, characterOffset + 1);
+      }
+      return new XmlLocation(line, column + 1, characterOffset + 1);
     }
   }
 
