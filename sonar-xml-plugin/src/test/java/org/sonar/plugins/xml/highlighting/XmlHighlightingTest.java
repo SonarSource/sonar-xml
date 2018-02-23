@@ -312,7 +312,7 @@ public class XmlHighlightingTest {
     assertEquals(9, highlightingData.size());
     // <?xml
     assertData(highlightingData.get(0), 4, 0, 4, 5, TypeOfText.KEYWORD);
-    // ?
+    // ?>
     assertData(highlightingData.get(5), 4, 37, 4, 39, TypeOfText.KEYWORD);
 
     // version
