@@ -1,0 +1,7 @@
+{
+  "rules-metadata-path": "./sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml",
+  "languages": [
+    "XML"
+  ],
+  "latest-update": "2018-03-26T14:36:30.737Z"
+}
