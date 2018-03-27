@@ -5,5 +5,7 @@
   "tags": [
     
   ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-1778",
+  "sqKey": "S1778"
 }
