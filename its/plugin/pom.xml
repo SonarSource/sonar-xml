@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.xml</groupId>
     <artifactId>xml-its</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.6-SNAPSHOT</version>
   </parent>
 
   <artifactId>it-xml</artifactId>
