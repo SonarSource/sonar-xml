@@ -86,7 +86,7 @@ class XmlLocation {
   }
 
   public boolean startsWith(String prefix) {
-    return content.substring(characterOffset).startsWith(prefix);
+    return content.startsWith(prefix, characterOffset);
   }
 
   public XmlLocation moveAfter(String substring) throws XMLStreamException {
@@ -94,11 +94,11 @@ class XmlLocation {
   }
 
   public XmlLocation moveBefore(String substring) throws XMLStreamException {
-    int index = content.substring(characterOffset).indexOf(substring);
+    int index = content.indexOf(substring, characterOffset);
     if (index == -1) {
       throw new XMLStreamException("Cannot find " + substring + " in " + content.substring(characterOffset));
     }
-    return shift(index);
+    return shift(index - characterOffset);
   }
 
   public boolean isSameAs(XmlLocation other) {
