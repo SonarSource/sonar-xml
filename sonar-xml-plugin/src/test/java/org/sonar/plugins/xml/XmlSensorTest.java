@@ -41,6 +41,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -75,6 +76,38 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private final String parsingErrorCheckKey = "S2260";
 
   private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
+
+  @Test
+  public void testPerformance() throws Exception {
+    init(false, temporaryFolder.getRoot());
+    File smallFile = temporaryFolder.newFile("smallFile.xml");
+    File bigFile = temporaryFolder.newFile("bigFile.xml");
+    String simpleTag = "<tag1 attr=\"val1\">text</tag1>\n";
+    String xml = "<?xml version=\"1.0\"?><root>\n";
+    StringBuilder str = new StringBuilder(xml);
+    for (int i = 0; i < 20000; i++) {
+      str.append(simpleTag);
+    }
+    str.append("</root>");
+    FileUtils.write(smallFile, str.toString());
+    fs.add(createInputFile(smallFile.getAbsolutePath()));
+    long t1 = System.currentTimeMillis();
+    sensor.analyse(context);
+    long diffSmall = System.currentTimeMillis() - t1;
+
+    str = new StringBuilder(xml);
+    for (int i = 0; i < 40000; i++) {
+      str.append(simpleTag);
+    }
+    str.append("</root>");
+    FileUtils.write(bigFile, str.toString());
+    init(false, temporaryFolder.getRoot());
+    fs.add(createInputFile(bigFile.getAbsolutePath()));
+    t1 = System.currentTimeMillis();
+    sensor.analyse(context);
+    long diffBig = System.currentTimeMillis() - t1;
+    assert (diffBig < (2.5 * diffSmall));
+  }
 
   /**
    * Expect issue for rule: NewlineCheck
@@ -140,6 +173,10 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   private void init(boolean activateParsingErrorCheck) throws Exception {
+    init(activateParsingErrorCheck, new File("src/test/resources"));
+  }
+
+  private void init(boolean activateParsingErrorCheck, File file) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
 
