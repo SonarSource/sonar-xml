@@ -79,34 +79,12 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @Test
   public void testPerformance() throws Exception {
-    init(false, temporaryFolder.getRoot());
-    File smallFile = temporaryFolder.newFile("smallFile.xml");
-    File bigFile = temporaryFolder.newFile("bigFile.xml");
-    String simpleTag = "<tag1 attr=\"val1\">text</tag1>\n";
-    String xml = "<?xml version=\"1.0\"?><root>\n";
-    StringBuilder str = new StringBuilder(xml);
-    for (int i = 0; i < 20000; i++) {
-      str.append(simpleTag);
-    }
-    str.append("</root>");
-    FileUtils.write(smallFile, str.toString());
-    fs.add(createInputFile(smallFile.getAbsolutePath()));
-    long t1 = System.currentTimeMillis();
-    sensor.analyse(context);
-    long diffSmall = System.currentTimeMillis() - t1;
+    createXmlFile(20000, "smallFile.xml");
+    long timeSmallFile = measureTimeToAnalyzeFile();
+    createXmlFile(40000, "bigFile.xml");
+    long timeBigFile = measureTimeToAnalyzeFile();
 
-    str = new StringBuilder(xml);
-    for (int i = 0; i < 40000; i++) {
-      str.append(simpleTag);
-    }
-    str.append("</root>");
-    FileUtils.write(bigFile, str.toString());
-    init(false, temporaryFolder.getRoot());
-    fs.add(createInputFile(bigFile.getAbsolutePath()));
-    t1 = System.currentTimeMillis();
-    sensor.analyse(context);
-    long diffBig = System.currentTimeMillis() - t1;
-    assert (diffBig < (2.5 * diffSmall));
+    assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
   }
 
   /**
@@ -295,6 +273,27 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     } else {
       assertThat(logTester.logs()).doesNotContain(notExpected);
     }
+  }
+
+  private File createXmlFile(int numberOfTags, String fileName) throws Exception {
+    init(false, temporaryFolder.getRoot());
+    File file = temporaryFolder.newFile(fileName);
+    String simpleTag = "<tag1 attr=\"val1\">text</tag1>\n";
+    String xml = "<?xml version=\"1.0\"?><root>\n";
+    StringBuilder str = new StringBuilder(xml);
+    for (int i = 0; i < numberOfTags; i++) {
+      str.append(simpleTag);
+    }
+    str.append("</root>");
+    FileUtils.write(file, str.toString());
+    fs.add(createInputFile(file.getAbsolutePath()));
+    return file;
+  }
+
+  private long measureTimeToAnalyzeFile() {
+    long t1 = System.currentTimeMillis();
+    sensor.analyse(context);
+    return System.currentTimeMillis() - t1;
   }
 
 }
