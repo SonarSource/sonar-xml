@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
@@ -275,19 +276,16 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     }
   }
 
-  private File createXmlFile(int numberOfTags, String fileName) throws Exception {
+  private void createXmlFile(int numberOfTags, String fileName) throws Exception {
     init(false, temporaryFolder.getRoot());
     File file = temporaryFolder.newFile(fileName);
     String simpleTag = "<tag1 attr=\"val1\">text</tag1>\n";
     String xml = "<?xml version=\"1.0\"?><root>\n";
     StringBuilder str = new StringBuilder(xml);
-    for (int i = 0; i < numberOfTags; i++) {
-      str.append(simpleTag);
-    }
+    IntStream.range(0, numberOfTags).forEach(iteration -> str.append(simpleTag));
     str.append("</root>");
     FileUtils.write(file, str.toString());
     fs.add(createInputFile(file.getAbsolutePath()));
-    return file;
   }
 
   private long measureTimeToAnalyzeFile() {
