@@ -151,10 +151,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   private void init(boolean activateParsingErrorCheck) throws Exception {
-    init(activateParsingErrorCheck, new File("src/test/resources"));
-  }
-
-  private void init(boolean activateParsingErrorCheck, File file) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
 
@@ -276,7 +272,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   private void initFileSystemWithFile(File file) throws Exception {
-    init(false, temporaryFolder.getRoot());
+    init(false);
     fs.add(createInputFile(file.getAbsolutePath()));
   }
 
