@@ -78,7 +78,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
 
-  @Test
+  @Test(timeout = 10000)
   public void testPerformance() throws Exception {
     initFileSystemWithFile(createXmlFile(20000, "smallFile.xml"));
     long timeSmallFile = measureTimeToAnalyzeFile();
