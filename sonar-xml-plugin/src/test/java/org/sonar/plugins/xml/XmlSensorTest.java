@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -75,6 +77,15 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private final String parsingErrorCheckKey = "S2260";
 
   private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
+
+  @Test(timeout = 10000)
+  public void testPerformance() throws Exception {
+    initFileSystemWithFile(createXmlFile(20000, "smallFile.xml"));
+    long timeSmallFile = measureTimeToAnalyzeFile();
+    initFileSystemWithFile(createXmlFile(40000, "bigFile.xml"));
+    long timeBigFile = measureTimeToAnalyzeFile();
+    assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
+  }
 
   /**
    * Expect issue for rule: NewlineCheck
@@ -258,6 +269,26 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     } else {
       assertThat(logTester.logs()).doesNotContain(notExpected);
     }
+  }
+
+  private void initFileSystemWithFile(File file) throws Exception {
+    init(false);
+    fs.add(createInputFile(file.getAbsolutePath()));
+  }
+
+  private File createXmlFile(int numberOfTags, String fileName) throws IOException {
+    File file = temporaryFolder.newFile(fileName);
+    StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
+    IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
+    str.append("</root>");
+    FileUtils.write(file, str.toString());
+    return file;
+  }
+
+  private long measureTimeToAnalyzeFile() {
+    long t1 = System.currentTimeMillis();
+    sensor.analyse(context);
+    return System.currentTimeMillis() - t1;
   }
 
 }
