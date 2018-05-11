@@ -80,11 +80,10 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   @Test
   public void testPerformance() throws Exception {
-    createXmlFile(20000, "smallFile.xml");
+    initFileSystemWithFile(createXmlFile(20000, "smallFile.xml"));
     long timeSmallFile = measureTimeToAnalyzeFile();
-    createXmlFile(40000, "bigFile.xml");
+    initFileSystemWithFile(createXmlFile(40000, "bigFile.xml"));
     long timeBigFile = measureTimeToAnalyzeFile();
-
     assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
   }
 
@@ -276,16 +275,18 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     }
   }
 
-  private void createXmlFile(int numberOfTags, String fileName) throws Exception {
+  private void initFileSystemWithFile(File file) throws Exception {
     init(false, temporaryFolder.getRoot());
+    fs.add(createInputFile(file.getAbsolutePath()));
+  }
+
+  private File createXmlFile(int numberOfTags, String fileName) throws IOException {
     File file = temporaryFolder.newFile(fileName);
-    String simpleTag = "<tag1 attr=\"val1\">text</tag1>\n";
-    String xml = "<?xml version=\"1.0\"?><root>\n";
-    StringBuilder str = new StringBuilder(xml);
-    IntStream.range(0, numberOfTags).forEach(iteration -> str.append(simpleTag));
+    StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
+    IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
     str.append("</root>");
     FileUtils.write(file, str.toString());
-    fs.add(createInputFile(file.getAbsolutePath()));
+    return file;
   }
 
   private long measureTimeToAnalyzeFile() {
