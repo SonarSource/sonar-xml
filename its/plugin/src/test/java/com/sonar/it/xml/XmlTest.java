@@ -62,10 +62,6 @@ public class XmlTest {
       .doesNotContain("9=1")
       .doesNotContain("10=1")
       .contains(";11=1");
-
-    assertThat(getFileMeasure("comment_lines_data").getValue())
-      .contains("9=1")
-      .doesNotContain("10=1");
   }
 
   @Test // SONARXML-19
