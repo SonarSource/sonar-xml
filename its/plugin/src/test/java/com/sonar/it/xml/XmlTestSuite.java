@@ -47,8 +47,12 @@ import static java.util.Collections.singletonList;
   SchemaCheckTest.class})
 public class XmlTestSuite {
 
+  private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
+  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/sonar-way-it-profile_xml.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
@@ -62,7 +66,7 @@ public class XmlTestSuite {
   }
 
   public static boolean is_at_least_sonar_5_1() {
-    return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1");
+    return ORCHESTRATOR.getServer().version().isGreaterThanOrEquals(5, 1);
   }
 
   @CheckForNull
