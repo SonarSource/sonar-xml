@@ -5,9 +5,6 @@ TEST:
 
 SQ_VERSION: 
   - DEV
-  - LTS
+  - LATEST_RELEASE
+  - LATEST_RELEASE[6.7]
 
-
-exclude:
-  - TEST: plugin
-    SQ_VERSION: LATEST_RELEASE
