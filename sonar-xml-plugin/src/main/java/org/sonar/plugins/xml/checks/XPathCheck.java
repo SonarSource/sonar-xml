@@ -72,7 +72,7 @@ public class XPathCheck extends AbstractXmlCheck {
 
     @Override
     // Dummy implementation - not used!
-    public Iterator<Object> getPrefixes(String val) {
+    public Iterator getPrefixes(String val) {
       return null;
     }
   }
