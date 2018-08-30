@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>44</version>
+    <version>47</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -151,8 +151,8 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>1.9.0</version>
+        <artifactId>mockito-core</artifactId>
+        <version>2.21.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
