@@ -51,7 +51,6 @@ public final class LineCounter {
 
     for (int line = 1; line <= data.linesNumber(); line++) {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, data.linesOfCodeLines().contains(line) ? 1 : 0);
-      fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, data.effectiveCommentLines().contains(line) ? 1 : 0);
     }
     fileLinesContext.save();
 
