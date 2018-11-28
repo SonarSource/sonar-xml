@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -37,16 +38,13 @@ import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
-import java.io.File;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class LineCounterTest {
@@ -103,8 +101,6 @@ public class LineCounterTest {
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(2), eq(0));
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(3), eq(1));
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(6), eq(1));
-    verify(fileLinesContext).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), eq(1), eq(0));
-    verify(fileLinesContext).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), eq(5), eq(1));
   }
 
   private CompatibleInputFile createInputFile(Path moduleBaseDir, String name) {
