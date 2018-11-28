@@ -27,11 +27,6 @@ import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonarsource.analyzer.commons.ProfileDefinitionReader;
 
-/**
- * Default XML profile.
- * 
- * @author Matthijs Galesloot
- */
 public final class XmlSonarWayProfile extends ProfileDefinition {
 
   private final RuleFinder ruleFinder;

@@ -52,11 +52,6 @@ import org.sonar.plugins.xml.parsers.ParseException;
 
 import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
-/**
- * XmlSensor provides analysis of xml files.
- *
- * @author Matthijs Galesloot
- */
 public class XmlSensor implements Sensor {
 
   /**

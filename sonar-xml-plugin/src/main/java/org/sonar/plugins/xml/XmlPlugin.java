@@ -26,11 +26,6 @@ import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.rules.XmlRulesDefinition;
 import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
-/**
- * XML Plugin publishes extensions to sonar engine.
- *
- * @author Matthijs Galesloot
- */
 public final class XmlPlugin implements Plugin {
 
   public static final String FILE_SUFFIXES_KEY = "sonar.xml.file.suffixes";

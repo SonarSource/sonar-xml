@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>47</version>
+    <version>48</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -30,19 +30,8 @@
 
   <developers>
     <developer>
-      <id>mgalesloot</id>
-      <name>Matthijs Galesloot</name>
-      <email>matthijs@codehaus.org</email>
-    </developer>
-    <developer>
-      <id>henryju</id>
-      <name>Julien Henry</name>
-      <email>julien.henry@sonarsource.com</email>
-    </developer>
-    <developer>
-      <id>lindamartin</id>
-      <name>Linda Martin</name>
-      <email>linda.martin@sonarsource.com</email>
+      <id>sonarsource-team</id>
+      <name>SonarSource Team</name>
       <organization>SonarSource</organization>
     </developer>
   </developers>
