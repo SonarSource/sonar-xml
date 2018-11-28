@@ -37,7 +37,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.plugins.xml.checks.XmlFile;
@@ -46,7 +46,6 @@ import org.sonar.plugins.xml.language.Xml;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class XmlHighlightingTest {
 
@@ -361,17 +360,18 @@ public class XmlHighlightingTest {
   }
 
   private List<HighlightingData> getHighlightingData(File file, String filename) throws IOException {
-    DefaultInputFile inputFile = new DefaultInputFile("module", filename)
+    DefaultInputFile inputFile = TestInputFileBuilder.create("module", filename)
       .setModuleBaseDir(file.getParentFile().toPath())
       .initMetadata(Files.lines(file.toPath()).collect(Collectors.joining()))
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(UTF_8);
+      .setCharset(UTF_8)
+      .build();
     DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
     localFS.setEncoding(UTF_8);
-    localFS.add(inputFile).setWorkDir(tmpFolder.newFolder());
+    localFS.add(inputFile).setWorkDir(tmpFolder.newFolder().toPath());
 
-    XmlFile xmlFile = new XmlFile(wrap(inputFile), localFS);
+    XmlFile xmlFile = new XmlFile(inputFile, localFS);
     return new XMLHighlighting(xmlFile).getHighlightingData();
   }
 
@@ -406,15 +406,15 @@ public class XmlHighlightingTest {
     }
 
     String modulekey = "modulekey";
-    DefaultInputFile defaultInputFile = new DefaultInputFile(modulekey, filename)
+    DefaultInputFile defaultInputFile = TestInputFileBuilder.create(modulekey, filename)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(fileCharset);
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), fileCharset));
+      .setCharset(fileCharset)
+      .build();
     fileSystem.add(defaultInputFile);
 
-    XmlFile xmlFile = new XmlFile(wrap(defaultInputFile), fileSystem);
+    XmlFile xmlFile = new XmlFile(defaultInputFile, fileSystem);
     List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile).getHighlightingData();
     assertThat(highlightingData).hasSize(11);
   }

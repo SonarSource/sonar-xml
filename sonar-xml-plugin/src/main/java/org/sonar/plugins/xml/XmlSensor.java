@@ -35,7 +35,6 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.AbstractXmlCheck;
@@ -44,22 +43,14 @@ import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.parsers.ParseException;
 
-import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
-
 public class XmlSensor implements Sensor {
 
-  /**
-   * Use Sonar logger instead of SL4FJ logger, in order to be able to unit test the logs.
-   */
   private static final Logger LOG = Loggers.get(XmlSensor.class);
-
-  private static final Version V6_0 = Version.create(6, 0);
 
   private final Checks<Object> checks;
   private final FileSystem fileSystem;
@@ -73,10 +64,6 @@ public class XmlSensor implements Sensor {
     this.mainFilesPredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(Xml.KEY));
-  }
-
-  public void analyse(SensorContext sensorContext) {
-    execute(sensorContext);
   }
 
   private void computeLinesMeasures(SensorContext context, XmlFile xmlFile) {
@@ -94,9 +81,9 @@ public class XmlSensor implements Sensor {
       }
       saveIssue(context, sourceCode);
       try {
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile().wrapped());
+        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile());
       } catch (IOException e) {
-        throw new IllegalStateException("Could not analyze file " + xmlFile.getAbsolutePath(), e);
+        throw new IllegalStateException("Could not analyze file " + xmlFile.uri(), e);
       }
     }
   }
@@ -114,7 +101,7 @@ public class XmlSensor implements Sensor {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
-        .on(sourceCode.getInputFile().wrapped())
+        .on(sourceCode.getInputFile())
         .message(xmlIssue.getMessage());
       if (xmlIssue.getLine() != null) {
         location.at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()));
@@ -139,7 +126,7 @@ public class XmlSensor implements Sensor {
   public void execute(SensorContext context) {
     Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
 
-    for (CompatibleInputFile inputFile : wrap(fileSystem.inputFiles(mainFilesPredicate), context)) {
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
       XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
       try {
         computeLinesMeasures(context, xmlFile);
@@ -162,10 +149,10 @@ public class XmlSensor implements Sensor {
     return Optional.empty();
   }
 
-  private static void processParseException(ParseException e, SensorContext context, CompatibleInputFile inputFile, Optional<RuleKey> parsingErrorKey) {
+  private static void processParseException(ParseException e, SensorContext context, InputFile inputFile, Optional<RuleKey> parsingErrorKey) {
     reportAnalysisError(e, context, inputFile);
 
-    LOG.warn("Unable to parse file {}", inputFile.absolutePath());
+    LOG.warn("Unable to parse file {}", inputFile.uri());
     LOG.warn("Cause: {}", e.getMessage());
 
     if (parsingErrorKey.isPresent()) {
@@ -173,7 +160,7 @@ public class XmlSensor implements Sensor {
       NewIssue newIssue = context.newIssue();
       NewIssueLocation primaryLocation = newIssue.newLocation()
         .message("Parse error: " + e.getMessage())
-        .on(inputFile.wrapped());
+        .on(inputFile);
       newIssue
         .forRule(parsingErrorKey.get())
         .at(primaryLocation)
@@ -181,19 +168,17 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private static void processException(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
+  private static void processException(RuntimeException e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
-    throw new IllegalStateException("Unable to analyse file " + inputFile.absolutePath(), e);
+    throw new IllegalStateException("Unable to analyse file " + inputFile.uri(), e);
   }
 
-  private static void reportAnalysisError(RuntimeException e, SensorContext context, CompatibleInputFile inputFile) {
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
-      context.newAnalysisError()
-        .onFile(inputFile.wrapped())
-        .message(e.getMessage())
-        .save();
-    }
+  private static void reportAnalysisError(RuntimeException e, SensorContext context, InputFile inputFile) {
+    context.newAnalysisError()
+      .onFile(inputFile)
+      .message(e.getMessage())
+      .save();
   }
 
 }

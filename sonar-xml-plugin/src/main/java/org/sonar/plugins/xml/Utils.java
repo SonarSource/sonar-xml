@@ -29,20 +29,20 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
+import org.sonar.api.batch.fs.InputFile;
 
 public class Utils {
   private Utils() {
     // utility class, forbidden constructor
   }
 
-  public static List<String> readLines(CompatibleInputFile file) throws IOException {
+  public static List<String> readLines(InputFile file) throws IOException {
     try (BufferedReader reader = newBufferedReader(file)) {
       return reader.lines().collect(Collectors.toList());
     }
   }
 
-  private static BufferedReader newBufferedReader(CompatibleInputFile file) throws IOException {
+  private static BufferedReader newBufferedReader(InputFile file) throws IOException {
     return new BufferedReader(new StringReader(file.contents()));
   }
 

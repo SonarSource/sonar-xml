@@ -21,21 +21,20 @@ package org.sonar.plugins.xml.language;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.plugins.xml.XmlPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlTest {
 
-  private Settings settings;
+  private MapSettings settings;
   private Xml xml;
 
   @Before
   public void setUp() {
     settings = new MapSettings();
-    xml = new Xml(settings);
+    xml = new Xml(settings.asConfig());
   }
 
   @Test

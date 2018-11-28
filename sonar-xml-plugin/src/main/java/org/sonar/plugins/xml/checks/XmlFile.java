@@ -27,10 +27,10 @@ import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.Utils;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
 import static java.lang.String.format;
 
@@ -45,7 +45,7 @@ public class XmlFile {
   private static final String XML_PROLOG_START_TAG = "<?xml";
   public static final String BOM_CHAR = "\ufeff";
 
-  private final CompatibleInputFile inputFile;
+  private final InputFile inputFile;
 
   private File noCharBeforePrologFile;
   /**
@@ -58,13 +58,9 @@ public class XmlFile {
   private int characterDeltaForHighlight = 0;
   private boolean hasCharsBeforeProlog = false;
 
-  public XmlFile(CompatibleInputFile inputFile, FileSystem fileSystem) {
+  public XmlFile(InputFile inputFile, FileSystem fileSystem) {
     this.inputFile = inputFile;
     checkForCharactersBeforeProlog(fileSystem);
-  }
-
-  public String getFilePath() {
-    return inputFile.absolutePath();
   }
 
   /**
@@ -99,7 +95,7 @@ public class XmlFile {
         processCharBeforePrologInFile(fileSystem, lineNb);
       }
     } catch (IOException e) {
-      LOG.warn(format("Unable to analyse file %s", inputFile.absolutePath()), e);
+      LOG.warn(format("Unable to analyse file %s", inputFile.uri()), e);
     }
   }
 
@@ -117,7 +113,7 @@ public class XmlFile {
   private void processCharBeforePrologInFile(FileSystem fileSystem, int lineDelta) {
     try {
       String content = inputFile.contents();
-      File tempFile = new File(fileSystem.workDir(), inputFile.fileName());
+      File tempFile = new File(fileSystem.workDir(), inputFile.filename());
 
       int index = content.indexOf(XML_PROLOG_START_TAG);
       Files.write(tempFile.toPath(), content.substring(index).getBytes(inputFile.charset()));
@@ -133,11 +129,11 @@ public class XmlFile {
       }
 
     } catch (IOException e) {
-      LOG.warn("Unable to analyse file {}", inputFile.absolutePath(), e);
+      LOG.warn("Unable to analyse file {}", inputFile.uri(), e);
     }
   }
 
-  public CompatibleInputFile getInputFile() {
+  public InputFile getInputFile() {
     return inputFile;
   }
 
@@ -171,8 +167,8 @@ public class XmlFile {
     return hasCharsBeforeProlog;
   }
 
-  public String getAbsolutePath() {
-    return inputFile.absolutePath();
+  public String uri() {
+    return inputFile.uri().toString();
   }
 
   public Charset getCharset() {

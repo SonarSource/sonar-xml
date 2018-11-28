@@ -25,8 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 public class XmlSourceCodeTest {
 
@@ -45,9 +44,9 @@ public class XmlSourceCodeTest {
 
   private XmlSourceCode createXmlSourceCode(File file) {
     File moduleBaseDir = file.getParentFile().getAbsoluteFile();
-    DefaultInputFile inputFile = new DefaultInputFile("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath());
+    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", file.getName()).setModuleBaseDir(moduleBaseDir.toPath()).build();
     DefaultFileSystem fileSystem = new DefaultFileSystem(file.getParentFile());
-    XmlFile xmlFile = new XmlFile(wrap(inputFile), fileSystem);
+    XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
     return new XmlSourceCode(xmlFile);
   }
 

@@ -21,6 +21,7 @@ package org.sonar.plugins.xml;
 
 import java.io.IOException;
 import java.io.Serializable;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -29,7 +30,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.XmlFile;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.parsers.LineCountParser;
 import org.sonar.plugins.xml.parsers.ParseException;
 import org.xml.sax.SAXException;
@@ -58,24 +58,24 @@ public final class LineCounter {
     saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, data.linesOfCodeLines().size());
   }
 
-  private static <T extends Serializable> void saveMeasure(SensorContext context, CompatibleInputFile inputFile, Metric<T> metric, T value) {
+  private static <T extends Serializable> void saveMeasure(SensorContext context, InputFile inputFile, Metric<T> metric, T value) {
     context.<T>newMeasure()
       .withValue(value)
       .forMetric(metric)
-      .on(inputFile.wrapped())
+      .on(inputFile)
       .save();
   }
 
   public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
-    LOG.debug("Count lines in {}", xmlFile.getAbsolutePath());
+    LOG.debug("Count lines in {}", xmlFile.uri());
 
     try {
       saveMeasures(
         xmlFile,
         new LineCountParser(xmlFile.getContents(), xmlFile.getCharset()).getLineCountData(),
-        fileLinesContextFactory.createFor(xmlFile.getInputFile().wrapped()), context);
+        fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
     } catch (IOException | SAXException e) {
-      LOG.debug("Unable to count lines for file " + xmlFile.getAbsolutePath());
+      LOG.debug("Unable to count lines for file " + xmlFile.uri());
       throw new ParseException(e);
     }
   }

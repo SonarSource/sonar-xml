@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.xml.parsers.SaxParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -53,7 +53,7 @@ public class XmlSourceCode {
     try {
       return xmlFile.getInputStream();
     } catch (IOException e) {
-      throw new IllegalStateException(xmlFile.getAbsolutePath(), e);
+      throw new IllegalStateException(xmlFile.uri(), e);
     }
   }
 
@@ -76,7 +76,7 @@ public class XmlSourceCode {
     return new SaxParser().parseDocument(createInputStream(), namespaceAware);
   }
 
-  public CompatibleInputFile getInputFile() {
+  public InputFile getInputFile() {
     return xmlFile.getInputFile();
   }
 
@@ -105,6 +105,6 @@ public class XmlSourceCode {
 
   @Override
   public String toString() {
-    return xmlFile.getInputFile().absolutePath();
+    return xmlFile.getInputFile().uri().toString();
   }
 }
