@@ -22,7 +22,7 @@ package org.sonar.plugins.xml.language;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.plugins.xml.XmlPlugin;
 
@@ -42,14 +42,14 @@ public class Xml extends AbstractLanguage {
   /** The xml language name */
   private static final String XML_LANGUAGE_NAME = "XML";
 
-  private Settings settings;
+  private Configuration configuration;
 
   /**
    * Default constructor.
    */
-  public Xml(Settings settings) {
+  public Xml(Configuration configuration) {
     super(KEY, XML_LANGUAGE_NAME);
-    this.settings = settings;
+    this.configuration = configuration;
   }
 
   /**
@@ -57,7 +57,7 @@ public class Xml extends AbstractLanguage {
    */
   @Override
   public String[] getFileSuffixes() {
-    String[] suffixes = filterEmptyStrings(settings.getStringArray(XmlPlugin.FILE_SUFFIXES_KEY));
+    String[] suffixes = filterEmptyStrings(configuration.getStringArray(XmlPlugin.FILE_SUFFIXES_KEY));
     if (suffixes.length == 0) {
       suffixes = Xml.DEFAULT_SUFFIXES;
     }

@@ -29,13 +29,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.plugins.xml.checks.XmlFile;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +44,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public class LineCounterTest {
 
@@ -75,11 +73,11 @@ public class LineCounterTest {
 
   private void verifyMetrics(String filename, int ncloc, int commentLines) throws IOException {
     File moduleBaseDir = new File("src/test/resources/parsers/linecount");
-    CompatibleInputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
+    InputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
     String componentKey = getComponentKey(filename);
 
     DefaultFileSystem localFS = new DefaultFileSystem(moduleBaseDir);
-    localFS.setWorkDir(tmpFolder.newFolder());
+    localFS.setWorkDir(tmpFolder.newFolder().toPath());
 
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
     LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS));
@@ -103,12 +101,13 @@ public class LineCounterTest {
     verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(6), eq(1));
   }
 
-  private CompatibleInputFile createInputFile(Path moduleBaseDir, String name) {
-    return wrap(new DefaultInputFile(MODULE_KEY, name)
+  private InputFile createInputFile(Path moduleBaseDir, String name) {
+    return TestInputFileBuilder.create(MODULE_KEY, name)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8));
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
   }
 
 }

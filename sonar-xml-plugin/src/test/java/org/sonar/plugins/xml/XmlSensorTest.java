@@ -21,6 +21,8 @@ package org.sonar.plugins.xml;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +36,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -51,7 +55,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 import org.sonar.plugins.xml.language.Xml;
 
 import static java.util.Collections.singletonList;
@@ -95,7 +98,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     init(false);
     fs.add(createInputFile("src/pom.xml"));
 
-    sensor.analyse(context);
+    sensor.execute(context);
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
   }
@@ -109,7 +112,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     init(false);
     fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
 
-    sensor.analyse(context);
+    sensor.execute(context);
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
   }
@@ -123,7 +126,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     init(true);
     fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
-    sensor.analyse(context);
+    sensor.execute(context);
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
@@ -142,7 +145,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     init(false);
     fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
 
-    sensor.analyse(context);
+    sensor.execute(context);
 
     assertThat(context.allIssues()).isEmpty();
 
@@ -155,7 +158,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     context = SensorContextTester.create(moduleBaseDir);
 
     fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder("temp"));
+    fs.setWorkDir(temporaryFolder.newFolder("temp").toPath());
 
     ActiveRules activeRules = null;
     if (activateParsingErrorCheck) {
@@ -180,14 +183,16 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
   }
 
-  private DefaultInputFile createInputFile(String name) {
-    DefaultInputFile defaultInputFile = new DefaultInputFile("modulekey", name)
+  private DefaultInputFile createInputFile(String name) throws FileNotFoundException {
+    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", name)
       .setModuleBaseDir(Paths.get("src/test/resources"))
-      .setType(InputFile.Type.MAIN)
+      .setType(Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8);
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), StandardCharsets.UTF_8));
-    return defaultInputFile;
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
+    return inputFile;
   }
 
   @Test
@@ -197,7 +202,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     XmlSourceCode sourceCode = mock(XmlSourceCode.class);
     XmlIssue issueWithNoLine = new XmlIssue(RuleKey.parse("SomeRepo:SomeCheck"), null, "Hello, the line is null");
     when(sourceCode.getXmlIssues()).thenReturn(singletonList(issueWithNoLine));
-    when(sourceCode.getInputFile()).thenReturn(new CompatibleInputFile(createInputFile("src/pom.xml")));  // any file fits
+    when(sourceCode.getInputFile()).thenReturn(createInputFile("src/pom.xml"));  // any file fits
 
     sensor.saveIssue(context, sourceCode);
 
@@ -224,13 +229,15 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     }
 
     String modulekey = "modulekey";
-    DefaultInputFile defaultInputFile = new DefaultInputFile(modulekey, filename)
+    DefaultInputFile defaultInputFile = TestInputFileBuilder.create(modulekey, filename)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
-      .setCharset(fileCharset);
-    defaultInputFile.initMetadata(new FileMetadata().readMetadata(defaultInputFile.file(), fileCharset));
+      .setCharset(fileCharset)
+      .build();
     fileSystem.add(defaultInputFile);
+
+    defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(defaultInputFile.file()), StandardCharsets.UTF_8, defaultInputFile.absolutePath()));
 
     ActiveRules activeRules = new ActiveRulesBuilder()
       .create(ruleKey)
@@ -241,7 +248,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
     sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory);
-    sensor.analyse(context);
+    sensor.execute(context);
 
     String componentKey = modulekey + ":" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(2);
@@ -259,21 +266,19 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     }
   }
 
-  private void assertNoLog(String notExpected, boolean isRegexp) {
-    if (isRegexp) {
-      Condition<String> regexpMatches = new Condition<String>(log -> Pattern.compile(notExpected).matcher(log).matches(), "");
-      assertThat(logTester.logs())
-        .filteredOn(regexpMatches)
-        .as("One of the lines in " + logTester.logs() + " matches regexp [" + notExpected + "], but no line was expected to match")
-        .isEmpty();
-    } else {
-      assertThat(logTester.logs()).doesNotContain(notExpected);
-    }
-  }
-
   private void initFileSystemWithFile(File file) throws Exception {
     init(false);
-    fs.add(createInputFile(file.getAbsolutePath()));
+
+    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", file.getName())
+      .setModuleBaseDir(Paths.get(file.getParent()))
+      .setType(Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
+
+    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
+
+    fs.add(inputFile);
   }
 
   private File createXmlFile(int numberOfTags, String fileName) throws IOException {
@@ -287,7 +292,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
   private long measureTimeToAnalyzeFile() {
     long t1 = System.currentTimeMillis();
-    sensor.analyse(context);
+    sensor.execute(context);
     return System.currentTimeMillis() - t1;
   }
 

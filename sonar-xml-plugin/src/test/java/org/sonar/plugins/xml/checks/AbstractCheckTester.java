@@ -24,13 +24,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.plugins.xml.AbstractXmlPluginTester;
-import org.sonar.plugins.xml.compat.CompatibleInputFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.sonar.plugins.xml.compat.CompatibilityHelper.wrap;
 
 public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
@@ -60,10 +59,11 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
     return xmlSourceCode;
   }
 
-  private CompatibleInputFile newInputFile(File file) {
-    return wrap(new DefaultInputFile("modulekey", file.getName())
+  private InputFile newInputFile(File file) {
+    return TestInputFileBuilder.create("modulekey", file.getName())
       .setModuleBaseDir(file.getParentFile().toPath())
-      .setCharset(UTF_8));
+      .setCharset(UTF_8)
+      .build();
   }
 
   protected DefaultFileSystem createFileSystem() {
@@ -71,7 +71,7 @@ public abstract class AbstractCheckTester extends AbstractXmlPluginTester {
 
     DefaultFileSystem fs = new DefaultFileSystem(workDir);
     fs.setEncoding(Charset.defaultCharset());
-    fs.setWorkDir(workDir);
+    fs.setWorkDir(workDir.toPath());
 
     return fs;
   }

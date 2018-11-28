@@ -47,7 +47,7 @@ public class XMLHighlighting {
   private String content;
 
   public XMLHighlighting(XmlFile xmlFile) throws IOException {
-    this(xmlFile.getInputFile().contents(), String.format("Can't highlight following file : %s", xmlFile.getAbsolutePath()));
+    this(xmlFile.getInputFile().contents(), String.format("Can't highlight following file : %s", xmlFile.uri()));
   }
 
   public XMLHighlighting(String xmlStrContent) {
@@ -82,8 +82,8 @@ public class XMLHighlighting {
     Reader reader = new StringReader(content);
 
     XMLInputFactory factory = XMLInputFactory.newInstance();
-    factory.setProperty(XMLInputFactory.SUPPORT_DTD, "false");
-    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, "false");
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
     XMLStreamReader xmlReader = factory.createXMLStreamReader(reader);
     highlightXmlDeclaration();
 
