@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,8 +60,7 @@ public class NewXmlParser {
   private Deque<Node> nodes = new LinkedList<>();
   private NewXmlFile xmlFile;
 
-
-  public NewXmlParser(NewXmlFile xmlFile) throws ParserConfigurationException {
+  public NewXmlParser(NewXmlFile xmlFile) {
     this.xmlFile = xmlFile;
     try {
       setContent();
@@ -73,9 +73,22 @@ public class NewXmlParser {
       parseXmlDeclaration();
       parseXml();
 
-    } catch (XMLStreamException|SAXException|IOException e) {
+      setDocumentLocation(xmlFile);
+
+    } catch (XMLStreamException|SAXException|IOException|ParserConfigurationException e) {
       throw new ParseException(e);
     }
+  }
+
+  private static void setDocumentLocation(NewXmlFile xmlFile) {
+    Document document = xmlFile.getDocument();
+    XmlTextRange startRange = NewXmlFile.nodeLocation(document.getFirstChild());
+    XmlTextRange end = NewXmlFile.nodeLocation(document.getLastChild());
+    Optional<PrologElement> prologElement = xmlFile.getPrologElement();
+    if (prologElement.isPresent()) {
+      startRange = prologElement.get().getPrologStartLocation();
+    }
+    document.setUserData(Location.NODE.name(), new XmlTextRange(startRange, end), null);
   }
 
   private void setContent() throws XMLStreamException {

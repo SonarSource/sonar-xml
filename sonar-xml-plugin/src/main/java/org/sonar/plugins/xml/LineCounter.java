@@ -19,8 +19,9 @@
  */
 package org.sonar.plugins.xml;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,33 +30,17 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.checks.XmlFile;
-import org.sonar.plugins.xml.parsers.LineCountParser;
-import org.sonar.plugins.xml.parsers.ParseException;
-import org.xml.sax.SAXException;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-/**
- * Count lines of code in XML files.
- *
- * @author Matthijs Galesloot
- */
 public final class LineCounter {
 
   private static final Logger LOG = Loggers.get(LineCounter.class);
 
   private LineCounter() {
-  }
-
-  private static void saveMeasures(XmlFile xmlFile, LineCountData data, FileLinesContext fileLinesContext, SensorContext context) {
-    data.updateAccordingTo(xmlFile.getLineDelta());
-
-    for (int line = 1; line <= data.linesNumber(); line++) {
-      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, data.linesOfCodeLines().contains(line) ? 1 : 0);
-    }
-    fileLinesContext.save();
-
-    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.COMMENT_LINES, data.effectiveCommentLines().size());
-    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, data.linesOfCodeLines().size());
   }
 
   private static <T extends Serializable> void saveMeasure(SensorContext context, InputFile inputFile, Metric<T> metric, T value) {
@@ -66,18 +51,72 @@ public final class LineCounter {
       .save();
   }
 
-  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
-    LOG.debug("Count lines in {}", xmlFile.uri());
+  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, NewXmlFile xmlFile) {
+    LOG.debug("Count lines in {}", xmlFile.getInputFile().uri());
 
-    try {
-      saveMeasures(
-        xmlFile,
-        new LineCountParser(xmlFile.getContents(), xmlFile.getCharset()).getLineCountData(),
-        fileLinesContextFactory.createFor(xmlFile.getInputFile()), context);
-    } catch (IOException | SAXException e) {
-      LOG.debug("Unable to count lines for file " + xmlFile.uri());
-      throw new ParseException(e);
+    Set<Integer> linesOfCode = new HashSet<>();
+    Set<Integer> commentLines = new HashSet<>();
+
+    Document document = xmlFile.getDocument();
+    visitNode(document, linesOfCode, commentLines);
+
+    xmlFile.getPrologElement().ifPresent(prologElement ->
+      addLinesRange(
+        linesOfCode,
+        prologElement.getPrologStartLocation().getStartLine(),
+        prologElement.getPrologEndLocation().getEndLine()));
+
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(xmlFile.getInputFile());
+    linesOfCode.forEach(lineOfCode -> fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, lineOfCode, 1));
+    fileLinesContext.save();
+
+    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.COMMENT_LINES, commentLines.size());
+    saveMeasure(context, xmlFile.getInputFile(), CoreMetrics.NCLOC, linesOfCode.size());
+
+  }
+
+  private static void visitNode(Node node, Set<Integer> linesOfCode, Set<Integer> commentLines) {
+    XmlTextRange range = NewXmlFile.nodeLocation(node);
+
+    switch (node.getNodeType()) {
+      case Node.ELEMENT_NODE:
+        addLinesRange(linesOfCode, NewXmlFile.startLocation((Element) node));
+        addLinesRange(linesOfCode, NewXmlFile.endLocation((Element) node));
+        break;
+      case Node.COMMENT_NODE:
+        addNotEmptyLines(commentLines, node.getTextContent(), range);
+        break;
+      case Node.TEXT_NODE:
+      case Node.CDATA_SECTION_NODE:
+      case Node.DOCUMENT_TYPE_NODE:
+        addNotEmptyLines(linesOfCode, node.getTextContent(), range);
+        break;
+      default:
+        break;
     }
+
+    NewXmlFile.children(node).forEach(child -> visitNode(child, linesOfCode, commentLines));
+  }
+
+  private static void addNotEmptyLines(Set<Integer> set, String text, XmlTextRange fullTextRange) {
+    String[] lines = text.split("(\r)?\n|\r", -1);
+    int lineNumber = fullTextRange.getStartLine();
+    for (String line : lines) {
+      if (!line.trim().isEmpty()) {
+        set.add(lineNumber);
+      }
+      lineNumber++;
+    }
+  }
+
+  private static void addLinesRange(Set<Integer> set, int start, int end) {
+    for (int line = start; line <= end; line++) {
+      set.add(line);
+    }
+  }
+
+  private static void addLinesRange(Set<Integer> set, XmlTextRange range) {
+    addLinesRange(set, range.getStartLine(), range.getEndLine());
   }
 
 }

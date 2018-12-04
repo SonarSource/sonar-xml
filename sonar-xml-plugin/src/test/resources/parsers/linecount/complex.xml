@@ -14,23 +14,23 @@
     <article>
       <title>Declarative 
       Programming in Java</title>
-      <author>Narayanan Jayaratchagan<!-- Mixed comment --></author>
+      <author>Narayanan Jayaratchagan<!-- 6 Mixed comment --></author>
     </article>
   </journal>
-  <journal date="January 2004"><!-- Inline comment --><!--
-    6. Inline comment -->
+  <journal date="January 2004"><!-- 7 Inline comment --><!--
+    8. Inline comment -->
     <article>
-    <!-- 7. Two comment blocks on 1 line --><!-- Multiline
-    8. comment -->
-      <title>Data Binding with XMLBeans</title><!-- Multiline
-      comment --><author>Daniel Steinberg</author>
-      <!-- Inline comment --></article>
-      <!-- 9. comment
-      --> <!-- 10. comment -->
-      <!-- 11. comment
+    <!-- 9. Two comment blocks on 1 line --><!-- Multiline
+    10. comment -->
+      <title>Data Binding with XMLBeans</title><!-- 11 Multiline
+      12 comment --><author>Daniel Steinberg</author>
+      <!-- 13. Inline comment --></article>
+      <!-- 14. comment
+      --> <!-- 15. comment -->
+      <!-- 16. comment
       --> <!--
 
-      12. comment -->
+      17. comment -->
     text
     <![CDATA[<title>Data Binding with XMLBeans</title><!-- Multiline
       comment --><author>Daniel Steinberg</author>

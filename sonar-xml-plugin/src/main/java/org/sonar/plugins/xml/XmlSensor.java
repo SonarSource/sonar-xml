@@ -22,7 +22,6 @@ package org.sonar.plugins.xml;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.parsers.ParserConfigurationException;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -68,8 +67,22 @@ public class XmlSensor implements Sensor {
       fileSystem.predicates().hasLanguage(Xml.KEY));
   }
 
-  private void computeLinesMeasures(SensorContext context, XmlFile xmlFile) {
-    LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+  @Override
+  public void execute(SensorContext context) {
+    Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
+
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
+      XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
+      try {
+        NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
+        LineCounter.analyse(context, fileLinesContextFactory, newXmlFile);
+        runChecks(context, xmlFile);
+      } catch (ParseException e) {
+        processParseException(e, context, inputFile, parsingErrorKey);
+      } catch (Exception e) {
+        processException(e, context, inputFile);
+      }
+    }
   }
 
   private void runChecks(SensorContext context, XmlFile xmlFile) {
@@ -85,7 +98,7 @@ public class XmlSensor implements Sensor {
       InputFile inputFile = xmlFile.getInputFile();
       try {
         saveSyntaxHighlighting(context, XMLHighlighting.highlight(NewXmlFile.create(inputFile)), inputFile);
-      } catch (ParserConfigurationException | IOException e) {
+      } catch (IOException e) {
         LOG.warn(String.format("Can't highlight following file : %s", inputFile.uri()), e);
       }
     }
@@ -125,23 +138,6 @@ public class XmlSensor implements Sensor {
       .name("XML Sensor");
   }
 
-  @Override
-  public void execute(SensorContext context) {
-    Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
-
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
-      XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
-      try {
-        computeLinesMeasures(context, xmlFile);
-        runChecks(context, xmlFile);
-      } catch (ParseException e) {
-        processParseException(e, context, inputFile, parsingErrorKey);
-      } catch (RuntimeException e) {
-        processException(e, context, inputFile);
-      }
-    }
-  }
-
   private Optional<RuleKey> getParsingErrorKey() {
     for (Object obj : checks.all()) {
       AbstractXmlCheck check = (AbstractXmlCheck) obj;
@@ -171,13 +167,13 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private static void processException(RuntimeException e, SensorContext context, InputFile inputFile) {
+  private static void processException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
     throw new IllegalStateException("Unable to analyse file " + inputFile.uri(), e);
   }
 
-  private static void reportAnalysisError(RuntimeException e, SensorContext context, InputFile inputFile) {
+  private static void reportAnalysisError(Exception e, SensorContext context, InputFile inputFile) {
     context.newAnalysisError()
       .onFile(inputFile)
       .message(e.getMessage())
