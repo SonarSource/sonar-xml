@@ -45,7 +45,9 @@ import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 import org.sonar.plugins.xml.parsers.ParseException;
 
 public class XmlSensor implements Sensor {
@@ -59,7 +61,9 @@ public class XmlSensor implements Sensor {
 
   public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.checks = checkFactory.create(CheckRepository.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses());
+    this.checks = checkFactory.create(Xml.REPOSITORY_KEY)
+      .addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses())
+      .addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
@@ -89,13 +93,24 @@ public class XmlSensor implements Sensor {
 
     // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
     if (sourceCode.parseSource()) {
+      // FIXME shouldn't we only execute activated rules?
       for (Object check : checks.all()) {
-        ((AbstractXmlCheck) check).setRuleKey(checks.ruleKey(check));
-        ((AbstractXmlCheck) check).validate(sourceCode);
+        if (check instanceof AbstractXmlCheck) {
+          // FIXME we should drop this part once SONARXML-78 has been completed
+          AbstractXmlCheck abstractXmlCheck = (AbstractXmlCheck) check;
+          abstractXmlCheck.setRuleKey(checks.ruleKey(check));
+          abstractXmlCheck.validate(sourceCode);
+        }
       }
       saveIssue(context, sourceCode);
-      InputFile inputFile = xmlFile.getInputFile();
-      saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), inputFile);
+
+      // FIXME shouldn't we only execute activated rules?
+      checks.all().stream()
+        .filter(NewXmlCheck.class::isInstance)
+        .map(NewXmlCheck.class::cast)
+        .forEach(check -> check.scanFile(context, newXmlFile));
+
+      saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), xmlFile.getInputFile());
     }
   }
 
@@ -134,13 +149,11 @@ public class XmlSensor implements Sensor {
   }
 
   private Optional<RuleKey> getParsingErrorKey() {
-    for (Object obj : checks.all()) {
-      AbstractXmlCheck check = (AbstractXmlCheck) obj;
-      if (check instanceof ParsingErrorCheck) {
-        return Optional.of(checks.ruleKey(check));
-      }
-    }
-    return Optional.empty();
+    return checks.all().stream()
+      .filter(ParsingErrorCheck.class::isInstance)
+      .map(ParsingErrorCheck.class::cast)
+      .map(checks::ruleKey)
+      .findFirst();
   }
 
   private static void processParseException(ParseException e, SensorContext context, InputFile inputFile, Optional<RuleKey> parsingErrorKey) {

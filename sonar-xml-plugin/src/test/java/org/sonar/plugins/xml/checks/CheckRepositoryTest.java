@@ -19,21 +19,21 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.sonar.plugins.xml.language.Xml;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CheckRepositoryTest {
 
   @Test
   public void properties() {
-    assertThat(CheckRepository.REPOSITORY_KEY).isEqualTo("xml");
-    assertThat(CheckRepository.REPOSITORY_NAME).isEqualTo("SonarAnalyzer");
-    assertThat(CheckRepository.SONAR_WAY_PROFILE_NAME).isEqualTo("Sonar way");
+    assertThat(Xml.REPOSITORY_KEY).isEqualTo("xml");
+    assertThat(Xml.REPOSITORY_NAME).isEqualTo("SonarAnalyzer");
+    assertThat(Xml.SONAR_WAY_PROFILE_NAME).isEqualTo("Sonar way");
   }
 
   @Test

@@ -23,12 +23,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +45,7 @@ public class XmlSonarWayProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(Xml.KEY);
     assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_NAME);
-    assertThat(profile.getActiveRulesByRepository(CheckRepository.REPOSITORY_KEY)).hasSize(1);
+    assertThat(profile.getActiveRulesByRepository(Xml.REPOSITORY_KEY)).hasSize(1);
     assertThat(validation.hasErrors()).isFalse();
   }
 

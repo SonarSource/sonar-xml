@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
-public class CheckRepository {
+public class NewXmlCheckList {
 
-  private CheckRepository() {
+  private NewXmlCheckList() {
   }
 
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new IndentCheck(),
-      new NewlineCheck(),
-      new XmlSchemaCheck(),
-      new CharBeforePrologCheck(),
-      new ParsingErrorCheck(),
-      new XPathCheck());
+  public static List<NewXmlCheck> getChecks() {
+    return Arrays.asList(new TabCharacterCheck());
   }
 
   public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
+    return getChecks().stream().map(NewXmlCheck::getClass).collect(Collectors.toList());
   }
 
 }

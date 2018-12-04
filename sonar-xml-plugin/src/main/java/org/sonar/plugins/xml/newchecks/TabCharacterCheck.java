@@ -35,7 +35,7 @@ public class TabCharacterCheck extends NewXmlCheck {
 
   public static final String RULE_KEY = "IllegalTabCheck";
 
-  @RuleProperty(key = "markAll", description = "Mark all tab errors", defaultValue = "false")
+  @RuleProperty(key = "markAll", description = "Mark all tab errors", defaultValue = "false", type = "BOOLEAN")
   private boolean markAll;
 
   @Override

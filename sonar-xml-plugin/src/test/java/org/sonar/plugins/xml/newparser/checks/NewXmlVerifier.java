@@ -38,10 +38,8 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,7 +63,7 @@ public class NewXmlVerifier {
   private static NewXmlVerifier createVerifier(String fileName, NewXmlCheck check) {
     File file = new File(BASE_DIR.toFile(), check.getClass().getSimpleName() + "/" + fileName);
 
-    RuleKey checkRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, check.ruleKey());
+    RuleKey checkRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, check.ruleKey());
 
     SensorContextTester context = SensorContextTester.create(BASE_DIR)
       .setActiveRules(new ActiveRulesBuilder().create(checkRuleKey).activate().build());

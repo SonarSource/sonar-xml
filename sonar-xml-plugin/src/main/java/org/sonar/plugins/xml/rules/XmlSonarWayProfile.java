@@ -23,7 +23,6 @@ import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonarsource.analyzer.commons.ProfileDefinitionReader;
 
@@ -37,9 +36,9 @@ public final class XmlSonarWayProfile extends ProfileDefinition {
 
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
-    RulesProfile profile = RulesProfile.create(CheckRepository.SONAR_WAY_PROFILE_NAME, Xml.KEY);
+    RulesProfile profile = RulesProfile.create(Xml.SONAR_WAY_PROFILE_NAME, Xml.KEY);
     ProfileDefinitionReader definitionReader = new ProfileDefinitionReader(ruleFinder);
-    definitionReader.activateRules(profile, CheckRepository.REPOSITORY_KEY, "org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json");
+    definitionReader.activateRules(profile, Xml.REPOSITORY_KEY, "org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json");
     return profile;
   }
 

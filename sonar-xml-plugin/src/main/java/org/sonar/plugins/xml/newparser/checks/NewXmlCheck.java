@@ -25,7 +25,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.plugins.xml.checks.CheckRepository;
+import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 
 public abstract class NewXmlCheck {
@@ -59,7 +59,7 @@ public abstract class NewXmlCheck {
 
     issue
       .at(location)
-      .forRule(RuleKey.of(CheckRepository.REPOSITORY_KEY, ruleKey()))
+      .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
       .save();
   }
 }
