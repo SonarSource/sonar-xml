@@ -88,8 +88,10 @@ public final class LineCounter {
         break;
       case Node.TEXT_NODE:
       case Node.CDATA_SECTION_NODE:
-      case Node.DOCUMENT_TYPE_NODE:
         addNotEmptyLines(linesOfCode, node.getTextContent(), range);
+        break;
+      case Node.DOCUMENT_TYPE_NODE:
+        addLinesRange(linesOfCode, range);
         break;
       default:
         break;

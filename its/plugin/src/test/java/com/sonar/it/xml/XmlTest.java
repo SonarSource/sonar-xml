@@ -48,8 +48,8 @@ public class XmlTest {
   public void testBaseMetrics() {
     assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(319);
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(282);
-    assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(1.4);
-    assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(4);
+    assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(3.1);
+    assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(9);
     assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4);
     assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(19);
   }

@@ -64,7 +64,7 @@ public class LineCounterTest {
   @Test
   public void test_complex_file() throws IOException {
     verifyMetrics("complex.xml", 17,
-      1, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
+      1, 2, 3, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
   }
 
   @Test(expected = ParseException.class)
