@@ -22,6 +22,7 @@ package org.sonar.plugins.xml;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.parsers.ParserConfigurationException;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -46,6 +47,7 @@ import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.parsers.ParseException;
 
 public class XmlSensor implements Sensor {
@@ -80,10 +82,11 @@ public class XmlSensor implements Sensor {
         ((AbstractXmlCheck) check).validate(sourceCode);
       }
       saveIssue(context, sourceCode);
+      InputFile inputFile = xmlFile.getInputFile();
       try {
-        saveSyntaxHighlighting(context, new XMLHighlighting(xmlFile).getHighlightingData(), xmlFile.getInputFile());
-      } catch (IOException e) {
-        throw new IllegalStateException("Could not analyze file " + xmlFile.uri(), e);
+        saveSyntaxHighlighting(context, XMLHighlighting.highlight(NewXmlFile.create(inputFile)), inputFile);
+      } catch (ParserConfigurationException | IOException e) {
+        LOG.warn(String.format("Can't highlight following file : %s", inputFile.uri()), e);
       }
     }
   }

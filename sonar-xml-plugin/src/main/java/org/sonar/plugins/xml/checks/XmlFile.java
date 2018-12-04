@@ -73,7 +73,7 @@ public class XmlFile {
       Pattern firstTagPattern = Pattern.compile("<[a-zA-Z?]+");
       boolean hasBOM = false;
 
-      for (String line : Utils.readLines(inputFile)) {
+      for (String line : inputFile.contents().split("\\r?\\n")) {
         if (lineNb == 1 && line.startsWith(BOM_CHAR)) {
           hasBOM = true;
           characterDeltaForHighlight = -1;

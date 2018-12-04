@@ -21,14 +21,12 @@ package org.sonar.plugins.xml.highlighting;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
@@ -40,8 +38,9 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +53,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void testCDATAWithTagsInside() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tag><![CDATA[<tag/><!-- Comment -->]]></tag>").getHighlightingData();
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tag><![CDATA[<tag/><!-- Comment -->]]></tag>");
     assertEquals(5, highlightingData.size());
     // <tag
     assertData(highlightingData.get(0), 0, 4, TypeOfText.KEYWORD);
@@ -72,7 +71,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void testCDATAWithBracketInside() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tag><![CDATA[aa]>bb]]></tag>").getHighlightingData();
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tag><![CDATA[aa]>bb]]></tag>");
     assertEquals(5, highlightingData.size());
 
     // <![CDATA[
@@ -82,24 +81,22 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightAutoclosingTagWithAttribute() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<input type='checkbox' />").getHighlightingData();
-    assertEquals(5, highlightingData.size());
-    // <input
+  public void testHighlightSelfClosingTagWithAttribute() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<input type='checkbox' />");
+    assertEquals(4, highlightingData.size());
+    // "<input"
     assertData(highlightingData.get(0), 0, 6, TypeOfText.KEYWORD);
-    // type
+    // "type"
     assertData(highlightingData.get(1), 7, 11, TypeOfText.CONSTANT);
     // 'checkbox'
     assertData(highlightingData.get(2), 12, 22, TypeOfText.STRING);
-    // /
-    assertData(highlightingData.get(4), 23, 24, TypeOfText.KEYWORD);
-    // >
-    assertData(highlightingData.get(3), 24, 25, TypeOfText.KEYWORD);
+    // " />"
+    assertData(highlightingData.get(3), 22, 25, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testHighlightTagWithDoubleQuoteAttribute() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tag att=\"value ' with simple quote\"> </tag>").getHighlightingData();
+  public void testHighlightTagWithDoubleQuoteAttribute() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tag att=\"value ' with simple quote\"> </tag>");
     assertEquals(5, highlightingData.size());
     // <tag
     assertData(highlightingData.get(0), 0, 4, TypeOfText.KEYWORD);
@@ -107,18 +104,20 @@ public class XmlHighlightingTest {
     assertData(highlightingData.get(1), 5, 8, TypeOfText.CONSTANT);
     // "value ' with simple quote"
     assertData(highlightingData.get(2), 9, 36, TypeOfText.STRING);
-    // </tag>
+    // >
     assertData(highlightingData.get(3), 36, 37, TypeOfText.KEYWORD);
+    // </tag>
+    assertData(highlightingData.get(4), 38, 44, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testHighlightMultilineTagWithAttributes() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+  public void testHighlightMultilineTagWithAttributes() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag att1='value1' \n"
         + " att2\n"
         + " = 'value2' att3=\n"
         + "'value3' att4='multiline \n"
-        + " \" attribute'> </tag>").getHighlightingData();
+        + " \" attribute'> </tag>");
     assertEquals(11, highlightingData.size());
     // <tag
     assertData(highlightingData.get(0), 1, 0, 1, 4, TypeOfText.KEYWORD);
@@ -137,59 +136,60 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightMultilineComments() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+  public void testHighlightMultilineComments() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag><!-- hello \n"
-        + " world!! --></tag>").getHighlightingData();
+        + " world!! --></tag>");
     assertEquals(4, highlightingData.size());
     assertData(highlightingData.get(2), 1, 5, 2, 12, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
   public void testWindowsLineEndingInComment() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag><!-- hello \r\n"
-        + " world!! --></tag>").getHighlightingData();
+        + " world!! --></tag>");
     assertEquals(4, highlightingData.size());
     assertData(highlightingData.get(2), 1, 5, 2, 12, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
   public void testAttributeValueWithEqual() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<meta content=\"charset=UTF-8\" />").getHighlightingData();
-    assertEquals(5, highlightingData.size());
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<meta content=\"charset=UTF-8\" />");
+    assertEquals(4, highlightingData.size());
     assertData(highlightingData.get(2), 14, 29, TypeOfText.STRING);
   }
 
   @Test
-  public void testHighlightCommentsAndOtherTag() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<!-- comment --><tag/>").getHighlightingData();
-    assertEquals(4, highlightingData.size());
+  public void testHighlightCommentsAndOtherTag() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<!-- comment --><tag/>");
+    assertEquals(3, highlightingData.size());
     assertData(highlightingData.get(0), 0, 16, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
-  public void testHighlightDoctype() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<!DOCTYPE foo> <tag/>").getHighlightingData();
-    assertEquals(5, highlightingData.size());
-    assertData(highlightingData.get(0), 0, 9, TypeOfText.STRUCTURED_COMMENT);
-    assertData(highlightingData.get(1), 13, 14, TypeOfText.STRUCTURED_COMMENT);
+  public void testHighlightDoctype() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<!DOCTYPE foo> <tag/>");
+    assertEquals(3, highlightingData.size());
+    assertData(highlightingData.get(0), 0, 14, TypeOfText.STRUCTURED_COMMENT);
+    assertData(highlightingData.get(1), 15, 19, TypeOfText.KEYWORD);
+    assertData(highlightingData.get(2), 19, 21, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testCDATA() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tag><![CDATA[foo]]></tag>").getHighlightingData();
+  public void testCDATA() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tag><![CDATA[foo]]></tag>");
     assertEquals(5, highlightingData.size());
     assertData(highlightingData.get(2), 5, 14, TypeOfText.KEYWORD);
     assertData(highlightingData.get(3), 17, 20, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testCDATAMultiline() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+  public void testCDATAMultiline() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag><![CDATA[foo\n"
         + "bar\n"
-        + "]]></tag>").getHighlightingData();
+        + "]]></tag>");
     assertEquals(5, highlightingData.size());
     assertData(highlightingData.get(2), 1, 5, 1, 14, TypeOfText.KEYWORD);
     assertData(highlightingData.get(3), 3, 0, 3, 3, TypeOfText.KEYWORD);
@@ -198,8 +198,8 @@ public class XmlHighlightingTest {
   @Test
   public void testBigCDATA() throws Exception {
     String cdataContent = StringUtils.repeat("x", 100000);
-    List<HighlightingData> highlightingData = new XMLHighlighting(
-      "<tag><![CDATA[" + cdataContent + "]]></tag>").getHighlightingData();
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
+      "<tag><![CDATA[" + cdataContent + "]]></tag>");
     assertEquals(5, highlightingData.size());
     assertData(highlightingData.get(2), 5, 14, TypeOfText.KEYWORD);
     int expectedCDataEndOffset = 14 + cdataContent.length();
@@ -207,8 +207,8 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightTag() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tr></tr>").getHighlightingData();
+  public void testHighlightTag() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tr></tr>");
     assertEquals(3, highlightingData.size());
     // <tr
     assertData(highlightingData.get(0), 0, 3, TypeOfText.KEYWORD);
@@ -220,36 +220,33 @@ public class XmlHighlightingTest {
 
   @Test
   public void testEmptyElement() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<br/>").getHighlightingData();
-    assertEquals(3, highlightingData.size());
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<br/>");
+    assertEquals(2, highlightingData.size());
     // <br
     assertData(highlightingData.get(0), 0, 3, TypeOfText.KEYWORD);
-    // /
-    assertData(highlightingData.get(2), 3, 4, TypeOfText.KEYWORD);
-    // >
-    assertData(highlightingData.get(1), 4, 5, TypeOfText.KEYWORD);
+    // "/>"
+    assertData(highlightingData.get(1), 3, 5, TypeOfText.KEYWORD);
   }
 
   @Test
   public void testSpacesInside() throws Exception {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<tag > </tag >").getHighlightingData();
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<tag > </tag >");
     assertEquals(3, highlightingData.size());
     assertData(highlightingData.get(0), 0, 4, TypeOfText.KEYWORD);
-    assertData(highlightingData.get(1), 5, 6, TypeOfText.KEYWORD);
+    assertData(highlightingData.get(1), 4, 6, TypeOfText.KEYWORD);
     assertData(highlightingData.get(2), 7, 14, TypeOfText.KEYWORD);
 
-    highlightingData = new XMLHighlighting("<tag />").getHighlightingData();
-    assertEquals(3, highlightingData.size());
+    highlightingData = getHighlightingDataFromContent("<tag />");
+    assertEquals(2, highlightingData.size());
     assertData(highlightingData.get(0), 0, 4, TypeOfText.KEYWORD);
-    assertData(highlightingData.get(2), 5, 6, TypeOfText.KEYWORD);
-    assertData(highlightingData.get(1), 6, 7, TypeOfText.KEYWORD);
+    assertData(highlightingData.get(1), 4, 7, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testHighlightTagWithNamespace() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+  public void testHighlightTagWithNamespace() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag xmlns:x='url'>\n"
-        + "<x:table>  </x:table></tag>").getHighlightingData();
+        + "<x:table>  </x:table></tag>");
     assertEquals(8, highlightingData.size());
     assertData(highlightingData.get(1), 1, 5, 1, 12, TypeOfText.CONSTANT);
     assertData(highlightingData.get(2), 1, 13, 1, 18, TypeOfText.STRING);
@@ -258,13 +255,13 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightingTagWithNameSpaceMultipleLine() {
-    List<HighlightingData> highlightingData = new XMLHighlighting(
+  public void testHighlightingTagWithNameSpaceMultipleLine() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
         + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
         // ...
-        + "</project>").getHighlightingData();
+        + "</project>");
     assertEquals(15, highlightingData.size());
     // xmlns:xsi
     assertData(highlightingData.get(9), 2, 51, 2, 60, TypeOfText.CONSTANT);
@@ -277,9 +274,9 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testXMLHeader() throws XMLStreamException {
-    List<HighlightingData> highlightingData = new XMLHighlighting("<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>").getHighlightingData();
-    assertEquals(9, highlightingData.size());
+  public void testXMLHeader() throws Exception {
+    List<HighlightingData> highlightingData = getHighlightingDataFromContent("<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
+    assertEquals(8, highlightingData.size());
     // <?xml
     assertData(highlightingData.get(0), 0, 5, TypeOfText.KEYWORD);
     // ?>
@@ -296,19 +293,13 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void entity() throws Exception {
-    assertThat(new XMLHighlighting("<a>&ouml;</a>").getHighlightingData()).isNotEmpty();
-  }
-
-
-  @Test
   public void testCharBeforeProlog() throws Exception {
-    List<HighlightingData> highlightingData = getHighlightingData("char_before_prolog.xml",
+    List<HighlightingData> highlightingData = getHighlightingDataFromNewFile("char_before_prolog.xml",
       "\n"
         + "\n"
         + "\n"
         + "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
-    assertEquals(9, highlightingData.size());
+    assertEquals(8, highlightingData.size());
     // <?xml
     assertData(highlightingData.get(0), 4, 0, 4, 5, TypeOfText.KEYWORD);
     // ?>
@@ -326,7 +317,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void testBOM() throws Exception {
-    List<HighlightingData> highlightingData = getHighlightingData("bom.xml");
+    List<HighlightingData> highlightingData = getHighlightingDataFromFile("bom.xml");
     HighlightingData firstHighlightingData = highlightingData.get(0);
     // <beans
     assertData(firstHighlightingData, 1, 0, 1, 6, TypeOfText.KEYWORD);
@@ -334,7 +325,7 @@ public class XmlHighlightingTest {
 
   @Test
   public void testBOMWithProlog() throws Exception {
-    List<HighlightingData> highlightingData = getHighlightingData("bomWithProlog.xml");
+    List<HighlightingData> highlightingData = getHighlightingDataFromFile("bomWithProlog.xml");
     HighlightingData firstHighlightingData = highlightingData.get(0);
     // <?xml
     assertData(firstHighlightingData, 1, 0, 1, 5, TypeOfText.KEYWORD);
@@ -342,53 +333,14 @@ public class XmlHighlightingTest {
 
   @Test
   public void testBOMWithCharBeforeProlog() throws Exception {
-    List<HighlightingData> highlightingData = getHighlightingData("bomCharBeforeProlog.xml");
+    List<HighlightingData> highlightingData = getHighlightingDataFromFile("bomCharBeforeProlog.xml");
     HighlightingData firstHighlightingData = highlightingData.get(0);
     // <?xml
     assertData(firstHighlightingData, 2, 0, 2, 5, TypeOfText.KEYWORD);
   }
 
-  private List<HighlightingData> getHighlightingData(String filename, String content) throws IOException {
-    File file = tmpFolder.newFile(filename);
-    FileUtils.write(file, content, UTF_8);
-    return getHighlightingData(file, filename);
-  }
-
-  private List<HighlightingData> getHighlightingData(String filename) throws IOException {
-    File file = new File("src/test/resources/highlighting/" + filename);
-    return getHighlightingData(file, filename);
-  }
-
-  private List<HighlightingData> getHighlightingData(File file, String filename) throws IOException {
-    DefaultInputFile inputFile = TestInputFileBuilder.create("module", filename)
-      .setModuleBaseDir(file.getParentFile().toPath())
-      .initMetadata(Files.lines(file.toPath()).collect(Collectors.joining()))
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(Xml.KEY)
-      .setCharset(UTF_8)
-      .build();
-    DefaultFileSystem localFS = new DefaultFileSystem(new File(file.getParent()));
-    localFS.setEncoding(UTF_8);
-    localFS.add(inputFile).setWorkDir(tmpFolder.newFolder().toPath());
-
-    XmlFile xmlFile = new XmlFile(inputFile, localFS);
-    return new XMLHighlighting(xmlFile).getHighlightingData();
-  }
-
-  private void assertData(HighlightingData data, int startColumn, int endColumn, TypeOfText code) {
-    assertData(data, 1, startColumn, 1, endColumn, code);
-  }
-
-  private void assertData(HighlightingData data, int startLine, int startColumn, int endLine, int endColumn, TypeOfText code) {
-    assertEquals("Start line", startLine, data.startLine());
-    assertEquals("Start column", startColumn, data.startColumn());
-    assertEquals("End line", endLine, data.endLine());
-    assertEquals("End column", endColumn, data.endColumn());
-    assertEquals("Type of text", code, data.highlightCode());
-  }
-
   @Test
-  public void should_parse_file_with_its_own_encoding() throws IOException, XMLStreamException {
+  public void should_parse_file_with_its_own_encoding() throws Exception {
     Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
@@ -405,8 +357,7 @@ public class XmlHighlightingTest {
       writer.write("<tag></tag>");
     }
 
-    String modulekey = "modulekey";
-    DefaultInputFile defaultInputFile = TestInputFileBuilder.create(modulekey, filename)
+    DefaultInputFile defaultInputFile = TestInputFileBuilder.create("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
@@ -414,8 +365,60 @@ public class XmlHighlightingTest {
       .build();
     fileSystem.add(defaultInputFile);
 
-    XmlFile xmlFile = new XmlFile(defaultInputFile, fileSystem);
-    List<HighlightingData> highlightingData = new XMLHighlighting(xmlFile).getHighlightingData();
+    List<HighlightingData> highlightingData = getHighlightingData(defaultInputFile);
     assertThat(highlightingData).hasSize(11);
+  }
+
+  private List<HighlightingData> getHighlightingDataFromNewFile(String filename, String content) throws Exception {
+    File file = tmpFolder.newFile(filename);
+    FileUtils.write(file, content, UTF_8);
+    return getHighlightingData(file, filename);
+  }
+
+  private List<HighlightingData> getHighlightingDataFromFile(String filename) throws Exception {
+    File file = new File("src/test/resources/highlighting/" + filename);
+    return getHighlightingData(file, filename);
+  }
+
+  private List<HighlightingData> getHighlightingData(File file, String filename) throws Exception {
+    DefaultInputFile inputFile = TestInputFileBuilder.create("module", filename)
+      .setModuleBaseDir(file.getParentFile().toPath())
+      .initMetadata(Files.lines(file.toPath()).collect(Collectors.joining()))
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(UTF_8)
+      .build();
+
+    return getHighlightingData(inputFile);
+  }
+
+  private List<HighlightingData> getHighlightingDataFromContent(String content) throws Exception {
+    DefaultInputFile inputFile = TestInputFileBuilder.create("module", "myFile")
+      .initMetadata(content)
+      .setContents(content)
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(UTF_8)
+      .build();
+
+    return getHighlightingData(inputFile);
+  }
+
+  private List<HighlightingData> getHighlightingData(InputFile inputFile) throws Exception {
+    NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
+    return XMLHighlighting.highlight(newXmlFile);
+  }
+
+  private void assertData(HighlightingData data, int startColumn, int endColumn, TypeOfText code) {
+    assertData(data, 1, startColumn, 1, endColumn, code);
+  }
+
+  private void assertData(HighlightingData data, int startLine, int startColumn, int endLine, int endColumn, TypeOfText code) {
+    XmlTextRange textRange = data.getTextRange();
+    assertThat(textRange.getStartLine()).as("start line").isEqualTo(startLine);
+    assertThat(textRange.getStartColumn()).as("start column").isEqualTo(startColumn);
+    assertThat(textRange.getEndLine()).as("end line").isEqualTo(endLine);
+    assertThat(textRange.getEndColumn()).as("end column").isEqualTo(endColumn);
+    assertThat(data.highlightCode()).as("Type of text").isEqualTo(code);
   }
 }

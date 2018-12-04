@@ -21,38 +21,21 @@ package org.sonar.plugins.xml.highlighting;
 
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
 
 public class HighlightingData {
 
   private final TypeOfText typeOfText;
 
-  private int startLine;
-  private int startColumnOffset;
-  private int endLine;
-  private int endColumnOffset;
+  private final XmlTextRange textRange;
 
-  public HighlightingData(int startLine, int startColumnIndex, int endLine, int endColumnIndex, TypeOfText typeOfText) {
-    this.startLine = startLine;
-    this.startColumnOffset = startColumnIndex - 1;
-    this.endLine = endLine;
-    this.endColumnOffset = endColumnIndex - 1;
+  public HighlightingData(XmlTextRange textRange, TypeOfText typeOfText) {
+    this.textRange = textRange;
     this.typeOfText = typeOfText;
   }
 
-  public int startLine() {
-    return startLine;
-  }
-
-  public int startColumn() {
-    return startColumnOffset;
-  }
-
-  public int endLine() {
-    return endLine;
-  }
-
-  public int endColumn() {
-    return endColumnOffset;
+  public XmlTextRange getTextRange() {
+    return textRange;
   }
 
   public TypeOfText highlightCode() {
@@ -60,7 +43,12 @@ public class HighlightingData {
   }
 
   public void highlight(NewHighlighting highlighting) {
-    highlighting.highlight(startLine, startColumnOffset, endLine, endColumnOffset, typeOfText);
+    highlighting.highlight(
+      textRange.getStartLine(),
+      textRange.getStartColumn(),
+      textRange.getEndLine(),
+      textRange.getEndColumn(),
+      typeOfText);
   }
 
 }
