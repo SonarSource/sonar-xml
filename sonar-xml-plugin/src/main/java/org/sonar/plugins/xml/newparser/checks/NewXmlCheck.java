@@ -43,14 +43,14 @@ public abstract class NewXmlCheck {
 
   public abstract String ruleKey();
 
-  public final void reportIssueOnFile(String message, List<Integer> lines) {
+  public final void reportIssueOnFile(String message, List<Integer> secondaryLocationLines) {
     NewIssue issue = context.newIssue();
 
     NewIssueLocation location = issue.newLocation()
       .on(inputFile)
       .message(message);
 
-    for (Integer line : lines) {
+    for (Integer line : secondaryLocationLines) {
       NewIssueLocation secondary = issue.newLocation()
         .on(inputFile)
         .at(inputFile.selectLine(line));
@@ -59,6 +59,7 @@ public abstract class NewXmlCheck {
 
     issue
       .at(location)
+      // FIXME reposirory is going to be variable in future.
       .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
       .save();
   }

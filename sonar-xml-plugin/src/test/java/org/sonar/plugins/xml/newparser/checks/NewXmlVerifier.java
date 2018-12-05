@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.xml.parsers.ParserConfigurationException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -61,7 +60,7 @@ public class NewXmlVerifier {
   }
 
   private static NewXmlVerifier createVerifier(String fileName, NewXmlCheck check) {
-    File file = new File(BASE_DIR.toFile(), check.getClass().getSimpleName() + "/" + fileName);
+    File file = new File(new File(BASE_DIR.toFile(), check.getClass().getSimpleName()), fileName);
 
     RuleKey checkRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, check.ruleKey());
 
@@ -100,20 +99,17 @@ public class NewXmlVerifier {
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().message()).isEqualTo(expectedIssueMessage);
-    List<Flow> flows = issue.flows();
-    if (secondaryLines == null) {
-      assertThat(flows).hasSize(1);
-      assertThat(flows.get(0).locations()).isEmpty();
-    } else {
-      // secondaries are N flows of size 1
-      assertThat(flows).hasSize(secondaryLines.length);
-      assertThat(flows.stream().map(Flow::locations)).allMatch(flow -> flow.size() == 1);
+    assertThat(issue.primaryLocation().textRange()).isNull();
 
-      // only contains lines
-      Integer[] expectedLines = IntStream.of(secondaryLines).boxed().toArray(Integer[]::new);
-      assertThat(flows.stream().map(Flow::locations).map(locs -> locs.get(0).textRange().start().line()).collect(Collectors.toList()))
-        .containsExactly(expectedLines);
-    }
+    List<Flow> flows = issue.flows();
+    // secondaries are N flows of size 1
+    assertThat(flows).hasSize(secondaryLines.length);
+    assertThat(flows.stream().map(Flow::locations)).allMatch(flow -> flow.size() == 1);
+
+    // only contains lines
+    Integer[] expectedLines = IntStream.of(secondaryLines).boxed().toArray(Integer[]::new);
+    assertThat(flows.stream().map(Flow::locations).map(locs -> locs.get(0).textRange().start().line()).collect(Collectors.toList()))
+      .containsExactly(expectedLines);
   }
 
   private void checkNoIssues() {
