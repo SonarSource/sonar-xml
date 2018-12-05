@@ -23,11 +23,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.xml.Utils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
@@ -95,9 +97,12 @@ public class NewXmlFile {
     return inputFile;
   }
 
-
   public String getContents() {
     return contents;
+  }
+
+  public List<String> lines() {
+    return Arrays.asList(Utils.splitLines(contents));
   }
 
   public Charset getCharset() {

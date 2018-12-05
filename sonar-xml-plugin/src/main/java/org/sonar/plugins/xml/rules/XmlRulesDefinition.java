@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 /**
@@ -38,12 +39,17 @@ public final class XmlRulesDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repository = context
-      .createRepository(CheckRepository.REPOSITORY_KEY, Xml.KEY)
-      .setName(CheckRepository.REPOSITORY_NAME);
+      .createRepository(Xml.REPOSITORY_KEY, Xml.KEY)
+      .setName(Xml.REPOSITORY_NAME);
 
     // FIXME: with SonarQube 6.7, should use the sonar way profile location as extra parameter
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader("org/sonar/l10n/xml/rules/xml");
+
+    // FIXME should be dropped when completing SONARXML-78
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckRepository.getCheckClasses());
+
+    // add the new checks
+    ruleMetadataLoader.addRulesByAnnotatedClass(repository, NewXmlCheckList.getCheckClasses());
 
     for(NewRule rule : repository.rules()) {
       if (TEMPLATE_RULES_KEY.contains(rule.key())) {

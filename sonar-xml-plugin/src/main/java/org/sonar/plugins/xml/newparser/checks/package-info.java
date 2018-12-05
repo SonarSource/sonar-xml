@@ -17,29 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class CheckRepository {
-
-  private CheckRepository() {
-  }
-
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new IndentCheck(),
-      new NewlineCheck(),
-      new XmlSchemaCheck(),
-      new CharBeforePrologCheck(),
-      new ParsingErrorCheck(),
-      new XPathCheck());
-  }
-
-  public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.xml.newparser.checks;

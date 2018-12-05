@@ -42,6 +42,10 @@ public class Xml extends AbstractLanguage {
   /** The xml language name */
   private static final String XML_LANGUAGE_NAME = "XML";
 
+  public static final String REPOSITORY_KEY = "xml";
+  public static final String REPOSITORY_NAME = "SonarAnalyzer";
+  public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
+
   private Configuration configuration;
 
   /**

@@ -52,14 +52,13 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,11 +74,11 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private XmlSensor sensor;
   private SensorContextTester context;
 
-  private final RuleKey ruleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, "NewlineCheck");
+  private final RuleKey ruleKey = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
 
   private final String parsingErrorCheckKey = "S2260";
 
-  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(CheckRepository.REPOSITORY_KEY, parsingErrorCheckKey);
+  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, parsingErrorCheckKey);
 
   @Test(timeout = 10000)
   public void testPerformance() throws Exception {
