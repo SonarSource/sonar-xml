@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.Utils;
 
 import static java.lang.String.format;
 
@@ -150,13 +149,6 @@ public class XmlFile {
       return inputFile.inputStream();
     }
     return Files.newInputStream(noCharBeforePrologFile.toPath());
-  }
-
-  public String getContents() throws IOException {
-    if (noCharBeforePrologFile == null) {
-      return inputFile.contents();
-    }
-    return Utils.contents(noCharBeforePrologFile.toPath(), inputFile.charset());
   }
 
   public int getPrologLine() {

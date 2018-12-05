@@ -22,16 +22,18 @@ package org.sonar.plugins.xml.newparser;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 import org.sonar.api.batch.fs.InputFile;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class NewXmlFile {
 
@@ -73,13 +75,13 @@ public class NewXmlFile {
     this.charset = DEFAULT_CHARSET;
   }
 
-  public static NewXmlFile create(InputFile inputFile) throws IOException, ParserConfigurationException {
+  public static NewXmlFile create(InputFile inputFile) throws IOException {
     NewXmlFile xmlFile = new NewXmlFile(inputFile);
     new NewXmlParser(xmlFile);
     return xmlFile;
   }
 
-  public static NewXmlFile create(String str) throws ParserConfigurationException {
+  public static NewXmlFile create(String str) {
     NewXmlFile xmlFile = new NewXmlFile(str);
     new NewXmlParser(xmlFile);
     return xmlFile;
@@ -149,5 +151,15 @@ public class NewXmlFile {
   private static XmlTextRange getRangeOrThrow(Node node, Location location, String nodeType) {
     return getRange(node, location)
       .orElseThrow(() -> new IllegalStateException(String.format("Missing %s location on XML %s node", location.name().toLowerCase(Locale.ENGLISH), nodeType)));
+  }
+
+  public static List<Node> children(Node node) {
+    NodeList childNodes = node.getChildNodes();
+    List<Node> result = new ArrayList<>();
+    for (int i = 0; i < childNodes.getLength(); i++) {
+      result.add(childNodes.item(i));
+    }
+
+    return result;
   }
 }

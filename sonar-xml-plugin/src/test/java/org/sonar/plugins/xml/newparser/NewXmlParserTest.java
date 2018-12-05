@@ -41,6 +41,8 @@ public class NewXmlParserTest {
     NewXmlFile newXmlFile = NewXmlFile.create("<foo attr=\"1\">\n </foo>");
 
     Document document = newXmlFile.getDocument();
+    assertRange(document, Location.NODE, 1, 0, 2, 7);
+
     Node firstChild = document.getFirstChild();
     assertThat(firstChild.getNodeName()).isEqualTo("foo");
     assertRange(firstChild, Location.START, 1, 0, 1, 14);
@@ -48,6 +50,7 @@ public class NewXmlParserTest {
     assertRange(firstChild, Location.NODE, 1, 0, 2, 7);
     assertRange(firstChild, Location.NAME, 1, 1, 1, 4);
     assertNoData(firstChild, Location.VALUE);
+
 
     Attr attr = (Attr) firstChild.getAttributes().getNamedItem("attr");
     assertThat(attr.getValue()).isEqualTo("1");

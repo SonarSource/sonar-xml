@@ -23,34 +23,28 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.parsers.ParseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class LineCounterTest {
 
-  private static final String MODULE_KEY = "modulekey";
-
-  @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
   private FileLinesContextFactory fileLinesContextFactory;
   private FileLinesContext fileLinesContext;
 
@@ -63,51 +57,48 @@ public class LineCounterTest {
 
   @Test
   public void test_simple_file() throws IOException {
-    verifyMetrics("simple.xml", 15, 1);
+    verifyMetrics("simple.xml", 1,
+      1, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18);
   }
 
   @Test
-  public void test_complex() throws IOException {
-    verifyMetrics("complex.xml", 21, 12);
+  public void test_complex_file() throws IOException {
+    verifyMetrics("complex.xml", 17,
+      1, 2, 3, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
   }
 
-  private void verifyMetrics(String filename, int ncloc, int commentLines) throws IOException {
-    File moduleBaseDir = new File("src/test/resources/parsers/linecount");
-    InputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
-    String componentKey = getComponentKey(filename);
-
-    DefaultFileSystem localFS = new DefaultFileSystem(moduleBaseDir);
-    localFS.setWorkDir(tmpFolder.newFolder().toPath());
-
-    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
-    LineCounter.analyse(context, fileLinesContextFactory, new XmlFile(inputFile, localFS));
-
-    // No empty line at end of file
-    assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(ncloc);
-    assertThat(context.measure(componentKey, CoreMetrics.COMMENT_LINES).value()).isEqualTo(commentLines);
-  }
-
-  private String getComponentKey(String filename) {
-    return MODULE_KEY + ":" + filename;
+  @Test(expected = ParseException.class)
+  public void test_invalid_file() throws Exception {
+    verifyMetrics("invalid.xml", -1);
   }
 
   @Test // SONARXML-19
   public void test_file_with_char_before_prolog() throws Exception {
-    verifyMetrics("char_before_prolog.xml", 15, 1);
+    verifyMetrics("char_before_prolog.xml", 1, 3, 6, 7, 8, 9, 10, 11, 12, 13);
+  }
 
-    verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(1), eq(0));
-    verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(2), eq(0));
-    verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(3), eq(1));
-    verify(fileLinesContext, atLeastOnce()).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), eq(6), eq(1));
+  private void verifyMetrics(String filename, int commentLinesNumber, int... linesOfCode) throws IOException {
+    File moduleBaseDir = new File("src/test/resources/parsers/linecount");
+    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
+    InputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
+    LineCounter.analyse(context, fileLinesContextFactory, NewXmlFile.create(inputFile));
+
+    Arrays.stream(linesOfCode).forEach(line ->
+      verify(fileLinesContext).setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));
+
+    verify(fileLinesContext).save();
+    verifyNoMoreInteractions(fileLinesContext);
+
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(linesOfCode.length);
+    assertThat(context.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(commentLinesNumber);
   }
 
   private InputFile createInputFile(Path moduleBaseDir, String name) {
-    return TestInputFileBuilder.create(MODULE_KEY, name)
+    return TestInputFileBuilder.create("modulekey", name)
       .setModuleBaseDir(moduleBaseDir)
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(StandardCharsets.UTF_8)
       .build();
   }
-
 }
