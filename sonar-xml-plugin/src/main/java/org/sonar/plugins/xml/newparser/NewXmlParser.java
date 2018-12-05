@@ -145,6 +145,7 @@ public class NewXmlParser {
     XMLInputFactory factory = XMLInputFactory.newInstance();
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+    factory.setProperty("javax.xml.stream.isCoalescing", true);
     return factory.createXMLStreamReader(reader);
   }
 
