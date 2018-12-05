@@ -93,25 +93,23 @@ public class XmlSensor implements Sensor {
 
     // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
     if (sourceCode.parseSource()) {
-      // FIXME shouldn't we only execute activated rules?
-      for (Object check : checks.all()) {
-        if (check instanceof AbstractXmlCheck) {
-          // FIXME we should drop this part once SONARXML-78 has been completed
-          AbstractXmlCheck abstractXmlCheck = (AbstractXmlCheck) check;
-          abstractXmlCheck.setRuleKey(checks.ruleKey(check));
-          abstractXmlCheck.validate(sourceCode);
-        }
-      }
-      saveIssue(context, sourceCode);
-
-      // FIXME shouldn't we only execute activated rules?
+      // FIXME we should drop this part once SONARXML-78 has been completed
       checks.all().stream()
-        .filter(NewXmlCheck.class::isInstance)
-        .map(NewXmlCheck.class::cast)
-        .forEach(check -> check.scanFile(context, newXmlFile));
-
-      saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), xmlFile.getInputFile());
+        .filter(AbstractXmlCheck.class::isInstance)
+        .map(AbstractXmlCheck.class::cast)
+        .forEach(check -> {
+          check.setRuleKey(checks.ruleKey(check));
+          check.validate(sourceCode);
+        });
+      saveIssue(context, sourceCode);
     }
+
+    checks.all().stream()
+      .filter(NewXmlCheck.class::isInstance)
+      .map(NewXmlCheck.class::cast)
+      .forEach(check -> check.scanFile(context, newXmlFile));
+
+    saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), xmlFile.getInputFile());
   }
 
   private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
