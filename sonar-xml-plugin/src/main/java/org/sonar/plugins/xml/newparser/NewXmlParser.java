@@ -108,7 +108,12 @@ public class NewXmlParser {
         case XMLStreamConstants.COMMENT:
         case XMLStreamConstants.CHARACTERS:
           setNextNode();
-          currentNodeStartLocation = startLocation;
+          if (currentNode.getNodeType() == Node.CDATA_SECTION_NODE) {
+            // CDATA is triggered as CHARACTERS event due to IS_COALESCING enabled
+            visitCdata(startLocation);
+          } else {
+            currentNodeStartLocation = startLocation;
+          }
           // as no end event for these
           currentNodeIsClosed = true;
           break;
@@ -119,12 +124,6 @@ public class NewXmlParser {
 
         case XMLStreamConstants.END_ELEMENT:
           visitEndElement(startLocation);
-          break;
-
-        case XMLStreamConstants.CDATA:
-          visitCdata(startLocation);
-          // as no end event for these
-          currentNodeIsClosed = true;
           break;
 
         case XMLStreamConstants.DTD:
@@ -145,7 +144,7 @@ public class NewXmlParser {
     XMLInputFactory factory = XMLInputFactory.newInstance();
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-    factory.setProperty("javax.xml.stream.isCoalescing", true);
+    factory.setProperty(XMLInputFactory.IS_COALESCING, true);
     return factory.createXMLStreamReader(reader);
   }
 
@@ -214,14 +213,6 @@ public class NewXmlParser {
   }
 
   private void visitCdata(XmlLocation startLocation) throws XMLStreamException {
-    if (!startLocation.startsWith("<![CDATA[")) {
-      // Ignoring secondary CDATA event
-      // See https://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamReader.html#next()
-      return;
-    }
-
-    setNextNode();
-
     XmlLocation beforeClosingTag = startLocation.moveBefore("]]>");
     XmlLocation endLocation = beforeClosingTag.moveAfter("]]>");
     setLocation(currentNode, Location.START, startLocation, startLocation.moveAfter("<![CDATA["));
