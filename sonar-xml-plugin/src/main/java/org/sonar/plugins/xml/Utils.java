@@ -19,35 +19,17 @@
  */
 package org.sonar.plugins.xml;
 
-import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputFile;
 
 public class Utils {
   private Utils() {
     // utility class, forbidden constructor
   }
 
-  public static List<String> readLines(InputFile file) throws IOException {
-    try (BufferedReader reader = newBufferedReader(file)) {
-      return reader.lines().collect(Collectors.toList());
-    }
-  }
-
-  private static BufferedReader newBufferedReader(InputFile file) throws IOException {
-    return new BufferedReader(new StringReader(file.contents()));
-  }
-
-  public static String contents(Path path, Charset charset) throws IOException {
-    return new String(Files.readAllBytes(path), charset);
+  public static String[] splitLines(String text) {
+    return text.split("(\r)?\n|\r", -1);
   }
 
   /**

@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -76,7 +75,7 @@ public class XmlSensor implements Sensor {
       try {
         NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
         LineCounter.analyse(context, fileLinesContextFactory, newXmlFile);
-        runChecks(context, xmlFile);
+        runChecks(context, xmlFile, newXmlFile);
       } catch (ParseException e) {
         processParseException(e, context, inputFile, parsingErrorKey);
       } catch (Exception e) {
@@ -85,7 +84,7 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void runChecks(SensorContext context, XmlFile xmlFile) {
+  private void runChecks(SensorContext context, XmlFile xmlFile, NewXmlFile newXmlFile) {
     XmlSourceCode sourceCode = new XmlSourceCode(xmlFile);
 
     // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
@@ -96,11 +95,7 @@ public class XmlSensor implements Sensor {
       }
       saveIssue(context, sourceCode);
       InputFile inputFile = xmlFile.getInputFile();
-      try {
-        saveSyntaxHighlighting(context, XMLHighlighting.highlight(NewXmlFile.create(inputFile)), inputFile);
-      } catch (IOException e) {
-        LOG.warn(String.format("Can't highlight following file : %s", inputFile.uri()), e);
-      }
+      saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), inputFile);
     }
   }
 
@@ -169,8 +164,7 @@ public class XmlSensor implements Sensor {
 
   private static void processException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
-
-    throw new IllegalStateException("Unable to analyse file " + inputFile.uri(), e);
+    LOG.error("Unable to analyse file " + inputFile.uri(), e);
   }
 
   private static void reportAnalysisError(Exception e, SensorContext context, InputFile inputFile) {

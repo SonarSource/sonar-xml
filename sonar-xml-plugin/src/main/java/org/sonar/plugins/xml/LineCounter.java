@@ -36,6 +36,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import static org.sonar.plugins.xml.Utils.splitLines;
+
 public final class LineCounter {
 
   private static final Logger LOG = Loggers.get(LineCounter.class);
@@ -80,6 +82,7 @@ public final class LineCounter {
 
     switch (node.getNodeType()) {
       case Node.ELEMENT_NODE:
+        // this will count attribute lines as well tag itself
         addLinesRange(linesOfCode, NewXmlFile.startLocation((Element) node));
         addLinesRange(linesOfCode, NewXmlFile.endLocation((Element) node));
         break;
@@ -101,9 +104,8 @@ public final class LineCounter {
   }
 
   private static void addNotEmptyLines(Set<Integer> set, String text, XmlTextRange fullTextRange) {
-    String[] lines = text.split("(\r)?\n|\r", -1);
     int lineNumber = fullTextRange.getStartLine();
-    for (String line : lines) {
+    for (String line : splitLines(text)) {
       if (!line.trim().isEmpty()) {
         set.add(lineNumber);
       }
