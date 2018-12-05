@@ -43,6 +43,7 @@ import static java.util.Collections.singletonList;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+  ByteOrderMarkTest.class,
   XmlTest.class,
   SchemaCheckTest.class})
 public class XmlTestSuite {
