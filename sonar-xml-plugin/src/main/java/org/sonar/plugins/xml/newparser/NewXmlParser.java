@@ -49,13 +49,16 @@ public class NewXmlParser {
 
   private XmlLocation xmlFileStartLocation;
   private XmlLocation currentNodeStartLocation = null;
+  private XmlTextRange currentNodeStartRange = null;
   private String content;
 
   // latest processed node
   private Node currentNode;
   private boolean currentNodeIsClosed = false;
+  private boolean previousEventIsText = false;
   private Deque<Node> nodes = new LinkedList<>();
   private NewXmlFile xmlFile;
+
 
   public NewXmlParser(NewXmlFile xmlFile) throws ParserConfigurationException {
     this.xmlFile = xmlFile;
@@ -97,25 +100,19 @@ public class NewXmlParser {
     XMLStreamReader xmlReader = getXmlStreamReader();
 
     while (xmlReader.hasNext()) {
+      previousEventIsText = xmlReader.getEventType() == XMLStreamConstants.CHARACTERS;
       xmlReader.next();
       XmlLocation startLocation = new XmlLocation(content, xmlReader.getLocation());
-      if (currentNodeStartLocation != null) {
-        setLocation(currentNode, Location.NODE, currentNodeStartLocation, startLocation);
-        currentNodeStartLocation = null;
-      }
+
+      finalizePreviousNode(startLocation);
 
       switch (xmlReader.getEventType()) {
         case XMLStreamConstants.COMMENT:
+          visitComment(startLocation);
+          break;
+
         case XMLStreamConstants.CHARACTERS:
-          setNextNode();
-          if (currentNode.getNodeType() == Node.CDATA_SECTION_NODE) {
-            // CDATA is triggered as CHARACTERS event due to IS_COALESCING enabled
-            visitCdata(startLocation);
-          } else {
-            currentNodeStartLocation = startLocation;
-          }
-          // as no end event for these
-          currentNodeIsClosed = true;
+          visitTextNode(startLocation);
           break;
 
         case XMLStreamConstants.START_ELEMENT:
@@ -126,16 +123,51 @@ public class NewXmlParser {
           visitEndElement(startLocation);
           break;
 
+        case XMLStreamConstants.CDATA:
+          visitCdata(startLocation);
+          break;
+
         case XMLStreamConstants.DTD:
           visitDTD(startLocation);
-          // as no end event for these
-          currentNodeIsClosed = true;
           break;
 
         default:
           break;
       }
+
+      if (xmlReader.getEventType() != XMLStreamConstants.START_ELEMENT
+        && xmlReader.getEventType() != XMLStreamConstants.END_ELEMENT) {
+        // as no end event for non-element nodes, consider them closed
+        currentNodeIsClosed = true;
+      }
     }
+  }
+
+  private void visitComment(XmlLocation startLocation) {
+    setNextNode();
+    currentNodeStartLocation = startLocation;
+  }
+
+  private void visitTextNode(XmlLocation startLocation) {
+    if (previousEventIsText) {
+      // text can appear after another text when it's not coalesced (see XMLInputFactory.IS_COALESCING)
+      // so both events stand for the same node in DOM
+      currentNodeStartRange = NewXmlFile.nodeLocation(currentNode);
+    } else {
+      setNextNode();
+      currentNodeStartLocation = startLocation;
+    }
+  }
+
+  private void finalizePreviousNode(XmlLocation endLocation) {
+    if (currentNodeStartLocation != null) {
+      setLocation(currentNode, Location.NODE, currentNodeStartLocation, endLocation);
+    } else if (currentNodeStartRange != null) {
+      currentNode.setUserData(Location.NODE.name(), new XmlTextRange(currentNodeStartRange, endLocation, xmlFileStartLocation), null);
+    }
+
+    currentNodeStartLocation = null;
+    currentNodeStartRange = null;
   }
 
   private XMLStreamReader getXmlStreamReader() throws XMLStreamException {
@@ -144,7 +176,6 @@ public class NewXmlParser {
     XMLInputFactory factory = XMLInputFactory.newInstance();
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-    factory.setProperty(XMLInputFactory.IS_COALESCING, true);
     return factory.createXMLStreamReader(reader);
   }
 
@@ -213,6 +244,13 @@ public class NewXmlParser {
   }
 
   private void visitCdata(XmlLocation startLocation) throws XMLStreamException {
+    if (!startLocation.startsWith("<![CDATA[")) {
+      // Ignoring secondary CDATA event
+      // See https://docs.oracle.com/javase/7/docs/api/javax/xml/stream/XMLStreamReader.html#next()
+      return;
+    }
+    setNextNode();
+
     XmlLocation beforeClosingTag = startLocation.moveBefore("]]>");
     XmlLocation endLocation = beforeClosingTag.moveAfter("]]>");
     setLocation(currentNode, Location.START, startLocation, startLocation.moveAfter("<![CDATA["));

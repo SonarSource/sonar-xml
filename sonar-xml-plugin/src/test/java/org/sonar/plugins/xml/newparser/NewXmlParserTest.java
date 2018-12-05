@@ -80,13 +80,20 @@ public class NewXmlParserTest {
     }
     String bigString = sb.toString();
 
-    Document document = NewXmlFile.create("<tag>" + bigString + "</tag>").getDocument();
+    Document document;
+    document = NewXmlFile.create("<tag>" + bigString + "</tag>").getDocument();
     assertRange(document.getFirstChild(), Location.NODE, 1, 0, 1, length + 11);
     assertRange(document.getFirstChild().getFirstChild(), Location.NODE, 1, 5, 1, length + 5);
 
     document = NewXmlFile.create("<tag attr=\"" + bigString + "\"></tag>").getDocument();
     assertRange(document.getFirstChild(), Location.NODE, 1, 0, 1, length + 19);
     assertRange(document.getFirstChild().getAttributes().item(0), Location.VALUE, 1, 10, 1, length + 12);
+
+    document = NewXmlFile.create("<tag>ab<![CDATA[" + bigString + "]]></tag>").getDocument();
+    Node cdata = document.getFirstChild().getFirstChild().getNextSibling();
+    assertRange(document.getFirstChild(), Location.NODE, 1, 0, 1, length + 25);
+    assertRange(cdata, Location.START, 1, 7, 1, 16);
+    assertRange(cdata, Location.NODE, 1, 7, 1, length + 19);
   }
 
   @Test
@@ -163,6 +170,17 @@ public class NewXmlParserTest {
     assertRange(cdata, Location.NODE, 1, 5, 1, 39);
 
     assertNoData(cdata, Location.NAME, Location.VALUE);
+  }
+
+  @Test
+  public void testCdataWithText() throws Exception {
+    Document document = NewXmlFile.create("<tag>Text<![CDATA[<tag/><!-- Comment -->]]></tag>").getDocument();
+    Node topTag = document.getFirstChild();
+    CDATASection cdata = ((CDATASection) topTag.getChildNodes().item(1));
+    assertThat(cdata.getData()).isEqualTo("<tag/><!-- Comment -->");
+    assertRange(cdata, Location.START, 1, 9, 1, 18);
+    assertRange(cdata, Location.END, 1, 40, 1, 43);
+    assertRange(cdata, Location.NODE, 1, 9, 1, 43);
   }
 
   @Test
