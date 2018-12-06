@@ -21,20 +21,17 @@ package org.sonar.plugins.xml.newchecks;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
 public class NewXmlCheckList {
 
   private NewXmlCheckList() {
   }
 
-  public static List<NewXmlCheck> getChecks() {
-    return Arrays.asList(new TabCharacterCheck());
-  }
-
   public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(NewXmlCheck::getClass).collect(Collectors.toList());
+    return Arrays.asList(
+      CharBeforePrologCheck.class,
+      TabCharacterCheck.class
+    );
   }
 
 }

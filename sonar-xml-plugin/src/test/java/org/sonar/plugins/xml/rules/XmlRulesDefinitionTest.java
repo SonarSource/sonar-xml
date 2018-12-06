@@ -38,7 +38,7 @@ public class XmlRulesDefinitionTest {
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("xml");
-    assertThat(repository.rules()).hasSize(CheckRepository.getChecks().size() + NewXmlCheckList.getChecks().size());
+    assertThat(repository.rules()).hasSize(CheckRepository.getChecks().size() + NewXmlCheckList.getCheckClasses().size());
 
     RulesDefinition.Rule alertUseRule = repository.rule("IndentCheck");
     assertThat(alertUseRule).isNotNull();
