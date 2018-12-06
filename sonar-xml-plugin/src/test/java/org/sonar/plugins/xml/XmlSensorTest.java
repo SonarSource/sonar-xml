@@ -131,7 +131,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     Issue issue = context.allIssues().iterator().next();
     assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
 
-    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 
@@ -148,7 +148,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertThat(context.allIssues()).isEmpty();
 
-    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 

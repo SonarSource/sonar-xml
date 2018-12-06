@@ -32,7 +32,6 @@ public class CheckRepository {
     return Arrays.asList(
       new IndentCheck(),
       new NewlineCheck(),
-      new ParsingErrorCheck(),
       new XPathCheck());
   }
 
