@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.xml.rules;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
@@ -33,8 +29,6 @@ import org.sonarsource.analyzer.commons.RuleMetadataLoader;
  * Repository for XML rules.
  */
 public final class XmlRulesDefinition implements RulesDefinition {
-
-  private static final Set<String> TEMPLATE_RULES_KEY = Collections.unmodifiableSet(Stream.of("XPathCheck", "XmlSchemaCheck").collect(Collectors.toSet()));
 
   @Override
   public void define(Context context) {
@@ -51,12 +45,7 @@ public final class XmlRulesDefinition implements RulesDefinition {
     // add the new checks
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, NewXmlCheckList.getCheckClasses());
 
-    for(NewRule rule : repository.rules()) {
-      if (TEMPLATE_RULES_KEY.contains(rule.key())) {
-        rule.setTemplate(true);
-      }
-    }
-
+    repository.rule("XPathCheck").setTemplate(true);
     repository.done();
   }
 }
