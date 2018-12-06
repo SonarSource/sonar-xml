@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The parent maven for the ejb3 tutorials project
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+  <properties>
+	  	<!--  The jboss.home "intermediate" property would not have been necessary, if
+	  	Maven's enforcer plugin supported enforcing setting of a "System" environment variable.
+	  	Details here http://markmail.org/message/jwfmtrjesuyag7bh
+
+	  	This intermediate property is a workaround to use in the enforcer plugin to ensure that
+	  	the JBOSS_HOME is set. And now that we have an intermediate jboss.home, let's use this throughout
+	  	the pom instead of JBOSS_HOME.
+	  	 -->
+	  	<jboss.home>${JBOSS_HOME}</jboss.home>
+	  	<!--  The JBoss server profile which will be used by the tutorials for
+		deploying the application. Individual tutorials can override this value
+		in their pom.xml depending on their need. -->
+	    <jboss.server.config>all</jboss.server.config>
+
+
+      <version.org.jboss.jbossas_jboss-as-client>5.1.0.CR1</version.org.jboss.jbossas_jboss-as-client>
+
+  	</properties>
+  <!-- Parent - The jboss-ejb3-build will act as a parent
+
+   -->
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0-Beta10</version>
+  </parent>
+
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-tutorial-build</artifactId>
+  <version>1.1.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBoss EJB3 Tutorial Build</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+
+
+
+	<build>
+		<plugins>
+			<!-- Plugin to enforce JBOSS_HOME is set -->
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-enforcer-plugin</artifactId>
+        		<executions>
+          			<execution>
+            			<id>enforce-property</id>
+            			<!--  We need to enforce this when we use JBossAS during deploying the
+            			tutorial in pre-integration-test phase. See common/pom.xml for details -->
+						<phase>pre-integration-test</phase>
+            			<goals>
+              				<goal>enforce</goal>
+            			</goals>
+            			<configuration>
+	              			<rules>
+	                			<requireProperty>
+	                  				<property>jboss.home</property>
+	                  				<message>"Please set JBOSS_HOME"</message>
+				                </requireProperty>
+	            			</rules>
+	            			<fail>true</fail>
+            			</configuration>
+		          </execution>
+        		</executions>
+      		</plugin>
+
+      	</plugins>
+	</build>
+  <!-- Dependency management -->
+  <dependencyManagement>
+    <dependencies>
+    <dependency>
+            <groupId>org.jboss.jbossas</groupId>
+            <artifactId>jboss-as-client</artifactId>
+            <version>${version.org.jboss.jbossas_jboss-as-client}</version>
+            <type>pom</type>
+    </dependency>
+      
+    </dependencies>
+  </dependencyManagement>
+</project>

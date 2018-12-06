@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="TODO">
+	<title>TODO</title>
+
+
+		<section id="Maven_Users_TODO">
+			<title>TODO - Provide better support for Maven</title>
+			<para>
+             The current release should have the necessary support to run individual tutorials
+             through Maven. This section is just a placeholder and will be removed soon.
+			</para>
+
+		</section>
+
+
+
+
+</chapter>

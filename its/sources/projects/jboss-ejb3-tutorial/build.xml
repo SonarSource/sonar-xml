@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+]>
+
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss, the OpenSource J2EE webOS                                      -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+
+<project default="main" name="JBoss/EJB3 Tutorials">
+
+
+	<target name="main">
+		<!-- TODO: Uncomment individual tutorials as and when they are ready -->
+		
+		<antcall target="asynch" inheritRefs="true"/>
+		<antcall target="blob" inheritRefs="true"/>
+		<antcall target="callbacks" inheritRefs="true"/>
+		<antcall target="cachedentity" inheritRefs="true"/>
+		<antcall target="composite" inheritRefs="true"/>
+		<antcall target="consumer" inheritRefs="true"/>
+		<antcall target="consumer_deployment_descriptor" inheritRefs="true"/>
+		<antcall target="dependency" inheritRefs="true"/>
+		<antcall target="enterprise_app_ejb_injection" inheritRefs="true"/>
+		<antcall target="ejb21_client_adaptors" inheritRefs="true"/>
+		<antcall target="embeddable" inheritRefs="true"/>
+		<antcall target="entity" inheritRefs="true"/>
+		<antcall target="extended_pc" inheritRefs="true"/>
+		<antcall target="injection" inheritRefs="true"/>
+		<antcall target="interceptor" inheritRefs="true"/>
+		<antcall target="jboss_deployment_descriptor" inheritRefs="true"/> 
+		<antcall target="jca_inflow_quartz" inheritRefs="true"/> 
+		<antcall target="jndibinding" inheritRefs="true"/>
+		<antcall target="mdb" inheritRefs="true"/>
+		<antcall target="merge" inheritRefs="true"/>
+		<antcall target="reference21_30" inheritRefs="true"/>
+		<antcall target="relationships" inheritRefs="true"/>
+		<antcall target="resource_ref" inheritRefs="true"/>
+		<antcall target="secondary" inheritRefs="true"/>
+		<antcall target="security" inheritRefs="true"/>
+		<antcall target="service" inheritRefs="true"/>
+		<antcall target="service_deployment_descriptor" inheritRefs="true"/>
+		<antcall target="singleinheritance" inheritRefs="true"/>
+		<antcall target="stateful" inheritRefs="true"/>
+		<antcall target="stateful_deployment_descriptor" inheritRefs="true"/>
+		<antcall target="stateless" inheritRefs="true"/>
+		<antcall target="stateless_deployment_descriptor" inheritRefs="true"/>
+		<antcall target="timer" inheritRefs="true"/>
+		
+		
+	</target>
+
+	<target name="asynch"> 
+		<echo message="---------------- Running asynch ------------"/>     
+		<ant dir="asynch" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="asynch" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="asynch" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="blob">       
+		<echo message="---------------- Running blob ------------"/>
+		<ant dir="blob" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="blob" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="blob" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="callbacks">     
+		<echo message="---------------- Running callbacks ------------"/>  
+		<ant dir="callbacks" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="callbacks" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="callbacks" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="cachedentity">  
+		<echo message="---------------- Running cachedentity ------------"/>     
+		<ant dir="cachedentity" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="cachedentity" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="cachedentity" antfile="build.xml" target="clean"/>
+	</target>
+
+	
+
+	<target name="composite">   
+		<echo message="---------------- Running composite ------------"/>    
+		<ant dir="composite" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="composite" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="composite" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="consumer">   
+		<echo message="---------------- Running consumer ------------"/>    
+		<ant dir="consumer" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="consumer" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="consumer" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="consumer_deployment_descriptor">   
+		<echo message="---------------- Running consumer_deployment_descriptor ------------"/>    
+		<ant dir="consumer_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="consumer_deployment_descriptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="consumer_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="dependency">       
+		<echo message="---------------- Running dependency ------------"/>
+		<ant dir="dependency" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="dependency" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="dependency" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="embeddable">    
+		<echo message="---------------- Running embeddable ------------"/>   
+		<ant dir="embeddable" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="embeddable" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="embeddable" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="enterprise_app_ejb_injection">      
+		<echo message="---------------- Running enterprise_app_ejb_injection ------------"/> 
+		<ant dir="enterprise_app_ejb_injection" antfile="build.xml"/>
+		<sleep seconds="4"/>
+		<ant dir="enterprise_app_ejb_injection" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="ejb21_client_adaptors"> 
+		<echo message="---------------- Running ejb21_client_adaptors ------------"/>      
+		<ant dir="ejb21_client_adaptors" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="ejb21_client_adaptors" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="ejb21_client_adaptors" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="entity">       
+		<echo message="---------------- Running entity ------------"/>
+		<ant dir="entity" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="entity" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="entity" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="extended_pc">       
+		<echo message="---------------- Running extended_pc ------------"/>
+		<ant dir="extended_pc" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="extended_pc" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="extended_pc" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="injection">       
+		<echo message="---------------- Running injection ------------"/>
+		<ant dir="injection" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="injection" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="injection" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="interceptor">   
+		<echo message="---------------- Running interceptor ------------"/>    
+		<ant dir="interceptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="interceptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="interceptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="jboss_deployment_descriptor"> 
+		<echo message="---------------- Running jboss_deployment_descriptor ------------"/>      
+		<ant dir="jboss_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="jboss_deployment_descriptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="jboss_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="jca_inflow_quartz">    
+		<echo message="---------------- Running jca_inflow_quartz ------------"/>   
+		<ant dir="jca_inflow_quartz" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="jca_inflow_quartz" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="jndibinding">  
+		<echo message="---------------- Running jndibinding ------------"/>     
+		<ant dir="jndibinding" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="jndibinding" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="jndibinding" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="joininheritance">    
+		<echo message="---------------- Running joininheritance ------------"/>   
+		<ant dir="joininheritance" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="joininheritance" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="joininheritance" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="mdb">      
+		<echo message="---------------- Running mdb ------------"/> 
+		<ant dir="mdb" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="mdb" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="mdb" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="mdb_deployment_descriptor"> 
+		<echo message="---------------- Running mdb_deployment_descriptor ------------"/>      
+		<ant dir="mdb_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="mdb_deployment_descriptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="mdb_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="merge">       
+		<echo message="---------------- Running merge ------------"/>
+		<ant dir="merge" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="merge" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="merge" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="reference21_30">   
+		<echo message="---------------- Running reference21_30 ------------"/>    
+		<ant dir="reference21_30" antfile="build.xml"/>
+		<sleep seconds="6"/>
+		<ant dir="reference21_30" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="relationships">  
+		<echo message="---------------- Running relationships ------------"/>     
+		<ant dir="relationships" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="relationships" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="relationships" antfile="build.xml" target="clean"/>
+	</target>
+	
+	<target name="resource_ref">  
+			<echo message="---------------- Running resource_ref ------------"/>     
+			<ant dir="resource_ref" antfile="build.xml"/>
+			<sleep seconds="10"/>
+			<ant dir="resource_ref" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="secondary">   
+		<echo message="---------------- Running secondary ------------"/>    
+		<ant dir="secondary" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="secondary" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="secondary" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="security"> 
+		<echo message="---------------- Running security ------------"/>      
+		<ant dir="security" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="security" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="security" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="service"> 
+		<echo message="---------------- Running service ------------"/>      
+		<ant dir="service" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="service" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="service" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="service_deployment_descriptor">   
+		<echo message="---------------- Running service_deployment_descriptor ------------"/>    
+		<ant dir="service_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="5"/>
+		<ant dir="service_deployment_descriptor" antfile="build.xml" target="run"/>	
+		<sleep seconds="4"/>
+		<ant dir="service_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="singleinheritance">  
+		<echo message="---------------- Running singleinheritance ------------"/>     
+		<ant dir="singleinheritance" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="singleinheritance" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="singleinheritance" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="stateful">    
+		<echo message="---------------- Running stateful ------------"/>   
+		<ant dir="stateful" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="stateful" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="stateful" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="stateful_deployment_descriptor"> 
+		<echo message="---------------- Running stateful_deployment_descriptor ------------"/>      
+		<ant dir="stateful_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="stateful_deployment_descriptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="stateful_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="stateless">       
+		<echo message="---------------- Running stateless ------------"/>
+		<ant dir="stateless" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="stateless" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="stateless" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="stateless_deployment_descriptor">     
+		<echo message="---------------- Running stateless_deployment_descriptor ------------"/>  
+		<ant dir="stateless_deployment_descriptor" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="stateless_deployment_descriptor" antfile="build.xml" target="run"/>
+		<sleep seconds="4"/>
+		<ant dir="stateless_deployment_descriptor" antfile="build.xml" target="clean"/>
+	</target>
+	
+	<target name="tableperinheritance">       
+		<echo message="---------------- Running tableperinheritance ------------"/>
+		<ant dir="tableperinheritance" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<!-- TODO: Bug in HSQLDB, so commenting out temporarily -->
+		<!-- ant dir="tableperinheritance" antfile="build.xml" target="run"/ --> 
+		<sleep seconds="4"/>
+		<ant dir="tableperinheritance" antfile="build.xml" target="clean"/>
+	</target>
+
+	<target name="timer">    
+		<echo message="---------------- Running timer ------------"/>   
+		<ant dir="timer" antfile="build.xml"/>
+		<sleep seconds="10"/>
+		<ant dir="timer" antfile="build.xml" target="run"/>
+		<sleep seconds="8"/>
+		<ant dir="timer" antfile="build.xml" target="clean"/>
+	</target>
+
+</project>

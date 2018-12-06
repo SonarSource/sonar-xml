@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Stateless_Session_Beans_in_EJB3_with_deployment_descriptors">
+	<title>Configuring Stateless Session Beans with deployment descriptors in EJB3</title>
+
+	<para>
+		CalculatorBean is defined as a stateless session bean through the <literal>&lt;session&gt;</literal> and
+		<literal>&lt;session-type&gt;</literal> elements. This marks the class as a stateless bean and the deployer will
+		deploy that class as a stateless bean EJB container.
+	</para>
+	<para>
+		CalculatorBean also implements two interfaces. One is the business-remote interface of the EJB the other is the business-local
+		interface. Take a look at <literal>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</literal>. To define this
+		as the business-remote interface of Calculator bean you specify the interface with the <literal>&lt;remote&gt;</literal> tag.
+		Similarly for <literal>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</literal> you need to specify the
+		business-local interface with the <literal>&lt;local&gt;</literal> tag. Here's the <literal>META-INF/ejb-jar.xml</literal>:
+
+		<programlisting>
+			<![CDATA[
+<session>
+         <ejb-name>Calculator</ejb-name>
+         <business-local>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</business-local>
+         <business-remote>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</business-remote>
+         <ejb-class>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorBean</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+</session>
+			]]>
+		</programlisting>
+
+		<note>
+			<para>
+				There's a very important difference between the <literal>remote</literal> and a <literal>business-remote</literal>
+				interface. The EJB2.x remote interfaces, which extend from EJBObject, are referred through the <literal>&lt;remote&gt;</literal>
+				tag in the ejb-jar.xml. On the other hand, the EJB3 style Plain Old Java Interface which is implemented by your EJB3 style
+				POJO bean is known as the business-remote interface and is represented by the <literal>@Remote</literal> and it's
+				corresponding <literal>&lt;business-remote&gt;</literal> tag in ejb-jar.xml.
+
+				Similar is the case with <literal>&lt;local&gt;</literal> and the <literal>&lt;business-local&gt;</literal> tags in ejb-jar.xml.
+			</para>
+		</note>
+
+	</para>
+	<sect5>
+		JNDI Bindings through deployment descriptor :
+
+		<para>
+			The Calculator bean will have two JNDI bindings for the remote and Local interface. The <literal>META-INF/jboss.xml</literal>
+			through the <literal>&lt;jndi-name&gt;</literal> and the <literal>&lt;local-jndi-name&gt;</literal> specifies the jndi-name
+			for the remote and the local interfaces, respectively:
+
+			<programlisting>
+				<![CDATA[
+<session>
+         <ejb-name>Calculator</ejb-name>
+         <jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</jndi-name>
+         <local-jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</local-jndi-name>
+</session>
+				]]>
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Client :
+
+		<para>
+			Open up <literal>org.jboss.tutorial.stateless_deployment_descriptor.client.Client</literal>.
+			The client looks up the bean using the jndi-name specified in the jboss.xml. Also notice that there is no Home interface
+			and you can begin executing on the stateless bean right away.
+
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "stateless_deployment_descriptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] 1 + 1 = 2
+     [java] 1 - 1 = 0
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+</chapter>

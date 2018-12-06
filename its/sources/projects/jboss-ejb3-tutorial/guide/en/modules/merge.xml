@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Merging_and_Basic_Queries_on_entities">
+	<title>Introduction to merging and querying of entities in EJB3</title>
+	<para>
+		This example shows a bunch of things. First, it introduces the <literal>@Column</literal> annotation.
+		It also shows how entities can be detached and re-attached to persistence storage using the <literal>EntityManager.merge()</literal>.
+		It also shows some basic queries.
+
+	</para>
+	<sect5>
+		@Column :
+
+		<para>
+			EJB 3.0 has a complete Object/Relational mapping. You can use the <literal>@Column</literal> annotation to specify
+			which column in the table your property should map to. Take a look at the <literal>org.jboss.tutorial.merge.bean.Customer</literal>
+			entity.
+			<programlisting>
+				<![CDATA[
+@Column(name = "FIRST")
+public String getFirst()
+{
+   return first;
+}
+
+				]]>
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Find by primary key :
+		<para>
+			The <literal>EntityManager</literal> service has a built in find by primary key method:
+			<programlisting>
+				<![CDATA[
+<T> find(Class<T>, Object pk)
+				]]>
+			</programlisting>
+			The <literal>org.jboss.tutorial.merge.bean.CustomerDAOBean</literal> stateless EJB's <literal>find()</literal> method
+			wraps remote calls to the EntityManager.
+			<programlisting>
+				<![CDATA[
+public Customer find(int id)
+{
+   return manager.find(Customer.class, id);
+}
+
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+	<sect5>
+		Queries :
+		<para>
+			<literal>EntityManager</literal> allows you to create query objects on the fly that can be reused over and over,
+			or just one time.  Queries also support named parameters. The <literal>org.jboss.tutorial.merge.bean.CustomerDAOBean</literal>
+			reflects this usage in the <literal>findByLastName</literal> method.
+			<programlisting>
+				<![CDATA[
+public List findByLastName(String name)
+{
+   return manager.createQuery("from Customer c where c.last = :name").setParameter("name", name).getResultList();
+}
+
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+	<sect5>
+		Merging :
+		<para>
+			The Value Object pattern is built into EJB 3.0. You can detach an object from persistence storage and send it across
+			the network to the client. The client can make updates locally to the object, send it back to the server and the changes
+			can be merged/synchronized back to the database using the <literal>EntityManager.merge()</literal> method.
+			This is exactly what the <literal>org.jboss.tutorial.merge.client.Client</literal> does.
+
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "merge" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Create Bill Burke and Monica Smith
+     [java] Bill and Monica get married
+     [java] Get all the Burkes
+     [java] There are now 2 Burkes
+
+
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+			View the tables and rows:
+
+		<para>
+			You can view the tables created by JBoss by going to the
+			<ulink url="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&amp;name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic Service</ulink>,
+			scrolling down to the <literal>startDatabaseManager</literal> button and clicking it.
+			A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
+
+		</para>
+	</sect5>
+
+</chapter>

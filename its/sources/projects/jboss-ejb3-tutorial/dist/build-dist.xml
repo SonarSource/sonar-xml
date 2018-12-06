@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="create-dist" name="JBoss/EJB3 Tutorials Release" basedir=".">
+
+	<property name="tutorials.dir" value="../"/>
+	<property name="guide.dir" value="${tutorials.dir}/guide"/>
+	<property name="dist.dir" value="${basedir}"/>
+	<property name="dist.zip" value="ejb3-tutorials.zip"/>
+	<property name="dist.tar" value="ejb3-tutorials.tar.gz"/>
+	
+	<target name="create-dist" depends="clean">
+		<antcall target="create-zip-dist"/>
+		<antcall target="create-tar-dist"/>
+	</target>
+	
+	<target name="create-zip-dist">
+		<zip zipfile="${dist.dir}/${dist.zip}">
+	         <zipfileset dir="${tutorials.dir}" prefix="source">
+	         	<exclude name="**/target/**/*"/>
+	         	<exclude name="**/dist/**/*"/>
+	         </zipfileset>
+			
+			<zipfileset dir="${guide.dir}/target/docbook" prefix="guide">
+				<include name="html/**/*"/>
+				<include name="html_single/**/*"/>
+			</zipfileset>
+		    <zipfileset file="${basedir}/Readme.txt"/>  	
+		</zip>
+	</target>
+	
+	<target name="create-tar-dist">
+		<tar destfile="${dist.dir}/${dist.tar}" compression="gzip">
+			<tarfileset dir="${tutorials.dir}" prefix="source">
+				<exclude name="**/target/**/*"/>
+				<exclude name="**/dist/**/*"/>
+			</tarfileset>
+			
+			<tarfileset dir="${guide.dir}/target/docbook" prefix="guide">
+				<include name="html/**/*"/>
+				<include name="html_single/**/*"/>
+			</tarfileset>
+			<tarfileset file="${basedir}/Readme.txt"/>
+			
+		</tar>
+	
+	</target>
+	
+	
+	
+	<target name="clean">
+		<delete file="${dist.dir}/${dist.tar}"/>
+		<delete file="${dist.dir}/${dist.zip}"/>
+	</target>
+
+</project>

@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Message_Driven_Beans_with_deployment_descriptor">
+	<title>Configuring Message Driven Beans through deployment descriptors</title>
+	<para>
+		You configure properties by using the &lt;message-driven&gt; element and sub elements which correspond to the
+		<literal>@ActivationConfigProperty</literal> annotation.
+		<para>ejb-jar.xml:</para>
+		<programlisting>
+			<![CDATA[
+<message-driven>
+	<ejb-name>ExampleMDB</ejb-name>
+	<ejb-class>org.jboss.tutorial.mdb_deployment_descriptor.bean.ExampleMDB</ejb-class>
+     <transaction-type>Bean</transaction-type>
+     <message-destination-type>javax.jms.Queue</message-destination-type>
+   <activation-config>
+      <activation-config-property>
+      	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+      	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+      </activation-config-property>
+    </activation-config>
+
+</message-driven>
+
+			]]>
+		</programlisting>
+
+		<para>jboss.xml</para>
+		<programlisting>
+			<![CDATA[
+<message-driven>
+   <ejb-name>ExampleMDB</ejb-name>
+   <destination-jndi-name>queue/tutorial/example</destination-jndi-name>
+</message-driven>
+			]]>
+		</programlisting>
+
+		The <literal>queue/tutorial/example</literal> is configured through the <literal>queue-example-service.xml</literal>
+	</para>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "mdb_deployment_descriptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Message sent successfully to remote queue.
+
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+			On the server console, you will notice the following logs:
+			<programlisting>
+				<![CDATA[
+23:37:38,175 INFO  [STDOUT] ----------------
+23:37:38,175 INFO  [STDOUT] Received message
+23:37:38,175 INFO  [STDOUT] ----------------
+
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+</chapter>

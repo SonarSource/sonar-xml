@@ -1,0 +1,968 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="EJB3_Interceptors">
+	<title>Introduction to EJB3 Interceptors</title>
+	<para>
+		The EJB 3.0 spec defines the ability to apply custom made interceptors
+		to the business methods
+		of your session and message driven beans. EJB
+		3.0 interceptors take the form of methods annotated with
+		the
+		<literal>@javax.ejb.AroundInvoke</literal>
+		annotation. These methods must have the following signature:
+
+		<programlisting>
+			<![CDATA[
+@javax.ejb.AroundInvoke
+public Object <Arbitrary method name>(javax.ejb.InvocationContext ctx) throws java.lang.Exception
+
+			]]>
+		</programlisting>
+
+		<note>
+			<para>
+				You can apply interceptors to JBoss specific @Service and
+				@Consumer beans
+			</para>
+		</note>
+
+		You can either define an interceptor method in the bean class itself,
+		or in separate classes.
+		There can only be one interceptor method per
+		class.
+	</para>
+
+	<sect5>
+		Interceptor method in bean class :
+	</sect5>
+
+	<para>
+		Take a look at
+		<literal>org.jboss.tutorial.interceptor.bean.EmailMDB
+		</literal>
+		. It contains this method:
+
+		<programlisting>
+			<![CDATA[
+@AroundInvoke
+public Object mdbInterceptor(InvocationContext ctx) throws Exception
+{
+   System.out.println("*** Intercepting call to EmailMDB.mdbInterceptor()");
+   return ctx.proceed();
+}
+			]]>
+		</programlisting>
+
+		This method will wrap the call to EmailMDB.onMessage(). The call to
+		ctx.proceed() causes the next object in the chain of
+		interceptors to
+		get invoked. At the end of the chain of interceptors, the actual bean
+		method gets called.
+		<para>
+			Similarly
+			<literal>org.jboss.tutorial.interceptor.bean.EmailSystemBean
+			</literal>
+			has a method annotated with
+			<literal>@AroundInvoke</literal>
+
+			<programlisting>
+				<![CDATA[
+@AroundInvoke
+public Object myBeanInterceptor(InvocationContext ctx) throws Exception
+{
+   if (ctx.getMethod().getName().equals("emailLostPassword"))
+   {
+      System.out.println("*** EmailSystemBean.myBeanInterceptor - username: " + ctx.getParameters()[0]);
+   }
+
+   return ctx.proceed();
+}
+
+				]]>
+			</programlisting>
+		</para>
+	</para>
+
+	<sect5>
+		External interceptors :
+	</sect5>
+
+	<para>
+		The rest of this example will be looking at adding interceptors
+		external to the bean class, more specifically to
+		<literal>EmailSystemBean</literal>
+		. Interceptors can be bound in three different ways:
+		<itemizedlist mark="opencircle">
+			<listitem>
+				<para>
+					Default
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Class level
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Method level
+				</para>
+			</listitem>
+		</itemizedlist>
+
+		An external interceptor instance follows the lifecycle of the target
+		bean instance.
+	</para>
+
+	<sect5>
+		Default interceptors :
+	</sect5>
+
+	<para>
+		We will see how class and method-level interceptors can be bound to a
+		bean or a bean's method using annotations or xml.
+		Default interceptors
+		can only be bound via xml. A Default interceptor is an interceptor
+		that is invoked whenever a business method
+		is invoked on any bean
+		within the deployment.
+		<para>
+			<literal>org.jboss.tutorial.interceptor.bean.DefaultInterceptor
+			</literal>
+			defines an
+			<literal>@AroundInvoke</literal>
+			method with the required method signature.
+
+			<programlisting>
+					<![CDATA[
+@AroundInvoke
+public Object intercept(InvocationContext ctx) throws Exception
+{
+   System.out.println("*** DefaultInterceptor intercepting " + ctx.getMethod().getName());
+   try
+   {
+      return ctx.proceed();
+   }
+   finally
+   {
+      System.out.println("*** DefaultInterceptor exiting");
+   }
+}
+
+					]]>
+			</programlisting>
+
+			As mentioned, default interceptors can only be applied via xml. In
+			<literal>META-INF/ejb-jar.xml</literal>
+			we have the following:
+
+			<programlisting>
+					<![CDATA[
+<assembly-descriptor>
+ <!-- Default interceptor that will apply to all methods for all beans in deployment -->
+ <interceptor-binding>
+      <ejb-name>*</ejb-name>
+      <interceptor-class>org.jboss.tutorial.interceptor.bean.DefaultInterceptor</interceptor-class>
+   </interceptor-binding>
+   ...
+</assembly-descriptor>
+
+					]]>
+			</programlisting>
+
+			Using <literal>*</literal> for the ejb-name says that <literal>DefaultInterceptor</literal> is a default interceptor,
+			i.e. it should intercept all calls to all beans within the deployment unit. We could have added more
+			<literal>interceptor-class</literal> entries to bind more interceptors, as shown here:
+
+			<programlisting>
+				<![CDATA[
+<assembly-descriptor>
+   <!-- Default interceptor that will apply to all methods for all beans in deployment -->
+   <interceptor-binding>
+      <ejb-name>*</ejb-name>
+      <interceptor-class>org.jboss.tutorial.interceptor.bean.DefaultInterceptor</interceptor-class>
+      <interceptor-class>org.jboss.tutorial.interceptor.bean.AnotherInterceptor</interceptor-class>
+   </interceptor-binding>
+   ...
+</assembly-descriptor>
+
+				]]>
+			</programlisting>
+			In this case <literal>DefaultInterceptor</literal> would be invoked before <literal>AnotherInterceptor</literal>.
+
+		</para>
+	</para>
+
+	<sect5>
+		Class-level interceptors :
+	</sect5>
+
+	<para>
+		Class-level interceptors can be bound using xml or annotations.
+			<sect5>
+				Class-level using annotations :
+			</sect5>
+			<para>
+				<literal>org.jbos.tutorial.interceptor.EmailSystemBean</literal> has been annotated:
+
+				<programlisting>
+					<![CDATA[
+@Stateless
+@Interceptors ({TracingInterceptor.class})
+public class EmailSystemBean
+{
+   ...
+}
+
+					]]>
+				</programlisting>
+				This says that the <literal>@AroundInvoke</literal> annotated method of <literal>org.jboss.tutorial.interceptor.bean.TracingInterceptor</literal> should wrap all calls
+				to <literal>EmailSystemBean</literal>'s business methods. The <literal>@Interceptors</literal> annotation can take an
+				array of classes, so you can bind more than one class-level interceptor this way, e.g.
+				<programlisting>
+					<![CDATA[
+@Stateless
+@Interceptors ({TracingInterceptor.class, SomeInterceptor.class})
+public class EmailSystemBean
+{
+   ...
+}
+
+					]]>
+				</programlisting>
+
+			</para>
+
+			<sect5>
+				Class-level using xml :
+			</sect5>
+			<para>
+				In the <literal>META-INF/ejb-jar.xml</literal> we have the following:
+
+				<programlisting>
+					<![CDATA[
+<assembly-descriptor>
+   ...
+	  <!-- Class interceptor that will apply to all methods for EmailSystemBean -->
+	   <interceptor-binding>
+         <ejb-name>EmailSystemBean</ejb-name>
+         <interceptor-class>org.jboss.tutorial.interceptor.bean.OtherInterceptor</interceptor-class>
+      </interceptor-binding>
+   ...
+</assembly-descriptor>
+
+					]]>
+				</programlisting>
+
+				Note that here we are specifying the ejb-name of the bean we want to apply the interceptor to.
+				Hence, the <literal>@AroundInvoke</literal> annotated method of <literal>org.jboss.tutorial.interceptor.bean.OtherInterceptor</literal>
+				will wrap all calls to <literal>EmailSystemBean</literal>'s business methods.
+			</para>
+
+	</para>
+
+	<sect5>
+		Method-level interceptors :
+	</sect5>
+
+	<para>
+		Just as we can define default and class-level interceptors, we can also bind an interceptor to a particular business method
+		of a bean
+		<sect5>
+			Method-level using annotations :
+		</sect5>
+		<para>
+			<literal>org.jboss.tutorial.interceptor.bean.EmailSystemBean</literal>'s <literal>sendBookingConfirmationMessage()</literal>
+			method has been annotated with the @Interceptors annotation specifying interceptors that will intercept when this perticular
+			method is invoked.
+			<programlisting>
+				<![CDATA[
+@Interceptors({AccountsConfirmInterceptor.class})
+public void sendBookingConfirmationMessage(long orderId)
+{
+   ...
+}
+
+				]]>
+			</programlisting>
+
+			Method-level interceptors are in addition to default and class-level interceptors, meaning that when we call
+			<literal>EmailSystemBean.sendBookingConfirmationMessage()</literal> we get intercepted by
+
+			<itemizedlist mark="opencircle">
+				<listitem>
+					<para>
+						DefaultInterceptor (default)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						TracingInterceptor (class-level)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						OtherInterceptor (class-level)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						AccountsConfirmInterceptor (method-level)
+					</para>
+				</listitem>
+			</itemizedlist>
+
+			An interceptor method can choose to abort an invocation, by not calling
+			<literal>InvocationContext.proceed()</literal>  as is done in <literal>AccountConfirmInterceptor</literal>'s interceptor method
+			when a confirmation already exists.
+		</para>
+
+		<sect5>
+			Method-level using xml :
+		</sect5>
+		<para>
+			We can also bind interceptors to a single business method within a bean using xml.
+			But first let's define an interceptor using xml. All the examples we have looked at so far have used the <literal>@AroundInvoke</literal>
+			annotation to mark the interceptor methods.	In <literal>META-INF/ejb-jar.xml</literal> we have the following:
+			<programlisting>
+				<![CDATA[
+<interceptors>
+     <interceptor>
+        <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
+        <around-invoke>
+           <method-name>sendCancelMessage</method-name>
+        </around-invoke>
+		...
+
+     </interceptor>
+</interceptors>
+
+				]]>
+			</programlisting>
+			This tells us that the <literal>sendCancelMessage()</literal> method of <literal>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</literal>
+			is the interceptor method of this interceptor class. To bind interceptors to a particular method using xml, is much the same as how
+			this was done for class-level interceptors apart from that we specify the <literal>method-name</literal> of the method we want to intercept.
+			From our <literal>META-INF/ejb-jar.xml</literal>:
+			<programlisting>
+				<![CDATA[
+ <assembly-descriptor>
+    ...
+	   <!-- Method interceptor will apply to sendBookingCancellationMessage for EmailSystemBean -->
+	   <interceptor-binding>
+         <ejb-name>EmailSystemBean</ejb-name>
+         <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
+         <method>
+           <method-name>sendBookingCancellationMessage</method-name>
+         </method>
+      </interceptor-binding>
+
+    ...
+ </assembly-descriptor>
+
+				]]>
+			</programlisting>
+			In the case of overloaded methods, we can further narrow down the method by specifying the method parameters, as in this example:
+			<programlisting>
+				<![CDATA[
+<assembly-descriptor>
+   	...
+	<!-- Method interceptor will apply to sendBookingCancellationMessage for EmailSystemBean -->
+	   <interceptor-binding>
+         <ejb-name>SomeBean</ejb-name>
+         <interceptor-class>SomeInterceptor</interceptor-class>
+         <method>
+           <method-name>methodWithParam</method-name>
+           <method-params>
+           		<method-param>int</method-param>
+           		<method-param>java.lang.String[]</method-param>
+           </method-params>
+         </method>
+      </interceptor-binding>
+</assembly-descriptor>
+
+				]]>
+			</programlisting>
+			<literal>SomeInterceptor</literal> will only get applied to the method of <literal>SomeBean</literal> that matches the signature,
+			i.e. <literal>methodWithParam(int, java.lang.String[])</literal>
+		</para>
+
+	</para>
+
+	<sect5>
+		Exclusion of default and class interceptors :
+
+		<para>
+			For some beans we may want to exclude the default interceptors configured for the deployment, and for some methods
+			within a bean class we may want to exclude the class interceptors for the bean (and/or the default interceptors)
+
+			<sect5>
+				Annotations :
+
+				<para>
+					The <literal>@javax.ejb.ExcludeDefaultInterceptors</literal> annotation can be applied to a bean class or a method.
+					If applied to a bean class, default interceptors will not get invoked for any of that bean class's methods. If applied
+					to a bean business method, default interceptors will not get invoked when calling that method.
+				</para>
+
+				<para>
+					The <literal>@javax.ejb.ExcludeClassInterceptors</literal> annotation can be applied to a bean method. When this annotation
+					is used class-level interceptors will not get invoked when calling that method.
+
+				</para>
+
+				<para>
+					<literal>org.jboss.tutorial.interceptor.bean.EmailMDB</literal> defines
+
+					<programlisting>
+						<![CDATA[
+@ExcludeDefaultInterceptors
+public class EmailMDB implements MessageListener
+{
+   ...
+}
+
+						]]>
+					</programlisting>
+					so <literal>DefaultInterceptor</literal> is not invoked when invoking the <literal>EmailMDB.onMessage()</literal>
+				</para>
+
+				<para>
+					<literal>org.jboss.tutorial.interceptor.bean.EmailSystemBean</literal>'s  <literal>noop</literal> method is annotated with both
+					<literal>@ExcludeClassInterceptors</literal> and <literal>@ExcludeDefaultInterceptors</literal> and so will not get intercepted
+					by any of these.
+
+					<programlisting>
+						<![CDATA[
+@ExcludeClassInterceptors
+@ExcludeDefaultInterceptors
+public void noop()
+{
+   System.out.println("<In EmailSystemBean.noop business method");
+   System.out.println("Exiting EmailSystemBean.noop business method>");
+}
+
+						]]>
+					</programlisting>
+				</para>
+			</sect5>
+
+			<sect5>
+				XML :
+
+				<para>
+					We can also exclude class and method-level interceptors within an <literal>interceptor-binding</literal> by specifying the
+					<literal>exclude-class-interceptors</literal> and <literal>exclude-default-interceptors</literal> elements.
+
+					<programlisting>
+						<![CDATA[
+<assembly-descriptor>
+      ...
+
+	   <interceptor-binding>
+         <ejb-name>EmailSystemBean</ejb-name>
+         <exclude-default-interceptors>true</exclude-default-interceptors>
+         <exclude-class-interceptors>true</exclude-class-interceptors>
+         <method>
+           <method-name>noop2</method-name>
+         </method>
+      </interceptor-binding>
+	...
+</assembly-descriptor>
+						]]>
+					</programlisting>
+				</para>
+			</sect5>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Inheritance Ordering :
+
+		<para>
+			If an interceptor (or bean class) inherits from another class which has a method declared to be an interceptor method,
+			the interceptor methods from the super class will be invoked first. However, if the interceptor method in the superclass
+			has been overridden (regardless of if the overriding method is declared to be an interceptor method or not) the superclass
+			method is not invoked.
+		</para>
+
+		<para>
+			Both <literal>org.jboss.tutorial.interceptor.bean.AccountsConfirmInterceptor</literal> and
+			<literal>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</literal> inherit from
+			<literal>org.jboss.tutorial.interceptor.bean.AccountsInterceptor</literal>.
+		</para>
+
+		<para>
+			AccountsInterceptor declares the following interceptor method:
+
+			<programlisting>
+				<![CDATA[
+@AroundInvoke
+public Object intercept(InvocationContext ctx) throws Exception
+{
+   System.out.println("*** AccountsInterceptor intercepting " + ctx.getMethod().getName());
+   try
+   {
+      return ctx.proceed();
+   }
+   finally
+   {
+      System.out.println("*** AccountsInterceptor exiting");
+   }
+}
+
+				]]>
+			</programlisting>
+			This method is overridden by <literal>AccountsConfirmInterceptor</literal>, even though it is not <literal>AccountsConfirmInterceptor</literal>'s
+			interceptor method:
+
+			<programlisting>
+				<![CDATA[
+public class AccountsConfirmInterceptor extends AccountsInterceptor
+{
+   ...
+   public Object intercept(InvocationContext ctx) throws Exception
+   {
+      //overrides AccountsInterceptor.intercept() so that will not be invoked
+      return null;
+   }
+
+
+   @AroundInvoke
+   public Object sendConfirmMessage(InvocationContext ctx) throws Exception
+   {
+      ...
+   }
+}
+				]]>
+			</programlisting>
+			So when invoking <literal>AccountsConfirmInterceptor</literal>, we simply invoke its <literal>sendConfirmMessage()</literal> method.
+			<literal>AccountsCancelInterceptor</literal>, on the other hand, does not override <literal>AccountsInterceptor.intercept()</literal>,
+			so when invoking <literal>AccountsCancelInterceptor</literal>, we first get intercepted by <literal>AccountsInterceptor.intercept()</literal>
+			followed by <literal>AccountsCancelInterceptor.sendCancelMessage()</literal>.
+
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Injection in interceptors:
+		<sect5>
+			Using Annotations :
+			<para>
+				Just like a bean class, an interceptor can be the target of dependency injection (see the "injection" tutorial for
+				details about injection). The format for how this works is the same, and the injection works off the same ENC as
+				the bean to which the interceptor is bound.
+			</para>
+			<para>
+				<literal>org.jboss.tutorial.interceptor.bean.AccountsConfirmInterceptor</literal> has dependency injection set up using annotations:
+				<programlisting>
+					<![CDATA[
+public class AccountsConfirmInterceptor extends AccountsInterceptor
+{
+   @Resource(mappedName="java:ConnectionFactory")
+   QueueConnectionFactory cf;
+
+   @Resource(mappedName="queue/tutorial/accounts")
+   Queue queue;
+
+   @PersistenceContext
+   EntityManager em;
+
+   ...
+
+					]]>
+				</programlisting>
+			</para>
+			Remember that interceptors follow the same lifecycle as the bean they are bound to. The interceptors are created at the same
+			time as the bean instance is created, and dependecy injection occurs before the first business method is called. In the example
+			just shown, the container:
+			<itemizedlist mark="opencircle">
+				<listitem>
+					<para>
+						Looks up <literal>java:ConnectionFactory</literal>, binds it in the ENC and injects this into the field <literal>cf</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Looks up <literal>queue/tutorial/accounts</literal>, binds it in the ENC and injects this into the field <literal>queue</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Obtains the default EntityManager and injects this into the field <literal>em</literal>
+					</para>
+				</listitem>
+
+			</itemizedlist>
+
+		</sect5>
+
+		<sect5>
+			Using XML :
+			<para>
+				Injection, into interceptors, can also be configured via xml, using the traditional <literal>ejb-ref</literal>, <literal>ejb-local-ref</literal>,
+				<literal>resource-ref</literal>, <literal>resource-env-ref</literal> etc. which bind the global names. The only difference
+				from beans is that we put this into the {{interceptors}} element defining the interceptor.
+				<programlisting>
+					<![CDATA[
+<interceptors>
+     <interceptor>
+        <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
+        <around-invoke>
+           <method-name>sendCancelMessage</method-name>
+        </around-invoke>
+        <resource-ref>
+        	<res-ref-name>jms/ConnFactory</res-ref-name>
+           <res-type>javax.jms.QueueConnectionFactory</res-type>
+           <res-auth>Container</res-auth>
+           <mapped-name>java:/ConnectionFactory</mapped-name>
+           <injection-target>
+              <injection-target-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</injection-target-class>
+              <injection-target-name>cf</injection-target-name>
+           </injection-target>
+        </resource-ref>
+        <resource-env-ref>
+        	<resource-env-ref-name>accountsQueue</resource-env-ref-name>
+           <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+           <mapped-name>queue/tutorial/accounts</mapped-name>
+           <injection-target>
+              <injection-target-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</injection-target-class>
+              <injection-target-name>queue</injection-target-name>
+           </injection-target>
+        </resource-env-ref>
+     </interceptor>
+</interceptors>
+
+					]]>
+				</programlisting>
+				<itemizedlist mark="opencircle">
+					<listitem>
+						<para>
+							The container looks up <literal>java:/ConnectionFactory</literal> in JNDI and creates the <literal>java:comp/env/jms/ConnFactory</literal>
+							entry in the bean's ENC, and following bean creation it injects the connection factory into <literal>AccountsCancelInterceptor</literal>'s
+							<literal>cf</literal> field.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							The container looks up <literal>queue/tutorial/accounts</literal> in JNDI and creates the <literal>java:comp/env/accountsQueue</literal>
+							entry in the bean's ENC, and following bean creation it injects the queue into <literal>AccountsCancelInterceptor</literal>'s
+							<literal>queue</literal> field.						</para>
+					</listitem>
+				</itemizedlist>
+			</para>
+		</sect5>
+	</sect5>
+
+	<sect5>
+		Interceptor Ordering :
+		<para>
+			By default the ordering of interceptors when invoking a method are
+			<itemizedlist mark="number">
+				<listitem>
+					<para>
+						External interceptors
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Default interceptors, if present
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Class interceptors, if present
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Method interceptors, if present
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Interceptor method on the bean class (using @AroundInvoke)
+					</para>
+				</listitem>
+
+			</itemizedlist>
+			Within each group (default, class, method) the order of the interceptors are from left to right as defined in the @Interceptors annotation,
+			and then the xml interceptors.
+		</para>
+
+		<sect5>
+			Overriding interceptor ordering :
+
+			<para>
+				You can override the default sort order of the external interceptors by specifiying an <literal>interceptor-binding</literal> with an <literal>interceptor-order</literal>
+				specifying the order of the interceptors
+				<programlisting>
+					<![CDATA[
+<assembly-descriptor>
+      <interceptor-binding>
+         <ejb-name>EmailSystemBean</ejb-name>
+         <interceptor-order>
+            <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.tutorial.interceptor.bean.DefaultInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.tutorial.interceptor.bean.OtherInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.tutorial.interceptor.bean.TracingInterceptor</interceptor-class>
+         </interceptor-order>
+         <method>
+           <method-name>sendBookingCancellationMessage</method-name>
+         </method>
+      </interceptor-binding>
+      ...
+</assembly-descriptor>
+
+					]]>
+				</programlisting>
+			</para>
+			So when invoking <literal>EmailSystemBean.sendBookingCancellationMessage</literal> we will get the following interception order,
+			quite different from the default sort order
+			<itemizedlist mark="number">
+				<listitem>
+					<para>
+						AccountsCancelInterceptor (method-level)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						DefaultInterceptor (default interceptor)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						OtherInterceptor (2nd class-level interceptor)
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						TracingInterceptor (1st class-level interceptor)
+					</para>
+				</listitem>
+
+			</itemizedlist>
+
+		</sect5>
+
+	</sect5>
+
+	<sect5>
+		InvocationContext :
+		<para>
+			As you have seen the <literal>@AroundInvoke</literal> annotated interceptor methods all take a parameter of type
+			<literal>javax.ejb.InvocationContext</literal>. The definition of <ulink url="http://java.sun.com/javaee/5/docs/api/javax/interceptor/InvocationContext.html">InvocationContext</ulink> is:
+
+			<programlisting>
+				<![CDATA[
+
+package javax.interceptor;
+
+public interface InvocationContext {
+
+	public java.lang.Object getTarget();
+
+    public java.lang.reflect.Method getMethod();
+
+	public java.lang.Object[] getParameters();
+
+  	public void setParameters(java.lang.Object[] arg0);
+
+	public java.util.Map getContextData();
+
+	public java.lang.Object proceed() throws java.lang.Exception;
+}
+				]]>
+
+			</programlisting>
+
+			<para>
+				<literal>getBean()</literal> - returns the bean instance on which we are calling a method
+			</para>
+			<para>
+				<literal>getMethod()</literal> - returns the method we are calling on the bean instance
+			</para>
+			<para>
+				<literal>getParameters()</literal> - returns the parameters for the method call
+			</para>
+			<para>
+				<literal>setParameters()</literal> - allows you to modify the parameters for the method call
+			</para>
+			<para>
+				<literal>getContextData</literal> - The EJB interceptions are stateless, but the same InvocationContext instance
+				is used for each interceptor method in a chain. If you want to pass values between interceptor methods in the
+				business method invocation you can store them in the Map retured by getContextData().
+			</para>
+			<para>
+				<literal>proceed</literal> - As discussed, invokes the next interceptor, or if we are in the last interceptor
+				invokes the target bean method.
+			</para>
+
+			In some case we might want access to the EJBContext, this can be injected into the interceptor instance using the
+			<literal>@Resource</literal> annotation. The AroundInvoke methods share the JNDI name space of the bean for whose
+			methods they are invoked and execute within the same transaction and security context as the business methods for
+			which they are invoked.
+
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "interceptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Starting
+     [java]
+     [java] Calling emailLostPassword
+     [java] Waiting 2 seconds
+     [java]
+     [java] Calling sendBookingConfirmationMessage
+     [java] Waiting 2 seconds
+     [java]
+     [java] Calling sendBookingConfirmationMessage
+     [java] Waiting 2 seconds
+     [java]
+     [java] Calling sendBookingCancellationMessage
+     [java] Waiting 2 seconds
+     [java]
+     [java] Calling noop
+     [java] Waiting 2 seconds
+     [java]
+     [java] Calling noop2
+     [java] Waiting 2 seconds
+     [java] Done
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+			<para>
+				<programlisting>
+					<![CDATA[
+21:49:01,888 INFO  [STDOUT] *** DefaultInterceptor intercepting emailLostPassword
+21:49:01,889 INFO  [STDOUT] *** TracingInterceptor intercepting emailLostPassword
+21:49:01,889 INFO  [STDOUT] *** OtherInterceptor intercepting emailLostPassword
+21:49:01,889 INFO  [STDOUT] *** EmailSystemBean.myBeanInterceptor - username: whatever
+21:49:01,889 INFO  [STDOUT] <In EmailSystemBean.emailLostPassword business method
+21:49:02,083 INFO  [STDOUT] Message sent successfully to remote queue.
+21:49:02,130 INFO  [STDOUT] Exiting EmailSystemBean.emailLostPassword business method>
+21:49:02,130 INFO  [STDOUT] *** OtherInterceptor exiting
+21:49:02,130 INFO  [STDOUT] *** TracingInterceptor invocation of org.jboss.tutorial.interceptor.bean.EmailSystemBean.emailLostPassword() took 241ms
+21:49:02,130 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:02,179 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+21:49:02,180 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+21:49:02,185 INFO  [STDOUT] *** EmailMDB.mdbInterceptor intercepting
+21:49:02,185 INFO  [STDOUT]
+----------------
+EMailMDB - Got message, sending email
+----------------
+21:49:04,251 INFO  [STDOUT] *** DefaultInterceptor intercepting sendBookingConfirmationMessage
+21:49:04,251 INFO  [STDOUT] *** TracingInterceptor intercepting sendBookingConfirmationMessage
+21:49:04,251 INFO  [STDOUT] *** OtherInterceptor intercepting sendBookingConfirmationMessage
+21:49:04,251 INFO  [STDOUT] *** AccountsConfirmInterceptor intercepting
+21:49:04,395 INFO  [STDOUT] *** AccountsConfirmInterceptor - recording confirmation
+21:49:04,431 INFO  [STDOUT] *** AccountsConfirmInterceptor - notifying accounts dept sendBookingConfirmationMessage
+21:49:04,440 INFO  [STDOUT] <In EmailSystemBean.sendBookingConfirmationMessage business method
+21:49:04,455 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+21:49:04,455 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+21:49:04,458 INFO  [STDOUT] *** DefaultInterceptor intercepting onMessage
+21:49:04,459 INFO  [STDOUT]
+----------------
+AccountsMDB - Got message Confirming order 100
+----------------
+21:49:04,459 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:04,466 INFO  [STDOUT] Message sent successfully to remote queue.
+21:49:04,467 INFO  [STDOUT] Exiting EmailSystemBean.sendBookingConfirmationMessage business method>
+21:49:04,467 INFO  [STDOUT] *** AccountsConfirmInterceptor exiting
+21:49:04,467 INFO  [STDOUT] *** OtherInterceptor exiting
+21:49:04,467 INFO  [STDOUT] *** TracingInterceptor invocation of org.jboss.tutorial.interceptor.bean.EmailSystemBean.sendBookingConfirmationMessage() took 216ms
+21:49:04,467 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:04,478 INFO  [STDOUT] *** EmailMDB.mdbInterceptor intercepting
+21:49:04,478 INFO  [STDOUT]
+----------------
+EMailMDB - Got message, sending email
+----------------
+21:49:06,533 INFO  [STDOUT] *** DefaultInterceptor intercepting sendBookingConfirmationMessage
+21:49:06,533 INFO  [STDOUT] *** TracingInterceptor intercepting sendBookingConfirmationMessage
+21:49:06,533 INFO  [STDOUT] *** OtherInterceptor intercepting sendBookingConfirmationMessage
+21:49:06,533 INFO  [STDOUT] *** AccountsConfirmInterceptor intercepting
+21:49:06,547 INFO  [STDOUT] *** AccountsConfirmInterceptor - order has already been confirmed aborting
+21:49:06,548 INFO  [STDOUT] *** AccountsConfirmInterceptor exiting
+21:49:06,548 INFO  [STDOUT] *** OtherInterceptor exiting
+21:49:06,548 INFO  [STDOUT] *** TracingInterceptor invocation of org.jboss.tutorial.interceptor.bean.EmailSystemBean.sendBookingConfirmationMessage() took 15ms
+21:49:06,548 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:08,577 INFO  [STDOUT] *** AccountsInterceptor intercepting sendBookingCancellationMessage
+21:49:08,577 INFO  [STDOUT] *** AccountsCancelInterceptor intercepting sendBookingCancellationMessage
+21:49:08,577 INFO  [STDOUT] *** AccountsConfirmInterceptor - notifying accounts dept
+21:49:08,593 INFO  [STDOUT] *** DefaultInterceptor intercepting sendBookingCancellationMessage
+21:49:08,593 INFO  [STDOUT] *** OtherInterceptor intercepting sendBookingCancellationMessage
+21:49:08,593 INFO  [STDOUT] *** TracingInterceptor intercepting sendBookingCancellationMessage
+21:49:08,593 INFO  [STDOUT] <In EmailSystemBean.sendBookingCancellationMessage business method
+21:49:08,605 INFO  [STDOUT] Message sent successfully to remote queue.
+21:49:08,606 INFO  [STDOUT] Exiting EmailSystemBean.sendBookingCancellationMessage business method>
+21:49:08,606 INFO  [STDOUT] *** TracingInterceptor invocation of org.jboss.tutorial.interceptor.bean.EmailSystemBean.sendBookingCancellationMessage() took 13ms
+21:49:08,606 INFO  [STDOUT] *** OtherInterceptor exiting
+21:49:08,606 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:08,606 INFO  [STDOUT] *** AccountsCancelInterceptor exiting
+21:49:08,606 INFO  [STDOUT] *** AccountsInterceptor exiting
+21:49:08,617 INFO  [STDOUT] *** EmailMDB.mdbInterceptor intercepting
+21:49:08,617 INFO  [STDOUT]
+----------------
+EMailMDB - Got message, sending email
+----------------
+21:49:08,620 INFO  [STDOUT] *** DefaultInterceptor intercepting onMessage
+21:49:08,620 INFO  [STDOUT]
+----------------
+AccountsMDB - Got message Cancelling order 100
+----------------
+21:49:08,620 INFO  [STDOUT] *** DefaultInterceptor exiting
+21:49:10,628 INFO  [STDOUT] <In EmailSystemBean.noop business method
+21:49:10,628 INFO  [STDOUT] Exiting EmailSystemBean.noop business method>
+21:49:12,648 INFO  [STDOUT] <In EmailSystemBean.noop2 business method
+21:49:12,648 INFO  [STDOUT] Exiting EmailSystemBean.noop2 business method>
+
+						]]>
+					</programlisting>
+			</para>
+			<note>
+				<para>
+					Look at the JBoss console window to see the output of the interceptions taking place, the EmailMDB and AccountsMDB
+					might occur in slightly different places since they execute asynchronously.
+				</para>
+				<para>
+					You can ignore the [WARN] messages:
+					<programlisting>
+21:49:02,179 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+21:49:02,180 WARN  [InterceptorsFactory] EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container
+
+					</programlisting>
+				</para>
+			</note>
+		</para>
+	</sect5>
+</chapter>

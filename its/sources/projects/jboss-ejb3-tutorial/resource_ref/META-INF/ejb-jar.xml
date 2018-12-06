@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+
+   <display-name>ENC Tests</display-name>
+   <enterprise-beans>
+      <session>
+         <description>A session bean on looks up stuff in the ENC</description>
+         <ejb-name>ENCBean</ejb-name>
+         <business-remote>org.jboss.tutorial.resource_ref.bean.TestENC</business-remote>
+         <ejb-class>org.jboss.tutorial.resource_ref.bean.TestENCBean</ejb-class>    
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+
+         <!-- JDBC DataSources (java:comp/env/jdbc) -->
+         <resource-ref>
+            <description>The default DS</description>
+            <res-ref-name>jdbc/DefaultDS</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         <!-- JavaMail Connection Factories (java:comp/env/mail) -->
+         <resource-ref>
+            <description>Default Mail</description>
+            <res-ref-name>mail/DefaultMail</res-ref-name>
+            <res-type>javax.mail.Session</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         <!-- JMS Connection Factories (java:comp/env/jms) -->
+         <resource-ref>
+            <description>Default QueueFactory</description>
+            <res-ref-name>jms/QueFactory</res-ref-name>
+            <res-type>javax.jms.QueueConnectionFactory</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         
+         <resource-env-ref>
+            <description>A test of the resource-env-ref tag</description>
+            <resource-env-ref-name>res/aQueue</resource-env-ref-name>
+            <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+         </resource-env-ref>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

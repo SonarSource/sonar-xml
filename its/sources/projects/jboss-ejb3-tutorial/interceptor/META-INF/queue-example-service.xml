@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+ 
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=email"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/tutorial/email</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+
+ 	<mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=trace"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/tutorial/accounts</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   	</mbean>
+
+</server>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop xmlns="urn:jboss:aop-beans:1.0">
+   <!-- TODO: Jaikiran - These interceptor declarations need not be here since they 
+   are already declared through the ejb3-interceptors-aop.xml. Duplicating them leads to
+   deployment errors. However, if this custom-ejb3-interceptors-aop.xml needs to be 
+   independent, then we must find a better way of declaring these. Right now, commenting these
+   out, can be looked at later. -->
+   <!--    
+   <interceptor class="org.jboss.ejb3.AllowedOperationsInterceptor" scope="PER_VM"/>
+   <interceptor class="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor" scope="PER_VM"/>
+   <interceptor factory="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory" scope="PER_CLASS"/>
+   <interceptor class="org.jboss.ejb3.stateless.StatelessInstanceInterceptor" scope="PER_VM"/>
+      
+   <interceptor factory="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory" scope="PER_CLASS_JOINPOINT"/>
+   <interceptor factory="org.jboss.aspects.tx.TxInterceptorFactory" scope="PER_CLASS_JOINPOINT"/>
+   -->
+   <domain name="Custom Message Driven Bean" extends="Message Driven Bean" inheritBindings="true">
+      
+      <annotation expr="!class(@org.jboss.ejb3.annotation.DefaultActivationSpecs)">
+         @org.jboss.ejb3.annotation.DefaultActivationSpecs (value={@javax.ejb.ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"), @javax.ejb.ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/defaultedexample")})
+      </annotation>
+   </domain>
+</aop>

@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="EJB_2.1_Client_Adaptors">
+	<title>Introduction to using EJB2.1 client adaptors with EJB3</title>
+
+	<para>
+		EJB 3.0 is backward compatible to EJB 2.x clients and supports the use of local and remote home interfaces as well as
+		initialization methods (e.g. ejbCreate()). This capability is configured through annotations and/or through deployment
+		descriptors.
+	</para>
+
+	<para>
+		Take a look at <literal>org.jboss.tutorial.ejb21_client_adaptors.bean.Session1Bean</literal>. Note
+		that the class is annotated with <literal>@RemoteHome</literal> and the <literal>ejbCreate()</literal> method is annotated
+		with <literal>@Init</literal>. The former annotation indicates that the bean provides a EJB 2.1 style home interface. The latter
+		annotation indicates that when the <literal>create()</literal> method is invoked from the home interface, the bean is initialized
+		via the <literal>ejbCreate</literal> method.
+		<note>
+			<para>
+				The initialization method (annotated with <literal>@Init</literal>) name is not restricted to be ejbCreate(). You can
+				specify any other name for that method.
+			</para>
+		</note>
+
+	</para>
+
+	<para>
+		<literal>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2Bean</literal> illustrates the use of a local home interface.
+	</para>
+
+	<note>
+			<para>
+				There's a very important difference between the <literal>remote</literal> and a <literal>business-remote</literal>
+				interface. The EJB2.x remote interfaces, which extend from EJBObject, are referred through the <literal>&lt;remote&gt;</literal>
+				tag in the ejb-jar.xml. On the other hand, the EJB3 style Plain Old Java Interface which is implemented by your EJB3 style
+				POJO bean is known as the business-remote interface and is represented by the <literal>@Remote</literal> and it's
+				corresponding <literal>&lt;business-remote&gt;</literal> tag in ejb-jar.xml.
+
+				Similar is the case with <literal>&lt;local&gt;</literal> and the <literal>&lt;business-local&gt;</literal> tags in ejb-jar.xml.
+			</para>
+
+			<para>
+				In this tutorial, you will notice that we are using <literal>remote</literal> and <literal>local</literal> interfaces and
+				not <literal>business-remote</literal> and <literal>business-local</literal> interfaces.
+			</para>
+	</note>
+
+	<note>
+		<para>
+			Since we are not using any <literal>business-remote</literal> or <literal>business-local</literal> interfaces, in this tutorial,
+			unlike the "jndibinding" tutorial, we cannot use the <literal>@RemoteBinding</literal> or <literal>@LocalBinding</literal>
+			annotations to bind the EJBs. Instead, we configure the jndi-names for these beans through the <literal>META-INF/jboss.xml</literal>:
+
+			<programlisting>
+				<![CDATA[
+<session>
+	<ejb-name>Session1</ejb-name>
+	<jndi-name>Session1Remote</jndi-name>
+</session>
+<session>
+	<ejb-name>Session2</ejb-name>
+	<local-jndi-name>Session2Local</local-jndi-name>
+</session>
+
+				]]>
+			</programlisting>
+		</para>
+	</note>
+
+	<para>
+		Similarly, <literal>org.jboss.tutorial.ejb21_client_adaptors.bean.DeploymentDescriptorSession1Bean</literal> and
+		<literal>org.jboss.tutorial.ejb21_client_adaptors.DeploymentDescriptorSession2Bean</literal> mimic the behavior of
+		the first two beans, but use deployment descriptors to indicate the home interface(s) and initialization method(s).
+		Take a look at the <literal>META-INF/ejb-jar.xml</literal>. Note the <literal>home</literal> and <literal>local-home</literal>
+		tags that indicate the respective home interfaces. Also, note the <literal>init-method</literal> tag that indicates the
+		initialization method(s) executed when beans are created via the home interface(s).
+	</para>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "ejb21_client_adaptors" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Session1 init value is initialized
+     [java] Session2 init value is initialized
+     [java] DeploymentDescriptor Session1 init value is initialized
+     [java] DeploymentDescriptor Session2 init value is initialized
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+
+
+</chapter>
+

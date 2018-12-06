@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Service_POJOs_through_deployment_descriptors">
+	<title>Service POJOs (JBoss extension of EJB3) using deployment descriptors</title>
+
+	<para>
+		This tutorial is similar to the "service" tutorial which shows how to use Service POJOs in JBoss.
+		In this tutorial we will use deployment descriptors instead of annotations to configure the services.
+	</para>
+
+	<para>
+		Take a look at <literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOne</literal> and the corresponding deployment
+		descriptor <literal>META-INF/jboss.xml</literal>. The <literal>&lt;service&gt;</literal> tag defines it as a
+		singleton service in JBoss. It implements <literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneRemote</literal>
+		and <literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneLocal</literal> using the <literal>&lt;business-remote&gt;</literal>
+		and <literal>&lt;business-local&gt;</literal> tags.
+	</para>
+
+	<para>
+		ServiceOne also implements <literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneManagement</literal>
+		identified through the <literal>&lt;management&gt;</literal> tag. JBoss will inspect this interface, and create and
+		install an MBean implementing the attributes and operations defined in the interface. The MBean will work on the same
+		singleton bean instance as the remote and local interfaces.
+	</para>
+
+	<para>
+		The <literal>META-INF/jboss.xml</literal> also shows that the default ObjectName of the service can be overriden
+		using the <literal>&lt;object-name&gt;</literal> tag:
+
+		<programlisting>
+			<![CDATA[
+<service>
+   <ejb-name>ServiceOne</ejb-name>
+   <ejb-class>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOne</ejb-class>
+   <business-local>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneLocal</business-local>
+   <business-remote>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneRemote</business-remote>
+   <object-name>tutorial:service=serviceOne</object-name>
+   <management>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneManagement</management>
+   <jndi-name>serviceOne/remote</jndi-name>
+   <local-jndi-name>serviceOne/local</local-jndi-name>
+</service>
+			]]>
+		</programlisting>
+	</para>
+
+	<para>
+		Take a look at <literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceThree</literal> and
+		<literal>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceTwo</literal> where we use the <literal>@Depends</literal>
+		annotation to add dependencies between services.
+		<note>
+			<para>
+				For a detailed explanation of @Depends in @Service, take a look at our "service" tutorial.
+			</para>
+		</note>
+	</para>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "service_deployment_descriptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure the "default" server configuration of JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] attribute value for singleton obtained via JMX is what we set via remote interface: 100
+     [java] Hello from service One
+     [java] Hello from service Two
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+	<para>
+		On the server side when the application is deployed, you will notice these logs:
+
+		<programlisting>
+			<![CDATA[
+17:37:17,869 INFO  [STDOUT] ServiceOne - Started
+...
+17:37:17,910 INFO  [STDOUT] ServiceTwo - Started
+...
+17:37:17,949 INFO  [STDOUT] ServiceThree - Started
+
+			]]>
+		</programlisting>
+		Notice that the order is maintained because of the dependencies we have configured on the @Service.
+	</para>
+
+</chapter>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC
+	"-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN"
+	"http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+  <display-name>jboss-ejb3-tutorial-ejb_injection</display-name>
+  <description>Enterprise application showing injection of EJB in Servlet</description>
+  <module>
+    <web>
+      <web-uri>jboss-ejb3-tutorial-enterprise_webapp.war</web-uri>
+      <context-root>/jboss-ejb3-tutorial-enterprise_webapp</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>jboss-ejb3-tutorial-enterprise_ejb3app.jar</ejb>
+  </module>
+</application>

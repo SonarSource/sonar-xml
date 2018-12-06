@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<jboss xmlns:xs="http://www.jboss.org/j2ee/schema"
+       xs:schemaLocation="http://www.jboss.org/j2ee/schema jboss_5_0.xsd"
+             version="5.0"> 
+   <enterprise-beans>
+      <session>
+         <ejb-name>DeploymentDescriptorSession1</ejb-name>
+         <jndi-name>DeploymentDescriptorSession1Remote</jndi-name>
+      </session>
+      <session>
+         <ejb-name>DeploymentDescriptorSession2</ejb-name>
+         <local-jndi-name>DeploymentDescriptorSession2Local</local-jndi-name>
+      </session>
+      <session>
+      	<ejb-name>Session1</ejb-name>
+      	<jndi-name>Session1Remote</jndi-name>
+      </session>
+      <session>
+      	<ejb-name>Session2</ejb-name>
+      	<local-jndi-name>Session2Local</local-jndi-name>
+      </session>
+   </enterprise-beans>
+</jboss>

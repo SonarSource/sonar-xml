@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Consumer_and_Producer">
+	<title>Message Driven POJOs (JBoss specific)</title>
+	<para>
+		The idea of Message Driven POJOs is to give a message consumer (an MDB), a typed interface
+		that message producers can send messages through.  Both the publisher and subscriber would be typed interfaces.
+		This further facilitates the removal of all the lookups and bootstrap code you have to do to obtain
+		and send a message and receive and dispatch a JMS message. With regular JMS you have to :
+		<itemizedlist>
+			<listitem>Get a connectionfactory</listitem>
+			<listitem>Get a connection</listitem>
+			<listitem>Get a destination</listitem>
+			<listitem>... and so on</listitem>
+		</itemizedlist>
+		For the Message Driven POJOs, you just do:
+		<itemizedlist>
+			<listitem>Get a producer</listitem>
+			<listitem>Invoke on producer</listitem>
+		</itemizedlist>
+	</para>
+
+	<sect5>
+		Model :
+		<para>
+			Message Driven POJOs will have the same model as Stateless/Stateful beans. There is a bean class tagged as
+			<literal>@org.jboss.ejb3.annotation.Consumer</literal> that must implement one or more <literal>@org.jboss.ejb3.annotation.Producer</literal> interfaces. Just
+			as a stateless bean is tagged as <literal>@Stateless</literal> and implements one or more
+			<literal>@Remote</literal> or <literal>@Local</literal> interfaces. Take a look at <literal>org.jboss.tutorial.consumer.bean.ExampleConsumerBean</literal>
+
+			<programlisting>
+				<![CDATA[
+@Consumer(activationConfig =
+{@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+      @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/tutorial/example")})
+@Depends ("jboss.messaging.destination:service=Queue,name=tutorial")
+public class ExampleConsumerBean implements ExampleProducerRemote, ExampleProducerLocal, ExampleProducerXA
+{
+...
+   public void method1(String msg, int val)
+   {
+      System.out.println("method1(" + msg + ", " + val + ")");
+   }
+
+   public void method2(String msg, Map<String, String> map)
+   {
+      System.out.println("method2: " + msg);
+      for (String key : map.keySet())
+      {
+         System.out.println("method2 key/val: " + key + ":" + map.get(key));
+      }
+   }
+				]]>
+			</programlisting>
+			Here's one of the @Producer interfaces :
+			<programlisting>
+				<![CDATA[
+@Producer
+public interface ExampleProducerRemote extends ExampleProducer
+{
+...
+				]]>
+			</programlisting>
+			You can see in this example that the <literal>ExampleConsumerBean</literal> implements the @Producer interfaces and defines
+			the methods which can receive JMS messages. These interfaces will be used by clients(JMS Publishers) to send messages to the
+			consumer via JMS.
+			<note>
+				<para>
+					For each <literal>@Producer</literal> interface the <literal>@Consumer</literal> implements, there
+					will be a proxy that implements that <literal>@Producer</literal> registered in JNDI under the fully qualified name of
+					that <literal>@Producer</literal> interface.
+				</para>
+			</note>
+			Let's now look at the client <literal>org.jboss.tutorial.consumer.client.Client</literal>
+			<programlisting>
+				<![CDATA[
+public static void main(String[] args) throws Exception
+   {
+      InitialContext ctx = new InitialContext();
+      ExampleProducerRemote remote = (ExampleProducerRemote) ctx.lookup(ExampleProducerRemote.class.getName());
+
+      // you can typecast the returned proxy to obtain a ProducerManager interface that allows you to manage
+      // interaction with JMS.
+      ProducerManager manager = ((ProducerObject) remote).getProducerManager();
+
+
+      // connect - internally creates a JMS connection
+      manager.connect();
+
+      try
+      {
+         // Call method1
+         remote.method1("Remote method1 called", 1);
+         System.out.println("Remote method1 called");
+
+         // Call method2
+         Map<String, String> map = new HashMap<String, String>();
+         map.put("hello", "world");
+         map.put("great", "ejb3");
+
+         remote.method2("Remote method2 called", map);
+         System.out.println("Remote method2 called");
+      }
+      finally
+      {
+         // instead of typecasting, you can use a helper class that does everything for you.
+         ProducerConfig.close(remote);
+      }
+				]]>
+			</programlisting>
+			When the <literal>@Consumer</literal> is deployed by the EJB3 container, it looks for all of its <literal>@Producer</literal> interfaces
+			and registers each one of them in JNDI under their fully qualified class name.
+			The client looks up the <literal>ExampleProducerRemote</literal> from the JNDI and uses the returned proxy to send the message.
+			The returned proxy can be cast to <literal>org.jboss.ejb3.mdb.ProducerObject</literal>. It then gets a <literal>org.jboss.ejb3.mdb.ProducerManager</literal>,
+			that manages the JMS connection for this proxy. To start being able to send messages to the Queue, the client calls <literal>connect</literal> on the
+			<literal>ProducerManager</literal>. When the client calls <literal>method1()</literal> on the proxy, this method call is converted
+			into a JMS message and published to the Queue of the Consumer. The consumer will receive the message and invoke its <literal>method1</literal> method.
+		</para>
+	</sect5>
+
+	<sect5>
+		Producer default values :
+		<para>
+			The proxy registered in JNDI will know how to contact the JMS Queue/Topic to publish messages. You can specify explicitly through
+			the <literal>connectionFactory</literal> attribute of the <literal>@Producer</literal>annotation what the JMS ConnectionFactory
+			JNDI name is, or you can rely on defaults.
+
+			<note>
+				<para>
+					The default value for the ConnectionFactory JNDI name is "ConnectionFactory". If you additionally tag the producer as @ProducerLocal instead of @Producer,
+					then "java:/ConnectionFactory" will be used.
+				</para>
+			</note>
+		</para>
+	</sect5>
+
+	<sect5>
+		@ProducerLocal :
+		<para>
+			If you tag a producer as @ProducerLocal, the proxy will lookup the connection factory via the default InitialContext
+			when connect() is called. Otherwise, the ConnectFactory reference will be embedded directly within the proxy.
+
+		</para>
+	</sect5>
+
+	<sect5>
+		@MessageProperties :
+		<para>
+			The methods defined in a Producer are turned into JMS messages. The default message properties are a Time To Live of 0, a
+			Priority of 4, and a delivery mode of PERSISTENT. You can override these default values in a couple of ways.
+			<itemizedlist>
+				<listitem>
+					You can use the @MessageProperties anntotation and tag the Producer class directly to override the values:
+					<programlisting>
+						<![CDATA[
+@Producer
+@MessageProperties(delivery=DeliveryMode.NON_PERSISTENT, timeToLive=1000, priority=1)
+public interface ExampleProducer
+{
+...
+						]]>
+					</programlisting>
+					In this configuration, all method calls on ExampleProducer will use the JMS message properties defined with the
+					<literal>@MessageProperties</literal> annotation on the interface.
+
+				</listitem>
+
+				<listitem>
+					You can specify @MessageProperties on a per method basis :
+					<programlisting>
+						<![CDATA[
+public interface ExampleProducer
+{
+   void method1(String msg, int val);
+
+   @MessageProperties(delivery = DeliveryMode.NON_PERSISTENT)
+   void method2(String msg, Map<String, String> map);
+}
+						]]>
+					</programlisting>
+					So, in the above example, <literal>method1()</literal> uses the default message properties, and
+					<literal>method2()</literal> overrides the defaults via the <literal>@MessageProperties</literal> annotation attached to it.
+
+				</listitem>
+
+			</itemizedlist>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Obtaining the current message :
+		<para>
+			Sometimes you may need to access the real JMS message. Maybe you need to obtain the replyTo destination or set an
+			acknowledgement or something. You can obtain it by using the <literal>@org.jboss.ejb3.annotation.CurrentMessage</literal> annotation.
+			<programlisting>
+				<![CDATA[
+@CurrentMessage
+private Message currentMessage;
+
+
+				]]>
+			</programlisting>
+			This annotation will inject the current JMS message into your Consumer bean before your target method is invoked.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "consumer" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Remote method1 called
+     [java] Remote method2 called
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	        </sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+
+</chapter>

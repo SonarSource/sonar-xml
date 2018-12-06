@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Composite_Primary_Keys_for_Entities_in_EJB3">
+	<title>Introduction to Composite Primary Keys and Primary Key Classes</title>
+	<para>
+	The EJB 3.0 specification allows you to define a primary key class as a <literal>@Embeddable</literal> and use it as the
+	primary key of your Entity bean. One or more properties can be used as members of the primary key for that particular table.
+	This tutorial is an adaptation of the "relationships" tutorial. It adds a primary key class to Customer that holds both
+	the <literal>name</literal> and <literal>id</literal> of the Customer.
+	</para>
+	<programlisting>
+	<![CDATA[
+@Embeddable
+public class CustomerPK implements java.io.Serializable
+{
+   private long id;
+   private String name;
+
+
+   public CustomerPK()
+   {
+   }
+
+   public CustomerPK(long id, String name)
+   {
+      this.id = id;
+      this.name = name;
+   }
+
+   public long getId()
+   {
+      return id;
+   }
+
+   public void setId(long id)
+   {
+      this.id = id;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public void setName(String name)
+   {
+      this.name = name;
+   }
+
+   public int hashCode()
+   {
+      return (int) id + name.hashCode();
+   }
+
+   public boolean equals(Object obj)
+   {
+      if (obj == this) return true;
+      if (!(obj instanceof CustomerPK)) return false;
+      if (obj == null) return false;
+      CustomerPK pk = (CustomerPK) obj;
+      return pk.id == id && pk.name.equals(name);
+   }
+}
+]]>
+	</programlisting>
+
+	<sect5>
+	Mapping the primary key class:
+	</sect5>
+
+	<para>
+		Open up <literal>org.jboss.tutorial.composite.bean.Customer</literal> and look for the <literal>getPk()</literal> method.
+		This defines the primary key class.
+		<programlisting>
+		<![CDATA[
+@EmbeddedId
+public CustomerPK getPk()
+{
+   return pk;
+}
+		]]>
+		</programlisting>
+
+		The <literal>org.jboss.tutorial.composite.bean.CustomerPK</literal> class is mapped to
+		<literal>org.jboss.tutorial.composite.bean.Customer</literal> just like any other embeddable object.
+		The additional <literal>@EmbeddedId</literal> annotation specifies that it will be the primary key.
+		<note>
+			<para>
+				If you provide a primary key class, JBoss cannot auto-generate the key for you. You must allocate
+				a CustomerPK class and instantiate it with your id and name when you create the Customer.
+			</para>
+		</note>
+	</para>
+
+	<sect5>
+		Many To Many
+	</sect5>
+	<para>
+		There is a many-to-many relationship between <literal>org.jboss.tutorial.composite.bean.Customer</literal> and
+		<literal>org.jboss.tutorial.composite.bean.Flight</literal>. In order to have a many-to-many relationship there
+		needs to be a distinct join table that maps the many-to-many relationship. This is called an association table.
+  		You need to use the <literal>@JoinTable</literal> annotation to define this join table. The <literal>@JoinTable</literal>
+  		must be defined on both sides of the bi-directional relationship. Let's look at the Customer side of the relationship
+
+  		<programlisting>
+	  		<![CDATA[
+@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
+@JoinTable(name="flight_customer_table", joinColumns={@JoinColumn(name = "FLIGHT_ID")},
+          	inverseJoinColumns={@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
+public Set<Flight> getFlights()
+{
+ 		return flights;
+}
+	  		]]>
+  		</programlisting>
+  		The <literal>mappedBy</literal> attribute specifies which side of the relationship is responsible for managing the relationship.
+  		If it is not set, then that side is responsible. So, for this example, the <literal>Flight</literal> Entity is responsible
+  		for managing the relation. In this example, we are specifying multiple <literal>inverseJoinColumns</literal>
+  		because Customer has a composite primary key.
+
+  		Let's look at the other side of the relationship in Flight:
+
+  		<programlisting>
+  			<![CDATA[
+@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+@JoinTable(name = "flight_customer_table", joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
+         inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
+public Set<Customer> getCustomers()
+{
+	return customers;
+}
+  			]]>
+  		</programlisting>
+
+  		The <literal>Flight</literal> Entity must also define the <literal>@ManyToMany</literal> and <literal>@JoinTable</literal>.
+
+		The database associate table will look like this:
+
+		<programlisting>
+		<![CDATA[
+create table FLIGHT_CUSTOMER_TABLE (
+  		CUSTOMER_ID integer,
+  		CUSTOMER_NAME varchar,
+  		FLIGHT_ID integer
+);
+		]]>
+		</programlisting>
+	</para>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "composite" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Air France customers
+     [java] Bill
+     [java] Monica
+     [java] USAir customers
+     [java] Molly
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+	<sect5>
+View the tables and rows:
+	</sect5>
+	<para>
+		You can view the tables created by JBoss by going to the
+		<ulink url="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&amp;name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic Service</ulink>,
+		scrolling down to the <literal>startDatabaseManager</literal> button and clicking it.
+		A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
+
+	</para>
+
+
+
+</chapter>

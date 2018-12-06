@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <description>jBoss test application</description>
+   <display-name>Test</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>DeploymentDescriptorSession1</ejb-name>
+         <home>org.jboss.tutorial.ejb21_client_adaptors.bean.Session1RemoteHome</home>
+         <remote>org.jboss.tutorial.ejb21_client_adaptors.bean.Session1Remote</remote>
+         <ejb-class>org.jboss.tutorial.ejb21_client_adaptors.bean.DeploymentDescriptorSession1Bean</ejb-class>
+         <session-type>Stateful</session-type>
+	   <init-method>
+            <create-method>
+               <method-name>ejbCreate</method-name>
+            </create-method>
+            <bean-method>
+               <method-name>ejbCreate</method-name>
+            </bean-method>
+         </init-method>
+         <transaction-type>Container</transaction-type>
+         <ejb-local-ref>
+            <ejb-ref-name>session2</ejb-ref-name>
+            <ejb-ref-type>Session</ejb-ref-type>
+            <local>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome</local>
+            <ejb-link>DeploymentDescriptorSession2</ejb-link>
+         </ejb-local-ref>
+      </session>
+      <session>
+         <ejb-name>DeploymentDescriptorSession2</ejb-name>
+         <local-home>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome</local-home>
+         <local>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2Local</local>
+         <ejb-class>org.jboss.tutorial.ejb21_client_adaptors.bean.DeploymentDescriptorSession2Bean</ejb-class>
+         <session-type>Stateful</session-type>
+         <init-method>
+            <create-method>
+               <method-name>ejbCreate</method-name>
+            </create-method>
+            <bean-method>
+               <method-name>ejbCreate</method-name>
+            </bean-method>
+         </init-method>
+         <transaction-type>Container</transaction-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

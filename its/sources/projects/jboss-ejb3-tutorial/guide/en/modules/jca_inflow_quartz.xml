@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Quartz_scheduler_integration">
+	<title>Quartz scheduler integration</title>
+
+	<para>
+		JBossAS comes bundled with Quartz integration packaged as a JCA Message-Inflow resource adapter <literal>quartz-ra.rar</literal>.
+		This integration allows you to schedule stateless or stateful quartz jobs and have the job be posted to a
+		Message Driven bean. The Quartz Resource Adapter creates a non-persistent scheduler. Jobs are created from
+		the information in the MDB's activation config spec.
+		<note>
+			<para>
+				Currently only cron jobs are allowed to be configured.
+			</para>
+		</note>
+	</para>
+
+	<para>
+		Take a look at the <literal>org.jboss.tutorial.jca_inflow_quartz.bean.AnnotatedQuartzMDBBean</literal>:
+		<programlisting>
+			<![CDATA[
+@MessageDriven(activationConfig =
+{@ActivationConfigProperty(propertyName = "cronTrigger", propertyValue = "0/2 * * * * ?")})
+@ResourceAdapter("quartz-ra.rar")
+public class AnnotatedQuartzMDBBean implements Job
+{
+...
+			]]>
+		</programlisting>
+		This is a simple MDB that implements the <literal>org.quartz.Job</literal> interface. The <literal>cronTrigger</literal>
+		activation spec attribute is required. In this you specify a cron syntax as documented in the Quartz documentation.
+		The <literal>@org.jboss.ejb3.annotation.ResourceAdapter</literal> annotation is used to tell the EJB container which
+		resource adapter to use for the inflow implementation.
+
+	</para>
+
+	<sect5>
+		Using deployment descriptors :
+		<para>
+			Instead of using annotations, you can also use a deployment descriptor to configure the MDB for Quartz
+			integration. Take a look at <literal>META-INF/ejb-jar.xml</literal> and <literal>META-INF/jboss.xml</literal>
+			The ejb-jar.xml configures the <literal>cronTrigger</literal> through the <literal>&lt;activation-config&gt;</literal>
+			element:
+
+			<programlisting>
+				<![CDATA[
+<message-driven>
+   <ejb-name>ExampleMDB</ejb-name>
+   <ejb-class>org.jboss.tutorial.quartz.bean.QuartzMDBBean</ejb-class>
+   <transaction-type>Container</transaction-type>
+   <activation-config>
+      <activation-config-property>
+         <activation-config-property-name>cronTrigger</activation-config-property-name>
+         <activation-config-property-value>0/2 * * * * ?</activation-config-property-value>
+      </activation-config-property>
+
+
+   </activation-config>
+</message-driven>
+				]]>
+			</programlisting>
+			The jboss.xml configures the <literal>resource-adapter-name</literal> :
+			<programlisting>
+				<![CDATA[
+<message-driven>
+   <ejb-name>ExampleMDB</ejb-name>
+   <resource-adapter-name>quartz-ra.rar</resource-adapter-name>
+</message-driven>
+				]]>
+			</programlisting>
+		</para>
+
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "jca_inflow_quartz" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure the "default" server configuration of JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+		     ]]>
+			</programlisting>
+			This will deploy the jar into the JBossAS-5.x server ("default" configuration).
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+			This will create the jar in the <literal>target</literal> folder of the tutorial. Copy this jar to the deploy folder of JBossAS-5.x
+		</para>
+	</sect5>
+	<para>
+		On the server side when the application is deployed, you will notice these logs:
+
+		<programlisting>
+			<![CDATA[
+18:46:57,053 INFO  [QuartzMDBBean] ************** JOB: job.4.1232457416127
+18:46:58,023 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:46:58,026 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:00,019 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:47:00,021 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:00,023 INFO  [QuartzMDBBean] ************** JOB: job.4.1232457416127
+18:47:02,020 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:47:02,023 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:03,019 INFO  [QuartzMDBBean] ************** JOB: job.4.1232457416127
+18:47:04,022 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:47:04,024 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:06,019 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:47:06,021 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:06,024 INFO  [QuartzMDBBean] ************** JOB: job.4.1232457416127
+18:47:08,019 INFO  [AnnotatedQuartzMDBBean] ************** here in annotated!!!!
+18:47:08,021 INFO  [QuartzMDBBean] ************** JOB: job.2.1232457416077
+18:47:09,020 INFO  [QuartzMDBBean] ************** JOB: job.4.1232457416127
+
+			]]>
+		</programlisting>
+
+	</para>
+
+
+
+</chapter>

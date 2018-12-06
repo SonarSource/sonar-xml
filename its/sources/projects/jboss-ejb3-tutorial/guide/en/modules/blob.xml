@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Blob_and_Clob_support_in_EJB3">
+	<title>Introduction to Blob and Clob support in EJB3</title>
+	<para>
+	The EJB 3.0 specification has support for Blob and Clob types.  The specification allows you to map the following types to
+an entity property:
+		<itemizedlist mark="opencircle">
+			<listitem>
+				<para>
+					<literal>java.sql.Blob</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<literal>java.sql.Clob</literal>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Any Serializable Object
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					byte[], Byte[]
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					char[], String, Character[]
+				</para>
+			</listitem>
+
+		</itemizedlist>
+	</para>
+
+	<para>
+	To use this feature just need to use the <literal>@javax.persistence.Lob</literal> annotation. The <literal>Lob</literal> annotation is an
+	encapsulation of what type of lob you want.  Below is an example of defining fields in an entity that are blobs or clobs.
+
+		<programlisting>
+@Entity
+public class BlobEntity implements Serializable
+{
+   private long id;
+   private Blob blobby;
+   private Clob clobby;
+
+   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+   public long getId()
+   {
+      return id;
+   }
+
+   public void setId(long id)
+   {
+      this.id = id;
+   }
+
+   @Lob @Basic(fetch = FetchType.EAGER)
+   public Blob getBlobby()
+   {
+      return blobby;
+   }
+
+   public void setBlobby(Blob blobby)
+   {
+      this.blobby = blobby;
+   }
+
+   @Lob @Basic(fetch = FetchType.EAGER)
+   public Clob getClobby()
+   {
+      return clobby;
+   }
+
+   public void setClobby(Clob clobby)
+   {
+      this.clobby = clobby;
+   }
+
+
+}
+		</programlisting>
+	</para>
+
+	<sect5>
+Working with Blobs and Clobs:
+	</sect5>
+	<para>
+Open up <literal>org.jboss.tutorial.blob.bean.LobTesterBean</literal> and look for the <literal>create()</literal> method. JBoss EJB3
+is built on top of the Hibernate persistence engine.  Hibernate has some helper methods for creating blobs and clobs that {{LobTesterBean}}
+uses.
+	</para>
+	<sect5>
+Blob creation:
+	</sect5>
+	<para>
+		<literal>org.hibernate.Hibernate.createBlob(byte[] bytes)</literal>
+		<literal>org.hibernate.Hibernate.createBlob(InputStream stream, int length)</literal>
+		<literal>org.hibernate.Hibernate.createBlob(InputStream stream)</literal>
+	</para>
+
+	<sect5>
+Clob creation:
+	</sect5>
+	<para>
+		<literal>org.hibernate.Hibernate.createClob(String string)</literal>
+		<literal>org.hibernate.Hibernate.createClob(Reader reader, int length)</literal>
+	</para>
+
+	<para>
+		Blobs and clobs must only be accessed within a transaction.  Blobs and clobs are also not serializable or detachable.
+	</para>
+
+	<sect5>
+Mapping Strings/byte[] to Clob/Blob:
+	</sect5>
+	<para>
+		This is pretty easy, just look at BlobEntity2.java
+
+		<programlisting>
+@Entity
+public class BlobEntity2 implements Serializable
+{
+   private long id;
+   private byte[] blobby;
+   private String clobby;
+
+   @Id @GeneratedValue(strategy=GenerationType.AUTO)
+   public long getId()
+   {
+      return id;
+   }
+
+   public void setId(long id)
+   {
+      this.id = id;
+   }
+
+   @Lob @Basic(fetch = FetchType.EAGER)
+   public byte[] getBlobby()
+   {
+      return blobby;
+   }
+
+   public void setBlobby(byte[] blobby)
+   {
+      this.blobby = blobby;
+   }
+
+   @Lob @Basic(fetch = FetchType.EAGER)
+   public String getClobby()
+   {
+      return clobby;
+   }
+
+   public void setClobby(String clobby)
+   {
+      this.clobby = clobby;
+   }
+
+
+}
+
+		</programlisting>
+
+	</para>
+
+	<para>
+		<sect5>
+Building and Running:
+		</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		From the command prompt, move to the "blob" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		<sect5>
+Ant Users:
+		</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+$ ant
+$ ant run
+
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+	</para>
+
+	<sect5>
+View the tables and rows:
+	</sect5>
+	<para>
+		You can view the tables created by JBoss by going to the
+		<ulink url="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&amp;name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic Service</ulink>,
+		scrolling down to the <literal>startDatabaseManager</literal> button and clicking it.
+		A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
+
+	</para>
+
+</chapter>

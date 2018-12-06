@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="JNDI_Bindings">
+	<title>Binding your beans in JNDI</title>
+	<para>
+		By default, when the application is deployed in a jar, session beans will bind to JNDI in the form <literal>ejbName/remote</literal> for remote
+		interfaces and <literal>ejbName/local</literal> in the case of local interfaces. When the EJBs are deployed in an .ear file, the default
+		jndi binding will be prepended by the name of the .ear file.  So if the ear file name is <literal>foo.ear</literal> the default jndi
+		names would be <literal>foo/EJB-NAME/remote</literal> and <literal>foo/EJB-NAME/local</literal>. You can override this behavior
+		by defining your own <literal>@org.jboss.ejb3.annotation.LocalBinding</literal> and/or <literal>@org.jboss.ejb3.annotation.RemoteBinding</literal>.
+
+	</para>
+
+	<sect5>
+		Local Interface JNDI Binding :
+		<para>
+			To change the JNDI name for your local interface use the <literal>@org.jboss.ejb3.annotation.LocalBinding</literal> annotation.
+			<programlisting>
+				<![CDATA[
+@Stateless
+@LocalBinding(jndiBinding="custom/MySession")
+public class MySessionBean implements MySession
+{
+}
+
+				]]>
+			</programlisting>
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Remote Interface JNDI Binding :
+		<para>
+			To change the JNDI name for your remote interface use the <literal>@org.jboss.ejb3.annotation.RemoteBinding</literal> annotation.
+
+			<programlisting>
+				<![CDATA[
+@Stateless
+@RemoteBinding(jndiBinding="custom/remote/MySession")
+public class MySessionBean implements MySession
+{
+}
+
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+	<sect5>
+		Persistence unit JNDI Bindings :
+		<para>
+			Persistence units are not bound into JNDI by default. You can bind them by defining some jboss specific properties
+			in persistence.xml.
+			<programlisting>
+				<![CDATA[
+<persistence>
+   <persistence-unit name="manager1">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <jar-file>MyApp.jar</jar-file>
+      <class>org.acme.Employee</class>
+      <class>org.acme.Person</class>
+      <class>org.acme.Address</class>
+      <properties>
+         <property name="jboss.entity.manager.jndi.name" value="java:/Manager1"/>
+         <property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/>
+      </properties>
+   </persistence-unit>
+</persistence>
+
+				]]>
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Client :
+		<para>
+			Open up <literal>org.jboss.tutorial.jndibinding.client.Client</literal>.
+			You'll see that it looks up the stateless bean under "Calculator". Also notice that there is no Home interface
+			and you can begin executing on the stateless bean right away.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "jndibinding" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] 1 + 1 = 2
+     [java] 1 - 1 = 0
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+		</para>
+	</sect5>
+</chapter>

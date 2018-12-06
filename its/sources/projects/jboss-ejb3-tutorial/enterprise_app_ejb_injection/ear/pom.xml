@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  
+	<properties>
+		<!-- We do not want to run any standalone client, so let's skip it. Let's just do a deploy/undeploy for testing
+		that the tutorial deploys without any errors -->
+		<jboss.ejb3.tutorial.client.skip>true</jboss.ejb3.tutorial.client.skip>
+	  	<!--  Versions -->
+	    <version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_webapp>1.1.1</version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_webapp>
+	    <version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_ejb3app>1.1.1</version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_ejb3app>
+  	</properties>
+  	
+  
+   
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+  
+  <!-- We need the deploy/undeploy support provided by the jboss-ejb3-tutorial-common, so that's our
+  parent  -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-common</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../../common</relativePath>
+  </parent>
+
+  
+
+	
+  <artifactId>jboss-ejb3-tutorial-ejb_injection</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>ear</packaging>
+  <name>EAR for EJB injection in Servlet</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+	Enterprise application showing injection of EJB in Servlet
+  </description>
+  
+ 
+	
+  
+  
+	<!-- Dependencies -->
+	<dependencies>
+  		
+      
+      <dependency>
+            <groupId>org.jboss.ejb3</groupId>
+            <artifactId>jboss-ejb3-tutorial-enterprise_webapp</artifactId>
+            <version>${version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_webapp}</version>
+			<type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.ejb3</groupId>
+            <artifactId>jboss-ejb3-tutorial-enterprise_ejb3app</artifactId>
+            <version>${version.org.jboss.ejb3_jboss-ejb3-tutorial-enterprise_ejb3app}</version>
+			<type>ejb</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.jbossas</groupId>
+            <artifactId>jboss-as-client</artifactId>
+            <version>${version.org.jboss.jbossas_jboss-as-client}</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+    
+	</dependencies>
+</project>

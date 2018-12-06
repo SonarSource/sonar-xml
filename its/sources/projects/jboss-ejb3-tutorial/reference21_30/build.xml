@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+
+<!-- ======================================================================= -->
+<!-- JBoss build file                                                       -->
+<!-- ======================================================================= -->
+
+<project name="JBoss" default="ear" basedir=".">
+
+   	<property environment="env"/>
+	<property name="ejb3app.home" value="${basedir}/ejb3_app"/>
+	<property name="ejb21app.home" value="${basedir}/ejb21_app"/>
+	<property name="webapp.home" value="${basedir}/webapp"/>
+  	<property name="ejb3app.src.dir" value="${ejb3app.home}/src/main/java"/>
+	<property name="ejb21app.src.dir" value="${ejb21app.home}/src/main/java"/>
+	<property name="webapp.src.dir" value="${webapp.home}/src/main/java"/>
+   	<property name="ejb3app.build.dir" value="${ejb3app.home}/build"/>
+	<property name="ejb21app.build.dir" value="${ejb21app.home}/build"/>
+   	<property name="ejb3app.build.classes.dir" value="${ejb3app.build.dir}/classes"/>
+	<property name="ejb21app.build.classes.dir" value="${ejb21app.build.dir}/classes"/>
+   	<property name="webapp.build.dir" value="${webapp.home}/build"/>
+  	<property name="webapp.build.classes.dir" value="${webapp.build.dir}/classes"/>
+	<property name="ear.home" value="${basedir}/enterprise_app"/>
+	<property name="ear.build.dir" value="${ear.home}/build"/>
+   	<property name="build.war.artifact" value="jboss-ejb3-tutorial-reference21_30_webapp.war"/>
+	<property name="build.ear.artifact" value="jboss-ejb3-tutorial-ejbreferences.ear"/>
+	<property name="build.ejb3.artifact" value="jboss-ejb3-tutorial-reference21_30_ejb3_app.jar"/>
+	<property name="build.ejb21.artifact" value="jboss-ejb3-tutorial-reference21_30_ejb21_app.jar"/>
+	<property name="jboss.home" value="${env.JBOSS_HOME}"/>
+	<property name="jboss.server.config" value="default"/>
+
+   <!-- Build classpath -->
+   <path id="classpath">
+      <!-- So that we can get jndi.properties for InitialContext -->
+      <pathelement location="${basedir}"/>
+   		<!-- Only the jbossall-client.jar should ideally be sufficient -->
+      <fileset dir="${jboss.home}/client">
+         <include name="**/jbossall-client.jar"/>
+      </fileset>
+	<!-- javax.persistence.* -->
+		<fileset dir="${jboss.home}/common/lib">
+	   			<include name="ejb3-persistence.jar"/>
+	   	</fileset>
+	<!-- javax.servlet.* -->
+	<fileset dir="${jboss.home}/common/lib">
+		<include name="servlet-api.jar"/>
+	</fileset>
+
+
+      	<pathelement location="${ejb21app.build.classes.dir}"/>
+   		<pathelement location="${ejb3app.build.classes.dir}"/>
+   		<pathelement location="${webapp.build.classes.dir}"/>
+   </path>
+
+   <property name="build.classpath" refid="classpath"/>
+
+   <!-- =================================================================== -->
+   <!-- Prepares the build directory                                        -->
+   <!-- =================================================================== -->
+   <target name="prepare">
+      	<mkdir dir="${ejb21app.build.classes.dir}"/>
+	  	<mkdir dir="${ejb3app.build.classes.dir}"/>
+   		<mkdir dir="${webapp.build.classes.dir}"/>
+		<mkdir dir="${ear.build.dir}"/>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Compiles the source code                                            -->
+   <!-- =================================================================== -->
+   <target name="compile" depends="prepare">
+		<!-- First compile the EJB2.1 app -->
+   		<javac srcdir="${ejb21app.src.dir}"
+	         destdir="${ejb21app.build.classes.dir}"
+	         debug="on"
+	         deprecation="on"
+	         optimize="off"
+	         includes="**">
+	         <classpath refid="classpath"/>
+	      </javac>
+   		<!-- Now the EJB3 app -->
+	    <javac srcdir="${ejb3app.src.dir}"
+	       destdir="${ejb3app.build.classes.dir}"
+	       debug="on"
+	       deprecation="on"
+	       optimize="off"
+	       includes="**">
+	       <classpath refid="classpath"/>
+	    </javac>
+
+      	<!-- The web app -->
+        <javac srcdir="${webapp.src.dir}"
+           destdir="${webapp.build.classes.dir}"
+           debug="on"
+           deprecation="on"
+           optimize="off"
+           includes="**">
+           <classpath refid="classpath"/>
+        </javac>
+
+   </target>
+
+   <target name="ear" depends="compile">
+   	
+  	 <!-- The EJB21 jar -->
+     <jar jarfile="${ejb21app.build.dir}/${build.ejb21.artifact}">
+        <fileset dir="${ejb21app.build.classes.dir}">
+           <include name="**/*.class"/>
+        </fileset>
+     	<fileset dir="${ejb21app.home}/src/main/resources">
+     		<include name="META-INF/*.xml"/>
+     	</fileset>
+     </jar>
+   	<!-- EJB3 jar -->
+    <jar jarfile="${ejb3app.build.dir}/${build.ejb3.artifact}">
+       <fileset dir="${ejb3app.build.classes.dir}">
+          <include name="**/*.class"/>
+       </fileset>
+    	<fileset dir="${ejb3app.home}/src/main/resources">
+    		<include name="META-INF/*.xml"/>
+    	</fileset>
+    </jar>
+  	 <!-- The war -->
+     <zip zipfile="${webapp.build.dir}/${build.war.artifact}">
+        <zipfileset dir="${webapp.build.classes.dir}" prefix="WEB-INF/classes">
+           <include name="**/*.class"/>
+        </zipfileset>
+        <zipfileset dir="${webapp.home}/src/main/webapp">
+        	<include name="WEB-INF/web.xml"/>
+           <include name="index.html"/>
+        </zipfileset>
+     </zip>
+  		<!-- Finally the EAR -->
+     <zip zipfile="${ear.build.dir}/${build.ear.artifact}">
+        <zipfileset dir="${webapp.build.dir}">
+           <include name="${build.war.artifact}"/>
+        </zipfileset>
+        <zipfileset dir="${ejb3app.build.dir}">
+           <include name="${build.ejb3.artifact}"/>
+        </zipfileset>
+        <zipfileset dir="${ejb21app.build.dir}">
+           <include name="${build.ejb21.artifact}"/>
+        </zipfileset>
+        <zipfileset dir="${ear.home}">
+           <include name="META-INF/application.xml"/>
+        </zipfileset>
+
+     </zip>
+
+      <copy file="${ear.build.dir}/${build.ear.artifact}" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
+   </target>
+
+
+   <!-- =================================================================== -->
+   <!-- Cleans up generated stuff                                           -->
+   <!-- =================================================================== -->
+   <target name="clean.db">
+      <delete dir="${jboss.home}/server/${jboss.server.config}/data/hypersonic"/>
+   </target>
+
+   <target name="clean">
+      	<delete dir="${ejb21app.build.dir}"/>
+   		<delete dir="${ejb3app.build.dir}"/>
+   		<delete dir="${webapp.build.dir}"/>
+   		<delete dir="${ear.build.dir}"/>
+      	<delete file="${jboss.home}/server/${jboss.server.config}/deploy/${build.ear.artifact}"/>
+   </target>
+
+
+</project>
+

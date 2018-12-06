@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Extended_Persistence_Contexts">
+	<title>Introduction to Extended Persistence Contexts</title>
+	<para>
+		Usually, an EntityManager in JBoss EJB 3.0 lives and dies within a JTA transaction. Once the transaction is finished,
+		all persistent objects are detached from the EntityManager and are no longer managed.
+		Any local caching the EntityManager instance had done is lost. JBoss EJB 3.0 allows you to define long-living EntityManagers
+		that live beyond the scope of a JTA transaction. This is called an Extended Persistence Context.
+
+		When you specify that an injected EntityManager is an extended persistence context, all object instances remain managed.
+
+	</para>
+
+	<para>
+		Extended persistence contexts can only be used within Stateful session beans. Take a look at
+		<literal>org.jboss.tutorial.extended.bean.ShoppingCartBean</literal>.
+
+		<programlisting>
+			<![CDATA[
+@Stateful
+@Remote(ShoppingCart.class)
+public class ShoppingCartBean implements ShoppingCart
+{
+   @PersistenceContext(type=PersistenceContextType.EXTENDED)
+   EntityManager em;
+
+   @EJB StatelessLocal stateless;
+
+   private Customer customer;
+
+   public long createCustomer()
+   {
+      customer = new Customer();
+      customer.setName("William");
+      em.persist(customer);
+      return customer.getId();
+   }
+
+   public void update()
+   {
+      customer.setName("Bill");
+   }
+...
+}
+
+			]]>
+		</programlisting>
+
+		To inject an extended persistence context, you use the <literal>type()</literal> attribute and set it to <literal>EXTENDED</literal>.
+		If you look at the <literal>createCustomer()</literal> method you notice that it is persisting a <literal>Customer</literal> object
+		and storing a reference to that	created object within a member variable of the stateful bean. When the update() method is called,
+		you see that the customer's state is modified. Since the entity manager used is EXTENDED, the customer member variable remains
+		managed by the entitymanager and the modified state will be synchronized with the database.
+
+	</para>
+
+	<sect5>
+		Conversations :
+	</sect5>
+
+	<para>
+		An even more interesting use case is when you combine extended persistence contexts with non-transactional methods.
+		If you interact with an extended persistence context outside of a transaction, the inserts, updates, and deletes
+		will be queued until you access the persistence context within a transaction. This means that any persist(), merge(),
+		or remove() method you call will not actually result in a JDBC execution and thus an update of the database until
+		you manually call EntityManager.flush().
+		<para>
+			Why is this useful? Consider the usecase of a Setup Wizard on a website.  The Wizard has seven steps, seven web pages to enter
+			stuff in.  It is extremely unwise to have a JTA transaction that spans multiple http requests, yet you do not want to commit
+			anything to the database until all steps are complete.  Your code can interact with the EntityManager as it wants and you
+			do not have to worry about updates or writing a lot of gluecode in your application to do all the entity manager's work in the
+			final step of the wizard.  Efficient and highly performant. Because the managed persistent objects remain attached to the
+			persistent context, all optmistic versioning checks can also be maintained within the application transaction.
+			Here's an example on how to do this.
+
+			<programlisting>
+				<![CDATA[
+@Stateful
+@Remote(ShoppingCart.class)
+public class ShoppingCartBean implements ShoppingCart
+{
+   @PersistenceContext(type=PersistenceContextType.EXTENDED)
+   EntityManager em;
+
+   @EJB StatelessLocal stateless;
+
+   private Customer customer;
+
+   public long createCustomer()
+   {
+      customer = new Customer();
+      customer.setName("William");
+      em.persist(customer);
+      return customer.getId();
+   }
+
+   @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+   public void never()
+   {
+      customer.setName("Bob");
+   }
+
+
+
+   @Remove
+   public void checkout()
+   {
+   }
+}
+
+				]]>
+			</programlisting>
+		</para>
+		Calling the never() method will update the managed customer object reference, but will not result in a database update until
+		checkout() is called. The spec requires that any time you invoke a transactional method of a stateful bean,
+		that the EntityManager join the transaction. Therefore, our never() update will be committed at the end of the checkout() method
+		(which by default has the REQUIRED trasaction attribute).
+
+	</para>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "extended_pc" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Created customer: William
+     [java] Customer's name should still be William as pc was not yet flushed:  Customer.getName() == William
+     [java] Now that the pc has been flushed name should be 'Bob': Customer.getName() == Bob
+     [java] Created customer: William
+     [java] ShoppingCartBean.customer should stay managed because we're in an extended PC: Customer.getName() == Bill
+     [java] Extended persistence contexts are propagated to nested EJB calls: Customer.getName() == Bill Jr.
+
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+
+</chapter>

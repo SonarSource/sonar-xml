@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Hibernate_Session_In_EJB3">
+	<title>Injecting Hibernate Session and Session Factory in JBoss EJB3</title>
+	<para>
+
+		Persistent classes that are mapped using Hibernate *.hbm.xml files are supported in JBoss. The EJB3 Deployer will search the archive
+		for any <literal>.hbm.xml</literal> files and add them to the definition of the underlying Hibernate SessionFactory. These
+         <literal>.hbm.xml</literal> files can be virtually anywhere within the archive under any java package or directory.
+		Take a look at the <literal>customer.hbm.xml</literal> for an example.
+	</para>
+
+	<para>
+         Class mappings defined in <literal>.hbm.xml</literal> files can be managed by EntityManagers just as annotated
+         @Entity beans are.  Also, you are allowed to have relationships between a <literal>.hbm.xml</literal>
+         mapped class and an EJB3 entity.  So, mixing/matching is allowed. Which means you can have some entities defined in .hbm.xml and
+         some others through @Entity annotations.
+     </para>
+
+	<sect5>
+      Injecting Hibernate Session and SessionFactory :
+      <para>
+         You can inject a <literal>org.hibernate.Session</literal> and <literal>org.hibernate.SessionFactory</literal>
+         directly into your EJBs just as you can do with EntityManagers and EntityManagerFactorys. The behavior of a Session is
+         just the same as the behavior of an injected EntityManager.  The application server controls the lifecycle of the
+         Session so that you do not have to open, flush, or close the session.  Extended persistence contexts also work
+         with injected Hibernate Sessions.
+         <programlisting>
+         	<![CDATA[
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+@Stateless
+@Remote(CustomerRemote.class)
+@RemoteBinding(jndiBinding = "CustBean")
+public class CustomerBean implements CustomerRemote
+{
+
+   @PersistenceContext
+   private Session session;
+
+         	]]>
+         </programlisting>
+         Take a look at <literal>org.jboss.tutorial.hibernate.bean.CustomerBean</literal> for more details.
+      </para>
+    </sect5>
+
+	<sect5>
+      Accessing org.hibernate.Session and org.hibernate.Query from EntityManager:
+      <para>
+         You can get access to the current underlying Hibernate Session by calling the <literal>getDelegate</literal> method on the
+         EntityManager :
+
+      	<programlisting>
+      		<![CDATA[
+@Stateless
+@Remote(CustomerRemote.class)
+@RemoteBinding (jndiBinding="AnotherCustBean")
+public class AnotherCustomerBean implements CustomerRemote
+{
+
+   @PersistenceContext
+   private EntityManager em;
+
+   public Customer getCustomer(long id)
+   {
+      org.hibernate.Session session = (Session) em.getDelegate();
+      return (Customer) session.get(Customer.class, id);
+   }
+...
+			]]>
+      	</programlisting>
+      	Take a look at <literal>org.jboss.tutorial.hibernate.bean.AnotherCustomerBean</literal> for more details.
+   </para>
+
+   <para>
+         You can get access to the current underlying Hibernate Query by typecasting your reference to a <code>org.hibernate.ejb.QueryImpl</code>.
+
+		<programlisting>
+      		<![CDATA[
+public List<Customer> getCustomers(String fname)
+{
+   org.hibernate.ejb.QueryImpl queryImpl = (QueryImpl) em.createQuery("from Customer where fname ='" + fname + "'");
+   org.hibernate.Query query = queryImpl.getHibernateQuery();
+   return query.list();
+}
+
+			]]>
+      </programlisting>
+	</para>
+   </sect5>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "hibernate" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Jai Pai created with id = 1
+     [java] Jaikiran Pai created with id = 2
+     [java] Jai NoLastName created with id = 3
+     [java] Searching for customer with id = 2
+     [java] Found customer Jaikiran Pai with id = 2
+     [java] Searching for customer with id = 3
+     [java] Found customer Jai NoLastName with id = 3
+     [java] Searching for customers with first name Jai
+     [java] Found 2 customers with first name Jai
+     [java] Searching for customers with first name Jaikiran
+     [java] Found 1 customers with first name Jaikiran
+
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+
+</chapter>

@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Injecting_EJB_in_Servlets">
+	<title>Introduction to EJB injection in Servlets</title>
+
+	<para>
+		This tutorial aims at showing how EJBs can be injected in a Servlet. In this tutorial we build an EAR file which
+		contains a EJB module (jar file) and a web module (war file).
+	</para>
+
+	<para>
+		Take a look at the <literal>META-INF/application.xml</literal> file:
+		<programlisting>
+			<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC
+	"-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN"
+	"http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+  <display-name>jboss-ejb3-tutorial-ejb_injection</display-name>
+  <description>Enterprise application showing injection of EJB in Servlet</description>
+  <module>
+    <web>
+      <web-uri>jboss-ejb3-tutorial-enterprise_webapp.war</web-uri>
+      <context-root>/jboss-ejb3-tutorial-enterprise_webapp</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>jboss-ejb3-tutorial-enterprise_ejb3app.jar</ejb>
+  </module>
+</application>
+
+			]]>
+		</programlisting>
+	</para>
+
+	<sect5>
+		EJB module:
+		<para>
+			The EJB module in this tutorial consists of a EJB3 SLSB. Take a look at <literal>org.jboss.tutorial.enterprise_app_ejb_injection.bean.CalculatorBean</literal>:
+			<programlisting>
+				<![CDATA[
+@Stateless(name="calculator")
+@Remote(CalculatorRemote.class)
+@Local(CalculatorLocal.class)
+public class CalculatorBean implements CalculatorRemote, CalculatorLocal
+{
+...
+				]]>
+			</programlisting>
+		</para>
+		We will be using this bean in the servlet for performing the <literal>add</literal> and <literal>subtract</literal> operations.
+
+		<important>
+			<para>
+				When a EJB packaged in a jar file is deployed as part of an EAR, the default jndi-name for the business-remote interface
+				will be of the form EARName/BeanName/remote. Similarly the local business-remote will have the default jndi-name of the form
+				EARName/BeanName/local.
+			</para>
+		</important>
+	</sect5>
+
+	<sect5>
+		Web module:
+		<para>
+			The web module consists of a <literal>index.html</literal> and a servlet <literal>org.jboss.tutorial.enterprise_app_ejb_injection.servlet.CalculatorActionServlet</literal>.
+			Take a look at the <literal>WEB-INF/web.xml</literal> which configures the <literal>index.html</literal> as the welcome page and
+			also maps the servlet.
+			<programlisting>
+				<![CDATA[
+ <servlet>
+      <servlet-name>CalculatorActionServlet</servlet-name>
+      <servlet-class>org.jboss.tutorial.enterprise_app_ejb_injection.servlet.CalculatorActionServlet</servlet-class>
+ </servlet>
+
+<!-- The servlet and jsp page mappings -->
+<servlet-mapping>
+   <servlet-name>CalculatorActionServlet</servlet-name>
+   <url-pattern>/CalculatorAction</url-pattern>
+</servlet-mapping>
+
+<welcome-file-list>
+	<welcome-file>index.html</welcome-file>
+</welcome-file-list>
+
+				]]>
+			</programlisting>
+
+			The <literal>org.jboss.tutorial.enterpise_app_ejb_injection.bean.CalculatorLocal</literal> will be injected in the
+			<literal>org.jboss.tutorial.enterprise_app_ejb_injection.servlet.CalculatorActionServlet</literal> using the <literal>@EJB</literal>
+			annotation:
+			<programlisting>
+				<![CDATA[
+private CalculatorLocal calculator;
+
+/**
+ * Injecting the EJB
+ */
+@EJB(name = "calculator")
+public void setCalculator(CalculatorLocal calculator)
+{
+   this.calculator = calculator;
+}
+				]]>
+			</programlisting>
+			<important>
+				<para>
+					For the injection to take place in a web module, your web.xml should use the 2.5 version of the web-app xsd:
+					<programlisting>
+						<![CDATA[
+<web-app version="2.5"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+						]]>
+					</programlisting>
+				</para>
+			</important>
+
+		</para>
+	</sect5>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "enterprise_app_ejb_injection" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+     ]]>
+	</programlisting>
+	<para>
+		This will deploy the ear into the JBossAS-5.x server ("default" configuration).
+	</para>
+	<sect5 id="AccessTheWebApp">
+		To access the servlet, open a web browser and enter <ulink url="http://localhost:8080/jboss-ejb3-tutorial-enterprise_webapp">http://localhost:8080/jboss-ejb3-tutorial-enterprise_webapp</ulink>.
+		This will bring up a page where you can enter two number and either click on <literal>Add</literal> or <literal>subtract</literal>.
+	</sect5>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+	<para>
+		This will create the EAR in the <literal>target</literal> folder of the tutorial. Copy this EAR to the deploy folder of JBossAS-5.x
+		and start the server (if it's already not started). Then follow the steps mentioned above, to access the servlet from the web browser.
+	</para>
+
+</chapter>

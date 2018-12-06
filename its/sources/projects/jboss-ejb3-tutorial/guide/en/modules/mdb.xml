@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Message_Driven_Beans">
+	<title>Introduction to Message Driven Beans in EJB3</title>
+	<para>
+		This example shows you how to implement an MDB with EJB 3.0 using annotations.
+
+	</para>
+	<para>
+		Take a look at <literal>org.jboss.tutorial.mdb.bean.ExampleMDB</literal>. The @MessageDriven annotation
+		defines the bean as an MDB. The <literal>activationConfig</literal> attribute contains much of the MDB configuration via
+		<literal>@ActivationConfigProperty</literal>. Also notice that the MDB source contains properties for
+		<literal>destinationType</literal> and <literal>destination</literal>
+
+	</para>
+
+	<para>
+		The following is the list of standard Activation Config Properties available from the JCA 1.5 specification.
+		Also listed are the respective types and default values where defined.
+		<informaltable frame='all'>
+			<tgroup cols='4' colsep="1" rowsep="1">
+				<colspec colwidth='0.5in'/>
+				<thead>
+					<row>
+  						<entry>Name</entry>
+  						<entry>Type</entry>
+						<entry>Remarks</entry>
+						<entry>Mandatory?</entry>
+						<entry>Default value</entry>
+					</row>
+				</thead>
+
+				<tbody>
+					<row>
+						<entry>destination</entry>
+						<entry>java.lang.String</entry>
+						<entry>The jndi name of the Queue or Topic</entry>
+						<entry>Yes</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>destinationType</entry>
+						<entry>java.lang.String</entry>
+						<entry>The type of destination valid values are javax.jms.Queue or javax.jms.Topic</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>messageSelector</entry>
+						<entry>java.lang.String</entry>
+						<entry>The message selector of the subscription</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>acknowledgeMode</entry>
+						<entry>int</entry>
+						<entry>The type of acknowledgement when not using transacted jms - valid values AUTO_ACKNOWLEDGE or DUPS_OK_ACKNOWLEDGE</entry>
+						<entry>No</entry>
+						<entry>AUTO_ACKNOWLEDGE</entry>
+					</row>
+
+					<row>
+						<entry>clientID</entry>
+						<entry>java.lang.String</entry>
+						<entry>The client id of the connection</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>subscriptionDurability</entry>
+						<entry>String</entry>
+						<entry>Whether topic subscriptions are durable. Valid values are Durable or NonDurable</entry>
+						<entry>No</entry>
+						<entry>NonDurable</entry>
+					</row>
+
+					<row>
+						<entry>subscriptionName</entry>
+						<entry>String</entry>
+						<entry>The subsription name of the topic subscription</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+
+				</tbody>
+			</tgroup>
+		</informaltable>
+		The following is the list of Activation Config Properties available as JBoss extensions.
+
+		<informaltable frame='all'>
+			<tgroup cols='4' colsep="1" rowsep="1">
+				<colspec colwidth='0.5in'/>
+                
+				<thead>
+					<row>
+  						<entry>Name</entry>
+  						<entry>Type</entry>
+						<entry>Remarks</entry>
+						<entry>Mandatory?</entry>
+						<entry>Default value</entry>
+					</row>
+				</thead>
+
+				<tbody>
+					<row>
+						<entry>isTopic</entry>
+						<entry>boolean</entry>
+						<entry>Sets the destinationType</entry>
+						<entry>No</entry>
+						<entry>false</entry>
+					</row>
+
+					<row>
+						<entry>providerAdapterJNDI</entry>
+						<entry>java.lang.String</entry>
+						<entry>The jndi name of the jms provider</entry>
+						<entry>No</entry>
+						<entry>java:/DefaultJMSProvider</entry>
+					</row>
+
+					<row>
+						<entry>user</entry>
+						<entry>java.lang.String</entry>
+						<entry>The user id used to connect to the jms server</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>pass</entry>
+						<entry>java.lang.String</entry>
+						<entry>The password of the user</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>maxMessages</entry>
+						<entry>int</entry>
+						<entry>Read this number of messages before delivering messages to the mdb.
+							Each message is delivered individually on the same thread in an attempt to
+							avoid context excessive context switching
+						</entry>
+						<entry>No</entry>
+						<entry>1</entry>
+					</row>
+
+					<row>
+						<entry>minSession</entry>
+						<entry>int</entry>
+						<entry>The minimum number of jms sessions that are available to concurrently deliver messages to this mdb</entry>
+						<entry>No</entry>
+						<entry>1</entry>
+					</row>
+
+					<row>
+						<entry>maxSession</entry>
+						<entry>int</entry>
+						<entry>The maximum number of jms sessions that are available to concurrently deliver messages to this mdb</entry>
+						<entry>No</entry>
+						<entry>15</entry>
+					</row>
+
+					<row>
+						<entry>reconnectInterval</entry>
+						<entry>long</entry>
+						<entry>The length of time in seconds between attempts to (re-)connect to the jms provider</entry>
+						<entry>No</entry>
+						<entry>10 seconds</entry>
+					</row>
+
+					<row>
+						<entry>keepAlive</entry>
+						<entry>long</entry>
+						<entry>The length of time in milliseconds that sessions over the minimum are kept alive</entry>
+						<entry>No</entry>
+						<entry>60 seconds</entry>
+					</row>
+
+					<row>
+						<entry>sessionTransacted</entry>
+						<entry>boolean</entry>
+						<entry>Whether the sessions are transacted</entry>
+						<entry>No</entry>
+						<entry>true</entry>
+					</row>
+
+					<row>
+						<entry>useDLQ</entry>
+						<entry>boolean</entry>
+						<entry>Whether to use a DLQ handler</entry>
+						<entry>No</entry>
+						<entry>true</entry>
+					</row>
+
+					<row>
+						<entry>dLQJNDIName</entry>
+						<entry>java.lang.String</entry>
+						<entry>The JNDI name of the DLQ</entry>
+						<entry>No</entry>
+						<entry>queue/DLQ</entry>
+					</row>
+
+					<row>
+						<entry>dLQHandler</entry>
+						<entry>java.lang.String</entry>
+						<entry>The org.jboss.resource.adapter.jms.inflow.DLQHandler implementation class name</entry>
+						<entry>No</entry>
+						<entry>org.jboss.resource.adapter.jms.inflow.dlq.GenericDLQHandler</entry>
+					</row>
+
+					<row>
+						<entry>dLQUser</entry>
+						<entry>java.lang.String</entry>
+						<entry>The user id used to make the dlq connection to the jms server</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>dLQPassword</entry>
+						<entry>java.lang.String</entry>
+						<entry>The password of the dLQUser</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>dLQClientID</entry>
+						<entry>java.lang.String</entry>
+						<entry>The client id of the dlq connection</entry>
+						<entry>No</entry>
+						<entry></entry>
+					</row>
+
+					<row>
+						<entry>dLQMaxResent</entry>
+						<entry>int</entry>
+						<entry>The maximum number of times a message is redelivered before it is sent to the DLQ</entry>
+						<entry>No</entry>
+						<entry>5</entry>
+					</row>
+
+					<row>
+						<entry>redeliverUnspecified</entry>
+						<entry>boolean</entry>
+						<entry>Whether to attempt to redeliver a message in an unspecified transaction context</entry>
+						<entry>No</entry>
+						<entry>true</entry>
+					</row>
+
+					<row>
+						<entry>transactionTimeout</entry>
+						<entry>int</entry>
+						<entry>Time in seconds for the transaction timeout</entry>
+						<entry>No</entry>
+						<entry>Default is the timeout set for the resource manager</entry>
+					</row>
+                    
+                    <row>
+                        <entry>DeliveryActive</entry>
+                        <entry>boolean</entry>
+                        <entry>Whether the MDB should make the subscription at initial deployment or wait for start() or stopDelivery()
+                        on the corresponding MBean. You can set this to false if you want to prevent messages from being delivered
+                        to the MDB (which is still starting) during server startup</entry>
+                        <entry>No</entry>
+                        <entry>true</entry>
+                    </row>
+                    
+
+				</tbody>
+			</tgroup>
+		</informaltable>
+	</para>
+
+	<sect5>
+		The Destination :
+
+		<para>
+			The <literal>queue-example-service.xml</literal> file defines the queues for this tutorial.
+		</para>
+	</sect5>
+
+	<sect5>
+		Configuring Default MDB Properties :
+		<para>
+			You can configure MDBs to have default properties using the <literal>@org.jboss.ejb3.annotation.DefaultActivationSpecs</literal>
+			annotations. Take a look at <literal>custom-ejb3-interceptors-aop.xml</literal>. Here we define a custom container
+			configuration domain, <literal>"Custom Message Driven Bean"</literal>, that adds a <literal>@DefaultActivationSpecs</literal>
+			annotation and <literal>destinationType</literal> and <literal>destination</literal> properties to each MDB using this domain.
+			Now take a look at <literal>org.jboss.tutorial.mdb.bean.DefaultedExampleMDB</literal>. The MDB is configured to use the
+			<literal>"Custom Message Driven Bean"</literal> container configuration domain via the <literal>@AspectDomain</literal> annotation.
+			Note there are no properties defined in the <literal>@MessageDriven</literal> annotation (they are all from the defaults).
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "mdb" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Message sent successfully to remote queue queue/tutorial/example
+     [java] Message sent successfully to remote queue queue/tutorial/defaultedexample
+
+
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+			On the server console, you will notice the following logs:
+			<programlisting>
+				<![CDATA[
+15:37:57,148 INFO  [STDOUT] ----------------
+15:37:57,148 INFO  [STDOUT] Received defaulted message
+15:37:57,148 INFO  [STDOUT] ----------------
+15:37:57,210 INFO  [STDOUT] ----------------
+15:37:57,210 INFO  [STDOUT] Received message
+15:37:57,210 INFO  [STDOUT] ----------------
+
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+</chapter>

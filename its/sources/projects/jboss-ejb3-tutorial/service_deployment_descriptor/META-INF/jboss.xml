@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://www.jboss.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <service>
+	     <ejb-name>ServiceOne</ejb-name>
+         <ejb-class>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOne</ejb-class>
+         <business-local>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneLocal</business-local>
+         <business-remote>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneRemote</business-remote>
+         <object-name>tutorial:service=serviceOne</object-name>  
+         <management>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceOneManagement</management>
+         <jndi-name>serviceOne/remote</jndi-name>
+         <local-jndi-name>serviceOne/local</local-jndi-name>
+      </service>
+      <service>
+		 <ejb-name>ServiceTwo</ejb-name>
+         <ejb-class>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceTwo</ejb-class>
+         <object-name>tutorial:service=serviceTwo</object-name> 
+         <management>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceTwoManagement</management>
+      </service>
+      <service>
+		 <ejb-name>ServiceThree</ejb-name>
+         <ejb-class>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceThree</ejb-class>
+         <object-name>tutorial:service=serviceThree</object-name> 
+         <management>org.jboss.tutorial.service_deployment_descriptor.bean.ServiceThreeManagement</management>
+      </service>
+   </enterprise-beans>
+</jboss>

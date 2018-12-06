@@ -1,0 +1,390 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<properties>
+		<!--  Comma delimited files which need to be deployed. The order in which the files will be deployed
+		will be the same as they appear in this property value. Each tutorial can override this value. The default
+		deployable is the jar file that the tutorial generates. -->
+		<jboss.ejb3.tutorial.deployables>${pom.build.directory}/${pom.artifactId}.${pom.packaging}</jboss.ejb3.tutorial.deployables>
+
+		<!--  A space-delimited list of command line arguments to be passed to the ${ejb3.tutorial.client}
+			Individual tutorial can provide their own value for this property. By default its empty.
+			Note that, since this is a space-delimited list, we won't support (as of now) argument value having a space
+			(We don't have a use-case to support this, right now, so let's keep this simple)
+		  -->
+		<jboss.ejb3.tutorial.client.args />
+
+		<!--  A space-delimited list of JVM arguments to be passed to the ${ejb3.tutorial.client}
+			Individual tutorial can provide their own value for this property. By default its empty.
+			Note that, since this is a space-delimited list, we won't support (as of now) argument value having a space
+			(We don't have a use-case to support this, right now, so let's keep this simple)
+		  -->
+		<jboss.ejb3.tutorial.client.jvmargs />
+
+	  	<!--  Versions -->
+	    <version.maven-jboss-as-control-plugin>0.1.1</version.maven-jboss-as-control-plugin>
+
+  	</properties>
+
+  <!-- Parent - The jboss-ejb3-tutorial-build will act as a parent
+
+   -->
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-build</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../build</relativePath>
+  </parent>
+
+
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-tutorial-common</artifactId>
+  <version>1.1.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBoss EJB3 Tutorial Common Parent POM</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Common Parent POM for JBoss EJB3 Tutorials
+  </description>
+
+
+
+    <profiles>
+        <profile>
+            <id>RunAll</id>
+            <build>
+                <plugins>
+                <!--
+	                Maven (2.0.9) has a limitation which does not allow the same plugin to appear twice
+	                for the same phase. As a result we cannot deploy (using JBossAS Maven plugin),
+	                run the client(using the ant-run plugin) and undeploy (using JBossAS Maven plugin) as part
+	                of the same "install" phase. More details here
+	                http://www.nabble.com/Plugin-execution-order-incorrect-in-Maven-2.0.9-when-multiple-plugins-are-associated-with-the-same-phase-td21113516.html#a21113516
+
+
+	                And since we do not have a "pre-install" (where we could have deployed to JBossAS) and "post-install"
+	                (where we could have undeployed), let's rely on the following phases to deploy, run the client and
+	                finally undeploy:
+
+	                1) The tutorial will be deployed using the JBossAS plugin during the "pre-integration-test" phase (which is before the
+	                "integration-test" phase)
+	                2) The client will be run using the ant plugin during the "integration-test" phase
+	                3) The tutorial will be undeployed during the "post-integration-test" phase
+
+
+
+                -->
+
+                <!--  JBossAS Maven plugin for startup/shutdown/deploy/undeploy
+                        and other AS control -->
+                    <plugin>
+                        <groupId>org.jboss.maven.plugins.jbossas</groupId>
+                        <artifactId>maven-jboss-as-control-plugin</artifactId>
+                        <version>${version.maven-jboss-as-control-plugin}</version>
+
+                        <!-- Executions -->
+                        <!--
+                            Deploy the tutorial
+                        -->
+
+                        <executions>
+                            <execution>
+                                <id>deploy-tutorial</id>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+	                                <serverConfigName>${jboss.server.config}</serverConfigName>
+	                                <files>
+	                                    ${jboss.ejb3.tutorial.deployables}
+	                                </files>
+	                                <jboss.test.run>true</jboss.test.run>
+                                </configuration>
+                            </execution>
+                        </executions>
+
+                    </plugin>
+
+                    <!--  Ant plugin to run Ant tasks -->
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <!--  We need this 1.2 version since earlier versions do not support the
+                            "unless" property of the "tasks". We selectively run the ant tasks and allow
+                            individual tutorials to decide, if they want to skip running the client.
+                            See comments below for more details
+                        -->
+                        <version>1.2</version>
+                        <!--  Run the tutorial (client) -->
+                        <executions>
+                            <execution>
+                                <id>run-tutorial</id>
+                                <phase>integration-test</phase>
+                                <configuration>
+	                                <!--
+	                                    Individual tutorials can decide if they want to skip running the (standalone)
+	                                    client. They can set the jboss.ejb3.tutorial.client.skip to true. This allows tutorials
+	                                    like the ones which do not have a standalone client to still be able to deploy (and later
+	                                    undeploy) into the server.
+	                                    The deploy/undeploy is mandatory to ensure that the tutorials aren't broken, but the standalone client
+	                                    is NOT mandatory
+	                                -->
+	                                <tasks unless="jboss.ejb3.tutorial.client.skip">
+	                                    <!--  The classpath for the tutorial client -->
+	                                    <path id="ejb3.tutorial.classpath">
+	                                        <pathelement location="${build.outputDirectory}" />
+	                                    </path>
+	                                    <!--  Individual tutorials are expected to set the ejb3.tutorial.client property -->
+	                                    <echo message="*********************************** JBoss EJB3 Tutorials ***********************************" />
+	                                    <echo message="**** Running ${ejb3.tutorial.client} ${jboss.ejb3.tutorial.client.args}" />
+	                                    <java classname="${ejb3.tutorial.client}" fork="yes" dir="." failonerror="true">
+	                                        <classpath refid="ejb3.tutorial.classpath" />
+	                                        <classpath refid="maven.runtime.classpath" />
+	                                        <!-- Command line argument(s) -->
+	                                        <arg line="${jboss.ejb3.tutorial.client.args}" />
+	                                        <jvmarg line="${jboss.ejb3.tutorial.client.jvmargs}" />
+	                                    </java>
+	                                    <echo message="********************************************************************************************" />
+	                                </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!--  Undeploy the tutorial after the client is run -->
+                    <plugin>
+                        <groupId>org.jboss.maven.plugins.jbossas</groupId>
+                        <artifactId>maven-jboss-as-control-plugin</artifactId>
+                        <version>${version.maven-jboss-as-control-plugin}</version>
+
+                        <executions>
+                            <execution>
+	                            <id>undeploy-tutorial</id>
+	                            <goals>
+	                                <goal>undeploy</goal>
+	                            </goals>
+	                            <phase>post-integration-test</phase>
+	                            <configuration>
+	                                <serverConfigName>${jboss.server.config}</serverConfigName>
+	                                <files>
+	                                    ${jboss.ejb3.tutorial.deployables}
+	                                </files>
+	                                <jboss.test.run>true</jboss.test.run>
+	                            </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>RunSingleTutorial</id>
+            <build>
+            <plugins>
+                <!--
+	                Maven (2.0.9) has a limitation which does not allow the same plugin to appear twice
+	                for the same phase. As a result we cannot deploy (using JBossAS Maven plugin),
+	                run the client(using the ant-run plugin) and undeploy (using JBossAS Maven plugin) as part
+	                of the same "install" phase. More details here
+	                http://www.nabble.com/Plugin-execution-order-incorrect-in-Maven-2.0.9-when-multiple-plugins-are-associated-with-the-same-phase-td21113516.html#a21113516
+
+
+	                And since we do not have a "pre-install" (where we could have deployed to JBossAS) and "post-install"
+	                (where we could have undeployed), let's rely on the following phases to deploy, run the client and
+	                finally undeploy:
+
+	                1) The tutorial will be deployed using the JBossAS plugin during the "pre-integration-test" phase (which is before the
+	                "integration-test" phase)
+	                2) The client will be run using the ant plugin during the "integration-test" phase
+	                3) The tutorial will be undeployed during the "post-integration-test" phase
+                  -->
+
+                    <!--  JBossAS Maven plugin for startup/shutdown/deploy/undeploy
+                        and other AS control -->
+                <plugin>
+                    <groupId>org.jboss.maven.plugins.jbossas</groupId>
+                    <artifactId>maven-jboss-as-control-plugin</artifactId>
+                    <version>${version.maven-jboss-as-control-plugin}</version>
+
+                    <!-- Executions -->
+                    <!--
+                        Start the server
+                    -->
+
+                    <executions>
+                        <execution>
+                            <id>start-jbossas</id>
+                            <goals>
+                                <goal>start</goal>
+                            </goals>
+                            <phase>pre-integration-test</phase>
+                            <configuration>
+                                <serverConfigName>${jboss.server.config}</serverConfigName>
+                                <jvmArgs>
+                                    <jvmArg>-Xms128m</jvmArg>
+                                    <jvmArg>-Xmx512m</jvmArg>
+                                    <jvmArg>-XX:MaxPermSize=256m</jvmArg>
+                                    <jvmArg>-Dorg.jboss.resolver.warning=true</jvmArg>
+                                    <jvmArg>-Dsun.rmi.dgc.client.gcInterval=3600000</jvmArg>
+                                    <jvmArg>-Dsun.rmi.dgc.server.gcInterval=3600000</jvmArg>
+				    <!-- Temporary, till AS boots without this property JBAS-6744 -->
+				    <jvmArg>-Dxb.builder.useUnorderedSequence=true</jvmArg>
+
+                                </jvmArgs>
+                                <jboss.test.run>true</jboss.test.run>
+                            </configuration>
+                        </execution>
+                        <!--  Deploy the tutorial -->
+                        <execution>
+                            <id>deploy-tutorial</id>
+                            <goals>
+                                <goal>deploy</goal>
+                            </goals>
+                            <phase>pre-integration-test</phase>
+                            <configuration>
+                                <serverConfigName>${jboss.server.config}</serverConfigName>
+                                <files>
+                                    ${jboss.ejb3.tutorial.deployables}
+                                </files>
+                                <jboss.test.run>true</jboss.test.run>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--  Ant plugin to run Ant tasks -->
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <!--  We need this 1.2 version since earlier versions do not support the
+                    "unless" property of the "tasks". We selectively run the ant tasks and allow
+                    individual tutorials to decide, if they want to skip running the client.
+                    See comments below for more details
+                    -->
+                    <version>1.2</version>
+                    <!--  Run the tutorial (client) -->
+                    <executions>
+                        <execution>
+                            <id>run-tutorial</id>
+                            <phase>integration-test</phase>
+                            <configuration>
+                                <!--
+                                    Individual tutorials can decide if they want to skip running the (standalone)
+                                    client. They can set the jboss.ejb3.tutorial.client.skip to true. This allows tutorials
+                                    like the ones which do not have a standalone client to still be able to deploy (and later
+                                    undeploy) into the server.
+                                    The deploy/undeploy is mandatory to ensure that the tutorials aren't broken, but the standalone client
+                                    is NOT mandatory
+                                -->
+                                <tasks unless="jboss.ejb3.tutorial.client.skip">
+                                    <!--  The classpath for the tutorial client -->
+                                    <path id="ejb3.tutorial.classpath">
+                                        <pathelement location="${build.outputDirectory}" />
+                                    </path>
+                                    <!--  Individual tutorials are expected to set the ejb3.tutorial.client property -->
+                                    <echo message="*********************************** JBoss EJB3 Tutorials ***********************************" />
+                                    <echo message="**** Running ${ejb3.tutorial.client} ${jboss.ejb3.tutorial.client.args}" />
+                                    <java classname="${ejb3.tutorial.client}" fork="yes" dir="." failonerror="true">
+                                        <classpath refid="ejb3.tutorial.classpath" />
+                                        <classpath refid="maven.runtime.classpath" />
+                                        <!-- Command line argument(s) -->
+                                        <arg line="${jboss.ejb3.tutorial.client.args}" />
+                                        <jvmarg line="${jboss.ejb3.tutorial.client.jvmargs}" />
+                                    </java>
+                                    <echo message="********************************************************************************************" />
+                                </tasks>
+                            </configuration>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.jboss.maven.plugins.jbossas</groupId>
+                    <artifactId>maven-jboss-as-control-plugin</artifactId>
+                    <version>${version.maven-jboss-as-control-plugin}</version>
+                    <executions>
+                            <!-- Undeploy the tutorial -->
+                            <execution>
+                                <id>undeploy-tutorial</id>
+                                <goals>
+                                    <goal>undeploy</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                                <configuration>
+                                    <serverConfigName>${jboss.server.config}</serverConfigName>
+                                    <files>
+                                       ${jboss.ejb3.tutorial.deployables}
+                                    </files>
+                                    <jboss.test.run>true</jboss.test.run>
+                                </configuration>
+                            </execution>
+                            <!-- Stop the server -->
+                            <execution>
+                                <id>stop-jbossas</id>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                                <configuration>
+                                    <serverConfigName>${jboss.server.config}</serverConfigName>
+                                    <jboss.test.run>true</jboss.test.run>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+	<build>
+  		<!--  The project is current not in the Maven standard structure. So
+  		let's tell Maven where the source resides for each module -->
+   		<sourceDirectory>./src</sourceDirectory>
+
+  		<!--  Include the jndi.properties and the log4j.xml in the classpath -->
+   		<resources>
+   			<!-- Include files from the root of the tutorial into the
+   			root of output artifact jar -->
+   			<resource>
+   				<!--  Relative to each child tutorial -->
+   				<directory>./</directory>
+   				<includes>
+   					<include>*.properties</include>
+   					<include>log4j.xml</include>
+   				</includes>
+   			</resource>
+   			<!--  Include xml files from the META-INF of the tutorial into the
+   			META-INF folder of output artifact jar
+   			 -->
+   			<resource>
+
+   				<directory>./META-INF</directory>
+   				<includes>
+   					<include>*.xml</include>
+   				</includes>
+   				<targetPath>META-INF</targetPath>
+   			</resource>
+
+   		</resources>
+  	</build>
+
+   <!--  Common dependencies -->
+
+	<dependencies>
+      <dependency>
+            <groupId>org.jboss.jbossas</groupId>
+            <artifactId>jboss-as-client</artifactId>
+            <type>pom</type>
+        </dependency>
+	</dependencies>
+</project>

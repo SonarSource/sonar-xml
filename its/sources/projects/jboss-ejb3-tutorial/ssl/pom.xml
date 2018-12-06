@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-common</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../common/</relativePath>
+  </parent>
+
+  <properties>
+  	<jboss.ejb3.tutorial.client.jvmargs>-Djavax.net.ssl.trustStore=${basedir}/localhost.truststore -Djavax.net.ssl.trustStorePassword=opensource</jboss.ejb3.tutorial.client.jvmargs>
+    <ejb3.tutorial.client>org.jboss.tutorial.ssl.client.Client</ejb3.tutorial.client>
+  </properties>
+
+
+  <artifactId>jboss-ejb3-tutorial-ssl</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Access EJB3 through SSL socket</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Tutorial illustrating access to EJB3 through SSL socket
+  </description>
+  
+	<build>
+		<!-- Configuring resources in a child pom, overrides the 
+		one in the parent pom, so we will have repeat all the
+		parent configuration and then this tutorial specific resource -->
+		<resources>
+   			<!-- Include files from the root of the tutorial into the
+   			root of output artifact jar -->
+   			<resource>
+   				<directory>./</directory>
+   				<includes>
+   					<include>*.properties</include>
+   					<include>localhost.keystore</include>
+   				</includes>
+   			</resource>
+   			<!--  Include xml files from the META-INF of the tutorial into the
+   			META-INF folder of output artifact jar
+   			 -->
+   			<resource>
+   				
+   				<directory>./META-INF</directory>
+   				<includes>
+   					<include>*.xml</include>
+   				</includes>
+   				<targetPath>META-INF</targetPath>
+   			</resource>
+   			
+   		</resources>
+  	</build>
+</project>

@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Caching_EJB3_Entities">
+	<title>Caching EJB3 Entities</title>
+	<para>
+		This tutorial shows you how to cache your entities using EJB 3.0 for JBoss
+
+	</para>
+	<sect5>
+		Caching primer :
+
+		<para>
+			To avoid roundtrips to the database, you can use a cache for your entities.
+			JBoss EJB3 uses Hibernate as the JPA implementation which has support for a second-level cache.
+			The Hibernate setup used for our JBoss EJB 3.0 implementation uses JBossCache as its underlying cache
+			implementation. With caching enabled:
+
+			<itemizedlist>
+				<listitem>
+					If you persist an entity (that has caching enabled) to the database via the entity manager
+					the entity will also be added to the cache. Subsequent requests to fetch the entity, with
+					this id, will be retrieved from cache and thus will save a database trip.
+				</listitem>
+
+				<listitem>
+					If you update an entity (that has caching enabled) and save the changes to the database via
+					the entity manager the entity will also be updated in the cache.
+				</listitem>
+
+				<listitem>
+					If you remove an entity (that has caching enabled) from the database via the entity manager
+					the entity will also be removed from the cache.
+				</listitem>
+
+			</itemizedlist>
+			JBossCache allows you to specify timeouts to cached entities. Entities not accessed within a certain
+			amount of time are dropped from the cache in order to save memory.
+		</para>
+
+		<para>
+			Furthermore, JBossCache supports clustering. If running within a cluster, and the cache is updated,
+			changes to the entries in one node will be replicated to the corresponding entries in the other nodes
+			in the cluster.
+		</para>
+	</sect5>
+
+	<sect5>
+		Enabling caching and choosing cache :
+		<para>
+			Take a look at <literal>META-INF/persistence.xml</literal> which sets up the caching for this deployment:
+			<programlisting>
+				<![CDATA[
+<property name="hibernate.cache.use_second_level_cache" value="true"/>
+<property name="hibernate.cache.use_query_cache" value="true"/>
+<property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.jbc2.JndiMultiplexedJBossCacheRegionFactory"/>
+<property name="hibernate.cache.region.jbc2.cachefactory" value="java:CacheManager"/>
+<property name="hibernate.cache.region.jbc2.cfg.entity" value="mvcc-entity"/>
+<property name="hibernate.cache.region.jbc2.cfg.query" value="local-query"/>
+<property name="hibernate.show_sql" value="true"/>
+				]]>
+			</programlisting>
+			<note>
+				These properties in the persistence.xml enabling caching and also configure JBossCache as the Cache manager.
+				For more details about JBossCache and its configurations, have a look at the JBossCache project documentation.
+			</note>
+
+			<note>
+				We have intentionally set the <literal>hibernate.show_sql</literal> property in the persistence.xml to true.
+				When this property is set, Hibernate will print to STDOUT the sql queries that are fired to the database, when
+				the entity is being operated upon. This will, later on, help us in verifying whether the entity is being picked up
+				from cache or is being loaded from database through a SQL query.
+			</note>
+		</para>
+	</sect5>
+
+	<sect5>
+		Entities:
+
+		<para>
+			You define your entities <literal>org.jboss.tutorial.cachedentity.bean.Customer</literal> and <literal>org.jboss.tutorial.cachedentity.bean.Contact</literal> the normal way.
+			The default behaviour is to not cache anything, even with the settings shown above, in the persistence.xml.
+			A very simplified rule of thumb is that you will typically want to do caching for objects that rarely change,
+			and which are frequently read. We also annotate the classes with the <literal>@Cache</literal> annotation to
+			indicate that the entities should be cached.
+			<programlisting>
+				<![CDATA[
+@Entity
+@Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+public class Customer implements java.io.Serializable
+{
+...
+				]]>
+			</programlisting>
+
+			<programlisting>
+				<![CDATA[
+@Entity
+@Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+public class Contact implements Serializable
+{
+...
+
+				]]>
+			</programlisting>
+			This defines that the Customer and the Contact entities need to be cached. Any attempt to look up
+			<literal>Customer</literal> or <literal>Contact</literal> by their primary key, will first attempt
+			to read the entry from the cache. If it cannot be found it will try and load it up from the database.
+		</para>
+
+		<para>
+			You can also cache relationship collections. Any attempt to access the <literal>contacts</literal> collection of
+			<literal>Customer</literal> will attempt to load the data from the cache before hitting the database:
+			<programlisting>
+				<![CDATA[
+
+@Entity
+@Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+public class Customer implements java.io.Serializable
+{
+...
+
+   @Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+   @OneToMany(mappedBy="customer", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+   public Set<Contact> getContacts()
+   {
+      return contacts;
+   }
+...
+}
+				]]>
+
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Client :
+		<para>
+			Open <literal>org.jboss.tutorial.cachedentity.client.CachedEntityRun</literal>. It takes two arguments, they are the
+			server:jndiport of the two nodes to use. If you look at the 'run' target of <literal>META-INF/build.xml</literal>
+			you will see that they both default to localhost:1099, so in this case node1 and node2 will be the same,
+			i.e. no clustering takes place.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "cachedentity" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure the "all" server configuration of JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Saving customer to node1 = localhost:1099
+     [java] Looking for customer on node2 = localhost:1099 (should be available in cache)
+     [java] Found customer on node2 (cache). Customer details follow:
+     [java] Customer: id=1; name=JBoss
+     [java]     Contact: id=2; name=Kabir
+     [java]     Contact: id=1; name=Bill
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+		Maven Users: Make sure the AS is not running.
+	        </sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+
+			</programlisting>
+
+		</para>
+	</sect5>
+	<para>
+		On the server you will notice these logs:
+		<programlisting>
+			<![CDATA[
+02:14:04,528 INFO  [STDOUT] Hibernate: insert into Customer (id, name) values (null, ?)
+02:14:04,529 INFO  [STDOUT] Hibernate: call identity()
+02:14:04,542 INFO  [STDOUT] Hibernate: insert into Contact (id, CUST_ID, name, tlf) values (null, ?, ?, ?)
+02:14:04,543 INFO  [STDOUT] Hibernate: call identity()
+02:14:04,544 INFO  [STDOUT] Hibernate: insert into Contact (id, CUST_ID, name, tlf) values (null, ?, ?, ?)
+02:14:04,545 INFO  [STDOUT] Hibernate: call identity()
+02:14:04,545 INFO  [EntityTestBean] Created customer named JBoss with 2 contacts
+02:14:04,634 INFO  [EntityTestBean] Find customer with id = 1
+02:14:04,645 INFO  [STDOUT] Hibernate: select customer0_.id as id0_1_, customer0_.name as name0_1_, contacts1_.CUST_ID as CUST4_3_, contacts1_.id as id3_, contacts1_.id as id1_0_, contacts1_.CUST_ID as CUST4_1_0_, contacts1_.name as name1_0_, contacts1_.tlf as tlf1_0_ from Customer customer0_ left outer join Contact contacts1_ on customer0_.id=contacts1_.CUST_ID where customer0_.id=?
+02:14:04,682 INFO  [EntityTestBean] Customer with id = 1 found
+02:14:04,756 INFO  [EntityTestBean] Find customer with id = 1
+02:14:04,801 INFO  [EntityTestBean] Customer with id = 1 found
+
+			]]>
+
+		</programlisting>
+		As you can see, the first time the customer with id = 1 was being requested through the entity manager, a database query was fired to
+		fetch it, since it was not available in cache. The Customer object was then loaded from the database and stored in the cache. As can be
+		seen in the next request to fetch the customer with the same id. This request to the entity manager, pulls up the entity from the cache
+		instead of firing a database query.
+	</para>
+
+</chapter>

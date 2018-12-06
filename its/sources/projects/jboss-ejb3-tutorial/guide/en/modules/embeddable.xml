@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Embeddable_Objects_in_EJB3_Entities">
+	<title>Introduction to embedding objects in EJB3 entities</title>
+	<para>
+		The EJB3 specification allows you to embed plain Java objects within your entities
+		and map the properties of this embedded value object to columns within the entity's
+		table.
+	</para>
+
+	<para>
+	The <literal>org.jboss.tutorial.embeddable.bean.Customer</literal> entity encapsulates the name of the customer
+	in the <literal>org.jboss.tutorial.embeddable.bean.Name</literal> value object. The
+	<literal>org.jboss.tutorial.embeddable.bean.Name</literal> value object must be tagged with the <literal>@Embeddable</literal>
+	annotation.
+
+	<programlisting>
+	<![CDATA[
+@Embeddable
+public class Name implements java.io.Serializable
+	]]>
+	</programlisting>
+
+	The properties of Name must then be mapped to columns within Customer's table.
+
+	<programlisting>
+	<![CDATA[
+@Embedded
+@AttributeOverrides({
+   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
+   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
+})
+public Name getName()
+{
+   return name;
+}
+	]]>
+	</programlisting>
+	</para>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "embeddable" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Create Bill Burke and Monica Smith
+     [java] Bill and Monica get married
+     [java] Get all the Burkes
+     [java] There are now 2 Burkes
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+	<sect5>
+View the tables and rows:
+	</sect5>
+	<para>
+		You can view the tables created by JBoss by going to the
+		<ulink url="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&amp;name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic Service</ulink>,
+		scrolling down to the <literal>startDatabaseManager</literal> button and clicking it.
+		A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
+
+	</para>
+
+</chapter>

@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Asynchronous_Invocations">
+<title>Asynchronous proxy for EJBs - JBoss specific extension to EJB3</title>
+      <para>
+         A JBoss extension to EJB 3.0 is that from the remote or local interface of a stateful session bean,
+         stateless session bean or service bean you can obtain an asynchronous proxy. Methods called
+         on the asynchronous proxy will be executed asynchronously, and the results can be obtained later on.
+
+      <important>
+      	<para>
+      		This JBoss specific feature of obtaining a asynchronous proxy to invoke any method on the bean asynchronously
+      		is NOT the same as the Asynchronous Methods feature in EJB 3.1. In EJB 3.1, you can mark your bean business methods
+      		to be asynchronous by using the @Asynchronous annotation.
+      	</para>
+      </important>
+      </para>
+
+      <sect5>
+      	Example :
+      	<para>
+      		Take a look at <literal>org.jboss.tutorial.asynch.bean.Echo</literal> and <literal>org.jboss.tutorial.asynch.bean.EchoBean</literal>.
+      		They define a normal stateless session bean with a remote interface, nothing special. Now take a look at
+      		<literal>org.jboss.tutorial.asynch.client.Client</literal>. It shows an example of asynchronous calls on a remote interface.
+      		We will walk through what it does here. The following lines just obtain the remote interface of the bean and call a method
+      		following the standard synchronous usage pattern:
+      		<programlisting>
+      			<![CDATA[
+InitialContext ctx = new InitialContext();
+Echo echo = (Echo) ctx.lookup("EchoBean/remote");
+System.out.println("-------- Synchronous call");
+String ret = echo.echo("normal call");
+System.out.println(ret);
+
+      			]]>
+
+      		</programlisting>
+
+      		Next we obtain the asynchronous proxy and make a call via that. The method will be invoked asynchronously :
+      		<programlisting>
+      			<![CDATA[
+Echo asynchEcho = org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils.mixinAsync(echo);
+System.out.println("-------- Asynchronous call");
+ret = asynchEcho.echo("asynchronous call");
+System.out.println("Direct return of async invocation is: " + ret);
+
+      			]]>
+      		</programlisting>
+      		We use the <literal>org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils</literal>'s <literal>mixinAsync</literal> method to
+      		create the asynchronous proxy. All methods invoked on this proxy are invoked asynchronously, and the returned value will
+      		always be null (or 0 in the case of numeric primitive types). In this example, the echo() method called has low overhead,
+      		but imagine if this was a method that took a long time. In this case it would be good to be able to go ahead with some other tasks.
+      	</para>
+      	<para>
+      		In Client.java, we make another call on the normal remote interface while "waiting" for the asynchronous call:
+
+      		<programlisting>
+      			<![CDATA[
+System.out.println("-------- Synchronous call");
+ret = echo.echo("normal call 2");
+System.out.println(ret);
+      			]]>
+      		</programlisting>
+
+      		Now that we have finished everything we want to do, while waiting for the asynchronus call to complete, we invoke the
+      		<literal>getFutureResult(asynchProxy)</literal> API on the <literal>org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils</literal>.
+      		This will return us an instance of <literal>java.util.concurrent.Future</literal>. To obtain the final result of the asynchronous
+      		call, we invoke the <literal>get()</literal> API on the returned <literal>java.util.concurrent.Future</literal> object.
+
+      		<programlisting>
+      			<![CDATA[
+System.out.println("-------- Result of Asynchronous call");
+Future<String> future = (Future<String>) AsyncUtils.getFutureResult(asynchEcho);
+
+// blocking call
+ret = (String) future.get();
+System.out.println(ret);
+
+      			]]>
+      		</programlisting>
+      		<note>
+      			<para>
+      				The java.util.concurrent.Future.get() API is blocking and if the asynchronous operation is not yet done, it will wait
+      				for the operation to complete.
+      			</para>
+      		</note>
+
+      	</para>
+      </sect5>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "asynch" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] -------- Synchronous call
+     [java] normal call
+     [java] -------- Asynchronous call
+     [java] Direct return of async invocation is: null
+     [java] -------- Synchronous call
+     [java] normal call 2
+     [java] -------- Result of Asynchronous call
+     [java] asynchronous call
+
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+</chapter>

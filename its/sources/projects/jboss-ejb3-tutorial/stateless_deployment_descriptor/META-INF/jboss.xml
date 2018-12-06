@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+ 
+<jboss xmlns:xs="http://www.jboss.org/j2ee/schema"
+       xs:schemaLocation="http://www.jboss.org/j2ee/schema jboss_5_0.xsd"
+             version="5.0"> 
+   <enterprise-beans>
+      <session>
+         <ejb-name>Calculator</ejb-name>
+         <jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</jndi-name>
+         <local-jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</local-jndi-name>
+      </session>
+   </enterprise-beans>
+</jboss>
