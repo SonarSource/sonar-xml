@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+
+<!-- ======================================================================= -->
+<!-- JBoss build file                                                       -->
+<!-- ======================================================================= -->
+
+<project name="JBoss" default="ejbjar" basedir=".">
+
+   <property environment="env"/>
+   <property name="src.dir" value="${basedir}/src"/>
+   <property name="jboss.home" value="${env.JBOSS_HOME}"/>
+   <property name="jboss.server.config" value="default"/>
+   <property name="build.dir" value="${basedir}/build"/>
+   <property name="build.classes.dir" value="${build.dir}/classes"/>
+   <property name="build.artifact" value="jboss-ejb3-tutorial-hibernate.jar"/>
+
+   <!-- Build classpath -->
+   <path id="classpath">
+      <!-- So that we can get jndi.properties for InitialContext -->
+      <pathelement location="${basedir}"/>
+   		<!-- Only the jbossall-client.jar should ideally be sufficient -->
+      <fileset dir="${jboss.home}/client">
+         <include name="**/jbossall-client.jar"/>
+      </fileset>
+	<!-- Hibernate core -->
+		<fileset dir="${jboss.home}/common/lib">
+	   			<include name="hibernate-core.jar"/>
+	   	</fileset>
+	<!-- Hibernate entity manager -->
+	<fileset dir="${jboss.home}/common/lib">
+   			<include name="hibernate-entitymanager.jar"/>
+   	</fileset>
+	<!-- org.jboss.ejb3.entity.* -->
+	<fileset dir="${jboss.home}/common/lib">
+   			<include name="jboss-ejb3-core.jar"/>
+   	</fileset>
+
+	<!-- javax.persistence.* -->
+		<fileset dir="${jboss.home}/common/lib">
+	   			<include name="ejb3-persistence.jar"/>
+	   	</fileset>
+
+      <pathelement location="${build.classes.dir}"/>
+   </path>
+
+   <property name="build.classpath" refid="classpath"/>
+
+   <!-- =================================================================== -->
+   <!-- Prepares the build directory                                        -->
+   <!-- =================================================================== -->
+   <target name="prepare">
+      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${build.classes.dir}"/>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Compiles the source code                                            -->
+   <!-- =================================================================== -->
+   <target name="compile" depends="prepare">
+      <javac srcdir="${src.dir}"
+         destdir="${build.classes.dir}"
+         debug="on"
+         deprecation="on"
+         optimize="off"
+         includes="**">
+         <classpath refid="classpath"/>
+      </javac>
+   </target>
+
+   <target name="ejbjar" depends="compile">
+      <jar jarfile="build/${build.artifact}">
+         <fileset dir="${build.classes.dir}">
+            <include name="**/*.class"/>
+         </fileset>
+         <fileset dir=".">
+            <include name="META-INF/persistence.xml"/>
+         </fileset>
+      	<fileset dir="${basedir}">
+      	     <include name="*.hbm.xml"/>
+      	</fileset>
+      </jar>
+      <copy file="build/${build.artifact}" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
+   </target>
+
+   <target name="run" depends="ejbjar">
+      <java classname="org.jboss.tutorial.hibernate.client.Client" fork="yes" dir=".">
+         <classpath refid="classpath"/>
+      </java>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Cleans up generated stuff                                           -->
+   <!-- =================================================================== -->
+   <target name="clean.db">
+      <delete dir="${jboss.home}/server/${jboss.server.config}/data/hypersonic"/>
+   </target>
+
+   <target name="clean">
+      <delete dir="${build.dir}"/>
+      <delete file="${jboss.home}/server/${jboss.server.config}/deploy/${build.artifact}"/>
+   </target>
+
+
+</project>
+

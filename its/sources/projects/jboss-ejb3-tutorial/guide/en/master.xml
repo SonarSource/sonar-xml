@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3CR3//EN" "../../../../docbook-support/support/docbook-dtd/docbookx.dtd" [
+<!ENTITY installing          SYSTEM "modules/installing.xml">
+<!ENTITY stateless          SYSTEM "modules/stateless.xml">
+<!ENTITY stateful          SYSTEM "modules/stateful.xml">
+<!ENTITY blob          SYSTEM "modules/blob.xml">
+<!ENTITY callbacks          SYSTEM "modules/callbacks.xml">
+<!ENTITY composite          SYSTEM "modules/composite.xml">
+<!ENTITY ejb21_client_adaptors          SYSTEM "modules/ejb21_client_adaptors.xml">
+<!ENTITY embeddable          SYSTEM "modules/embeddable.xml">
+<!ENTITY entity          SYSTEM "modules/entity.xml">
+<!ENTITY extended_pc          SYSTEM "modules/extended_pc.xml">
+<!ENTITY injection          SYSTEM "modules/injection.xml">
+<!ENTITY interceptor          SYSTEM "modules/interceptor.xml">
+<!ENTITY jndibinding          SYSTEM "modules/jndibinding.xml">
+<!ENTITY mdb          SYSTEM "modules/mdb.xml">
+<!ENTITY mdb_deployment_descriptor          SYSTEM "modules/mdb_deployment_descriptor.xml">
+<!ENTITY merge          SYSTEM "modules/merge.xml">
+<!ENTITY relationships          SYSTEM "modules/relationships.xml">
+<!ENTITY secondary          SYSTEM "modules/secondary.xml">
+<!ENTITY security          SYSTEM "modules/security.xml">
+<!ENTITY singleinheritance          SYSTEM "modules/singleinheritance.xml">
+<!ENTITY stateful_deployment_descriptor          SYSTEM "modules/stateful_deployment_descriptor.xml">
+<!ENTITY stateless_deployment_descriptor          SYSTEM "modules/stateless_deployment_descriptor.xml">
+<!ENTITY joininheritance          SYSTEM "modules/joininheritance.xml">
+<!ENTITY resource_ref          SYSTEM "modules/resource_ref.xml">
+<!ENTITY timer          SYSTEM "modules/timer.xml">
+<!ENTITY dependency          SYSTEM "modules/dependency.xml">
+<!ENTITY jboss_deployment_descriptor          SYSTEM "modules/jboss_deployment_descriptor.xml">
+<!ENTITY cachedentity          SYSTEM "modules/cachedentity.xml">
+<!ENTITY enterprise_app_ejb_injection          SYSTEM "modules/enterprise_app_ejb_injection.xml">
+<!ENTITY reference21_30          SYSTEM "modules/reference21_30.xml">
+<!ENTITY service          SYSTEM "modules/service.xml">
+<!ENTITY service_deployment_descriptor          SYSTEM "modules/service_deployment_descriptor.xml">
+<!ENTITY jca_inflow_quartz          SYSTEM "modules/jca_inflow_quartz.xml">
+<!ENTITY tableperinheritance          SYSTEM "modules/tableperinheritance.xml">
+<!ENTITY hibernate          SYSTEM "modules/hibernate.xml">
+<!ENTITY asynch          SYSTEM "modules/asynch.xml">
+<!ENTITY ssl          SYSTEM "modules/ssl.xml">
+<!ENTITY partial_deployment_descriptor          SYSTEM "modules/partial_deployment_descriptor.xml">
+<!ENTITY consumer          SYSTEM "modules/consumer.xml">
+<!ENTITY todo          SYSTEM "modules/todo.xml">
+]>
+<book lang="en">
+  <bookinfo>
+    <title>JBoss EJB3 Tutorials</title>
+    <subtitle>A guide for using EJB3 on JBoss</subtitle>
+    <releaseinfo>1.0</releaseinfo>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Author_Group.xml"/>
+  </bookinfo>
+  <toc/>
+ <preface id="target" revision="1">
+    <title>Target Audience</title>
+    <para>This tutorial is meant for EJB3 application developers on JBoss Application Server. The tutorial walks you through the EJB 3.0 features and how they deploy to JBoss.  Please check the <xref linkend="Installation">install guide</xref> for system requirements.</para>
+  </preface>
+&installing;&stateless;&stateful;&blob;&cachedentity;&callbacks;&composite;&dependency;&ejb21_client_adaptors;&embeddable;&enterprise_app_ejb_injection;&entity;&extended_pc;&injection;&interceptor;&jboss_deployment_descriptor;&jca_inflow_quartz;&jndibinding;&joininheritance;&mdb;&mdb_deployment_descriptor;&merge;&reference21_30;&relationships;&resource_ref;&secondary;&security;&service;&service_deployment_descriptor;&singleinheritance;
+&stateful_deployment_descriptor;&stateless_deployment_descriptor;&tableperinheritance;&timer;
+&hibernate;&asynch;
+&partial_deployment_descriptor;
+&consumer;
+&todo;
+
+</book>

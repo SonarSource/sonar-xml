@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+           "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+   <class name="org.jboss.tutorial.hibernate.Customer"
+      table="Customer"
+      lazy="false">
+      <id name="id"
+         type="long"
+         access="property">
+         <generator class="native"/>
+      </id>
+      <property name="fname"
+         access="property"/>
+      <property name="lname"
+         access="property"/>
+   </class>
+</hibernate-mapping>

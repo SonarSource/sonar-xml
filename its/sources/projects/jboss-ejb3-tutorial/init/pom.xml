@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+
+
+
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <properties>
+
+    <!--  Versions -->
+    <version.maven-jboss-as-control-plugin>0.1.1</version.maven-jboss-as-control-plugin>
+  </properties>
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-build</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../build</relativePath>
+  </parent>
+
+
+
+
+
+  <artifactId>jboss-ejb3-tutorial-init</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>EJB3 Tutorial Init</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Initializes the environment required for running the EJB3 tutorials
+  </description>
+
+  <profiles>
+   <profile>
+    <id>RunAll</id>
+	<build>
+
+   		<plugins>
+			<!--  JBossAS Maven plugin for startup/shutdown
+			and other AS control -->
+		  	<plugin>
+          		<groupId>org.jboss.maven.plugins.jbossas</groupId>
+            		<artifactId>maven-jboss-as-control-plugin</artifactId>
+	            	<version>${version.maven-jboss-as-control-plugin}</version>
+
+            		<!-- Executions -->
+            		<!--
+                		Start the server
+              		-->
+
+               		 <executions>
+              		<execution>
+	                	<id>start-jbossas</id>
+	                	<goals>
+	                  		<goal>start</goal>
+	                	</goals>
+	                	<phase>install</phase>
+	                	<configuration>
+	                  		<serverConfigName>${jboss.server.config}</serverConfigName>
+	                  		<jvmArgs>
+	                  			<jvmArg>-Xms128m</jvmArg>
+			                  	<jvmArg>-Xmx512m</jvmArg>
+			                  	<jvmArg>-XX:MaxPermSize=256m</jvmArg>
+			                  	<jvmArg>-Dorg.jboss.resolver.warning=true</jvmArg>
+			                  	<jvmArg>-Dsun.rmi.dgc.client.gcInterval=3600000</jvmArg>
+			                  	<jvmArg>-Dsun.rmi.dgc.server.gcInterval=3600000</jvmArg>
+						<!-- Temporary, till AS boots without this property JBAS-6744 -->
+						<jvmArg>-Dxb.builder.useUnorderedSequence=true</jvmArg>
+					</jvmArgs>
+	                  		<jboss.test.run>true</jboss.test.run>
+	                	</configuration>
+              		</execution>
+
+			</executions>
+
+			</plugin>
+		</plugins>
+  </build>
+  </profile>
+  </profiles>
+</project>

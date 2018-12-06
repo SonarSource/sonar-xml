@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!ENTITY stateless          SYSTEM "stateless.xml">
+<chapter id="Tutorials">
+	<title>Tutorials</title>
+	<section id="stateless">
+		<title>Stateless Session Beans</title>
+&stateless;
+	</section>
+
+</chapter>
+	
+

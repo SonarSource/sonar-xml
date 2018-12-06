@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Join_Inheritance_in_EJB3_Entities">
+	<title>Introduction Join Inheritance in EJB3 Entities</title>
+
+	<para>
+		The EJB3 specification allows you to define entities that inherit from one another.
+		The inheritance relationships can be reflected in queries as well. So, if you queried based
+		on the base class, the query is polymorphic.
+	</para>
+
+	<para>
+		The tutorial example uses the join table strategy to map an inheritance relationship of
+		<literal>org.jboss.tutorial.joininheritance.bean.Pet</literal>, which is the base class
+		for <literal>org.jboss.tutorial.joininheritance.bean.Cat</literal> and
+		<literal>org.jboss.tutorial.joininheritance.bean.Dog</literal>.
+	</para>
+
+	<para>
+		With the join table strategy there is a table per class in the hierarchy, but the subclass tables
+		only have the extra attribute they define in their subclass. A discriminator column is NOT required
+		to differentiate between which class type is persisted in a particular row unlike the single table mapping.
+		The persistence manager does not need a discrimiator column to figure out the type.
+	</para>
+
+	<para>
+		This is what the annotations look like for Pet:
+		<programlisting>
+			<![CDATA[
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Pet implements java.io.Serializable
+{
+...
+			]]>
+
+		</programlisting>
+
+		<programlisting>
+			<![CDATA[
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Dog extends Pet
+{
+...
+
+			]]>
+		</programlisting>
+	</para>
+
+	<sect5>
+		Polymorphic Queries :
+
+		<para>
+			<literal>org.jboss.tutorial.joininheritance.bean.PetDAOBean</literal> stateless EJB wraps
+			some polymorphic queries.
+
+			<programlisting>
+				<![CDATA[
+public List findByWeight(double weight)
+{
+   return manager.createQuery("from Pet p where p.weight < :weight").setParameter("weight", weight).getResultList();
+}
+
+
+				]]>
+			</programlisting>
+			Even though the <literal>findByWeight</literal> method queries on Pet, either Dog or Cat instances
+			can be returned.
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Table Mapping :
+
+		<para>
+			The table mapping for this example looks like this:
+			<programlisting>
+				<![CDATA[
+create table PET (
+  ID integer primary key,
+  ANIMAL_TYPE varchar,
+  NAME varchar,
+  WEIGHT double
+);
+
+create table CAT (
+  ID integer primary key,
+  LIVES int
+);
+
+create table DOG (
+  ID integer primary key,
+  NUMBONES int
+);
+
+				]]>
+
+			</programlisting>
+			The join inheritance mapping is less efficient than the single table strategy as the SQL query is more complicated.
+		</para>
+
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "joininheritance" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Sox
+     [java] Junior
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+			View the tables and rows:
+
+		<para>
+			You can view the tables created by JBoss by going to the
+			<ulink url="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&amp;name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic Service</ulink>,
+			scrolling down to the <literal>startDatabaseManager</literal> button and clicking it.
+			A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
+
+		</para>
+	</sect5>
+</chapter>

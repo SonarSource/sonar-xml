@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  
+
+  
+   
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-common</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../common/</relativePath>
+  </parent>
+
+  <properties>
+    <ejb3.tutorial.client>org.jboss.tutorial.webservice.client.Client</ejb3.tutorial.client>
+    <version.org.jboss.ws.native_jboss-ws-native-client>3.0.4.SP1</version.org.jboss.ws.native_jboss-ws-native-client>
+  </properties>
+
+
+  <artifactId>jboss-ejb3-tutorial-webservice</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>WebServices in EJB3</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Tutorial about using EJB3 bean as a webservice endpoint
+  </description>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>org.jboss.ws.native</groupId>
+  		<artifactId>jbossws-native-client</artifactId>
+  		<version>${version.org.jboss.ws.native_jboss-ws-native-client}</version>
+  	</dependency>
+  </dependencies>
+</project>

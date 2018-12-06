@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Stateful_Beans">
+	<title>Introduction to EJB3 Stateful Beans</title>
+
+	<para>
+	It is very easy to create a Stateful Bean with EJB 3.0. All bean types are homeless in EJB 3.0 so all you have to do to create a
+	Stateful bean is to create a bean class and have it implement at least one interface.
+	Take a look at <literal>org.jboss.tutorial.stateful.bean.ShoppingCartBean</literal> in the tutorial.
+	</para>
+
+	<para>
+	The first thing to notice is that the class is tagged as <literal>@Stateful</literal>. This marks the class as a stateful bean and
+	the deployer will deploy that class as a stateful bean EJB container.
+	</para>
+
+	<para>
+	ShoppingCartBean also implements a remote interface. Take a look at <literal>org.jboss.tutorial.stateful.bean.ShoppingCart</literal>
+	</para>
+
+	<para>
+		<sect5>
+@Remove
+		</sect5>
+	Take another look at <literal>org.jboss.tutorial.stateful.bean.ShoppingCartBean</literal>.
+	Look for the method annotated as @Remove. Instead of explicitly calling EJBObject.remove() in your applications and thus polluting it
+	further with J2EE specific code, any method tagged with @Remove will cause the stateful bean instance to be removed from the container
+	at the end of the method call.
+	</para>
+
+	<para>
+		<sect5>
+JNDI Bindings
+		</sect5>
+	The ShoppingCartBean will have its remote interface bound in JNDI, by default, under the ejbName/local and/or ejbName/remote for
+	the local and remote interfaces, respectively.
+	</para>
+
+	<para>
+		<sect5>
+Client
+		</sect5>
+	Open up <literal>org.jboss.tutorial.stateful.client.Client</literal>.
+  	You'll see that it looks up the stateful bean under "ejbName/remote". Also notice that there is no Home interface and you can begin
+  	executing on the stateful bean right away. When you access the bean in JNDI, an instance of the stateful bean will be created on the server.
+  	So, when you need a different instance of the stateful bean, you do an additional jndi.lookup() to get this new reference.
+
+	</para>
+
+	<para>
+		<sect5>
+Building and Running
+		</sect5>
+
+		<note>
+			<para>
+			To build and run the example, make sure you have installed JBoss 5.x.
+			See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "stateful" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+		<sect5>
+Ant Users:
+		</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+$ ant
+$ ant run
+
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+	</para>
+</chapter>
+
+

@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="jboss.xml_deployment_descriptor">
+	<title>Usage of JBoss specific deployment descriptors</title>
+
+	<para>
+		The EJB 3.0 specification supports the usage of deployment descriptors to describe ejb metadata
+		or override most metadata described via annotations. The jboss.xml deployment descriptor describes
+		JBoss specific metadata, including remote and local JNDI names, cluster configuration, a security domain,
+		additional references, security principal, and container configuration. Annotations which define the ejb
+		(e.g. <literal>@Stateful</literal>, <literal>@Remote</literal>) cannot be overridden.
+
+	</para>
+
+	<sect5>
+		jboss.xml :
+
+		<para>
+			Take a look at <literal>META-INF/jboss.xml</literal>.
+			<itemizedlist>
+				<listitem>
+					The <literal>jndi-name</literal> element defines the remote JNDI binding for the <literal>ShoppingCartBean</literal> stateful session bean.
+					This JNDI binding overrides the default binding or a binding specified through the <literal>@RemoteBinding</literal> annotation.
+					Similarly, the <literal>local-jndi-name</literal> element specifies the local JNDI binding.
+				</listitem>
+
+				<listitem>
+					The <literal>clustered</literal> element indicates that the ejb is clustered, with <literal>partition-name</literal> and
+					<literal>load-balance-policy</literal> specifying the cluster name and load balance policy, respectively.
+					These elements will override the parameters specified in the <literal>@Clustered</literal> annotation.
+					In this example, you will see that the <literal>ShoppingCartBean</literal> ejb is clustered.
+					<note>
+						If you build and run this example with the "default" server configuration, the deployment will
+						fail, as the default server configuration does not support clustering. You will have to run this
+						example on the "all" server configuration which supports clustering
+					</note>
+				</listitem>
+
+				<listitem>
+					The <literal>security-domain</literal> element specifies a security domain for the ejb, overriding
+					any security domain set through the <literal>@SecurityDomain</literal> annotation. In this example,
+					you will see that a security domain is set through the jboss.xml deployment descriptor and unless a
+					Principal and Credential (i.e. user/password) is set in the client, requests to the ejb will fail
+					with a javax.ejb.EJBAccessException.
+
+					<note>
+						The jboss.xml shows using the security-domain at a bean level as well at the entire deployment level.
+						Each bean can have its own security-domain and will override the one set at the deployment level.
+					</note>
+
+				</listitem>
+			</itemizedlist>
+
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "jboss_deployment_descriptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure the "all" server configuration of JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Attempting to buy 1 memory stick with incorrect password
+     [java] Caught javax.ejb.EJBAccessException as expected
+     [java] Setting user/password
+     [java] bill is a shopper, so is allowed to buy
+     [java] Buying 1 memory stick
+     [java] Buying another memory stick
+     [java] Buying a laptop
+     [java] Print cart:
+     [java] 2     Memory stick
+     [java] 1     Laptop
+     [java] bill is not a clerk, so is not allowed to price check
+     [java] Caught EJBAccessException as expected
+     [java] Checkout
+     [java] Should throw an object not found exception by invoking on cart after @Remove method
+     [java] Successfully caught no such object exception.
+     [java] Caught javax.ejb.EJBAccessException, for SLSB, as expected
+     [java] Now passing the correct user/password to access the SLSB
+     [java] Successfully accessed SLSB
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+</chapter>

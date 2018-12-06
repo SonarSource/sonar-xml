@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Stateless_Beans">
+	<title>Introduction to EJB3 Stateless Beans</title>
+
+	<para>
+It is very easy to create a Stateless Bean with EJB 3.0.  All bean types are homeless in EJB 3.0 so all you have to do to
+create a Stateless bean is to create a bean class and have it implement at least one interface. Take a look at
+<literal>org.jboss.tutorial.stateless.bean.CalculatorBean</literal>
+
+	</para>
+
+	<para>
+The first thing to notice is that the class is tagged as <literal>@Stateless</literal>.  This marks the class as a stateless bean and
+the deployer will deploy that class as a stateless bean EJB container.
+	</para>
+
+	<para>
+CalculatorBean also implements two interfaces.  One is the remote interface of the EJB the other is the local interface.
+	</para>
+
+	<para>
+Take a look at <literal>org.jboss.tutorial.stateless.bean.CalculatorRemote</literal>.
+To define this as the remote interface of Calculator bean
+you either annotate the bean class and specify what the remote interfaces are, or you annotate each remote interface the bean class
+implements with @javax.ejb.Remote. only need to annotate the bean class with <literal>@javax.ejb.Remote</literal>.
+Similar for <literal>org.jboss.tutorial.stateless.bean.CalculatorLocal</literal> as you need to annotate the bean
+class with <literal>@javax.ejb.Local</literal> for it to be the local interface of the CalculatorBean.
+	</para>
+
+	<para>
+		<sect5>
+JNDI Bindings
+		</sect5>
+The Calculator bean will have two JNDI bindings for the remote and Local interface.
+By default, JBoss will use ejbName/local and ejbName/remote for the local and remote interfaces, respectively.
+	</para>
+
+	<para>
+		<sect5>
+Client
+		</sect5>
+Open up <literal>org.jboss.tutorial.stateless.client.Client</literal>.
+You'll see that it looks up the stateless bean under "ejbName/remote". Also notice that there is no Home interface and
+you can begin executing on the stateless bean right away.
+
+	</para>
+
+	<para>
+		<sect5>
+Building and Running
+		</sect5>
+
+		<note>
+			<para>
+To build and run the example, make sure you have installed JBoss 5.x.
+See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "stateless" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+		<sect5>
+Ant Users:
+		</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+$ ant
+$ ant run
+
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+	</para>
+</chapter>
+
+

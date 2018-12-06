@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Service_POJOs">
+	<title>Service POJOs (JBoss extension of EJB3)</title>
+
+	<para>
+		Service POJOs allow you to define POJOs as JBoss services. The way you define them is very similar
+		to how you define stateless or stateful session beans. One very important difference is that there
+		will only ever be ONE instance of the service bean. i.e. it is not pooled - the bean instance is a
+		singleton. The singleton bean contains shared state, so data set by one client is accessible by other clients.
+	</para>
+
+	<para>
+		Take a look at <literal>org.jboss.tutorial.service.bean.ServiceOne.java</literal>.
+		It has been annotated with <literal>@org.jboss.ejb3.annotation.Service</literal>, this defines it as a
+		singleton service in JBoss. It implements <literal>org.jboss.tutorial.service.bean.ServiceOneRemote</literal>
+		and <literal>org.jboss.tutorial.service.bean.ServiceOneLocal</literal> just as you would do for a normal stateful/stateless bean.
+	</para>
+
+	<para>
+		ServiceOne also implements <literal>org.jboss.tutorial.service.bean.ServiceOneManagement</literal>.
+		<literal>org.jboss.tutorial.service.bean.ServiceOne</literal> has been annotated with <literal>@org.jboss.ejb3.annotation.Management</literal>.
+		JBoss will inspect this interface, and create and install an MBean implementing the attributes and operations defined in the <literal>@Management</literal>
+		interface. The MBean will work on the same singleton bean instance as the remote and local interfaces.
+
+	</para>
+
+
+	<sect5>
+		Lifecycle :
+		<para>
+			Just as for "normal" MBeans in JBoss, the <literal>@Service</literal> supports lifecycle management. Lifecycle management
+			consists of two things:
+			<itemizedlist>
+				<listitem>
+					Lifecycle methods
+				</listitem>
+				<listitem>
+					Dependencies
+				</listitem>
+			</itemizedlist>
+		</para>
+	</sect5>
+
+	<sect5>
+		Lifecycle methods :
+		<para>
+			<literal>org.jboss.tutorial.service.bean.ServiceOneManagement</literal> contains the four methods:
+			<programlisting>
+				<![CDATA[
+void create() throws Exception;
+
+void start() throws Exception;
+
+void stop();
+
+void destroy();
+
+				]]>
+			</programlisting>
+			You do not need to include all these methods, you can pick and choose. If present, the service container will call
+			these methods as follows:
+			<itemizedlist>
+				<listitem>
+					<literal>create</literal> : called by the server when the service is created and all the services it depends
+					upon have been created too. At this point the service (and all the services it depends on) is installed in the
+					JMX server, but is not yet fully functional.
+				</listitem>
+				<listitem>
+					<literal>start</literal> : called by the server when the service is started and all the services it depends upon
+					have been started too. At this point the service (and all the services it depends on) is fully functional.
+				</listitem>
+				<listitem>
+					<literal>stop</literal> : called by the server when the service is stopped. At this point the service
+					(and all the services that depend on it) is no longer fully operational.
+				</listitem>
+				<listitem>
+					<literal>destroy</literal> : called by the server when the service is destroyed and removed from the MBean server.
+					At this point the service (and all the services that depend on it) are destroyed.
+				</listitem>
+			</itemizedlist>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Depends and custom JMX object name :
+		<para>
+			Let's take a look at how to define the dependencies between services. Open <literal>org.jboss.tutorial.service.bean.ServiceTwo</literal>.
+			Again it has been annotated with @Service, and it implements the @Management annotated interface <literal>org.jboss.tutorial.service.bean.ServiceTwoManagement</literal>.
+			<programlisting>
+				<![CDATA[
+@Service(objectName = ServiceTwo.OBJECT_NAME)
+@Management(ServiceTwoManagement.class)
+@Depends(ServiceOne.OBJECT_NAME)
+public class ServiceTwo implements ServiceTwoManagement
+{
+...
+				]]>
+			</programlisting>
+			The <literal>@org.jboss.ejb3.annotation.Depends</literal> annotation specifies that this service depends on
+			the service created for ServiceOne. i.e. it cannot be started until the service created for ServiceOne has been started.
+			<note>
+				<para>
+					You can specify an array of <literal>ObjectName</literal>s if you depended on more than one service.
+				</para>
+
+			</note>
+			You will also notice the use of <literal>objectName</literal> property of @Service. This is used to install the service
+			under a custom ObjectName instead of the default ObjectName. So in this tutorial, our ServiceTwo will be registered at
+			<literal>tutorial:service=ServiceTwo</literal>
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Depends injection :
+		<para>
+			Take a look at <literal>org.jboss.tutorial.bean.ServiceThree</literal>. It has dependencies on other MBeans, but rather than
+			annotating the class with @Depends, the dependencies are specified on fields and setter methods.
+			<programlisting>
+				<![CDATA[
+@Depends(ServiceOne.OBJECT_NAME)
+public ObjectName serviceOneName;
+
+private ServiceTwoManagement service2;
+
+@Depends(ServiceTwo.OBJECT_NAME)
+public void setServiceTwo(ServiceTwoManagement service2)
+{
+	this.service2 = service2;
+}
+				]]>
+			</programlisting>
+			With regard to the lifecycle dependencies, the effect of annotating fields and setters with @Depends is the same
+			as if we annotated the class. So, ServiceThree cannot be started until ServiceOne (<literal>tutorial:service=ServiceOne</literal>) and ServiceTwo(<literal>tutorial:service=ServiceTwo</literal>)
+			are started. Annotating the fields and setters with @Depends though, allows you to inject the dependencies. So in this tutorial,
+			the <literal>ServiceThree.serviceOneName</literal> will be injected with the <literal>ObjectName</literal> which corresponds to
+			ServiceOne.	More interesting is the injection of ServiceTwo. <literal>setServiceTwo()</literal> takes a parameter, which is the
+			<literal>ServiceTwoManagement</literal> management interface of ServiceTwo. The server creates a dynamic proxy for
+			the ServiceTwoManagement interface, and injects that. This means that you can call the methods on the <literal>service2</literal>
+			field without caring that you are actually invoking methods on another service.
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Interceptors :
+		<para>
+			You can define interceptors for your service beans in the same way as shown in the "interceptors" tutorial.
+			This example defines one in the ServiceThree bean class itself:
+			<programlisting>
+				<![CDATA[
+@AroundInvoke
+public Object intercept(InvocationContext ctx) throws Exception
+{
+   System.out.println("ServiceThree - Interceptor");
+   return ctx.proceed();
+}
+				]]>
+			</programlisting>
+		</para>
+	</sect5>
+
+	<sect5>
+		Defining Management Interface via XML :
+		<para>
+			You can deploy a Service bean as an XMBean, where the management attributes and operations are defined via xml.
+			Take a look at <literal>org.jboss.tutorial.service.bean.XMBeanService</literal>. Note the @Service annotation
+			specifies an <literal>xmbean</literal> property. Also note there is no @Management annotation.
+			<programlisting>
+				<![CDATA[
+@Service(objectName = XMBeanService.OBJECT_NAME, xmbean = "resource:META-INF/service-xmbean.xml")
+@Remote(XMBeanServiceRemote.class)
+public class XMBeanService implements XMBeanServiceRemote
+{
+...
+				]]>
+			</programlisting>
+			 Now take a look at <literal>META-INF/service-xmbean.xml</literal>. This is the file referenced by the <literal>xmbean</literal>
+			 property and specifies the bean's management attributes and operations. Note the <literal>class</literal>, <literal>constructor</literal>,
+			 <literal>attribute</literal> and <literal>operation</literal> elements.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "service" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure the "default" server configuration of JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] invoking remote business interface of ServiceOne...
+     [java] Set the attribute value through ServiceOneRemote to 100
+     [java] attribute value for (ServiceOne) singleton obtained via JMX is what we set via remote interface: 100
+     [java] Invoking ServiceThree via JMX...
+     [java] Hello from service One
+     [java] ServiceThree - Calling ServiceTwo.sayHello() via MBean proxy
+     [java] invoking XMBean (configured through deployment descriptor)...
+     [java] Set the attribute value to 50
+     [java] Invoking XMBean through JMX
+     [java] attribute value for (XMBeanService deployment descriptor configured) singleton obtained via JMX is what we set via remote interface: 50
+     [java] Hello from an XMBean
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+	<para>
+		On the server side when the application is deployed, you will notice these logs:
+
+		<programlisting>
+			<![CDATA[
+16:56:54,036 INFO  [STDOUT] ServiceOne - Created
+...
+16:56:54,082 INFO  [STDOUT] ServiceOne - Started
+...
+16:56:54,142 INFO  [STDOUT] ServiceTwo - Started
+...
+16:56:54,226 INFO  [STDOUT] ServiceThree - Started
+
+			]]>
+		</programlisting>
+		Notice that the order is maintained because of the dependencies we have configured on the @Service.
+	</para>
+
+</chapter>

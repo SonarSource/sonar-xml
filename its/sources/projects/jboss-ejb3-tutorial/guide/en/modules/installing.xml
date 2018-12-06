@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Installation">
+	<title>Installation</title>
+
+
+		<section id="JBossAS5">
+			<title>JBoss Application Server 5.x</title>
+			<para>
+You must set the JBOSS_HOME environment variable to run any of the tutorial examples.
+
+				<programlisting>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 5.x distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 5.x distribution is&gt;
+				</programlisting>
+
+To run these examples you need JBossAS 5.0.1 GA or higher version (if available). JBossAS can be downloaded from <ulink url="http://www.jboss.org/jbossas/downloads/">here</ulink>.
+
+			</para>
+
+		</section>
+
+		<section id="AntOrMaven2">
+			<title>Ant or Maven2</title>
+			<para>
+The tutorials can be built with either Ant (version 1.7) or Maven (version 2.0.9). Depending on which build tool you want to use, you will have to download it from their sites.
+			</para>
+		</section>
+
+		<section id="EJB3_TUTORIAL_HOME">
+			<title>Set the EJB3_TUTORIAL_HOME</title>
+			<para>
+				For easy reference throughout the tutorials, we use the EJB3_TUTORIAL_HOME which points to the top level folder where
+				you downloaded the tutorials. Set it appropriately:
+				<programlisting>
+Unix:    $ export EJB3_TUTORIAL_HOME=&lt;where your EJB3 tutorial is&gt;
+Windows: $ set EJB3_TUTORIAL_HOME=&lt;where your EJB3 tutorial is&gt;
+				</programlisting>
+
+
+			</para>
+		</section>
+
+</chapter>
+
+

@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Using_resource_references_in_EJB3">
+	<title>Introduction to binding the resources to ENC of EJB3 beans</title>
+
+	<para>
+		Resources (e.g. data sources, JavaMail sessions, JMS queues) may be added to the local jndi namespace (ENC)
+		of individual EJBs. This is to separate the jndi names used in the bean code from the global jndi bindings
+		set by the bean deployer. The mapping of the bean local jndi binding and the global binding may be handled
+		via the ejb-jar.xml and jboss.xml deployment descriptors.
+	</para>
+
+	<sect5>
+		ejb-jar.xml :
+
+		<para>
+			Take a look at <literal>META-INF/ejb-jar.xml</literal>. For <literal>ENCBean</literal>, there are 3
+			<literal>&lt;resource-ref&gt;</literal> elements indicating resource reference names and types.
+
+		</para>
+
+	</sect5>
+
+	<sect5>
+		jboss.xml :
+		<para>
+			Take a look at <literal>META-INF/jboss.xml</literal>. For <literal>ENCBean</literal>, there are again
+			3 <literal>&lt;resource-ref&gt;</literal> elements indicating resource reference names and either the global jndi
+			binding via the <literal>&lt;jndi-name&gt;</literal> element or the resource name. Resource managers
+			are used to map resource names to global jndi bindings via the <literal>&lt;resource-managers&gt;</literal> element.
+
+		</para>
+
+	</sect5>
+
+	<sect5>
+		TestENCBean.java :
+		<para>
+			Take a look at <literal>org.jboss.tutorial.resource_ref.bean.TestENCBean</literal>. Each one of the resources are accessed from the
+			bean local jndi namespace (i.e. java:comp/env) by the value set in the <literal>&lt;res-ref-name&gt;</literal> values
+			in the deployment descriptors.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "resource_ref" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Successfully accessed bean resource references
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+	<para>
+		On the server you will notice these logs:
+		<programlisting>
+			<![CDATA[
+13:44:09,500 INFO  [TestENCBean] Found data source resource ref
+13:44:09,500 INFO  [TestENCBean] Found mail resource ref
+13:44:09,500 INFO  [TestENCBean] Found jms queue resource ref
+13:44:09,500 INFO  [TestENCBean] Found jms queue resource env ref
+
+			]]>
+		</programlisting>
+	</para>
+
+</chapter>

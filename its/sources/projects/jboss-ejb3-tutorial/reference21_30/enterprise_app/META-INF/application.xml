@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC
+	"-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN"
+	"http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+  <display-name>jboss-ejb3-tutorial-ejbreferences</display-name>
+  <description>Enterprise application showing EJB3 referencing EJB2.1 and vice versa</description>
+  <module>
+    <web>
+      <web-uri>jboss-ejb3-tutorial-reference21_30_webapp.war</web-uri>
+      <context-root>/jboss-ejb3-tutorial-reference21_30_webapp</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>jboss-ejb3-tutorial-reference21_30_ejb3_app.jar</ejb>
+  </module>
+  <module>
+    <ejb>jboss-ejb3-tutorial-reference21_30_ejb21_app.jar</ejb>
+  </module>
+
+</application>

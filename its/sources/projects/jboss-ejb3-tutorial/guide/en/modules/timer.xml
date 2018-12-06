@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Timer_service_in_EJB3">
+	<title>Introduction to timer service in EJB3</title>
+
+	<para>
+		This example shows you how to access <literal>javax.ejb.SessionContext</literal> as well as using
+		the EJB Timer Service.  It also explains how callbacks work in EJB 3.0.
+
+	</para>
+
+	<sect5>
+		SessionContext injection :
+
+		<para>
+			The <literal>javax.ejb.SessionContext</literal> is injected using the <literal>@javax.annotation.Resource</literal> annotation.
+			When the stateless bean instance is created the field will be initialized with the correct SessionContext.
+			Take a look at <literal>org.jboss.tutorial.timer.bean.ExampleTimerBean</literal>
+			<programlisting>
+				<![CDATA[
+private @Resource SessionContext ctx;
+
+				]]>
+
+			</programlisting>
+		</para>
+
+	</sect5>
+
+	<sect5>
+		Timeout Callbacks :
+		<para>
+			The rest of the bean example registers a timer with the EJB Timer service. In the EJB 2.1 specification
+			it was required to implement an interface to get ejbTimeout callbacks. In JBoss EJB3, it is implemented
+			as an annotation. All you have to define is a method annotated with <literal>javax.ejb.Timeout</literal>.
+
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "timer" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Timer scheduled to trigger after 5 seconds
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+	<para>
+		On the server you will notice these logs:
+		<programlisting>
+			<![CDATA[
+INFO  [STDOUT] ---------------------
+INFO  [STDOUT] Created a timer event to be triggered after 5000 milli seconds
+INFO  [STDOUT] ---------------------
+INFO  [STDOUT] ---------------------
+INFO  [STDOUT] * Received Timer event: Hello World
+INFO  [STDOUT] ---------------------
+
+			]]>
+		</programlisting>
+	</para>
+
+</chapter>

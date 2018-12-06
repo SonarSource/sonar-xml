@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://www.jboss.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+    <security-domain>tutorial-default</security-domain>
+	<enterprise-beans>
+    	<session>
+         	<ejb-name>ShoppingCartBean</ejb-name>
+         	<jndi-name>ShoppingCart</jndi-name>
+         	<clustered>true</clustered>
+	        <cluster-config>
+            	<partition-name>DefaultPartition</partition-name>
+            	<load-balance-policy>org.jboss.ha.framework.interfaces.RandomRobin</load-balance-policy>
+         	</cluster-config>
+    	   	<security-domain>tutorial-test</security-domain>
+      	</session>
+        <session>
+         	<ejb-name>StatelessTestBean</ejb-name>
+         	<jndi-name>StatelessTest</jndi-name>
+      	</session>
+   	</enterprise-beans>
+</jboss>

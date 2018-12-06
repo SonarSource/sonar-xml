@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Dependencies_in_EJB3">
+	<title>Introduction to specifying dependencies in EJB3 beans</title>
+
+	<para>
+		Dependencies of an EJB on a service or services, including other EJBs, may be specified through the
+		<literal>&lt;depends&gt;</literal> tag of the jboss.xml deployment descriptor. The <literal>&lt;depends&gt;</literal>
+		tag is analagous to the <literal>@org.jboss.ejb3.annotation.Depends</literal> annotation. The dependencies control
+		the deployment of EJBs such that an EJB will not deploy until all of it's dependencies have successfully deployed.
+
+	</para>
+
+	<sect5>
+		jboss-service.xml :
+		<para>
+			Take a look at <literal>META-INF/jboss-service.xml</literal>. This service deployment descriptor starts
+			a service based on <literal>org.jboss.tutorial.dependency.bean.DependedOn</literal>.
+			<programlisting>
+				<![CDATA[
+<server>
+   <mbean code="org.jboss.tutorial.dependency.bean.DependedOn" name="jboss.test:service=DependedOn"/>
+</server>
+				]]>
+
+			</programlisting>
+		</para>
+	</sect5>
+
+	<sect5>
+		jboss.xml :
+		<para>
+			Take a look at <literal>META-INF/jboss.xml</literal>. This deployment descriptor indicates that the
+			<literal>HasXmlMBeanDependencyBean</literal> is dependent on the <literal>jboss.test:service=DependedOn</literal>
+			started by <literal>jboss-service.xml</literal>. The <literal>HasXmlMBeanDependencyBean</literal> will not
+			deploy until the <literal>jboss.test:service=DependedOn</literal> service has successfully started.
+		</para>
+
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "dependency" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Lookup and bean access succeeded
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+</chapter>

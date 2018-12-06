@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The parent maven for the ejb3 tutorials project
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+
+  <!-- Parent - The jboss-ejb3-tutorial-build will act as a parent
+
+   -->
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-build</artifactId>
+    <version>0.1.0</version>
+    <relativePath>./build</relativePath>
+  </parent>
+
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-tutorial-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBoss EJB3 Tutorial Aggregator</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Tutorial for JBoss EJB3
+  </description>
+
+
+    <profiles>
+
+        <profile>
+            <id>RunAll</id>
+            <modules>
+          <!-- The init module is responsible for starting up the JBossAS.
+          This is a bit ugly, since the init project does nothing other than triggering
+          a server start.	Maven doesn't have a "init" phase where we could have added
+          this server start activity. And we don't want to start the server for
+          every module (tutorial), hence this separate init module.
+
+          The shutdown is similarly handled by a separate "shutdown" module which is
+          the last module to be called. If something fails before the shutdown module is
+          invoked, there's a Java Shutdownhook in the jbossas-server-manager which cleanly
+          shuts down the JBossAS -->
+                <module>init</module>
+
+                <!-- The tutorials go here -->
+                <module>asynch</module>
+                <module>blob</module>
+                <module>cachedentity</module>
+                <module>callbacks</module>
+                <module>composite</module>
+                <module>consumer</module>
+                <module>consumer_deployment_descriptor</module>
+                <module>dependency</module>
+                <module>ejb21_client_adaptors</module>
+                <module>embeddable</module>
+                <module>enterprise_app_ejb_injection</module>
+                <module>entity</module>
+                <module>extended_pc</module>
+                <module>guide</module>
+                <module>injection</module>
+                <module>interceptor</module>
+                <module>jboss_deployment_descriptor</module>
+                <module>jca_inflow_quartz</module>
+                <module>jndibinding</module>
+                <module>joininheritance</module>
+                <module>mdb</module>
+                <module>mdb_deployment_descriptor</module>
+                <module>merge</module>
+                <module>partial_deployment_descriptor</module>
+                <module>reference21_30</module>
+                <module>relationships</module>
+                <module>resource_ref</module>
+                <module>secondary</module>
+                <module>security</module>
+                <module>service</module>
+                <module>service_deployment_descriptor</module>
+                <module>singleinheritance</module>
+                <module>ssl</module>
+                <module>stateful</module>
+                <module>stateful_deployment_descriptor</module>
+                <module>stateless</module>
+                <module>stateless_deployment_descriptor</module>
+                <module>tableperinheritance</module>
+                <module>timer</module>
+                <module>webservice</module>
+
+                <!-- Responsible for JBossAS shutdown -->
+                <module>shutdown</module>
+            </modules>
+
+        </profile>
+
+        <profile>
+            <id>PackageOnly</id>
+            <modules>
+                <!-- The tutorials go here -->
+                <module>asynch</module>
+                <module>blob</module>
+                <module>cachedentity</module>
+                <module>callbacks</module>
+                <module>composite</module>
+                <module>consumer</module>
+                <module>consumer_deployment_descriptor</module>
+                <module>dependency</module>
+                <module>ejb21_client_adaptors</module>
+                <module>embeddable</module>
+                <module>enterprise_app_ejb_injection</module>
+                <module>entity</module>
+                <module>extended_pc</module>
+                <module>guide</module>
+                <module>injection</module>
+                <module>interceptor</module>
+                <module>jboss_deployment_descriptor</module>
+                <module>jca_inflow_quartz</module>
+                <module>jndibinding</module>
+                <module>joininheritance</module>
+                <module>mdb</module>
+                <module>mdb_deployment_descriptor</module>
+                <module>merge</module>
+                <module>partial_deployment_descriptor</module>
+                <module>reference21_30</module>
+                <module>relationships</module>
+                <module>resource_ref</module>
+                <module>secondary</module>
+                <module>security</module>
+                <module>service</module>
+                <module>service_deployment_descriptor</module>
+                <module>singleinheritance</module>
+                <module>ssl</module>
+                <module>stateful</module>
+                <module>stateful_deployment_descriptor</module>
+                <module>stateless</module>
+                <module>stateless_deployment_descriptor</module>
+                <module>tableperinheritance</module>
+                <module>timer</module>
+                <module>webservice</module>
+            </modules>
+
+        </profile>
+
+    </profiles>
+</project>

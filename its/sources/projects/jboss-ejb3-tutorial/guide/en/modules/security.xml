@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Security_and_Transactions_in_EJB3">
+	<title>Introduction to Security and Transactions in EJB3</title>
+
+	<para>
+		The EJB 3.0 specification has made the XML deployment descriptors optional. This tutorial goes over how to
+		use the transaction and security annotations of EJB 3.0.
+
+	</para>
+	<sect5>
+		Transactions :
+		<para>
+			Using transactions is easy, just use the <listing>javax.ejb.TransactionAttribute</listing> annotation.
+			The <literal>javax.ejb.TransactionAttributeType</literal> enum has every transactional type. Here's an example
+			for using REQUIRES_NEW transaction type:
+			<programlisting>
+				<![CDATA[
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+public int add(int x, int y)
+{
+   return x + y;
+}
+
+				]]>
+			</programlisting>
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Security :
+		<para>
+			Take a look at <literal>org.jboss.tutorial.security.bean.CalculatorBean</literal>. The <literal>@javax.annotation.security.RolesAllowed</literal>
+			and <literal>@javax.annotation.security.PermitAll</literal> are the EJB 3.0 security annotations. You can attach a method permission to any method
+			and define which roles are allowed to invoke on that method. The <literal>javax.ejb.RunAs</literal> annotation can also be applied at the class
+			level. There is also an additional JBoss specific annotation that you must supply at the class level <literal>@org.jboss.ejb3.annotation.SecurityDomain</literal>.
+			The <literal>@SecurityDomain</literal> specifies the JAAS application-policy name which will be used by JBoss to authenticate and authorize.
+			See the JBoss Application Server documentation for more details. In this particular example, the "other" domain is used.
+			The "other" domain corresponds to a users.properties and roles.properties files that contain cleartext user, password, and user/role associations.
+			If you open the tutorial jar file you will see these two files in there.
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Client :
+		<para>
+			Open up <literal>org.jboss.tutorial.security.client.Client</literal>. You'll see that it looks up the stateless bean.
+			Also notice that there is no Home interface and you can begin executing on the stateless bean right away.
+			The client uses a JBoss's SecurityClient class to pass the user name and password:
+			<programlisting>
+				<![CDATA[
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
+
+SecurityClient securityClient = SecurityClientFactory.getSecurityClient();
+securityClient.setSimple("kabir", "invalidpassword");
+securityClient.login();
+				]]>
+			</programlisting>
+			<note>
+				<para>See the documentation of org.jboss.security.client.SecurityClient for more options</para>
+			</note>
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "security" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Kabir is a student.
+     [java] Kabir types in the wrong password
+     [java] Authentication exception, principal=kabir
+     [java] Kabir types in correct password.
+     [java] Kabir does unchecked addition.
+     [java] 1 + 1 = 2
+     [java] Kabir is not a teacher so he cannot do division
+     [java] Insufficient method permissions, principal=kabir, interface=org.jboss.ejb3.EJBContainerInvocation, requiredRoles=[teacher], principalRoles=[student]
+     [java] Students are allowed to do subtraction
+     [java] 1 - 1 = 0
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+		<note>
+			<para>
+				If you want to change the roles for the user, through the roles.properties, you will have to
+				restart the server, for the role changes to take effect. This is because by default JBoss caches the roles for a
+				user and until the cache is flushed, either through this <ulink url="http://www.jboss.org/community/docs/DOC-9246">configuration</ulink>
+				or through server restart, the changes won't take effect.
+			</para>
+		</note>
+	</sect5>
+
+
+</chapter>

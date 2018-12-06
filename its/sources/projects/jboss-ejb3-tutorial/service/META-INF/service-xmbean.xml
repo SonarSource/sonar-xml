@@ -1,0 +1,32 @@
+cr<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mbean PUBLIC
+        "-//JBoss//DTD JBOSS XMBEAN 1.0//EN"
+        "http://www.jboss.org/j2ee/dtd/jboss_xmbean_1_0.dtd">
+<mbean>
+
+    <description>EJB3 Service XMBean Example</description>
+    
+    <class>org.jboss.tutorial.service.bean.XMBeanService</class>
+   
+    <!-- Constructors -->
+    <constructor>
+        <description>The default constructor</description>
+        <name>XMBeanService</name>
+    </constructor>
+
+    <!-- Attributes -->
+    
+    <attribute access="read-write" getMethod="getAttribute" setMethod="setAttribute">
+        <description>Test attribute</description>
+        <name>IntAttribute</name>
+        <type>java.lang.Integer</type>
+    </attribute>
+
+    <!-- Operations -->
+    <operation>
+        <description>Say Hello</description>
+        <name>sayHello</name>
+        <return-type>java.lang.String</return-type>
+    </operation>
+</mbean>
+

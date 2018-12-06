@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Dependency_Injection">
+	<title>Introduction to dependency injection</title>
+	<para>
+		To facilitate test driven development, the EJB 3.0 specification allows you to use annotations to inject
+		dependencies through annotations on fields or setter methods. Instead of complicated XML ejb-refs or resource refs,
+		you can use the <literal>@EJB</literal> and <literal>@Resource</literal> annotations to set the value of a
+		field or to call a setter method within your session bean with anything registered within JNDI.
+		You can use the <literal>@EJB</literal> annotation to inject EJB references and <literal>@Resource</literal> to access datasources.
+	</para>
+
+	<para>
+		Open up <literal>org.jboss.tutorial.injection.bean.ShoppingCartBean</literal>.
+		ShoppingCartBean uses the Calculator stateless session EJB to do calculations. The example shows two ways to get access
+		to the Calculator EJB.  One is:
+
+		<programlisting>
+			<![CDATA[
+@EJB
+private Calculator calculator;
+			]]>
+		</programlisting>
+
+		When the ShoppingCartBean instance is created, the EJB container will set the calculator field using the jndiName
+		of that particular referenced EJB.
+	</para>
+
+	<para>
+		You are not limited to injecting dependencies on fields. You can also use @EJB on a setter method. The below example from
+		ShoppingCartBean uses the <literal>@EJB</literal> annotation to inject the reference to the Calculator session bean:
+
+		<programlisting>
+			<![CDATA[
+private Calculator set;
+
+@EJB(beanName="org.jboss.tutorial.injection.bean.CalculatorBean")
+public void setCalculator(Calculator c)
+{
+   set = c;
+}
+
+			]]>
+		</programlisting>
+	</para>
+
+	<para>
+		The <literal>@javax.annotation.Resource</literal> annotation allows you to inject resources.
+
+		<programlisting>
+		<![CDATA[
+@Resource(mappedName="DefaultDS")
+private javax.sql.DataSource ds;
+		]]>
+		</programlisting>
+
+		<note>
+			<para>
+				In JBoss, whenever the mappedName() attribute is specified (with @Resource, @EJB), JBoss will use that as the GLOBAL jndi name to look it up.
+			</para>
+		</note>
+
+		The @Resource annotation is used to inject these singletons as well:
+
+		<programlisting>
+			<![CDATA[
+@Resource
+javax.ejb.SessionContext ctx;
+
+@Resource
+javax.ejb.TimerService timer;
+
+@Resource
+javax.ejb.UserTransaction ut;
+
+			]]>
+		</programlisting>
+
+	</para>
+
+	<para>
+		<literal>@EJB</literal> and <literal>@Resource</literal> also create an entry within the JNDI ENC of the bean. So, the above @EJB
+		injection will create an entry for the reference calculator bean under "java:comp/env/ejb/calculator".
+	</para>
+
+	<sect5>
+Building and Running
+	</sect5>
+
+		<note>
+			<para>
+	To build and run the example, make sure you have installed JBoss 5.x.
+	See the <xref linkend="JBossAS5">installation section</xref> for details.
+			</para>
+		</note>
+		<para>
+			From the command prompt, move to the "injection" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+		</para>
+	<sect5>
+Ant Users:
+	</sect5>
+		<para>
+		Make sure your JBossAS-5.x is running
+		</para>
+	<programlisting>
+	<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Buying 1 memory stick
+     [java] Buying another memory stick
+     [java] Buying a laptop
+     [java] Print cart:
+     [java] 2     Memory stick
+     [java] 1     Laptop
+     [java] Checkout
+
+     ]]>
+	</programlisting>
+
+	<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+	</programlisting>
+
+</chapter>

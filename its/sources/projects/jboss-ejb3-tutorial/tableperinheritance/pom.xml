@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  
+
+  
+   
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-common</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../common/</relativePath>
+  </parent>
+
+  <properties>
+  	<!--  TODO: Because of a bug in HSQL, the tutorial does not work. So let's just deploy/undeploy
+  	this tutorial and not run the client, till it is fixed -->
+  	<jboss.ejb3.tutorial.client.skip>true</jboss.ejb3.tutorial.client.skip>
+    <!--  <ejb3.tutorial.client>org.jboss.tutorial.tableperinheritance.Client.Client</ejb3.tutorial.client> -->
+  </properties>
+
+
+  <artifactId>jboss-ejb3-tutorial-entity-tableperinheritance</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Table-per-Inheritance in EJB3 Entities</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Tutorial demonstrating Table-per-Inheritance in EJB3 Entities
+  </description>
+</project>

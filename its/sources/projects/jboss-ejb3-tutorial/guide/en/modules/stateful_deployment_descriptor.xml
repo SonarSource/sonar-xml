@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="Stateful_Session_Beans_in_EJB3_with_deployment_descriptors">
+	<title>Configuring Stateful Session Beans with deployment descriptors in EJB3</title>
+
+	<para>
+		Take a look at the <literal>META-INF/ejb-jar.xml</literal> and <literal>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCartBean</literal>.
+		You specify a stateful bean with the "session" and "session-type" tags. Note that all bean types in EJB 3.0 are homeless,
+		so there is no requirement for a "home" or "local-home" tag. The bean class is specified with the "ejb-class" tag.
+	</para>
+	<para>
+		ShoppingCartBean also implements a business-remote interface. Take a look at <literal>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</literal>.
+		To define this as the business-remote interface of ShoppingCartBean you need to use the "business-remote" tag in the ejb-jar.xml. Here's the <literal>META-INF/ejb-jar.xml</literal>:
+
+		<programlisting>
+			<![CDATA[
+<session>
+         <ejb-name>ShoppingCart</ejb-name>
+         <business-remote>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</business-remote>
+         <ejb-class>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCartBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <remove-method>
+            <bean-method>
+               <method-name>checkout</method-name>
+            </bean-method>
+            <retain-if-exception>false</retain-if-exception>
+         </remove-method>
+         <transaction-type>Container</transaction-type>
+</session>
+			]]>
+		</programlisting>
+
+		<note>
+			<para>
+				There's a very important difference between the <literal>remote</literal> and a <literal>business-remote</literal>
+				interface. The EJB2.x remote interfaces, which extend from EJBObject, are referred through the <literal>&lt;remote&gt;</literal>
+				tag in the ejb-jar.xml. On the other hand, the EJB3 style Plain Old Java Interface which is implemented by your EJB3 style
+				POJO bean is known as the business-remote interface and is represented by the <literal>@Remote</literal> and it's
+				corresponding <literal>&lt;business-remote&gt;</literal> tag in ejb-jar.xml.
+
+				Similar is the case with <literal>&lt;local&gt;</literal> and the <literal>&lt;business-local&gt;</literal> tags in ejb-jar.xml.
+			</para>
+		</note>
+
+	</para>
+
+	<sect5>
+		@Remove :
+		<para>
+			Take another look at <literal>META-INF/ejb-jar.xml</literal>. Look for the "remove-method" tag.
+			Instead of explicitly calling EJBObject.remove() in your applications and thus polluting it further with J2EE specific code,
+			any method specified in the "remove-method" tag will cause the stateful bean instance to be removed from the container
+			at the end of the method call. This deployment descriptor behavior mimics the <literal>@Remove</literal> annotation.
+
+		</para>
+	</sect5>
+
+	<sect5>
+		JNDI Bindings through deployment descriptor :
+
+		<para>
+			The CalculatorBean will have its remote interface bound in JNDI. Take a look at <literal>META-INF/jboss.xml</literal>.
+			Note the <literal>jndi-name</literal> tag. This specifies the jndi binding for the remote interface of the bean.
+
+		</para>
+	</sect5>
+
+	<sect5>
+		Client :
+		<para>
+			Open up <literal>org.jboss.tutorial.stateful_deployment_descriptor.client.Client</literal>.
+			You'll see that it looks up the stateful bean under its jndi name.  Also notice that there is no Home interface
+			and you can begin executing on the stateful bean right away. When you access the bean in JNDI, an instance of the stateful
+			bean will be created on the server. So, when you need a different instance of the stateful bean, you do an additional
+			jndi lookup to get this new reference.
+		</para>
+	</sect5>
+
+	<sect5>
+
+Building and Running
+	<para>
+			<note>
+					<para>
+						To build and run the example, make sure you have installed JBoss 5.x.
+						See the <xref linkend="JBossAS5">installation section</xref> for details.
+					</para>
+			</note>
+			From the command prompt, move to the "stateful_deployment_descriptor" folder under the <xref linkend="EJB3_TUTORIAL_HOME">EJB3_TUTORIAL_HOME</xref>
+			<sect5>
+		Ant Users:
+			</sect5>
+				<para>
+				Make sure your JBossAS-5.x is running
+				</para>
+			<programlisting>
+			<![CDATA[
+$ ant
+$ ant run
+
+run:
+     [java] Buying 1 memory stick
+     [java] Buying another memory stick
+     [java] Buying a laptop
+     [java] Print cart:
+     [java] 2     Memory stick
+     [java] 1     Laptop
+     [java] Checkout
+     [java] Should throw an object not found exception by invoking on cart after @Remove method
+     [java] Successfully caught no such object exception.
+
+		     ]]>
+			</programlisting>
+
+			<sect5>
+Maven Users: Make sure the AS is not running.
+	</sect5>
+
+	<programlisting>
+$ mvn clean install -PRunSingleTutorial
+			</programlisting>
+
+		</para>
+	</sect5>
+
+
+</chapter>

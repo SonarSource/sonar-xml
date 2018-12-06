@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<jboss xmlns:xs="http://www.jboss.org/j2ee/schema"
+       xs:schemaLocation="http://www.jboss.org/j2ee/schema jboss_5_0.xsd"
+             version="5.0"> 
+    <enterprise-beans>
+        <session>
+            <ejb-name>ENCBean</ejb-name>
+            <jndi-name>ENCTest</jndi-name>
+            <resource-ref>
+                <res-ref-name>jdbc/DefaultDS</res-ref-name>
+                <resource-name>DefaultDS</resource-name>
+            </resource-ref>
+            <resource-ref>
+                <res-ref-name>mail/DefaultMail</res-ref-name>
+                <resource-name>DefaultMail</resource-name>
+            </resource-ref>
+            <resource-ref>
+                <res-ref-name>jms/QueFactory</res-ref-name>
+                <jndi-name>ConnectionFactory</jndi-name>
+            </resource-ref>
+
+            <resource-env-ref>
+                <resource-env-ref-name>res/aQueue</resource-env-ref-name>
+                <jndi-name>queue/testQueue</jndi-name>
+            </resource-env-ref>
+        </session>
+    </enterprise-beans>
+
+    <resource-managers>
+        <resource-manager res-class="">
+            <res-name>DefaultDS</res-name>
+            <res-jndi-name>java:/DefaultDS</res-jndi-name>
+        </resource-manager>
+        <resource-manager res-class="">
+            <res-name>DefaultMail</res-name>
+            <res-jndi-name>java:/Mail</res-jndi-name>
+        </resource-manager>
+    </resource-managers>
+</jboss>

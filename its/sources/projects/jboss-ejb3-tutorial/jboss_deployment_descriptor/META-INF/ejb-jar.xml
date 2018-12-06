@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <description>JBoss Stateful Session Bean Tutorial</description>
+   <display-name>JBoss Stateful Session Bean Tutorial</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>ShoppingCartBean</ejb-name>
+         <business-remote>org.jboss.tutorial.jboss_deployment_descriptor.bean.ShoppingCart</business-remote>
+         <ejb-class>org.jboss.tutorial.jboss_deployment_descriptor.bean.ShoppingCartBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <remove-method>
+            <bean-method>
+               <method-name>checkout</method-name>
+            </bean-method>
+            <retain-if-exception>false</retain-if-exception>
+         </remove-method>
+         <transaction-type>Container</transaction-type>
+      </session>
+   </enterprise-beans>
+   <assembly-descriptor>
+        <method-permission>
+            <role-name>shopper</role-name>
+            <method>
+                <ejb-name>ShoppingCartBean</ejb-name>
+                <method-name>buy</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <role-name>clerk</role-name>
+            <method>
+                <ejb-name>ShoppingCartBean</ejb-name>
+                <method-name>priceCheck</method-name>
+            </method>
+        </method-permission>
+
+   </assembly-descriptor>
+</ejb-jar>

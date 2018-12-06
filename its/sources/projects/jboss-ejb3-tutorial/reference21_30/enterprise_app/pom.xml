@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  
+	<properties>
+		
+		<!-- This tutorial doesn't have to run standalone client, just deploy/undeploy is good for us. So
+		set the skip property -->
+		<jboss.ejb3.tutorial.client.skip>true</jboss.ejb3.tutorial.client.skip>
+		
+	  	<!--  Versions -->
+	    <version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb21_app>1.1.0</version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb21_app>
+	    <version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb3_app>1.1.0</version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb3_app>
+	    <version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_webapp>1.1.0</version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_webapp>
+  	</properties>
+  	
+  
+   
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+  
+  <!-- 
+	Our parent will be jboss-ejb3-tutorial-common, which will provide
+	the framework for deploy/undeploy into AS  
+   -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-tutorial-common</artifactId>
+    <version>1.1.1</version>
+    <relativePath>../../common</relativePath>
+  </parent>
+
+  
+
+	
+  <artifactId>jboss-ejb3-tutorial-ejbreferences</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>ear</packaging>
+  <name>Enterprise application for referencing EJB2.1 with EJB3 and vice versa</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    Tutorial demonstrating how EJB2.1 and EJB3 can reference one another.
+  </description>
+  
+	
+  
+  
+	<!-- Dependencies -->
+	<dependencies>
+  		
+      
+      <dependency>
+            <groupId>org.jboss.ejb3</groupId>
+            <artifactId>jboss-ejb3-tutorial-reference21_30_ejb3_app</artifactId>
+            <version>${version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb3_app}</version>
+			<type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.ejb3</groupId>
+            <artifactId>jboss-ejb3-tutorial-reference21_30_ejb21_app</artifactId>
+            <version>${version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_ejb21_app}</version>
+			<type>ejb</type>
+        </dependency>
+         <dependency>
+            <groupId>org.jboss.ejb3</groupId>
+            <artifactId>jboss-ejb3-tutorial-reference21_30_webapp</artifactId>
+            <version>${version.org.jboss.ejb3_jboss-ejb3-tutorial-reference21_30_webapp}</version>
+			<type>war</type>
+        </dependency>
+      <dependency>
+            <groupId>org.jboss.jbossas</groupId>
+            <artifactId>jboss-as-client</artifactId>
+
+            <type>pom</type>
+            <!--  The scope needs to be set to provided, or else
+            when the maven-ear-plugin tries to create an EAR, it includes
+            all the dependent jars in the EAR package and also runs into this 
+            error http://www.nabble.com/maven-ear-plugin%3A-Always-throws-%22Embedded-error%3A-Unknown-artifact-type-test-jar-%22-td21370128.html
+             -->
+            <scope>provided</scope>
+        </dependency>
+	</dependencies>
+</project>
