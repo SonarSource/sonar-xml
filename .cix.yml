@@ -2,8 +2,9 @@
 
 TEST:
   - plugin
+  - ruling
 
-SQ_VERSION: 
+SQ_VERSION:
   - DEV
   - LATEST_RELEASE
   - LATEST_RELEASE[6.7]
