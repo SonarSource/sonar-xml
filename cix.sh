@@ -3,7 +3,13 @@ set -euo pipefail
 echo "Running $TEST with SQ=$SQ_VERSION"
 
 case "$TEST" in
-  plugin)  
+  plugin)
+    
+  cd its/$TEST
+  mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false package
+  ;;
+
+  ruling)
     
   cd its/$TEST
   mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false package

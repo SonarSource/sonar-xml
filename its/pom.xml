@@ -9,11 +9,12 @@
   </parent>
 
   <artifactId>xml-its</artifactId>
-  <name>SonarXML :: IT</name>
+  <name>SonarXML :: ITs</name>
   <packaging>pom</packaging>
 
   <modules>
     <module>plugin</module>
+    <module>ruling</module>
   </modules>
 
 </project>

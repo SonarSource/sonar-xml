@@ -60,6 +60,7 @@
     <sonar.version>7.4</sonar.version>
     <sslr.version>1.22</sslr.version>
     <analyzerCommons.version>1.5.0.178</analyzerCommons.version>
+    <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <!-- Release: enable publication to Bintray -->
@@ -95,6 +96,11 @@
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-commons</artifactId>
         <version>${analyzerCommons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
+        <version>${sonar.orchestrator.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
