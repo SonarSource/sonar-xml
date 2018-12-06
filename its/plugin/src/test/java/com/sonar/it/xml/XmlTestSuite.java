@@ -44,8 +44,7 @@ import static java.util.Collections.singletonList;
 @RunWith(Suite.class)
 @SuiteClasses({
   ByteOrderMarkTest.class,
-  XmlTest.class,
-  SchemaCheckTest.class})
+  XmlTest.class})
 public class XmlTestSuite {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";

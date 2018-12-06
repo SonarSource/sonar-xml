@@ -46,7 +46,7 @@ public class XmlRulesDefinitionTest {
 
     assertThat(repository.rules().stream().filter(Rule::template).map(Rule::key))
         .isNotEmpty()
-        .containsOnly("XPathCheck", "XmlSchemaCheck");
+        .containsOnly("XPathCheck");
 
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {
