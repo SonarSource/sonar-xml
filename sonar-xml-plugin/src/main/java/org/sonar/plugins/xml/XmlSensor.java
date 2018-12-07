@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml;
 
+import java.net.URI;
 import java.util.List;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -97,17 +98,40 @@ public class XmlSensor implements Sensor {
       checks.all().stream()
         .filter(AbstractXmlCheck.class::isInstance)
         .map(AbstractXmlCheck.class::cast)
-        .forEach(check -> {
-          check.setRuleKey(checks.ruleKey(check));
-          check.validate(sourceCode);
-        });
-      saveIssue(context, sourceCode);
+        .forEach(check -> runCheck(check, sourceCode));
+      saveIssues(context, sourceCode);
     }
 
     checks.all().stream()
       .filter(NewXmlCheck.class::isInstance)
       .map(NewXmlCheck.class::cast)
-      .forEach(check -> check.scanFile(context, newXmlFile));
+      .forEach(check -> runCheck(context, check, newXmlFile));
+  }
+
+  private void runCheck(AbstractXmlCheck check, XmlSourceCode sourceCode) {
+    try {
+      check.setRuleKey(checks.ruleKey(check));
+      check.validate(sourceCode);
+    } catch (Exception e) {
+      logFailingRule(check.getRuleKey().rule(), sourceCode.getInputFile().uri(), e);
+    }
+  }
+
+  private static void runCheck(SensorContext context, NewXmlCheck check, NewXmlFile newXmlFile) {
+    try {
+      check.scanFile(context, newXmlFile);
+    } catch (Exception e) {
+      logFailingRule(check.ruleKey(), newXmlFile.getInputFile().uri(), e);
+    }
+  }
+
+  private static void logFailingRule(String rule, URI fileLocation, Exception e) {
+    logError(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
+  }
+
+  private static void logError(String message, Exception e) {
+    LOG.warn(message);
+    LOG.debug("Cause: {}", e.getMessage());
   }
 
   private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
@@ -119,7 +143,7 @@ public class XmlSensor implements Sensor {
     highlighting.save();
   }
 
-  protected void saveIssue(SensorContext context, XmlSourceCode sourceCode) {
+  protected void saveIssues(SensorContext context, XmlSourceCode sourceCode) {
     for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
       NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
       NewIssueLocation location = newIssue.newLocation()
@@ -147,8 +171,7 @@ public class XmlSensor implements Sensor {
   private void processParseException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
-    LOG.warn("Unable to analyse file {}", inputFile.uri());
-    LOG.debug("Cause: {}", e.getMessage());
+    logError(String.format("Unable to analyse file %s", inputFile.uri()), e);
 
     if (reportingParsingErrors) {
       reportParsingException(e, context, inputFile);

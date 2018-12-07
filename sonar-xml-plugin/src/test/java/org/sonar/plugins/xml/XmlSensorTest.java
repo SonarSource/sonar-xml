@@ -201,7 +201,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     when(sourceCode.getXmlIssues()).thenReturn(singletonList(issueWithNoLine));
     when(sourceCode.getInputFile()).thenReturn(createInputFile("src/pom.xml"));  // any file fits
 
-    sensor.saveIssue(context, sourceCode);
+    sensor.saveIssues(context, sourceCode);
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next(); 
