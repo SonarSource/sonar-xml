@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
-/**
- * Perform check for indenting of elements.
- *
- * @author Matthijs Galesloot
- */
-@Rule(key = "S1778")
-public class CharBeforePrologCheck extends AbstractXmlCheck {
+@Rule(key = CharBeforePrologCheck.RULE_KEY)
+public class CharBeforePrologCheck extends NewXmlCheck {
+
+  public static final String RULE_KEY = "S1778";
 
   @Override
-  public void validate(XmlSourceCode xmlSourceCode) {
-    setWebSourceCode(xmlSourceCode);
+  public String ruleKey() {
+    return RULE_KEY;
+  }
 
-    if (getWebSourceCode().isPrologFirstInSource()) {
-      createViolation(getWebSourceCode().getXMLPrologLine(), "Remove all characters located before \"<?xml\".");
-    }
+  @Override
+  public void scanFile(NewXmlFile file) {
+    file.getPrologElement().ifPresent(prologElement -> {
+      XmlTextRange prologStartLocation = prologElement.getPrologStartLocation();
+      if (prologStartLocation.getStartLine() != 1 || prologStartLocation.getStartColumn() != 0) {
+        reportIssue(prologStartLocation, "Remove all characters located before \"<?xml\".");
+      }
+    });
   }
 
 }

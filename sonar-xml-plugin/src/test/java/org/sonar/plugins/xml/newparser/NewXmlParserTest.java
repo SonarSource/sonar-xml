@@ -231,6 +231,14 @@ public class NewXmlParserTest {
     assertRange(attribute.getValueLocation(), 1,  14, 1, 19);
   }
 
+ @Test
+  public void testPrologWithCharsAndLineBefore() throws Exception {
+    NewXmlFile file = NewXmlFile.create("\n  <?xml version=\"1.0\"?><tag/>");
+    PrologElement prologElement = file.getPrologElement().get();
+
+    assertRange(prologElement.getPrologStartLocation(), 2, 2, 2, 7);
+  }
+
   @Test
   public void testNesting() throws Exception {
     Document document = NewXmlFile.create("<a><b/><c /><d></d></a>").getDocument();

@@ -27,6 +27,8 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.w3c.dom.Node;
 
 public abstract class NewXmlCheck {
 
@@ -62,5 +64,29 @@ public abstract class NewXmlCheck {
       // FIXME reposirory is going to be variable in future.
       .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
       .save();
+  }
+
+  public final void reportIssue(XmlTextRange textRange, String message) {
+    NewIssue issue = context.newIssue();
+
+    NewIssueLocation location = issue.newLocation()
+      .on(inputFile)
+      .at(inputFile.newRange(
+        textRange.getStartLine(),
+        textRange.getStartColumn(),
+        textRange.getEndLine(),
+        textRange.getEndColumn()))
+      .message(message);
+
+    issue
+      .at(location)
+      // FIXME reposirory is going to be variable in future.
+      .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
+      .save();
+  }
+
+  public final void reportIssue(Node node, String message) {
+    XmlTextRange textRange = NewXmlFile.nodeLocation(node);
+    reportIssue(textRange, message);
   }
 }

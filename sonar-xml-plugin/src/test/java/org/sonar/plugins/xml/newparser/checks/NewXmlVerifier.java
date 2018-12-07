@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.newparser.checks;
 
+import com.sonarsource.checks.verifier.SingleFileVerifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,15 +31,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Node;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,13 +52,19 @@ public class NewXmlVerifier {
   private static final Path BASE_DIR = Paths.get("src/test/resources/checks/");
 
   private final Collection<Issue> issues;
+  private final NewXmlFile file;
 
-  private NewXmlVerifier(Collection<Issue> issues) {
+  private NewXmlVerifier(NewXmlFile file, Collection<Issue> issues) {
+    this.file = file;
     this.issues = issues;
   }
 
   public static void verifyIssueOnFile(String relativePath, NewXmlCheck check, String expectedIssueMessage, int... secondaryLines) {
     createVerifier(relativePath, check).checkIssueOnFile(expectedIssueMessage, secondaryLines);
+  }
+
+  public static void verifyIssues(String relativePath, NewXmlCheck check) {
+    createVerifier(relativePath, check).checkIssues();
   }
 
   public static void verifyNoIssue(String relativePath, NewXmlCheck check) {
@@ -84,15 +96,44 @@ public class NewXmlVerifier {
 
     context.fileSystem().add(defaultInputFile);
 
-    NewXmlFile newXmlFile;
+    NewXmlFile xmlFile;
     try {
-      newXmlFile = NewXmlFile.create(defaultInputFile);
+      xmlFile = NewXmlFile.create(defaultInputFile);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Unable to scan xml file %s", filePath), e);
     }
 
-    check.scanFile(context, newXmlFile);
-    return new NewXmlVerifier(context.allIssues());
+    check.scanFile(context, xmlFile);
+    return new NewXmlVerifier(xmlFile, context.allIssues());
+  }
+
+  private void checkIssues() {
+    SingleFileVerifier fileVerifier = SingleFileVerifier.create(file.getInputFile().path(), StandardCharsets.UTF_8);
+    addComments(fileVerifier, file.getDocument());
+
+    issues.forEach(issue -> {
+      IssueLocation loc = issue.primaryLocation();
+      TextRange textRange = loc.textRange();
+      fileVerifier
+        .reportIssue(loc.message())
+        .onRange(
+          textRange.start().line(),
+          textRange.start().lineOffset() + 1,
+          textRange.end().line(),
+          textRange.end().lineOffset() + 1);
+    });
+
+    fileVerifier.assertOneOrMoreIssues();
+  }
+
+  private void addComments(SingleFileVerifier fileVerifier, Node node) {
+    if (node.getNodeType() == Node.COMMENT_NODE) {
+      Comment comment = (Comment) node;
+      XmlTextRange range = NewXmlFile.nodeLocation(node);
+      fileVerifier.addComment(range.getStartLine(), range.getStartColumn() + 1 + 4, comment.getNodeValue(), 0, 0);
+    }
+
+    NewXmlFile.children(node).forEach(child -> addComments(fileVerifier, child));
   }
 
   private void checkIssueOnFile(String expectedIssueMessage, int... secondaryLines) {

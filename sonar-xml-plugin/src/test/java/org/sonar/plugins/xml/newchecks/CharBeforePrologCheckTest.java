@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.junit.Test;
+import org.sonar.plugins.xml.checks.AbstractCheckTester;
+import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
 
-public class CheckRepository {
+public class CharBeforePrologCheckTest extends AbstractCheckTester {
 
-  private CheckRepository() {
+  @Test
+  public void test() {
+    CharBeforePrologCheck check = new CharBeforePrologCheck();
+    NewXmlVerifier.verifyIssues("nok.xml", check);
+
+    NewXmlVerifier.verifyNoIssue("ok.xml", check);
+    NewXmlVerifier.verifyNoIssue("ok_without_prolog.xml", check);
   }
-
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new IndentCheck(),
-      new NewlineCheck(),
-      new ParsingErrorCheck(),
-      new XPathCheck());
-  }
-
-  public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
-  }
-
 }
