@@ -130,7 +130,7 @@ class XmlLocation {
 
   // zero-based
   public int computeSqColumn(XmlLocation xmlStartLocation) {
-    int columnOffset = line == xmlStartLocation.line ? (xmlStartLocation.column - 1) : 0;
+    int columnOffset = line == xmlStartLocation.line || line == 1 ? (xmlStartLocation.column - 1) : 0;
     // "-1" to make it zero-based
     return column + columnOffset - 1;
   }

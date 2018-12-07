@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.newchecks;
 
-import java.util.Collections;
 import org.sonar.check.Rule;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.XmlTextRange;
@@ -40,7 +39,7 @@ public class CharBeforePrologCheck extends NewXmlCheck {
     file.getPrologElement().ifPresent(prologElement -> {
       XmlTextRange prologStartLocation = prologElement.getPrologStartLocation();
       if (prologStartLocation.getStartLine() != 1 || prologStartLocation.getStartColumn() != 0) {
-        reportIssueOnFile("Remove all characters located before \"<?xml\".", Collections.emptyList());
+        reportIssue(prologStartLocation, "Remove all characters located before \"<?xml\".");
       }
     });
   }

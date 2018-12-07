@@ -28,8 +28,7 @@ public class CharBeforePrologCheckTest extends AbstractCheckTester {
   @Test
   public void test() {
     CharBeforePrologCheck check = new CharBeforePrologCheck();
-    NewXmlVerifier.verifyIssueOnFile("nok.xml", check,
-      "Remove all characters located before \"<?xml\".");
+    NewXmlVerifier.verifyIssues("nok.xml", check);
 
     NewXmlVerifier.verifyNoIssue("ok.xml", check);
     NewXmlVerifier.verifyNoIssue("ok_without_prolog.xml", check);
