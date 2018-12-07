@@ -20,8 +20,6 @@
 package org.sonar.plugins.xml;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -54,7 +52,10 @@ public class XmlSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(XmlSensor.class);
 
+  private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, ParsingErrorCheck.RULE_KEY);
+
   private final Checks<Object> checks;
+  private final boolean reportingParsingErrors;
   private final FileSystem fileSystem;
   private final FilePredicate mainFilesPredicate;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -64,6 +65,7 @@ public class XmlSensor implements Sensor {
     this.checks = checkFactory.create(Xml.REPOSITORY_KEY)
       .addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses())
       .addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
+    this.reportingParsingErrors = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
@@ -72,7 +74,6 @@ public class XmlSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    BiConsumer<Exception, InputFile> parsingExceptionHandler = parsingExceptionHandler(context);
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
       XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
@@ -80,8 +81,9 @@ public class XmlSensor implements Sensor {
         NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
         LineCounter.analyse(context, fileLinesContextFactory, newXmlFile);
         runChecks(context, xmlFile, newXmlFile);
+        saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), inputFile);
       } catch (Exception e) {
-        processParseException(e, context, inputFile, parsingExceptionHandler);
+        processParseException(e, context, inputFile);
       }
     }
   }
@@ -106,8 +108,6 @@ public class XmlSensor implements Sensor {
       .filter(NewXmlCheck.class::isInstance)
       .map(NewXmlCheck.class::cast)
       .forEach(check -> check.scanFile(context, newXmlFile));
-
-    saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), xmlFile.getInputFile());
   }
 
   private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
@@ -144,13 +144,15 @@ public class XmlSensor implements Sensor {
       .name("XML Sensor");
   }
 
-  private static void processParseException(Exception e, SensorContext context, InputFile inputFile, BiConsumer<Exception, InputFile> parsingExceptionConsumer) {
+  private void processParseException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
     LOG.warn("Unable to analyse file {}", inputFile.uri());
     LOG.debug("Cause: {}", e.getMessage());
 
-    parsingExceptionConsumer.accept(e, inputFile);
+    if (reportingParsingErrors) {
+      reportParsingException(e, context, inputFile);
+    }
   }
 
   private static void reportAnalysisError(Exception e, SensorContext context, InputFile inputFile) {
@@ -160,29 +162,13 @@ public class XmlSensor implements Sensor {
       .save();
   }
 
-  private BiConsumer<Exception, InputFile> parsingExceptionHandler(SensorContext context) {
-    Optional<RuleKey> parsingErrorKey = getParsingErrorKey();
-    if (parsingErrorKey.isPresent()) {
-      return (e, i) -> reportParsingException(e, context, i, parsingErrorKey.get());
-    }
-    return (e, i) -> { /* do nothing */ };
-  }
-
-  private Optional<RuleKey> getParsingErrorKey() {
-    return checks.all().stream()
-      .filter(ParsingErrorCheck.class::isInstance)
-      .map(ParsingErrorCheck.class::cast)
-      .map(checks::ruleKey)
-      .findFirst();
-  }
-
-  private static void reportParsingException(Exception e, SensorContext context, InputFile inputFile, RuleKey parsingErrorKey) {
+  private static void reportParsingException(Exception e, SensorContext context, InputFile inputFile) {
     NewIssue newIssue = context.newIssue();
     NewIssueLocation primaryLocation = newIssue.newLocation()
       .message("Parse error: " + e.getMessage())
       .on(inputFile);
     newIssue
-      .forRule(parsingErrorKey)
+      .forRule(PARSING_ERROR_RULE_KEY)
       .at(primaryLocation)
       .save();
   }

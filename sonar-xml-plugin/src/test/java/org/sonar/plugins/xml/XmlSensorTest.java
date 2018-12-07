@@ -74,11 +74,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private XmlSensor sensor;
   private SensorContextTester context;
 
-  private final RuleKey ruleKey = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
-
-  private final String parsingErrorCheckKey = "S2260";
-
-  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, parsingErrorCheckKey);
+  private static final RuleKey NEW_LINE_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
+  private static final String PARSING_ERROR_CHECK_KEY = "S2260";
+  private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
 
   @Test(timeout = 10000)
   public void testPerformance() throws Exception {
@@ -99,7 +97,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
   }
 
   /**
@@ -113,7 +111,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
   }
 
   /**
@@ -129,7 +127,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
+    assertThat(issue.ruleKey().rule()).isEqualTo(PARSING_ERROR_CHECK_KEY);
 
     assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
@@ -162,15 +160,15 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     ActiveRules activeRules = null;
     if (activateParsingErrorCheck) {
       activeRules = new ActiveRulesBuilder()
-        .create(ruleKey)
+        .create(NEW_LINE_RULE_KEY)
         .activate()
-        .create(parsingErrorCheckRuleKey)
-        .setInternalKey(parsingErrorCheckKey)
+        .create(PARSING_ERROR_RULE_KEY)
+        .setInternalKey(PARSING_ERROR_CHECK_KEY)
         .activate()
         .build();
     } else {
       activeRules = new ActiveRulesBuilder()
-        .create(ruleKey)
+        .create(NEW_LINE_RULE_KEY)
         .activate()
         .build();
     }
@@ -239,7 +237,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(defaultInputFile.file()), StandardCharsets.UTF_8, defaultInputFile.absolutePath()));
 
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(ruleKey)
+      .create(NEW_LINE_RULE_KEY)
       .activate()
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);
