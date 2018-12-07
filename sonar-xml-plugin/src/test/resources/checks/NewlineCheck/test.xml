@@ -1,0 +1,52 @@
+<top>
+   <a></a>
+
+   <a>Foo</a>
+
+   <a><!-- Comment --></a>
+
+   <a>
+   </a>
+
+   <a>
+      Hello
+   </a>
+
+   <a>
+      <b></b>
+      <b/>
+      <b>
+         Hello
+      </b>
+   </a>
+
+   <a><b>   <!-- Noncompliant {{Put this element on a separate line.}}-->
+<!--  ^^^ -->
+      </b></a> <!-- Noncompliant {{Add a newline after this tag.}} -->
+<!--  ^^^^ -->
+
+   <a>
+      <b/></a><!-- Noncompliant {{Add a newline after this tag.}} -->
+ <!-- ^^^^ -->
+
+   <!-- Noncompliant@+1 {{Put this element on a separate line.}} -->
+   <a><b/></a>
+
+   <!-- Noncompliant@+2 {{Put this element on a separate line.}} -->
+   <!-- Noncompliant@+1 {{Add a newline after this tag.}} -->
+   <a><b
+       attr="42"
+      /></a>
+
+   <!-- Noncompliant@+2 {{Put this element on a separate line.}} -->
+   <!-- Noncompliant@+1 {{Put this element on a separate line.}} -->
+   <a/><b/><c/>
+
+   <a><b>Hello</b></a> <!-- Noncompliant {{Put this element on a separate line.}}  -->
+<!--  ^^^^^^^^^^^^ -->
+
+   <a></a><b></b> <!-- Noncompliant {{Put this element on a separate line.}} -->
+<!--      ^^^-->
+
+   <a></a><b></b> <!-- Noncompliant -->
+</top>

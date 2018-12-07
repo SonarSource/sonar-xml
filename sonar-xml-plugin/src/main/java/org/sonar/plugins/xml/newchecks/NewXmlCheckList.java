@@ -31,7 +31,8 @@ public class NewXmlCheckList {
     return Arrays.asList(
       CharBeforePrologCheck.class,
       TabCharacterCheck.class,
-      ParsingErrorCheck.class
+      ParsingErrorCheck.class,
+      NewlineCheck.class
     );
   }
 

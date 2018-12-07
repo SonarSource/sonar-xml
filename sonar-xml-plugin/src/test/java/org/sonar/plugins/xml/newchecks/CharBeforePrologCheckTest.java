@@ -20,10 +20,9 @@
 package org.sonar.plugins.xml.newchecks;
 
 import org.junit.Test;
-import org.sonar.plugins.xml.checks.AbstractCheckTester;
 import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
 
-public class CharBeforePrologCheckTest extends AbstractCheckTester {
+public class CharBeforePrologCheckTest {
 
   @Test
   public void test() {

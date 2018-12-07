@@ -19,30 +19,13 @@
  */
 package org.sonar.plugins.xml.newchecks;
 
-import java.util.Collections;
-import org.sonar.check.Rule;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.junit.Test;
+import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
 
-@Rule(key = CharBeforePrologCheck.RULE_KEY)
-public class CharBeforePrologCheck extends NewXmlCheck {
+public class NewlineCheckTest {
 
-  public static final String RULE_KEY = "S1778";
-
-  @Override
-  public String ruleKey() {
-    return RULE_KEY;
+  @Test
+  public void test() {
+    NewXmlVerifier.verifyIssues("test.xml", new NewlineCheck());
   }
-
-  @Override
-  public void scanFile(NewXmlFile file) {
-    file.getPrologElement().ifPresent(prologElement -> {
-      XmlTextRange prologStartLocation = prologElement.getPrologStartLocation();
-      if (prologStartLocation.getStartLine() != 1 || prologStartLocation.getStartColumn() != 0) {
-        reportIssue(prologStartLocation, "Remove all characters located before \"<?xml\".", Collections.emptyList());
-      }
-    });
-  }
-
 }
