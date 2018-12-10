@@ -32,6 +32,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
@@ -117,7 +118,8 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private static void runCheck(SensorContext context, NewXmlCheck check, NewXmlFile newXmlFile) {
+  @VisibleForTesting
+  static void runCheck(SensorContext context, NewXmlCheck check, NewXmlFile newXmlFile) {
     try {
       check.scanFile(context, newXmlFile);
     } catch (Exception e) {
