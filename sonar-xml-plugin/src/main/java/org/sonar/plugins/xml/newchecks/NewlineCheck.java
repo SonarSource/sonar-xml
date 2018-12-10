@@ -21,6 +21,7 @@ package org.sonar.plugins.xml.newchecks;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
@@ -60,42 +61,37 @@ public class NewlineCheck extends NewXmlCheck {
   }
 
   private void checkChildrenLine(List<Node> children, Element currentElement) {
-    OutermostChildElements outermostChildElements = getOutermostChildElements(children);
-    XmlTextRange reportedRange = null;
-
-    if (outermostChildElements.first != null) {
+    getOutermostChildElements(children).ifPresent(outermostChildElements -> {
       XmlTextRange start = NewXmlFile.startLocation(currentElement);
-      XmlTextRange firstChildElementStart = NewXmlFile.startLocation(outermostChildElements.first);
-      if (firstChildElementStart.getStartLine() == start.getEndLine()) {
-        reportedRange = firstChildElementStart;
-      }
-    }
-
-    if (outermostChildElements.last != null) {
       XmlTextRange end = NewXmlFile.endLocation(currentElement);
-      XmlTextRange lastChildElementRange = NewXmlFile.nodeLocation(outermostChildElements.last);
+
+      XmlTextRange firstChildElementStart = NewXmlFile.startLocation(outermostChildElements.first);
       XmlTextRange lastChildElementEnd = NewXmlFile.endLocation(outermostChildElements.last);
-      if (lastChildElementEnd.getEndLine() == end.getStartLine()) {
-        boolean reportEntireElement = outermostChildElements.last.equals(outermostChildElements.first)
-          && reportedRange != null
-          && lastChildElementRange.getStartLine() == lastChildElementRange.getEndLine();
-        if (reportEntireElement) {
-          reportedRange = lastChildElementRange;
-        } else {
+
+      boolean firstChildBadlyFormatted = firstChildElementStart.getStartLine() == start.getEndLine();
+      boolean lastChildBadlyFormatted = lastChildElementEnd.getEndLine() == end.getStartLine();
+
+      boolean singleChildElement = outermostChildElements.last.equals(outermostChildElements.first);
+      boolean singleLineChildElement = firstChildElementStart.getStartLine() == lastChildElementEnd.getEndLine();
+      if (singleChildElement && singleLineChildElement && firstChildBadlyFormatted && lastChildBadlyFormatted) {
+        // report once on the entire child element
+        reportIssue(outermostChildElements.first, MESSAGE_START);
+      } else {
+        if (firstChildBadlyFormatted) {
+          reportIssue(firstChildElementStart, MESSAGE_START, Collections.emptyList());
+        }
+
+        if (lastChildBadlyFormatted) {
           reportIssue(lastChildElementEnd, MESSAGE_END, Collections.emptyList());
         }
       }
-    }
-
-    if (reportedRange != null) {
-      reportIssue(reportedRange, MESSAGE_START, Collections.emptyList());
-    }
+    });
   }
 
   private void checkNextSiblingLine(Element node) {
     XmlTextRange end = NewXmlFile.endLocation(node);
     Element nextSiblingElement = getNextSiblingElement(node);
-    if (nextSiblingElement != null){
+    if (nextSiblingElement != null) {
       XmlTextRange nextSiblingElementStart = NewXmlFile.startLocation(nextSiblingElement);
       if (nextSiblingElementStart.getStartLine() == end.getEndLine()) {
         reportIssue(nextSiblingElementStart, MESSAGE_START, Collections.emptyList());
@@ -116,7 +112,7 @@ public class NewlineCheck extends NewXmlCheck {
     return getNextSiblingElement(nextSibling);
   }
 
-  private static OutermostChildElements getOutermostChildElements(List<Node> children) {
+  private static Optional<OutermostChildElements> getOutermostChildElements(List<Node> children) {
     Element firstChildElement = null;
     Element lastChildElement = null;
 
@@ -129,14 +125,17 @@ public class NewlineCheck extends NewXmlCheck {
       }
     }
 
-    return new OutermostChildElements(firstChildElement, lastChildElement);
+    if (firstChildElement != null) {
+      return Optional.of(new OutermostChildElements(firstChildElement, lastChildElement));
+    }
+    return Optional.empty();
   }
 
   private static class OutermostChildElements {
     Element first = null;
     Element last = null;
 
-    OutermostChildElements(@Nullable Element first, @Nullable Element last) {
+    OutermostChildElements(Element first, Element last) {
       this.first = first;
       this.last = last;
     }
