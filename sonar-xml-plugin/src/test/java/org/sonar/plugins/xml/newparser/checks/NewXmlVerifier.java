@@ -140,7 +140,7 @@ public class NewXmlVerifier {
     if (node.getNodeType() == Node.COMMENT_NODE) {
       Comment comment = (Comment) node;
       XmlTextRange range = NewXmlFile.nodeLocation(node);
-      fileVerifier.addComment(range.getStartLine(), range.getStartColumn() + 1 + 4, comment.getNodeValue(), 0, 0);
+      fileVerifier.addComment(range.getStartLine(), range.getStartColumn() + "<!--".length() + 1, comment.getNodeValue(), 0, 0);
     }
 
     NewXmlFile.children(node).forEach(child -> addComments(fileVerifier, child));
