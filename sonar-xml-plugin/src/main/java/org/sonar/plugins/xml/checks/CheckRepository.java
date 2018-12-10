@@ -31,7 +31,6 @@ public class CheckRepository {
   public static List<AbstractXmlCheck> getChecks() {
     return Arrays.asList(
       new IndentCheck(),
-      new NewlineCheck(),
       new XPathCheck());
   }
 

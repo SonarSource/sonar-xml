@@ -59,7 +59,7 @@
 
     <sonar.version>7.4</sonar.version>
     <sslr.version>1.22</sslr.version>
-    <analyzerCommons.version>1.5.0.178</analyzerCommons.version>
+    <analyzerCommons.version>1.9.0.327</analyzerCommons.version>
     <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 

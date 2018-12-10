@@ -114,13 +114,23 @@ public class NewXmlVerifier {
     issues.forEach(issue -> {
       IssueLocation loc = issue.primaryLocation();
       TextRange textRange = loc.textRange();
-      fileVerifier
+      SingleFileVerifier.Issue actualIssue = fileVerifier
         .reportIssue(loc.message())
         .onRange(
           textRange.start().line(),
           textRange.start().lineOffset() + 1,
           textRange.end().line(),
-          textRange.end().lineOffset() + 1);
+          textRange.end().lineOffset());
+
+      issue.flows().forEach(flow -> {
+        TextRange secondaryRange = flow.locations().get(0).textRange();
+        actualIssue.addSecondary(
+          secondaryRange.start().line(),
+          secondaryRange.start().lineOffset() + 1,
+          secondaryRange.end().line(),
+          secondaryRange.end().lineOffset(),
+          null);
+      });
     });
 
     fileVerifier.assertOneOrMoreIssues();
@@ -130,7 +140,7 @@ public class NewXmlVerifier {
     if (node.getNodeType() == Node.COMMENT_NODE) {
       Comment comment = (Comment) node;
       XmlTextRange range = NewXmlFile.nodeLocation(node);
-      fileVerifier.addComment(range.getStartLine(), range.getStartColumn() + 1 + 4, comment.getNodeValue(), 0, 0);
+      fileVerifier.addComment(range.getStartLine(), range.getStartColumn() + "<!--".length() + 1, comment.getNodeValue(), 0, 0);
     }
 
     NewXmlFile.children(node).forEach(child -> addComments(fileVerifier, child));

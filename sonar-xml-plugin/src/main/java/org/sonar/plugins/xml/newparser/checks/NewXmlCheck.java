@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.newparser.checks;
 
+import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -66,17 +67,10 @@ public abstract class NewXmlCheck {
       .save();
   }
 
-  public final void reportIssue(XmlTextRange textRange, String message) {
+  public final void reportIssue(XmlTextRange textRange, String message, List<XmlTextRange> secondaries) {
     NewIssue issue = context.newIssue();
-
-    NewIssueLocation location = issue.newLocation()
-      .on(inputFile)
-      .at(inputFile.newRange(
-        textRange.getStartLine(),
-        textRange.getStartColumn(),
-        textRange.getEndLine(),
-        textRange.getEndColumn()))
-      .message(message);
+    NewIssueLocation location = getLocation(textRange, issue).message(message);
+    secondaries.forEach(secondary -> issue.addLocation(getLocation(secondary, issue)));
 
     issue
       .at(location)
@@ -85,8 +79,18 @@ public abstract class NewXmlCheck {
       .save();
   }
 
+  private NewIssueLocation getLocation(XmlTextRange textRange, NewIssue issue) {
+    return issue.newLocation()
+        .on(inputFile)
+        .at(inputFile.newRange(
+          textRange.getStartLine(),
+          textRange.getStartColumn(),
+          textRange.getEndLine(),
+          textRange.getEndColumn()));
+  }
+
   public final void reportIssue(Node node, String message) {
     XmlTextRange textRange = NewXmlFile.nodeLocation(node);
-    reportIssue(textRange, message);
+    reportIssue(textRange, message, Collections.emptyList());
   }
 }
