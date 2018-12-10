@@ -203,7 +203,8 @@ public class NewXmlParser {
     documentBuilderFactory.setValidating(false);
     documentBuilderFactory.setExpandEntityReferences(false);
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-    // disable implementation custom error handling
+    // Implementations of DocumentBuilder usually provide Error Handlers, which may add some extra logic, such as logging.
+    // This line disable these custom handlers during parsing, as we don't need it
     documentBuilder.setErrorHandler(null);
     return documentBuilder;
   }

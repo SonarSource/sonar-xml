@@ -57,7 +57,7 @@ public class XmlSensor implements Sensor {
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, ParsingErrorCheck.RULE_KEY);
 
   private final Checks<Object> checks;
-  private final boolean reportingParsingErrors;
+  private final boolean parsingErrorCheckEnabled;
   private final FileSystem fileSystem;
   private final FilePredicate mainFilesPredicate;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -67,7 +67,7 @@ public class XmlSensor implements Sensor {
     this.checks = checkFactory.create(Xml.REPOSITORY_KEY)
       .addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses())
       .addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
-    this.reportingParsingErrors = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
+    this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
@@ -128,12 +128,7 @@ public class XmlSensor implements Sensor {
   }
 
   private static void logFailingRule(String rule, URI fileLocation, Exception e) {
-    logError(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
-  }
-
-  private static void logError(String message, Exception e) {
-    LOG.warn(message);
-    LOG.debug("Cause: {}", e.getMessage());
+    LOG.error(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
   }
 
   private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
@@ -173,10 +168,11 @@ public class XmlSensor implements Sensor {
   private void processParseException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
-    logError(String.format("Unable to analyse file %s", inputFile.uri()), e);
+    LOG.warn(String.format("Unable to analyse file %s;", inputFile.uri()));
+    LOG.debug("Cause: {}", e.getMessage());
 
-    if (reportingParsingErrors) {
-      reportParsingException(e, context, inputFile);
+    if (parsingErrorCheckEnabled) {
+      createParsingErrorIssue(e, context, inputFile);
     }
   }
 
@@ -187,7 +183,7 @@ public class XmlSensor implements Sensor {
       .save();
   }
 
-  private static void reportParsingException(Exception e, SensorContext context, InputFile inputFile) {
+  private static void createParsingErrorIssue(Exception e, SensorContext context, InputFile inputFile) {
     NewIssue newIssue = context.newIssue();
     NewIssueLocation primaryLocation = newIssue.newLocation()
       .message("Parse error: " + e.getMessage())

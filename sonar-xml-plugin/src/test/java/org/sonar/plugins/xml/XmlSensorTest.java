@@ -45,7 +45,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.internal.apachecommons.io.FileUtils;
@@ -67,7 +67,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class XmlSensorTest extends AbstractXmlPluginTester {
@@ -99,11 +98,10 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   @Test
   public void test_descriptor() throws Exception {
     init(false);
-    SensorDescriptor sensorDescriptor = mock(SensorDescriptor.class);
-    when(sensorDescriptor.onlyOnLanguage(any(String.class))).thenReturn(sensorDescriptor);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
-    verify(sensorDescriptor).name("XML Sensor");
-    verify(sensorDescriptor).onlyOnLanguage("xml");
+    assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
+    assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
   }
 
   /**
@@ -155,14 +153,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.getLogs()).isNotEmpty();
 
-    List<LogAndArguments> warnings = logTester.getLogs(LoggerLevel.WARN);
-    assertThat(warnings).hasSize(1);
-    assertThat(warnings.get(0).getRawMsg()).startsWith("Unable to execute rule S666 on file");
-
-    List<LogAndArguments> debugs = logTester.getLogs(LoggerLevel.DEBUG);
-    assertThat(debugs).hasSize(1);
-    LogAndArguments debugMsg = debugs.get(0);
-    assertThat(debugMsg.getRawMsg()).contains("Cause:");
+    List<LogAndArguments> errors = logTester.getLogs(LoggerLevel.ERROR);
+    assertThat(errors).hasSize(1);
+    assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule S666 on file");
   }
 
   /**
@@ -231,7 +224,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     if (activateParsingErrorCheck) {
       activeRuleBuilder = activeRuleBuilder
         .create(PARSING_ERROR_RULE_KEY)
-        .setInternalKey(PARSING_ERROR_CHECK_KEY)
         .activate();
     }
 
