@@ -30,7 +30,8 @@ public class NewXmlCheckList {
   public static List<Class> getCheckClasses() {
     return Arrays.asList(
       CharBeforePrologCheck.class,
-      TabCharacterCheck.class
+      TabCharacterCheck.class,
+      ParsingErrorCheck.class
     );
   }
 

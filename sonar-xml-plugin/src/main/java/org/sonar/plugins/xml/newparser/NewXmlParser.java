@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
@@ -65,7 +66,7 @@ public class NewXmlParser {
     try {
       setContent();
       ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes(xmlFile.getCharset()));
-      Document document = getDocumentBuilderFactory().newDocumentBuilder().parse(stream);
+      Document document = getDocumentBuilder().parse(stream);
       xmlFile.setDocument(document);
       currentNode = document;
       nodes.push(currentNode);
@@ -192,7 +193,7 @@ public class NewXmlParser {
     return factory.createXMLStreamReader(reader);
   }
 
-  private static DocumentBuilderFactory getDocumentBuilderFactory() throws ParserConfigurationException {
+  private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -201,7 +202,11 @@ public class NewXmlParser {
     documentBuilderFactory.setFeature("http://apache.org/xml/features/dom/create-entity-ref-nodes", false);
     documentBuilderFactory.setValidating(false);
     documentBuilderFactory.setExpandEntityReferences(false);
-    return documentBuilderFactory;
+    DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+    // Implementations of DocumentBuilder usually provide Error Handlers, which may add some extra logic, such as logging.
+    // This line disable these custom handlers during parsing, as we don't need it
+    documentBuilder.setErrorHandler(null);
+    return documentBuilder;
   }
 
   private void visitStartElement(XMLStreamReader xmlReader, XmlLocation startLocation) throws XMLStreamException {

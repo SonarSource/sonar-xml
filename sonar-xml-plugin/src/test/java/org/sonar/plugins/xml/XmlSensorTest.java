@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
@@ -44,6 +45,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.internal.apachecommons.io.FileUtils;
@@ -51,10 +53,15 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.xml.checks.XmlIssue;
 import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.newchecks.TabCharacterCheck;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,11 +81,10 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private XmlSensor sensor;
   private SensorContextTester context;
 
-  private final RuleKey ruleKey = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
-
-  private final String parsingErrorCheckKey = "S2260";
-
-  private final RuleKey parsingErrorCheckRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, parsingErrorCheckKey);
+  private static final RuleKey NEW_LINE_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
+  private static final String PARSING_ERROR_CHECK_KEY = "S2260";
+  private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
+  private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
 
   @Test(timeout = 10000)
   public void testPerformance() throws Exception {
@@ -87,6 +93,15 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     initFileSystemWithFile(createXmlFile(40000, "bigFile.xml"));
     long timeBigFile = measureTimeToAnalyzeFile();
     assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
+  }
+
+  @Test
+  public void test_descriptor() throws Exception {
+    init(false);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
+    assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
   }
 
   /**
@@ -99,7 +114,48 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
+  }
+
+  /**
+   * Expect issue for rule: TabCharacterCheck
+   */
+  @Test
+  public void should_execute_new_rules() throws Exception {
+    init(false);
+    fs.add(createInputFile("src/tabsEverywhere.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(TAB_CHARACTER_RULE_KEY);
+  }
+
+  @Test
+  public void failing_rules_should_not_report_parse_exception() throws Exception {
+    init(true);
+
+    DefaultInputFile inputFile = createInputFile("src/tabsEverywhere.xml");
+    fs.add(inputFile);
+
+    XmlSensor.runCheck(context, new NewXmlCheck() {
+
+      @Override
+      public void scanFile(NewXmlFile file) {
+        throw new IllegalStateException("failing systematically");
+      }
+
+      @Override
+      public String ruleKey() {
+        return "S666";
+      }
+    }, NewXmlFile.create(inputFile));
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.getLogs()).isNotEmpty();
+
+    List<LogAndArguments> errors = logTester.getLogs(LoggerLevel.ERROR);
+    assertThat(errors).hasSize(1);
+    assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule S666 on file");
   }
 
   /**
@@ -113,7 +169,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(ruleKey);
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
   }
 
   /**
@@ -129,9 +185,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next();
-    assertThat(issue.ruleKey().rule()).isEqualTo(parsingErrorCheckKey);
+    assertThat(issue.ruleKey().rule()).isEqualTo(PARSING_ERROR_CHECK_KEY);
 
-    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 
@@ -148,7 +204,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     assertThat(context.allIssues()).isEmpty();
 
-    assertLog("Unable to parse file .*wrong-ampersand.*", true);
+    assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 
@@ -159,22 +215,19 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     fs = new DefaultFileSystem(moduleBaseDir);
     fs.setWorkDir(temporaryFolder.newFolder("temp").toPath());
 
-    ActiveRules activeRules = null;
+    ActiveRulesBuilder activeRuleBuilder = new ActiveRulesBuilder()
+      .create(NEW_LINE_RULE_KEY)
+      .activate()
+      .create(TAB_CHARACTER_RULE_KEY)
+      .activate();
+
     if (activateParsingErrorCheck) {
-      activeRules = new ActiveRulesBuilder()
-        .create(ruleKey)
-        .activate()
-        .create(parsingErrorCheckRuleKey)
-        .setInternalKey(parsingErrorCheckKey)
-        .activate()
-        .build();
-    } else {
-      activeRules = new ActiveRulesBuilder()
-        .create(ruleKey)
-        .activate()
-        .build();
+      activeRuleBuilder = activeRuleBuilder
+        .create(PARSING_ERROR_RULE_KEY)
+        .activate();
     }
-    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    CheckFactory checkFactory = new CheckFactory(activeRuleBuilder.build());
 
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
@@ -203,7 +256,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     when(sourceCode.getXmlIssues()).thenReturn(singletonList(issueWithNoLine));
     when(sourceCode.getInputFile()).thenReturn(createInputFile("src/pom.xml"));  // any file fits
 
-    sensor.saveIssue(context, sourceCode);
+    sensor.saveIssues(context, sourceCode);
 
     assertThat(context.allIssues()).hasSize(1);
     Issue issue = context.allIssues().iterator().next(); 
@@ -239,7 +292,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(defaultInputFile.file()), StandardCharsets.UTF_8, defaultInputFile.absolutePath()));
 
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(ruleKey)
+      .create(NEW_LINE_RULE_KEY)
       .activate()
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);

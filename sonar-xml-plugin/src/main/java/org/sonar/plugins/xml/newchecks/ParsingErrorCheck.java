@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
-@Rule(key = "S2260")
-public class ParsingErrorCheck extends AbstractXmlCheck {
+@Rule(key = ParsingErrorCheck.RULE_KEY)
+public class ParsingErrorCheck extends NewXmlCheck {
+
+  public static final String RULE_KEY = "S2260";
 
   @Override
-  public void validate(XmlSourceCode xmlSourceCode) {
+  public void scanFile(NewXmlFile file) {
     // we don't do anything here. Having the XML file parsable (well formed) is a precondition
-    // for all rules and thus checked up front.
+    // for all rules and thus checked up front. The rule however still need to be registered in SQ
+    // and 'physically' exist as class
+  }
+
+  @Override
+  public String ruleKey() {
+    return RULE_KEY;
   }
 
 }
