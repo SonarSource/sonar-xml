@@ -31,11 +31,6 @@ public class CharBeforePrologCheck extends NewXmlCheck {
   public static final String RULE_KEY = "S1778";
 
   @Override
-  public String ruleKey() {
-    return RULE_KEY;
-  }
-
-  @Override
   public void scanFile(NewXmlFile file) {
     file.getPrologElement().ifPresent(prologElement -> {
       XmlTextRange prologStartLocation = prologElement.getPrologStartLocation();

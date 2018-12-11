@@ -134,28 +134,27 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void failing_rules_should_not_report_parse_exception() throws Exception {
     init(true);
 
-    DefaultInputFile inputFile = createInputFile("src/tabsEverywhere.xml");
-    fs.add(inputFile);
-
-    XmlSensor.runCheck(context, new NewXmlCheck() {
-
+    sensor.runCheck(context, new NewXmlCheck() {
       @Override
       public void scanFile(NewXmlFile file) {
         throw new IllegalStateException("failing systematically");
       }
-
-      @Override
-      public String ruleKey() {
-        return "S666";
-      }
-    }, NewXmlFile.create(inputFile));
+    }, RuleKey.of("xml", "S666"), NewXmlFile.create(createInputFile("src/tabsEverywhere.xml")));
 
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.getLogs()).isNotEmpty();
 
     List<LogAndArguments> errors = logTester.getLogs(LoggerLevel.ERROR);
     assertThat(errors).hasSize(1);
-    assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule S666 on file");
+    assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule xml:S666");
+  }
+
+  @org.sonar.check.Rule(key = "S666")
+  private static class TestCheck extends NewXmlCheck {
+    @Override
+    public void scanFile(NewXmlFile file) {
+      throw new IllegalStateException("failing systematically");
+    }
   }
 
   /**

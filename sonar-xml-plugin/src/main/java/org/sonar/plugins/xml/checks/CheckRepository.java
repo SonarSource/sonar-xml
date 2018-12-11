@@ -29,8 +29,7 @@ public class CheckRepository {
   }
 
   public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new XPathCheck());
+    return Arrays.asList();
   }
 
   public static List<Class> getCheckClasses() {

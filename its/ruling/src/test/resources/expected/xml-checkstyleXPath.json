@@ -1,0 +1,11 @@
+{
+'project:sonar-java/external-reports/src/test/resources/checkstyle/checkstyle-result.xml':[
+2,
+],
+'project:sonar-java/external-reports/src/test/resources/checkstyle/checkstyle-with-errors.xml':[
+2,
+],
+'project:sonar-java/external-reports/src/test/resources/checkstyle/checkstyle-with-invalid-line.xml':[
+2,
+],
+}

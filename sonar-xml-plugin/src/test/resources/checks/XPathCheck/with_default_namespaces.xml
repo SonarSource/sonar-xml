@@ -1,0 +1,13 @@
+<top>
+  <transform version='1.0' xmlns='http://www.w3.org/1999/XSL/Transform1'>
+    <template match='/'> <!-- Noncompliant -->
+      Hello1
+    </template>
+  </transform>
+  <transform version='1.0' xmlns='http://www.w3.org/1999/XSL/Transform2'>
+    <template match='/'> <!-- Noncompliant -->
+      Hello2
+    </template>
+  </transform>
+
+</top>
