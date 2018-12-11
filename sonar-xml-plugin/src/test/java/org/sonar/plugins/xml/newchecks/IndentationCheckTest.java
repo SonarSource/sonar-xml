@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.junit.Test;
+import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
 
-public class CheckRepository {
+public class IndentationCheckTest {
 
-  private CheckRepository() {
+  @Test
+  public void test() {
+    IndentationCheck check = new IndentationCheck();
+    NewXmlVerifier.verifyIssues("IndentationCheck.xml", check);
   }
 
-  public static List<AbstractXmlCheck> getChecks() {
-    return Arrays.asList(
-      new XPathCheck());
-  }
-
-  public static List<Class> getCheckClasses() {
-    return getChecks().stream().map(AbstractXmlCheck::getClass).collect(Collectors.toList());
+  @Test
+  public void test_with_parameters() {
+    IndentationCheck check = new IndentationCheck();
+    check.setIndentSize(4);
+    check.setTabSize(4);
+    NewXmlVerifier.verifyIssues("IndentationCheckCustom.xml", check);
   }
 
 }

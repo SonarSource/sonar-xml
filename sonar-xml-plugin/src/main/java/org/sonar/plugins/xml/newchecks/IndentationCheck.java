@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.newchecks;
 
+import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.w3c.dom.Document;
+import org.sonar.plugins.xml.newparser.NewXmlFile;
+import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * RSPEC-1120.
- * Perform check for indenting of elements.
- * @author Matthijs Galesloot
+ * RSPEC-1120
  */
-@Rule(key = "IndentCheck")
-public class IndentCheck extends AbstractXmlCheck {
+@Rule(key = IndentationCheck.RULE_KEY)
+public class IndentationCheck extends NewXmlCheck {
+
+  public static final String RULE_KEY = "IndentCheck";
 
   private static final String MESSAGE = "Make this line start at column %s.";
 
@@ -49,12 +53,78 @@ public class IndentCheck extends AbstractXmlCheck {
     type = "INTEGER")
   private int tabSize = 2;
 
-  /**
-   * Collect the indenting whitespace before this node.
-   */
-  private int collectIndent(Node node) {
+  @Override
+  public void scanFile(NewXmlFile file) {
+    validateIndent(file.getDocument());
+  }
+
+  @Override
+  public String ruleKey() {
+    return RULE_KEY;
+  }
+
+  public void setIndentSize(int indentSize) {
+    this.indentSize = indentSize;
+  }
+
+  public void setTabSize(int tabSize) {
+    this.tabSize = tabSize;
+  }
+
+  private boolean validateIndent(Node node) {
+    if (node.getNodeType() == Node.ELEMENT_NODE && checkIndentation((Element) node)) {
+      return true;
+    }
+
+    boolean issueOnLine = false;
+
+    for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+      switch (child.getNodeType()) {
+        case Node.ELEMENT_NODE:
+          if (!issueOnLine) {
+            issueOnLine = validateIndent(child);
+          }
+          break;
+        case Node.TEXT_NODE:
+          if (child.getTextContent().contains("\n")) {
+            issueOnLine = false;
+          }
+          break;
+        case Node.COMMENT_NODE:
+        default:
+          break;
+      }
+    }
+
+    return false;
+  }
+
+  private boolean checkIndentation(Element element) {
+    int expectedIndent = depth(element) * indentSize;
+
+    if (expectedIndent != startIndent(element)) {
+      reportIssue(NewXmlFile.startLocation(element), expectedIndent);
+      // if reporting on start node, don't report on rest of the block
+      return true;
+    }
+    return false;
+  }
+
+  private void reportIssue(XmlTextRange textRange, int expectedIndent) {
+    reportIssue(textRange, String.format(MESSAGE, expectedIndent + 1), Collections.emptyList());
+  }
+
+  private static int depth(Node node) {
+    int depth = 0;
+    for (Node parent = node.getParentNode(); parent.getParentNode() != null; parent = parent.getParentNode()) {
+      depth++;
+    }
+    return depth;
+  }
+
+  private int startIndent(Element element) {
     int indent = 0;
-    for (Node sibling = node.getPreviousSibling(); sibling != null; sibling = sibling.getPreviousSibling()) {
+    for (Node sibling = element.getPreviousSibling(); sibling != null; sibling = sibling.getPreviousSibling()) {
       short nodeType = sibling.getNodeType();
 
       if (nodeType == Node.COMMENT_NODE || nodeType == Node.ELEMENT_NODE) {
@@ -87,66 +157,5 @@ public class IndentCheck extends AbstractXmlCheck {
       }
     }
     return indent;
-  }
-
-  /**
-   * Get the depth of this node in the node hierarchy.
-   */
-  private static int getDepth(Node node) {
-    int depth = 0;
-    for (Node parent = node.getParentNode(); parent.getParentNode() != null; parent = parent.getParentNode()) {
-      depth++;
-    }
-    return depth;
-  }
-
-  @Override
-  public void validate(XmlSourceCode xmlSourceCode) {
-    setWebSourceCode(xmlSourceCode);
-
-    Document document = getWebSourceCode().getDocument(false);
-    if (document.getDocumentElement() != null) {
-      validateIndent(document.getDocumentElement());
-    }
-  }
-
-  /**
-   * Validate the indent for this node.
-   */
-  private boolean validateIndent(Node node) {
-
-    int depth = getDepth(node);
-    int indent = collectIndent(node);
-
-    int expectedIndent = depth * indentSize;
-
-    if (expectedIndent != indent) {
-      createViolation(getWebSourceCode().getLineForNode(node), String.format(MESSAGE, expectedIndent + 1));
-      return true;
-    }
-
-    // check the child elements
-
-    boolean issueOnLine = false;
-
-    for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
-      switch (child.getNodeType()) {
-        case Node.ELEMENT_NODE:
-          if (!issueOnLine) {
-            issueOnLine = validateIndent(child);
-          }
-          break;
-        case Node.TEXT_NODE:
-          if (child.getTextContent().contains("\n")) {
-            issueOnLine = false;
-          }
-          break;
-        case Node.COMMENT_NODE:
-        default:
-          break;
-      }
-    }
-
-    return false;
   }
 }
