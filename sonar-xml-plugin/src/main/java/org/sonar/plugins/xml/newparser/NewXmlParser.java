@@ -61,13 +61,13 @@ public class NewXmlParser {
   private Deque<Node> nodes = new LinkedList<>();
   private NewXmlFile xmlFile;
 
-  public NewXmlParser(NewXmlFile xmlFile) {
+  public NewXmlParser(NewXmlFile xmlFile, boolean namespaceAware) {
     this.xmlFile = xmlFile;
     try {
       setContent();
       ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes(xmlFile.getCharset()));
-      Document document = getDocumentBuilder().parse(stream);
-      xmlFile.setDocument(document);
+      Document document = getDocumentBuilder(namespaceAware).parse(stream);
+      xmlFile.setDocument(document, namespaceAware);
       currentNode = document;
       nodes.push(currentNode);
 
@@ -193,7 +193,7 @@ public class NewXmlParser {
     return factory.createXMLStreamReader(reader);
   }
 
-  private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+  private static DocumentBuilder getDocumentBuilder(boolean namespaceAware) throws ParserConfigurationException {
     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
@@ -202,6 +202,7 @@ public class NewXmlParser {
     documentBuilderFactory.setFeature("http://apache.org/xml/features/dom/create-entity-ref-nodes", false);
     documentBuilderFactory.setValidating(false);
     documentBuilderFactory.setExpandEntityReferences(false);
+    documentBuilderFactory.setNamespaceAware(namespaceAware);
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
     // Implementations of DocumentBuilder usually provide Error Handlers, which may add some extra logic, such as logging.
     // This line disable these custom handlers during parsing, as we don't need it

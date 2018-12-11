@@ -51,12 +51,18 @@ public class NewXmlFile {
   }
 
   private InputFile inputFile;
-  private Document document;
+  private Document documentNamespaceAware;
+  // set lazely in getDocument when called with "false" argument
+  private Document documentNamespaceUnaware;
   private String contents;
   private Charset charset;
 
-  void setDocument(Document document) {
-    this.document = document;
+  void setDocument(Document document, boolean namespaceAware) {
+    if (namespaceAware) {
+      documentNamespaceAware = document;
+    } else {
+      documentNamespaceUnaware = document;
+    }
   }
 
   void setPrologElement(PrologElement prologElement) {
@@ -79,13 +85,13 @@ public class NewXmlFile {
 
   public static NewXmlFile create(InputFile inputFile) throws IOException {
     NewXmlFile xmlFile = new NewXmlFile(inputFile);
-    new NewXmlParser(xmlFile);
+    new NewXmlParser(xmlFile, true);
     return xmlFile;
   }
 
   public static NewXmlFile create(String str) {
     NewXmlFile xmlFile = new NewXmlFile(str);
-    new NewXmlParser(xmlFile);
+    new NewXmlParser(xmlFile, true);
     return xmlFile;
   }
 
@@ -109,8 +115,23 @@ public class NewXmlFile {
     return charset;
   }
 
+  /**
+   * @return document with namespace information
+   */
   public Document getDocument() {
-    return document;
+    return getNamespaceAwareDocument();
+  }
+
+  public Document getNamespaceAwareDocument() {
+    return documentNamespaceAware;
+  }
+
+  public Document getNamespaceUnawareDocument() {
+    if (documentNamespaceUnaware == null) {
+      new NewXmlParser(this, false);
+    }
+
+    return documentNamespaceUnaware;
   }
 
   public Optional<PrologElement> getPrologElement() {

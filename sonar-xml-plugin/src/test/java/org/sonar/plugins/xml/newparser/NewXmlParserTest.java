@@ -29,6 +29,7 @@ import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -261,6 +262,92 @@ public class NewXmlParserTest {
 
     assertThat(d.getNodeName()).isEqualTo("d");
     assertRange(d, Location.NODE, 1, 12, 1, 19);
+  }
+
+  @Test
+  public void testNamespace() throws Exception {
+    NewXmlFile file = NewXmlFile.create("<a xmlns:foo=\"http://www.w3.org/foobar\"><foo:b/></a>");
+    Document documentNsAware = file.getNamespaceAwareDocument();
+    Element a = (Element) documentNsAware.getFirstChild();
+    Element b = (Element) a.getFirstChild();
+
+    assertThat(a.getNamespaceURI()).isNull();
+    assertThat(b.getNamespaceURI()).isEqualTo("http://www.w3.org/foobar");
+
+    assertThat(a.getNodeName()).isEqualTo("a");
+    assertThat(b.getNodeName()).isEqualTo("foo:b");
+
+    assertThat(a.getLocalName()).isEqualTo("a");
+    assertThat(b.getLocalName()).isEqualTo("b");
+
+    assertRange(b, Location.NODE, 1, 40, 1, 48);
+
+    Document documentNsUnaware = file.getNamespaceUnawareDocument();
+    a = (Element) documentNsUnaware.getFirstChild();
+    b = (Element) a.getFirstChild();
+
+    assertThat(a.getNamespaceURI()).isNull();
+    assertThat(b.getNamespaceURI()).isNull();
+
+    assertThat(a.getNodeName()).isEqualTo("a");
+    assertThat(b.getNodeName()).isEqualTo("foo:b");
+
+    assertThat(a.getLocalName()).isNull();
+    assertThat(b.getLocalName()).isNull();
+
+    assertRange(b, Location.NODE, 1, 40, 1, 48);
+  }
+
+  @Test
+  public void testDefaultNamespace() throws Exception {
+    NewXmlFile file = NewXmlFile.create("<a xmlns=\"http://www.w3.org/foobar\"><b/></a>");
+    Document documentNsAware = file.getNamespaceAwareDocument();
+    Element a = (Element) documentNsAware.getFirstChild();
+    Element b = (Element) a.getFirstChild();
+
+    assertThat(a.getNamespaceURI()).isEqualTo("http://www.w3.org/foobar");
+    assertThat(b.getNamespaceURI()).isEqualTo("http://www.w3.org/foobar");
+
+    assertThat(a.getNodeName()).isEqualTo("a");
+    assertThat(b.getNodeName()).isEqualTo("b");
+
+    assertThat(a.getLocalName()).isEqualTo("a");
+    assertThat(b.getLocalName()).isEqualTo("b");
+
+    assertRange(b, Location.NODE, 1, 36, 1, 40);
+
+    Document documentNsUnaware = file.getNamespaceUnawareDocument();
+    a = (Element) documentNsUnaware.getFirstChild();
+    b = (Element) a.getFirstChild();
+
+    assertThat(a.getNamespaceURI()).isNull();
+    assertThat(b.getNamespaceURI()).isNull();
+
+    assertThat(a.getNodeName()).isEqualTo("a");
+    assertThat(b.getNodeName()).isEqualTo("b");
+
+    assertThat(a.getLocalName()).isNull();
+    assertThat(b.getLocalName()).isNull();
+
+    assertRange(b, Location.NODE, 1, 36, 1, 40);
+  }
+
+  @Test
+  public void testNoNamespace() throws Exception {
+    Document document = NewXmlFile.create("<a><b/></a>").getDocument();
+    Element a = (Element) document.getFirstChild();
+    Element b = (Element) a.getFirstChild();
+
+    assertThat(a.getNamespaceURI()).isNull();
+    assertThat(b.getNamespaceURI()).isNull();
+
+    assertThat(a.getNodeName()).isEqualTo("a");
+    assertThat(b.getNodeName()).isEqualTo("b");
+
+    assertThat(a.getLocalName()).isEqualTo("a");
+    assertThat(b.getLocalName()).isEqualTo("b");
+
+    assertRange(b, Location.NODE, 1, 3, 1, 7);
   }
 
   private void assertRange(Node node, Location locationKind, int startLine, int startColumn, int endLine, int endColumn) {
