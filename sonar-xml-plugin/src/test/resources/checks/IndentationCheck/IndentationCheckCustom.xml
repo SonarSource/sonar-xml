@@ -1,0 +1,6 @@
+<root>
+    <tag>
+	    <yolo></yolo> <!-- OK with tabs 1x tab + 4x space -->
+	</tag>
+  <otherTag /> <!-- Noncompliant {{Make this element start at column 5.}} -->
+</root>

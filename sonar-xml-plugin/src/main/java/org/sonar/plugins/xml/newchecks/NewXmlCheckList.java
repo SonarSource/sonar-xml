@@ -32,7 +32,8 @@ public class NewXmlCheckList {
       CharBeforePrologCheck.class,
       TabCharacterCheck.class,
       ParsingErrorCheck.class,
-      NewlineCheck.class
+      NewlineCheck.class,
+      IndentationCheck.class
     );
   }
 
