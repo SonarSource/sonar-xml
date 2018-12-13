@@ -106,13 +106,8 @@ public class XmlSensor implements Sensor {
     checks.all().stream()
       .filter(NewXmlCheck.class::isInstance)
       .map(NewXmlCheck.class::cast)
-      .forEach(check -> {
-        RuleKey ruleKey = checks.ruleKey(check);
-        if (ruleKey == null) {
-          throw new IllegalStateException("Failed to get rule key for rule " + check.getClass());
-        }
-        runCheck(context, check, ruleKey, newXmlFile);
-      });
+      // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
+      .forEach(check -> runCheck(context, check, checks.ruleKey(check), newXmlFile));
   }
 
   private void runCheck(AbstractXmlCheck check, XmlSourceCode sourceCode) {
