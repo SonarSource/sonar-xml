@@ -36,7 +36,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.sonar.plugins.xml.checks.XmlFile;
 import org.sonar.plugins.xml.newparser.NewXmlFile.Location;
 import org.sonar.plugins.xml.newparser.PrologElement.PrologAttribute;
 import org.sonar.plugins.xml.parsers.ParseException;
@@ -47,6 +46,7 @@ import org.xml.sax.SAXException;
 
 public class NewXmlParser {
 
+  private static final String BOM_CHAR = "\ufeff";
   private static final String XML_DECLARATION_TAG = "<?xml";
 
   private XmlLocation xmlFileStartLocation;
@@ -95,7 +95,7 @@ public class NewXmlParser {
   private void setContent() throws XMLStreamException {
     String fullContent = xmlFile.getContents();
 
-    if (fullContent.startsWith(XmlFile.BOM_CHAR)) {
+    if (fullContent.startsWith(BOM_CHAR)) {
       // remove it immediately
       fullContent = fullContent.substring(1);
     }

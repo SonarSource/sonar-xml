@@ -20,7 +20,6 @@
 package org.sonar.plugins.xml.rules;
 
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.CheckRepository;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
@@ -38,9 +37,6 @@ public final class XmlRulesDefinition implements RulesDefinition {
 
     // FIXME: with SonarQube 6.7, should use the sonar way profile location as extra parameter
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader("org/sonar/l10n/xml/rules/xml");
-
-    // FIXME should be dropped when completing SONARXML-78
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckRepository.getCheckClasses());
 
     // add the new checks
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, NewXmlCheckList.getCheckClasses());

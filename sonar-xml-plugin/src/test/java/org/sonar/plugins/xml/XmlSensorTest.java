@@ -56,14 +56,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.xml.checks.XmlIssue;
-import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newchecks.TabCharacterCheck;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -164,7 +161,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   @Test
   public void should_execute_on_file_with_chars_before_prolog() throws Exception {
     init(false);
-    fs.add(createInputFile("checks/generic/pom_with_chars_before_prolog.xml"));
+    fs.add(createInputFile("src/pom_with_chars_before_prolog_and_missing_new_line.xml"));
 
     sensor.execute(context);
 
@@ -178,7 +175,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   @Test
   public void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
     init(true);
-    fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
+    fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
     sensor.execute(context);
 
@@ -197,7 +194,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   @Test
   public void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
     init(false);
-    fs.add(createInputFile("checks/generic/wrong-ampersand.xhtml"));
+    fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
     sensor.execute(context);
 
@@ -244,22 +241,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
 
     inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
     return inputFile;
-  }
-
-  @Test
-  public void should_store_issue_with_no_line() throws Exception {
-    init(false);
-
-    XmlSourceCode sourceCode = mock(XmlSourceCode.class);
-    XmlIssue issueWithNoLine = new XmlIssue(RuleKey.parse("SomeRepo:SomeCheck"), null, "Hello, the line is null");
-    when(sourceCode.getXmlIssues()).thenReturn(singletonList(issueWithNoLine));
-    when(sourceCode.getInputFile()).thenReturn(createInputFile("src/pom.xml"));  // any file fits
-
-    sensor.saveIssues(context, sourceCode);
-
-    assertThat(context.allIssues()).hasSize(1);
-    Issue issue = context.allIssues().iterator().next(); 
-    assertThat(issue.primaryLocation().textRange()).isNull();
   }
 
   @Test
