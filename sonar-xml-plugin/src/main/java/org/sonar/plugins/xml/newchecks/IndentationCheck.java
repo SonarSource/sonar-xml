@@ -37,7 +37,7 @@ public class IndentationCheck extends NewXmlCheck {
 
   public static final String RULE_KEY = "IndentCheck";
 
-  private static final String MESSAGE = "Make this line start at column %s.";
+  private static final String MESSAGE = "Make this element start at column %s.";
 
   @RuleProperty(
     key = "indentSize",

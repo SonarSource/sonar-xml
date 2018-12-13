@@ -1,19 +1,19 @@
 <root>
 <!-- comments are OK on empty line-->
                           <!-- comments are really OK -->
-    <tag> <!-- Noncompliant {{Make this line start at column 3.}} -->
+    <tag> <!-- Noncompliant {{Make this element start at column 3.}} -->
     <nested>value</nested> <!-- compliant - one issue per block -->
     </tag>
 
-<tag>value</tag> <tag>value</tag> <!-- Noncompliant {{Make this line start at column 3.}} -->
+<tag>value</tag> <tag>value</tag> <!-- Noncompliant {{Make this element start at column 3.}} -->
 
   <html>
-  <body><p>hello</p></body> <!-- Noncompliant {{Make this line start at column 5.}} -->
+  <body><p>hello</p></body> <!-- Noncompliant {{Make this element start at column 5.}} -->
   </html>
 
   <html>
     <body>
-  <p>hello</p>  <!-- Noncompliant {{Make this line start at column 7.}} -->
+  <p>hello</p>  <!-- Noncompliant {{Make this element start at column 7.}} -->
     </body>
   </html>
 
@@ -30,7 +30,7 @@
 
   <html>
     <body>
-    <!-- comment before should be removed --><tag /> <!-- Noncompliant {{Make this line start at column 7.}} -->
+    <!-- comment before should be removed --><tag /> <!-- Noncompliant {{Make this element start at column 7.}} -->
     </body>
   </html>
 
@@ -39,14 +39,14 @@
   <!-- non-white-space characters -->
   <html>
     <body>
-      xx<tag/> <!-- Noncompliant {{Make this line start at column 7.}} -->
+      xx<tag/> <!-- Noncompliant {{Make this element start at column 7.}} -->
     </body>
   </html>
 
   <properties>
-	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this line start at column 5.}} -->
-	  	<bar>all</bar>            <!-- Noncompliant {{Make this line start at column 5.}} -->
-	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this line start at column 5.}} -->
+	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this element start at column 5.}} -->
+	  	<bar>all</bar>            <!-- Noncompliant {{Make this element start at column 5.}} -->
+	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this element start at column 5.}} -->
   	</properties> <!-- Compliant - mis-alignment of end tag not covered -->
 
 	<alpha>trululu
