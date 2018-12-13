@@ -1,0 +1,8 @@
+<a>
+      <b attr="Hello"></b> <!-- Noncompliant {{XPath issue message}} -->
+<!--  ^^^^^^^^^^^^^^^^^^^^ -->
+      <b>Hello</b> <!-- Noncompliant -->
+<!--  ^^^^^^^^^^^^ -->
+      <b/> <!-- Noncompliant -->
+<!--  ^^^^ -->
+</a>

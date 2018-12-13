@@ -106,7 +106,8 @@ public class XmlSensor implements Sensor {
     checks.all().stream()
       .filter(NewXmlCheck.class::isInstance)
       .map(NewXmlCheck.class::cast)
-      .forEach(check -> runCheck(context, check, newXmlFile));
+      // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
+      .forEach(check -> runCheck(context, check, checks.ruleKey(check), newXmlFile));
   }
 
   private void runCheck(AbstractXmlCheck check, XmlSourceCode sourceCode) {
@@ -114,20 +115,20 @@ public class XmlSensor implements Sensor {
       check.setRuleKey(checks.ruleKey(check));
       check.validate(sourceCode);
     } catch (Exception e) {
-      logFailingRule(check.getRuleKey().rule(), sourceCode.getInputFile().uri(), e);
+      logFailingRule(check.getRuleKey(), sourceCode.getInputFile().uri(), e);
     }
   }
 
   @VisibleForTesting
-  static void runCheck(SensorContext context, NewXmlCheck check, NewXmlFile newXmlFile) {
+  void runCheck(SensorContext context, NewXmlCheck check, RuleKey ruleKey, NewXmlFile newXmlFile) {
     try {
-      check.scanFile(context, newXmlFile);
+      check.scanFile(context, ruleKey, newXmlFile);
     } catch (Exception e) {
-      logFailingRule(check.ruleKey(), newXmlFile.getInputFile().uri(), e);
+      logFailingRule(ruleKey, newXmlFile.getInputFile().uri(), e);
     }
   }
 
-  private static void logFailingRule(String rule, URI fileLocation, Exception e) {
+  private static void logFailingRule(RuleKey rule, URI fileLocation, Exception e) {
     LOG.error(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
   }
 

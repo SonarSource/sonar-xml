@@ -39,11 +39,6 @@ public class NewlineCheck extends NewXmlCheck {
   private static final String MESSAGE_END = "Add a newline after this tag.";
 
   @Override
-  public String ruleKey() {
-    return RULE_KEY;
-  }
-
-  @Override
   public void scanFile(NewXmlFile file) {
     visitNode(file.getDocument());
   }

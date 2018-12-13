@@ -26,7 +26,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.XmlTextRange;
 import org.w3c.dom.Node;
@@ -35,16 +34,16 @@ public abstract class NewXmlCheck {
 
   private SensorContext context;
   private InputFile inputFile;
+  private RuleKey ruleKey;
 
-  public final void scanFile(SensorContext context, NewXmlFile file) {
+  public final void scanFile(SensorContext context, RuleKey ruleKey, NewXmlFile file) {
     this.context = context;
     this.inputFile = file.getInputFile();
+    this.ruleKey = ruleKey;
     scanFile(file);
   }
 
   public abstract void scanFile(NewXmlFile file);
-
-  public abstract String ruleKey();
 
   public final void reportIssueOnFile(String message, List<Integer> secondaryLocationLines) {
     NewIssue issue = context.newIssue();
@@ -62,8 +61,7 @@ public abstract class NewXmlCheck {
 
     issue
       .at(location)
-      // FIXME reposirory is going to be variable in future.
-      .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
+      .forRule(ruleKey)
       .save();
   }
 
@@ -74,8 +72,7 @@ public abstract class NewXmlCheck {
 
     issue
       .at(location)
-      // FIXME reposirory is going to be variable in future.
-      .forRule(RuleKey.of(Xml.REPOSITORY_KEY, ruleKey()))
+      .forRule(ruleKey)
       .save();
   }
 

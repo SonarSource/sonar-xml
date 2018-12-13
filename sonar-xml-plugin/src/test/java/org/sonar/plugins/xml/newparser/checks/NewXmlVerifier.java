@@ -50,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NewXmlVerifier {
   private static final Path BASE_DIR = Paths.get("src/test/resources/checks/");
+  private static final RuleKey RULE_KEY = RuleKey.of("repoKey", "ruleKey");
 
   private final Collection<Issue> issues;
   private final NewXmlFile file;
@@ -74,10 +75,8 @@ public class NewXmlVerifier {
   private static NewXmlVerifier createVerifier(String fileName, NewXmlCheck check) {
     File file = new File(new File(BASE_DIR.toFile(), check.getClass().getSimpleName()), fileName);
 
-    RuleKey checkRuleKey = RuleKey.of(Xml.REPOSITORY_KEY, check.ruleKey());
-
     SensorContextTester context = SensorContextTester.create(BASE_DIR)
-      .setActiveRules(new ActiveRulesBuilder().create(checkRuleKey).activate().build());
+      .setActiveRules(new ActiveRulesBuilder().create(RULE_KEY).activate().build());
 
     String filePath = file.getPath();
     String content;
@@ -103,7 +102,7 @@ public class NewXmlVerifier {
       throw new IllegalStateException(String.format("Unable to scan xml file %s", filePath), e);
     }
 
-    check.scanFile(context, xmlFile);
+    check.scanFile(context, RULE_KEY, xmlFile);
     return new NewXmlVerifier(xmlFile, context.allIssues());
   }
 

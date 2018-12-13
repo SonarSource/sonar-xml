@@ -58,11 +58,6 @@ public class IndentationCheck extends NewXmlCheck {
     validateIndent(file.getDocument());
   }
 
-  @Override
-  public String ruleKey() {
-    return RULE_KEY;
-  }
-
   public void setIndentSize(int indentSize) {
     this.indentSize = indentSize;
   }

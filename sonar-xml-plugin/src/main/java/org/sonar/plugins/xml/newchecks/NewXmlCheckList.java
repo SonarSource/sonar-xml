@@ -33,7 +33,8 @@ public class NewXmlCheckList {
       TabCharacterCheck.class,
       ParsingErrorCheck.class,
       NewlineCheck.class,
-      IndentationCheck.class
+      IndentationCheck.class,
+      XPathCheck.class
     );
   }
 

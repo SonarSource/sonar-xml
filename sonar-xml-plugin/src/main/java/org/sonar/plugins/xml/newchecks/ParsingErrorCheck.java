@@ -34,10 +34,4 @@ public class ParsingErrorCheck extends NewXmlCheck {
     // for all rules and thus checked up front. The rule however still need to be registered in SQ
     // and 'physically' exist as class
   }
-
-  @Override
-  public String ruleKey() {
-    return RULE_KEY;
-  }
-
 }

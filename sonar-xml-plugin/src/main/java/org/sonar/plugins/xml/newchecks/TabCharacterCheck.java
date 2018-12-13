@@ -39,11 +39,6 @@ public class TabCharacterCheck extends NewXmlCheck {
   private boolean markAll;
 
   @Override
-  public String ruleKey() {
-    return RULE_KEY;
-  }
-
-  @Override
   public void scanFile(NewXmlFile file) {
     int lineNumber = 1;
     List<Integer> secondaries = new ArrayList<>();

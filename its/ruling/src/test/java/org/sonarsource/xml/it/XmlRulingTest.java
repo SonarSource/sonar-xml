@@ -66,7 +66,17 @@ public class XmlRulingTest {
     File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), LANGUAGE, LANGUAGE, rulesConfiguration, Collections.emptySet());
     orchestrator.getServer().restoreProfile(FileLocation.of(profile));
 
-    createTemplateRule("XPathCheck", "NumberDependencies", "expression=\"count(/project/dependencies/dependency)>0\";message=\"Don't do that, dammit!\"");
+    createTemplateRule(
+      "XPathCheck",
+      "NumberDependencies",
+      "expression=\"count(/project/dependencies/dependency)>0\";" +
+        "message=\"Don't do that, dammit!\"");
+
+    createTemplateRule(
+      "XPathCheck",
+      "checkstyleXPath",
+      "expression=\"//checkstyle\";" +
+        "message=\"Don't do that, dammit!\";");
   }
 
   @Test
