@@ -141,6 +141,7 @@ public class NewXmlParser {
 
         case XMLStreamConstants.CDATA:
           if (!xmlReader.getText().isEmpty()) {
+            // Empty CDATA are not detected by the xerces DocumentBuilder
             visitCdata(startLocation);
           }
           break;
@@ -198,6 +199,8 @@ public class NewXmlParser {
   }
 
   private static DocumentBuilder getDocumentBuilder(boolean namespaceAware) throws ParserConfigurationException {
+    // forcing the DocumentBuilderFactory implementation class, in order to be sure that we are going to use the
+    // adequate parser, handling correctly all the elements
     DocumentBuilderFactory documentBuilderFactory = new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
     documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
