@@ -20,7 +20,6 @@
 package org.sonar.plugins.xml.newchecks;
 
 import java.util.Collections;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
@@ -127,7 +126,7 @@ public class IndentationCheck extends NewXmlCheck {
 
       } else if (nodeType == Node.TEXT_NODE) {
         String text = sibling.getTextContent();
-        if (!StringUtils.isWhitespace(text)) {
+        if (!text.trim().isEmpty()) {
           // non whitespace found, we are done
           return indent;
         }

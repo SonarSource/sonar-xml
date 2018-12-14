@@ -38,7 +38,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.sonar.plugins.xml.newparser.NewXmlFile.Location;
 import org.sonar.plugins.xml.newparser.PrologElement.PrologAttribute;
-import org.sonar.plugins.xml.parsers.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

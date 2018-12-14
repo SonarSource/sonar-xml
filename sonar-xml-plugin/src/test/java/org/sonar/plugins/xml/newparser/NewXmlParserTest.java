@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.plugins.xml.newparser.NewXmlFile.Location;
 import org.sonar.plugins.xml.newparser.PrologElement.PrologAttribute;
-import org.sonar.plugins.xml.parsers.ParseException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
