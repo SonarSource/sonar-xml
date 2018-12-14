@@ -22,9 +22,6 @@ package org.sonar.plugins.xml;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.plugins.xml.language.Xml;
-import org.sonar.plugins.xml.rules.XmlRulesDefinition;
-import org.sonar.plugins.xml.rules.XmlSonarWayProfile;
 
 public final class XmlPlugin implements Plugin {
 

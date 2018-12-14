@@ -32,7 +32,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.ParseException;
 

@@ -37,7 +37,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.XmlTextRange;
 
