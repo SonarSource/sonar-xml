@@ -29,8 +29,11 @@ import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
+import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -111,7 +114,7 @@ public class NewXmlParserTest {
   }
 
   @Test
-  public void testEntity() throws Exception {
+  public void testEntityReference() throws Exception {
     // standard XML entity
     Document document = NewXmlFile.create("<a>&lt;</a>").getDocument();
     Node textNode = document.getFirstChild().getFirstChild();
@@ -128,6 +131,58 @@ public class NewXmlParserTest {
   @Test(expected = ParseException.class)
   public void testFailingNonBuiltinEntity() throws Exception {
     NewXmlFile.create("<a>&ouml;</a>");
+  }
+
+  @Test
+  public void testInternalEntityReference() throws Exception {
+    Document document = NewXmlFile.create(
+      "<!DOCTYPE element [<!ENTITY abc \"abcValue\">]>\n" +
+        "<element>Before&abc;After</element>").getDocument();
+
+    EntityReference entityReference = ((EntityReference) document.getElementsByTagName("element").item(0).getFirstChild().getNextSibling());
+    assertThat(entityReference.getNodeType()).isEqualTo(Node.ENTITY_REFERENCE_NODE);
+    assertRange(entityReference, Location.NODE, 2, 15, 2, 20);
+
+    Node textNode = entityReference.getFirstChild();
+    assertThat(textNode).isInstanceOf(Text.class);
+    assertThat(textNode.getTextContent()).isEqualTo("abcValue");
+    assertRange(textNode, Location.NODE, 2, 15, 2, 20);
+  }
+
+  @Test
+  public void testDoctypeElement() throws Exception {
+    Document document = NewXmlFile.create(
+      "<!DOCTYPE note [\n" +
+        "<!ELEMENT note (body)>\n" +
+        "<!ELEMENT body (#PCDATA)>\n" +
+        "]>\n" +
+        "<note>\n" +
+        "<body>Don't forget me this weekend</body>\n" +
+        "</note>").getDocument();
+
+    DocumentType doctypeElement = (DocumentType) document.getFirstChild();
+    assertThat(doctypeElement.getNodeType()).isEqualTo(Node.DOCUMENT_TYPE_NODE);
+    assertRange(doctypeElement, Location.NODE, 1, 0, 4, 2);
+  }
+
+  @Test
+  public void testAttributeWithBracket() throws Exception {
+    Document document = NewXmlFile.create("<a attr='>'></a>").getDocument();
+    assertRange(document.getFirstChild(), Location.START, 1, 0, 1, 12);
+
+    document = NewXmlFile.create("<a attr='>'/>").getDocument();
+    assertRange(document.getFirstChild(), Location.NODE, 1, 0, 1, 13);
+
+    document = NewXmlFile.create("<a attr='>\"'/>").getDocument();
+    assertRange(document.getFirstChild(), Location.NODE, 1, 0, 1, 14);
+  }
+
+  @Test
+  public void testXmlStylesheet() throws Exception {
+    Document document = NewXmlFile.create("<?xml-stylesheet type='text/xsl' href='http://www.foo.con/stylus.xslt' ?><a/>").getDocument();
+    ProcessingInstruction processingInstruction = (ProcessingInstruction) document.getFirstChild();
+    assertRange(processingInstruction, Location.NODE, 1, 0, 1, 73);
+    assertNoData(processingInstruction, Location.START, Location.END, Location.NAME);
   }
 
   @Test
@@ -176,6 +231,15 @@ public class NewXmlParserTest {
   }
 
   @Test
+  public void testEmptyCdataIsMissingInDocument() throws Exception {
+    Document document = NewXmlFile.create("<tag><![CDATA[]]></tag>").getDocument();
+    Node topTag = document.getFirstChild();
+    assertThat(topTag.getChildNodes().getLength()).isZero();
+    assertRange(topTag, Location.START, 1, 0, 1, 5);
+    assertRange(topTag, Location.END, 1, 17, 1, 23);
+  }
+
+  @Test
   public void testCdataWithText() throws Exception {
     Document document = NewXmlFile.create("<tag>Text<![CDATA[<tag/><!-- Comment -->]]></tag>").getDocument();
     Node topTag = document.getFirstChild();
@@ -188,13 +252,13 @@ public class NewXmlParserTest {
 
   @Test
   public void testDtd() throws Exception {
-    Document document = NewXmlFile.create("<!DOCTYPE foo> <tag/>").getDocument();
+    Document document = NewXmlFile.create("<!DOCTYPE foo [<!ENTITY bar \"&#xA0;\">  ]> <tag/>").getDocument();
     DocumentType docType = ((DocumentType) document.getFirstChild());
     Node tag = docType.getNextSibling();
 
     assertThat(tag.getNodeName()).isEqualTo("tag");
     assertThat(docType.getNodeName()).isEqualTo("foo");
-    assertRange(docType, Location.NODE, 1, 0, 1, 14);
+    assertRange(docType, Location.NODE, 1, 0, 1, 41);
     assertNoData(docType, Location.START, Location.END, Location.NAME, Location.VALUE);
   }
 

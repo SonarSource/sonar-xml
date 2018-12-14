@@ -120,8 +120,11 @@ public class NewXmlParser {
       finalizePreviousNode(startLocation);
 
       switch (xmlReader.getEventType()) {
+        case XMLStreamConstants.ENTITY_REFERENCE:
         case XMLStreamConstants.COMMENT:
-          visitComment(startLocation);
+        case XMLStreamConstants.PROCESSING_INSTRUCTION:
+          setNextNode();
+          currentNodeStartLocation = startLocation;
           break;
 
         case XMLStreamConstants.CHARACTERS:
@@ -137,7 +140,9 @@ public class NewXmlParser {
           break;
 
         case XMLStreamConstants.CDATA:
-          visitCdata(startLocation);
+          if (!xmlReader.getText().isEmpty()) {
+            visitCdata(startLocation);
+          }
           break;
 
         case XMLStreamConstants.DTD:
@@ -156,11 +161,6 @@ public class NewXmlParser {
     }
   }
 
-  private void visitComment(XmlLocation startLocation) {
-    setNextNode();
-    currentNodeStartLocation = startLocation;
-  }
-
   private void visitTextNode(XmlLocation startLocation) {
     if (previousEventIsText) {
       // text can appear after another text when it's not coalesced (see XMLInputFactory.IS_COALESCING)
@@ -175,6 +175,11 @@ public class NewXmlParser {
   private void finalizePreviousNode(XmlLocation endLocation) {
     if (currentNodeStartLocation != null) {
       setLocation(currentNode, Location.NODE, currentNodeStartLocation, endLocation);
+      // for entity reference having a child which is it's text replacement
+      // setting the same location
+      if (currentNode.getFirstChild() != null) {
+        setLocation(currentNode.getFirstChild(), Location.NODE, currentNodeStartLocation, endLocation);
+      }
     } else if (currentNodeStartRange != null) {
       currentNode.setUserData(Location.NODE.name(), new XmlTextRange(currentNodeStartRange, endLocation, xmlFileStartLocation), null);
     }
@@ -193,7 +198,7 @@ public class NewXmlParser {
   }
 
   private static DocumentBuilder getDocumentBuilder(boolean namespaceAware) throws ParserConfigurationException {
-    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory documentBuilderFactory = new org.apache.xerces.jaxp.DocumentBuilderFactoryImpl();
     documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
     documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -213,7 +218,7 @@ public class NewXmlParser {
     setNextNode();
     nodes.push(currentNode);
     XmlLocation nameEndLocation = startLocation.shift(getNameWithNamespaceLength(xmlReader) + 1);
-    XmlLocation closingBracketEndLocation = startLocation.moveAfter(">");
+    XmlLocation closingBracketEndLocation = startLocation.moveAfterClosingBracket();
     setLocation(currentNode, Location.START, startLocation, closingBracketEndLocation);
     setLocation(currentNode, Location.NAME, startLocation.shift(1), nameEndLocation);
     visitAttributes(nameEndLocation, closingBracketEndLocation.moveBackward());
@@ -221,7 +226,7 @@ public class NewXmlParser {
 
   private void visitEndElement(XmlLocation startLocation) throws XMLStreamException {
     currentNode = nodes.pop();
-    XmlLocation closingBracketEndLocation = startLocation.moveAfter(">");
+    XmlLocation closingBracketEndLocation = startLocation.moveAfterClosingBracket();
     setLocation(currentNode, Location.END, startLocation, closingBracketEndLocation);
     XmlTextRange startRange = (XmlTextRange) currentNode.getUserData(Location.START.name());
     currentNode.setUserData(Location.NODE.name(), new XmlTextRange(startRange, closingBracketEndLocation, xmlFileStartLocation), null);
@@ -242,7 +247,7 @@ public class NewXmlParser {
   private void parseXmlDeclaration() throws XMLStreamException {
     XmlLocation startLocation = new XmlLocation(content);
     if (startLocation.startsWith(XML_DECLARATION_TAG)) {
-      XmlLocation endLocation =  startLocation.moveAfter(">");
+      XmlLocation endLocation =  startLocation.moveAfterClosingBracket();
       XmlLocation attributesStart = startLocation.moveAfter(XML_DECLARATION_TAG);
 
       List<PrologAttribute> prologAttributes = visitPrologAttributes(attributesStart, endLocation.moveBackward());
@@ -257,7 +262,7 @@ public class NewXmlParser {
 
   private void visitDTD(XmlLocation startLocation) throws XMLStreamException {
     setNextNode();
-    XmlLocation endLocation = startLocation.moveAfter(">");
+    XmlLocation endLocation = startLocation.moveAfterClosingBracket();
     setLocation(currentNode, Location.NODE, startLocation, endLocation);
   }
 

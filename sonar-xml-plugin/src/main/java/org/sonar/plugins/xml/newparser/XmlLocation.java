@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.xml.newparser;
 
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 
@@ -97,6 +101,23 @@ class XmlLocation {
     return moveBefore(substring).shift(substring.length());
   }
 
+  public XmlLocation moveAfterClosingBracket() throws XMLStreamException {
+    State state = State.START;
+
+    int i = characterOffset + 1;
+    while (i < content.length()) {
+      char currentChar = content.charAt(i);
+
+      state = statesMap.get(state).getOrDefault(currentChar, state);
+      if (state == State.FINISH) {
+        return shift(i - characterOffset + 1);
+      }
+      i++;
+    }
+
+    throw new IllegalStateException("Failed to find closing bracket '>'.");
+  }
+
   public XmlLocation moveBefore(String substring) throws XMLStreamException {
     int index = content.indexOf(substring, characterOffset);
     if (index == -1) {
@@ -138,5 +159,36 @@ class XmlLocation {
   // one-based
   public int computeSqLine(XmlLocation xmlStartLocation) {
     return line + xmlStartLocation.line - 1;
+  }
+
+  private enum State {
+    FINISH,
+    START,
+    INSIDE_NESTED_ELEMENT,
+    INSIDE_SINGLE_QUOTE,
+    INSIDE_DOUBLE_QUOTE,
+    INSIDE_SINGLE_QUOTE_NESTED_ELEMENT,
+    INSIDE_DOUBLE_QUOTE_NESTED_ELEMENT
+  }
+
+  private static Map<State, Map<Character, State>> statesMap = new EnumMap<>(State.class);
+
+  static {
+    Arrays.stream(State.values()).forEach(s -> statesMap.put(s, new HashMap<>()));
+
+    statesMap.get(State.START).put('>', State.FINISH);
+    statesMap.get(State.START).put('<', State.INSIDE_NESTED_ELEMENT);
+    statesMap.get(State.START).put('\'', State.INSIDE_SINGLE_QUOTE);
+    statesMap.get(State.START).put('"', State.INSIDE_DOUBLE_QUOTE);
+
+    statesMap.get(State.INSIDE_NESTED_ELEMENT).put('>', State.START);
+    statesMap.get(State.INSIDE_NESTED_ELEMENT).put('\'', State.INSIDE_SINGLE_QUOTE_NESTED_ELEMENT);
+    statesMap.get(State.INSIDE_NESTED_ELEMENT).put('"', State.INSIDE_DOUBLE_QUOTE_NESTED_ELEMENT);
+
+    statesMap.get(State.INSIDE_SINGLE_QUOTE).put('\'', State.START);
+    statesMap.get(State.INSIDE_DOUBLE_QUOTE).put('"', State.START);
+
+    statesMap.get(State.INSIDE_SINGLE_QUOTE_NESTED_ELEMENT).put('\'', State.INSIDE_NESTED_ELEMENT);
+    statesMap.get(State.INSIDE_DOUBLE_QUOTE_NESTED_ELEMENT).put('"', State.INSIDE_NESTED_ELEMENT);
   }
 }
