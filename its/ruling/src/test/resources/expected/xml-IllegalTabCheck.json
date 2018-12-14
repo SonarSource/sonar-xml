@@ -1547,6 +1547,9 @@
 'project:spring-framework/spring-core/src/test/resources/org/springframework/util/xml/testContentHandler.xml':[
 0,
 ],
+'project:spring-framework/spring-core/src/test/resources/org/springframework/util/xml/testLexicalHandler.xml':[
+0,
+],
 'project:spring-framework/spring-expression/src/test/resources/log4j2-test.xml':[
 0,
 ],
@@ -1950,6 +1953,9 @@
 0,
 ],
 'project:spring-framework/spring-webmvc/src/test/resources/org/springframework/web/context/WEB-INF/ContextLoaderTests-acc-context.xml':[
+0,
+],
+'project:spring-framework/spring-webmvc/src/test/resources/org/springframework/web/context/WEB-INF/applicationContext.xml':[
 0,
 ],
 'project:spring-framework/spring-webmvc/src/test/resources/org/springframework/web/context/WEB-INF/context-addition.xml':[
