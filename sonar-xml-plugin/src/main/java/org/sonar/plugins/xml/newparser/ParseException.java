@@ -17,20 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.parsers;
+package org.sonar.plugins.xml.newparser;
 
-import org.xml.sax.SAXParseException;
+public class ParseException extends RuntimeException {
 
-/**
- * Exception for a parse error from which the parser cannot recover.
- */
-class UnrecoverableParseError extends RuntimeException {
+  private static final long serialVersionUID = -3118758075218569915L;
 
-  static final String FAILUREMESSAGE = "The reference to entity \"null\"";
-
-  private static final long serialVersionUID = 1L;
-
-  public UnrecoverableParseError(SAXParseException e) {
-    super(e);
+  public ParseException(Exception cause) {
+    super(cause);
   }
+
 }
