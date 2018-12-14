@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.rules;
+package org.sonar.plugins.xml;
 
 import org.junit.Test;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +34,9 @@ public class XmlRulesDefinitionTest {
 
   @Test
   public void test() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition();
+    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SERVER);
+
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(sonarRuntime);
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");

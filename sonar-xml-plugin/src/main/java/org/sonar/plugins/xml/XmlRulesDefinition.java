@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.rules;
+package org.sonar.plugins.xml;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
-/**
- * Repository for XML rules.
- */
 public final class XmlRulesDefinition implements RulesDefinition {
+
+  private final SonarRuntime sonarRuntime;
+
+  public XmlRulesDefinition(SonarRuntime sonarRuntime) {
+    this.sonarRuntime = sonarRuntime;
+  }
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context
-      .createRepository(Xml.REPOSITORY_KEY, Xml.KEY)
-      .setName(Xml.REPOSITORY_NAME);
+    NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
 
-    // FIXME: with SonarQube 6.7, should use the sonar way profile location as extra parameter
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader("org/sonar/l10n/xml/rules/xml");
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH, sonarRuntime);
 
     // add the new checks
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, NewXmlCheckList.getCheckClasses());

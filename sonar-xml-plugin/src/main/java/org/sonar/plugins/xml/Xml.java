@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.language;
+package org.sonar.plugins.xml;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.plugins.xml.XmlPlugin;
 
 /**
  * This class defines the XML language.
@@ -41,9 +40,12 @@ public class Xml extends AbstractLanguage {
   /** The xml language name */
   private static final String XML_LANGUAGE_NAME = "XML";
 
+  public static final String XML_RESOURCE_PATH = "org/sonar/l10n/xml/rules/xml";
   public static final String REPOSITORY_KEY = "xml";
   public static final String REPOSITORY_NAME = "SonarAnalyzer";
+
   public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
+  public static final String SONAR_WAY_PATH = "org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json";
 
   private Configuration configuration;
 

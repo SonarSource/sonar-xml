@@ -17,5 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.plugins.xml.rules;
+package org.sonar.plugins.xml;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class XmlTest {
+
+  private MapSettings settings;
+  private Xml xml;
+
+  @Before
+  public void setUp() {
+    settings = new MapSettings();
+    xml = new Xml(settings.asConfig());
+  }
+
+  @Test
+  public void defaultSuffixes() {
+    settings.setProperty(XmlPlugin.FILE_SUFFIXES_KEY, "");
+    assertThat(xml.getFileSuffixes()).containsOnly(".xml");
+  }
+
+  @Test
+  public void customSuffixes() {
+    settings.setProperty(XmlPlugin.FILE_SUFFIXES_KEY, ".xhtml");
+    assertThat(xml.getFileSuffixes()).containsOnly(".xhtml");
+  }
+
+}

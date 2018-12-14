@@ -40,7 +40,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.plugins.xml.language.Xml;
+import org.sonar.plugins.xml.Xml;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.XmlTextRange;
 import org.w3c.dom.Comment;

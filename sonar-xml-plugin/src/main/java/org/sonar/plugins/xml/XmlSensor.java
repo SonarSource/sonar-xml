@@ -39,7 +39,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
-import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
 import org.sonar.plugins.xml.newchecks.ParsingErrorCheck;
 import org.sonar.plugins.xml.newparser.NewXmlFile;

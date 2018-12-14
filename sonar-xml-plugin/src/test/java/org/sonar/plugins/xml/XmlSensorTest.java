@@ -56,7 +56,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.xml.language.Xml;
 import org.sonar.plugins.xml.newchecks.TabCharacterCheck;
 import org.sonar.plugins.xml.newparser.NewXmlFile;
 import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
