@@ -37,11 +37,6 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.checks.AbstractXmlCheck;
-import org.sonar.plugins.xml.checks.CheckRepository;
-import org.sonar.plugins.xml.checks.XmlFile;
-import org.sonar.plugins.xml.checks.XmlIssue;
-import org.sonar.plugins.xml.checks.XmlSourceCode;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.language.Xml;
@@ -64,9 +59,7 @@ public class XmlSensor implements Sensor {
 
   public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.checks = checkFactory.create(Xml.REPOSITORY_KEY)
-      .addAnnotatedChecks((Iterable<?>) CheckRepository.getCheckClasses())
-      .addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
+    this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
     this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(
@@ -78,11 +71,10 @@ public class XmlSensor implements Sensor {
   public void execute(SensorContext context) {
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
-      XmlFile xmlFile = new XmlFile(inputFile, fileSystem);
       try {
         NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
         LineCounter.analyse(context, fileLinesContextFactory, newXmlFile);
-        runChecks(context, xmlFile, newXmlFile);
+        runChecks(context, newXmlFile);
         saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), inputFile);
       } catch (Exception e) {
         processParseException(e, context, inputFile);
@@ -90,33 +82,12 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void runChecks(SensorContext context, XmlFile xmlFile, NewXmlFile newXmlFile) {
-    XmlSourceCode sourceCode = new XmlSourceCode(xmlFile);
-
-    // Do not execute any XML rule when an XML file is corrupted (SONARXML-13)
-    if (sourceCode.parseSource()) {
-      // FIXME we should drop this part once SONARXML-78 has been completed
-      checks.all().stream()
-        .filter(AbstractXmlCheck.class::isInstance)
-        .map(AbstractXmlCheck.class::cast)
-        .forEach(check -> runCheck(check, sourceCode));
-      saveIssues(context, sourceCode);
-    }
-
+  private void runChecks(SensorContext context, NewXmlFile newXmlFile) {
     checks.all().stream()
       .filter(NewXmlCheck.class::isInstance)
       .map(NewXmlCheck.class::cast)
       // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
       .forEach(check -> runCheck(context, check, checks.ruleKey(check), newXmlFile));
-  }
-
-  private void runCheck(AbstractXmlCheck check, XmlSourceCode sourceCode) {
-    try {
-      check.setRuleKey(checks.ruleKey(check));
-      check.validate(sourceCode);
-    } catch (Exception e) {
-      logFailingRule(check.getRuleKey(), sourceCode.getInputFile().uri(), e);
-    }
   }
 
   @VisibleForTesting
@@ -139,19 +110,6 @@ public class XmlSensor implements Sensor {
       highlightingData.highlight(highlighting);
     }
     highlighting.save();
-  }
-
-  protected void saveIssues(SensorContext context, XmlSourceCode sourceCode) {
-    for (XmlIssue xmlIssue : sourceCode.getXmlIssues()) {
-      NewIssue newIssue = context.newIssue().forRule(xmlIssue.getRuleKey());
-      NewIssueLocation location = newIssue.newLocation()
-        .on(sourceCode.getInputFile())
-        .message(xmlIssue.getMessage());
-      if (xmlIssue.getLine() != null) {
-        location.at(sourceCode.getInputFile().selectLine(xmlIssue.getLine()));
-      }
-      newIssue.at(location).save();
-    }
   }
 
   @Override
