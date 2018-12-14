@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -197,7 +196,12 @@ public class XmlHighlightingTest {
 
   @Test
   public void testBigCDATA() throws Exception {
-    String cdataContent = StringUtils.repeat("x", 100000);
+    StringBuilder sb = new StringBuilder();
+    int length = 100000;
+    for (int i = 0; i < length; i++) {
+      sb.append("a");
+    }
+    String cdataContent = sb.toString();
     List<HighlightingData> highlightingData = getHighlightingDataFromContent(
       "<tag><![CDATA[" + cdataContent + "]]></tag>");
     assertEquals(5, highlightingData.size());
