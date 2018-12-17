@@ -10,6 +10,10 @@ SQ_VERSION:
   - LATEST_RELEASE
   - LATEST_RELEASE[6.7]
 
+SLAVE:
+  - windows
+  - linux
+
 exclude:
 
   - SLAVE: linux
