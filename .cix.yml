@@ -15,3 +15,5 @@ exclude:
   - SLAVE: linux
     TEST: ci
 
+  - SLAVE: windows
+    TEST: ruling
