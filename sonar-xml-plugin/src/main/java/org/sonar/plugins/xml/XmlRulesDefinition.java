@@ -21,7 +21,7 @@ package org.sonar.plugins.xml;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.NewXmlCheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 public final class XmlRulesDefinition implements RulesDefinition {

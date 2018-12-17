@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
 import org.junit.Test;
-import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 public class TabCharacterCheckTest {
 
@@ -28,12 +28,12 @@ public class TabCharacterCheckTest {
   public void should_have_only_one_issue_without_secondaries() throws Exception {
     TabCharacterCheck check = new TabCharacterCheck();
 
-    NewXmlVerifier.verifyIssueOnFile(
+    SonarXmlCheckVerifier.verifyIssueOnFile(
       "tabsEverywhere.xml",
       check,
       "Replace all tab characters in this file by sequences of white-spaces.");
 
-    NewXmlVerifier.verifyIssueOnFile(
+    SonarXmlCheckVerifier.verifyIssueOnFile(
       "tabsSinglePlace.xml",
       check,
       "Replace all tab characters in this file by sequences of white-spaces.");
@@ -44,13 +44,13 @@ public class TabCharacterCheckTest {
     TabCharacterCheck check = new TabCharacterCheck();
     check.setMarkAll(true);
 
-    NewXmlVerifier.verifyIssueOnFile(
+    SonarXmlCheckVerifier.verifyIssueOnFile(
       "tabsEverywhere.xml",
       check,
       "Replace all tab characters in this file by sequences of white-spaces.",
       2, 3, 4);
 
-    NewXmlVerifier.verifyIssueOnFile(
+    SonarXmlCheckVerifier.verifyIssueOnFile(
       "tabsSinglePlace.xml",
       check,
       "Replace all tab characters in this file by sequences of white-spaces.",
@@ -59,7 +59,7 @@ public class TabCharacterCheckTest {
 
   @Test
   public void should_have_only_no_issue() throws Exception {
-    NewXmlVerifier.verifyNoIssue("noTabs.xml", new TabCharacterCheck());
+    SonarXmlCheckVerifier.verifyNoIssue("noTabs.xml", new TabCharacterCheck());
   }
 
 }

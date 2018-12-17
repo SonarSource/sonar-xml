@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.junit.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-@Rule(key = ParsingErrorCheck.RULE_KEY)
-public class ParsingErrorCheck extends NewXmlCheck {
+public class IndentationCheckTest {
 
-  public static final String RULE_KEY = "S2260";
-
-  @Override
-  public void scanFile(NewXmlFile file) {
-    // we don't do anything here. Having the XML file parsable (well formed) is a precondition
-    // for all rules and thus checked up front. The rule however still need to be registered in SQ
-    // and 'physically' exist as class
+  @Test
+  public void test() {
+    IndentationCheck check = new IndentationCheck();
+    SonarXmlCheckVerifier.verifyIssues("IndentationCheck.xml", check);
   }
+
+  @Test
+  public void test_with_parameters() {
+    IndentationCheck check = new IndentationCheck();
+    check.setIndentSize(4);
+    check.setTabSize(4);
+    SonarXmlCheckVerifier.verifyIssues("IndentationCheckCustom.xml", check);
+  }
+
 }

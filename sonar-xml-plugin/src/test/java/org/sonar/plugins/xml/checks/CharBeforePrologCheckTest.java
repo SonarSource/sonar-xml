@@ -17,5 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
+
+import org.junit.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
+
+public class CharBeforePrologCheckTest {
+
+  @Test
+  public void test() {
+    CharBeforePrologCheck check = new CharBeforePrologCheck();
+    SonarXmlCheckVerifier.verifyIssues("nok.xml", check);
+
+    SonarXmlCheckVerifier.verifyNoIssue("ok.xml", check);
+    SonarXmlCheckVerifier.verifyNoIssue("ok_without_prolog.xml", check);
+  }
+}

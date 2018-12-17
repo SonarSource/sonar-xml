@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newparser;
+package org.sonar.plugins.xml.checks;
 
-public class ParseException extends RuntimeException {
+import org.junit.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-  private static final long serialVersionUID = -3118758075218569915L;
+public class NewlineCheckTest {
 
-  public ParseException(Exception cause) {
-    super(cause);
+  @Test
+  public void test() {
+    SonarXmlCheckVerifier.verifyIssues("test.xml", new NewlineCheck());
   }
-
 }

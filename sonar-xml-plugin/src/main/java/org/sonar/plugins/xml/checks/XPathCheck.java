@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,8 +32,8 @@ import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
  * RSPEC-140.
  */
 @Rule(key = XPathCheck.RULE_KEY)
-public class XPathCheck extends NewXmlCheck {
+public class XPathCheck extends SonarXmlCheck {
 
   public static final String RULE_KEY = "XPathCheck";
 
@@ -58,7 +58,7 @@ public class XPathCheck extends NewXmlCheck {
   private String message;
 
   @Override
-  public void scanFile(NewXmlFile file) {
+  public void scanFile(XmlFile file) {
     if (!isFileIncluded(file)) {
       return;
     }
@@ -96,7 +96,7 @@ public class XPathCheck extends NewXmlCheck {
     this.message = message;
   }
 
-  private XPathExpression getXPathExpression(NewXmlFile file) {
+  private XPathExpression getXPathExpression(XmlFile file) {
     XPathExpression xPathExpression;
     try {
       XPath xpath = XPathFactory.newInstance().newXPath();
@@ -109,7 +109,7 @@ public class XPathCheck extends NewXmlCheck {
     return xPathExpression;
   }
 
-  private boolean isFileIncluded(NewXmlFile file) {
+  private boolean isFileIncluded(XmlFile file) {
     return filePattern == null || WildcardPattern.create(filePattern).match(file.getInputFile().absolutePath());
   }
 

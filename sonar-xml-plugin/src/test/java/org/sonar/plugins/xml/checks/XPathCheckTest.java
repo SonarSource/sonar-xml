@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
 import org.junit.Test;
-import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 public class XPathCheckTest {
 
   @Test
   public void test_nodes() throws Exception {
-    NewXmlVerifier.verifyIssues("simple.xml", getCheck("//b"));
+    SonarXmlCheckVerifier.verifyIssues("simple.xml", getCheck("//b"));
   }
 
   @Test
   public void test_file() throws Exception {
-    NewXmlVerifier.verifyIssueOnFile("simple.xml", getCheck("boolean(a)"), "XPath issue message");
-    NewXmlVerifier.verifyNoIssue("simple.xml", getCheck("not(boolean(a))"));
+    SonarXmlCheckVerifier.verifyIssueOnFile("simple.xml", getCheck("boolean(a)"), "XPath issue message");
+    SonarXmlCheckVerifier.verifyNoIssue("simple.xml", getCheck("not(boolean(a))"));
   }
 
   @Test(expected = IllegalStateException.class)
   public void test_invalid_xpath() throws Exception {
-    NewXmlVerifier.verifyNoIssue("simple.xml", getCheck("boolean(a"));
+    SonarXmlCheckVerifier.verifyNoIssue("simple.xml", getCheck("boolean(a"));
   }
 
   @Test
@@ -47,17 +47,17 @@ public class XPathCheckTest {
     check.setMessage("XPath issue message");
     check.setFilePattern("**/FOOBAR/*.xml");
 
-    NewXmlVerifier.verifyNoIssue("simple.xml", check);
+    SonarXmlCheckVerifier.verifyNoIssue("simple.xml", check);
   }
 
   @Test
   public void test_with_namespaces() throws Exception {
-    NewXmlVerifier.verifyIssues("with_namespaces.xml", getCheck("//x:template"));
+    SonarXmlCheckVerifier.verifyIssues("with_namespaces.xml", getCheck("//x:template"));
   }
 
   @Test
   public void test_with_default_namespace() throws Exception {
-    NewXmlVerifier.verifyIssues("with_default_namespaces.xml", getCheck("//template"));
+    SonarXmlCheckVerifier.verifyIssues("with_default_namespaces.xml", getCheck("//template"));
   }
 
   private static XPathCheck getCheck(String expression) {

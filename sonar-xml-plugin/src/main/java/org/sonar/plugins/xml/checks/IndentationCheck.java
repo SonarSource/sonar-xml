@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
  * RSPEC-1120
  */
 @Rule(key = IndentationCheck.RULE_KEY)
-public class IndentationCheck extends NewXmlCheck {
+public class IndentationCheck extends SonarXmlCheck {
 
   public static final String RULE_KEY = "IndentCheck";
 
@@ -53,7 +53,7 @@ public class IndentationCheck extends NewXmlCheck {
   private int tabSize = 2;
 
   @Override
-  public void scanFile(NewXmlFile file) {
+  public void scanFile(XmlFile file) {
     validateIndent(file.getDocument());
   }
 
@@ -97,7 +97,7 @@ public class IndentationCheck extends NewXmlCheck {
     int expectedIndent = depth(element) * indentSize;
 
     if (expectedIndent != startIndent(element)) {
-      reportIssue(NewXmlFile.startLocation(element), expectedIndent);
+      reportIssue(XmlFile.startLocation(element), expectedIndent);
       // if reporting on start node, don't report on rest of the block
       return true;
     }

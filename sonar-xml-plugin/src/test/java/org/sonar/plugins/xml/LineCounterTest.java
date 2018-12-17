@@ -32,8 +32,8 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.ParseException;
+import org.sonarsource.analyzer.commons.xml.ParseException;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +80,7 @@ public class LineCounterTest {
     File moduleBaseDir = new File("src/test/resources/parsers/linecount");
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
     InputFile inputFile = createInputFile(moduleBaseDir.toPath(), filename);
-    LineCounter.analyse(context, fileLinesContextFactory, NewXmlFile.create(inputFile));
+    LineCounter.analyse(context, fileLinesContextFactory,  XmlFile.create(inputFile));
 
     Arrays.stream(linesOfCode).forEach(line ->
       verify(fileLinesContext).setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1));

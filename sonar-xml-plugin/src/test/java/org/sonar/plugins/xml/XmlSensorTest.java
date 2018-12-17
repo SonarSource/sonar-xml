@@ -56,9 +56,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.xml.newchecks.TabCharacterCheck;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.sonar.plugins.xml.checks.TabCharacterCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -130,12 +130,12 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   public void failing_rules_should_not_report_parse_exception() throws Exception {
     init(true);
 
-    sensor.runCheck(context, new NewXmlCheck() {
+    sensor.runCheck(context, new SonarXmlCheck() {
       @Override
-      public void scanFile(NewXmlFile file) {
+      public void scanFile(XmlFile file) {
         throw new IllegalStateException("failing systematically");
       }
-    }, RuleKey.of("xml", "S666"), NewXmlFile.create(createInputFile("src/tabsEverywhere.xml")));
+    }, RuleKey.of("xml", "S666"), XmlFile.create(createInputFile("src/tabsEverywhere.xml")));
 
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.getLogs()).isNotEmpty();
@@ -143,14 +143,6 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     List<LogAndArguments> errors = logTester.getLogs(LoggerLevel.ERROR);
     assertThat(errors).hasSize(1);
     assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule xml:S666");
-  }
-
-  @org.sonar.check.Rule(key = "S666")
-  private static class TestCheck extends NewXmlCheck {
-    @Override
-    public void scanFile(NewXmlFile file) {
-      throw new IllegalStateException("failing systematically");
-    }
   }
 
   /**

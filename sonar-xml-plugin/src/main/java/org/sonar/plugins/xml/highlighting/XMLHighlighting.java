@@ -22,9 +22,9 @@ package org.sonar.plugins.xml.highlighting;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.PrologElement;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.PrologElement;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
@@ -36,7 +36,7 @@ public class XMLHighlighting {
 
   private List<HighlightingData> highlightingData = new ArrayList<>();
 
-  public static List<HighlightingData> highlight(NewXmlFile xmlFile) {
+  public static List<HighlightingData> highlight(XmlFile xmlFile) {
     XMLHighlighting highlighting = new XMLHighlighting();
     xmlFile.getPrologElement().ifPresent(highlighting::highlightProlog);
     children(xmlFile.getDocument()).forEach(highlighting::highlightNode);
@@ -49,12 +49,12 @@ public class XMLHighlighting {
         highlightElementNode(node);
         break;
       case Node.CDATA_SECTION_NODE:
-        addHighlighting(NewXmlFile.startLocation((CDATASection) node), TypeOfText.KEYWORD);
-        addHighlighting(NewXmlFile.endLocation((CDATASection) node), TypeOfText.KEYWORD);
+        addHighlighting(XmlFile.startLocation((CDATASection) node), TypeOfText.KEYWORD);
+        addHighlighting(XmlFile.endLocation((CDATASection) node), TypeOfText.KEYWORD);
         break;
       case Node.COMMENT_NODE:
       case Node.DOCUMENT_TYPE_NODE:
-        addHighlighting(NewXmlFile.nodeLocation(node), TypeOfText.STRUCTURED_COMMENT);
+        addHighlighting(XmlFile.nodeLocation(node), TypeOfText.STRUCTURED_COMMENT);
         break;
       default:
         break;
@@ -62,9 +62,9 @@ public class XMLHighlighting {
   }
 
   private void highlightElementNode(Node node) {
-    XmlTextRange nameLocation = NewXmlFile.nameLocation((Element) node);
-    XmlTextRange startLocation = NewXmlFile.startLocation((Element) node);
-    XmlTextRange endLocation = NewXmlFile.endLocation((Element) node);
+    XmlTextRange nameLocation = XmlFile.nameLocation((Element) node);
+    XmlTextRange startLocation = XmlFile.startLocation((Element) node);
+    XmlTextRange endLocation = XmlFile.endLocation((Element) node);
 
     // <foo
     addHighlighting(startLocation, nameLocation, TypeOfText.KEYWORD);
@@ -73,14 +73,16 @@ public class XMLHighlighting {
     XmlTextRange lastLocation = nameLocation;
     for (int i = 0; i < attributes.getLength(); i++) {
       Attr attribute = (Attr) attributes.item(i);
-      addHighlighting(NewXmlFile.attributeNameLocation(attribute), TypeOfText.CONSTANT);
-      XmlTextRange valueLocation = NewXmlFile.attributeValueLocation(attribute);
+      addHighlighting(XmlFile.attributeNameLocation(attribute), TypeOfText.CONSTANT);
+      XmlTextRange valueLocation = XmlFile.attributeValueLocation(attribute);
       addHighlighting(valueLocation, TypeOfText.STRING);
       lastLocation = valueLocation;
     }
 
-    if (startLocation.equals(endLocation)) {
-      // self-closing element <foo ... />
+    // self-closing element <foo ... />
+    boolean isSelfClosing = startLocation.getEndLine() == endLocation.getEndLine() && startLocation.getEndColumn() == endLocation.getEndColumn();
+
+    if (isSelfClosing) {
       XmlTextRange textRange = new XmlTextRange(lastLocation.getEndLine(), lastLocation.getEndColumn(), endLocation.getEndLine(), endLocation.getEndColumn());
       // '/>'
       addHighlighting(textRange, TypeOfText.KEYWORD);
