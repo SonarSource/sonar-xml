@@ -3,9 +3,41 @@
 TEST:
   - plugin
   - ruling
+  - ci
 
 SQ_VERSION:
   - DEV
   - LATEST_RELEASE
   - LATEST_RELEASE[6.7]
 
+exclude:
+
+  - SLAVE: linux
+    TEST: ci
+
+  - TEST: ruling
+    SLAVE: linux
+    SQ_VERSION: LATEST_RELEASE
+
+  - TEST: ruling
+    SLAVE: linux
+    SQ_VERSION: LATEST_RELEASE[6.7]
+
+  - SLAVE: windows
+    TEST: ruling
+
+  - TEST: plugin
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE
+
+  - TEST: plugin
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE[6.7]
+
+  - TEST: ci
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE
+
+  - TEST: ci
+    SLAVE: windows
+    SQ_VERSION: LATEST_RELEASE[6.7]
