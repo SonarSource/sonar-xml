@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 @Rule(key = NewlineCheck.RULE_KEY)
-public class NewlineCheck extends NewXmlCheck {
+public class NewlineCheck extends SonarXmlCheck {
 
   public static final String RULE_KEY = "NewlineCheck";
 
@@ -39,12 +39,12 @@ public class NewlineCheck extends NewXmlCheck {
   private static final String MESSAGE_END = "Add a newline after this tag.";
 
   @Override
-  public void scanFile(NewXmlFile file) {
+  public void scanFile(XmlFile file) {
     visitNode(file.getDocument());
   }
 
   private void visitNode(Node node) {
-    List<Node> children = NewXmlFile.children(node);
+    List<Node> children = XmlFile.children(node);
 
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       Element currentElement = (Element) node;
@@ -57,11 +57,11 @@ public class NewlineCheck extends NewXmlCheck {
 
   private void checkChildrenLine(List<Node> children, Element currentElement) {
     getOutermostChildElements(children).ifPresent(outermostChildElements -> {
-      XmlTextRange start = NewXmlFile.startLocation(currentElement);
-      XmlTextRange end = NewXmlFile.endLocation(currentElement);
+      XmlTextRange start = XmlFile.startLocation(currentElement);
+      XmlTextRange end = XmlFile.endLocation(currentElement);
 
-      XmlTextRange firstChildElementStart = NewXmlFile.startLocation(outermostChildElements.first);
-      XmlTextRange lastChildElementEnd = NewXmlFile.endLocation(outermostChildElements.last);
+      XmlTextRange firstChildElementStart = XmlFile.startLocation(outermostChildElements.first);
+      XmlTextRange lastChildElementEnd = XmlFile.endLocation(outermostChildElements.last);
 
       boolean firstChildBadlyFormatted = firstChildElementStart.getStartLine() == start.getEndLine();
       boolean lastChildBadlyFormatted = lastChildElementEnd.getEndLine() == end.getStartLine();
@@ -84,10 +84,10 @@ public class NewlineCheck extends NewXmlCheck {
   }
 
   private void checkNextSiblingLine(Element node) {
-    XmlTextRange end = NewXmlFile.endLocation(node);
+    XmlTextRange end = XmlFile.endLocation(node);
     Element nextSiblingElement = getNextSiblingElement(node);
     if (nextSiblingElement != null) {
-      XmlTextRange nextSiblingElementStart = NewXmlFile.startLocation(nextSiblingElement);
+      XmlTextRange nextSiblingElementStart = XmlFile.startLocation(nextSiblingElement);
       if (nextSiblingElementStart.getStartLine() == end.getEndLine()) {
         reportIssue(nextSiblingElementStart, MESSAGE_START, Collections.emptyList());
       }

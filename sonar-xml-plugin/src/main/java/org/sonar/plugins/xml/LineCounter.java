@@ -30,8 +30,8 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -53,7 +53,7 @@ public final class LineCounter {
       .save();
   }
 
-  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, NewXmlFile xmlFile) {
+  public static void analyse(SensorContext context, FileLinesContextFactory fileLinesContextFactory, XmlFile xmlFile) {
     LOG.debug("Count lines in {}", xmlFile.getInputFile().uri());
 
     Set<Integer> linesOfCode = new HashSet<>();
@@ -78,13 +78,13 @@ public final class LineCounter {
   }
 
   private static void visitNode(Node node, Set<Integer> linesOfCode, Set<Integer> commentLines) {
-    XmlTextRange range = NewXmlFile.nodeLocation(node);
+    XmlTextRange range = XmlFile.nodeLocation(node);
 
     switch (node.getNodeType()) {
       case Node.ELEMENT_NODE:
         // this will count attribute lines as well tag itself
-        addLinesRange(linesOfCode, NewXmlFile.startLocation((Element) node));
-        addLinesRange(linesOfCode, NewXmlFile.endLocation((Element) node));
+        addLinesRange(linesOfCode, XmlFile.startLocation((Element) node));
+        addLinesRange(linesOfCode, XmlFile.endLocation((Element) node));
         break;
       case Node.COMMENT_NODE:
         addNotEmptyLines(commentLines, node.getTextContent(), range);
@@ -100,7 +100,7 @@ public final class LineCounter {
         break;
     }
 
-    NewXmlFile.children(node).forEach(child -> visitNode(child, linesOfCode, commentLines));
+    XmlFile.children(node).forEach(child -> visitNode(child, linesOfCode, commentLines));
   }
 
   private static void addNotEmptyLines(Set<Integer> set, String text, XmlTextRange fullTextRange) {

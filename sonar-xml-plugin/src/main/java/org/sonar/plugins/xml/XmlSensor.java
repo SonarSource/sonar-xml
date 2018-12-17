@@ -39,10 +39,10 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.highlighting.HighlightingData;
 import org.sonar.plugins.xml.highlighting.XMLHighlighting;
-import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
-import org.sonar.plugins.xml.newchecks.ParsingErrorCheck;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.checks.NewXmlCheck;
+import org.sonar.plugins.xml.checks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.ParsingErrorCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 public class XmlSensor implements Sensor {
 
@@ -71,26 +71,25 @@ public class XmlSensor implements Sensor {
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
       try {
-        NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
-        LineCounter.analyse(context, fileLinesContextFactory, newXmlFile);
-        runChecks(context, newXmlFile);
-        saveSyntaxHighlighting(context, XMLHighlighting.highlight(newXmlFile), inputFile);
+        XmlFile xmlFile = XmlFile.create(inputFile);
+        LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+        runChecks(context, xmlFile);
+        saveSyntaxHighlighting(context, XMLHighlighting.highlight(xmlFile), inputFile);
       } catch (Exception e) {
         processParseException(e, context, inputFile);
       }
     }
   }
 
-  private void runChecks(SensorContext context, NewXmlFile newXmlFile) {
+  private void runChecks(SensorContext context, XmlFile newXmlFile) {
     checks.all().stream()
-      .filter(NewXmlCheck.class::isInstance)
-      .map(NewXmlCheck.class::cast)
+      .map(SonarXmlCheck.class::cast)
       // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
       .forEach(check -> runCheck(context, check, checks.ruleKey(check), newXmlFile));
   }
 
   @VisibleForTesting
-  void runCheck(SensorContext context, NewXmlCheck check, RuleKey ruleKey, NewXmlFile newXmlFile) {
+  void runCheck(SensorContext context, SonarXmlCheck check, RuleKey ruleKey, XmlFile newXmlFile) {
     try {
       check.scanFile(context, ruleKey, newXmlFile);
     } catch (Exception e) {

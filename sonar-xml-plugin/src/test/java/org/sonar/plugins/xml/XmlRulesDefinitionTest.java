@@ -26,7 +26,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.xml.newchecks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.NewXmlCheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

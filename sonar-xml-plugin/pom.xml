@@ -52,6 +52,11 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.sonarsource.analyzer-commons</groupId>
+      <artifactId>sonar-xml-parsing</artifactId>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.assertj</groupId>

@@ -38,8 +38,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.plugins.xml.Xml;
-import org.sonar.plugins.xml.newparser.NewXmlFile;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -409,7 +409,7 @@ public class XmlHighlightingTest {
   }
 
   private List<HighlightingData> getHighlightingData(InputFile inputFile) throws Exception {
-    NewXmlFile newXmlFile = NewXmlFile.create(inputFile);
+    XmlFile newXmlFile = XmlFile.create(inputFile);
     return XMLHighlighting.highlight(newXmlFile);
   }
 

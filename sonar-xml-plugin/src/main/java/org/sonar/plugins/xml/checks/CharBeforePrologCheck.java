@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
+import java.util.Collections;
+import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
-public class IndentationCheckTest {
+@Rule(key = CharBeforePrologCheck.RULE_KEY)
+public class CharBeforePrologCheck extends SonarXmlCheck {
 
-  @Test
-  public void test() {
-    IndentationCheck check = new IndentationCheck();
-    NewXmlVerifier.verifyIssues("IndentationCheck.xml", check);
-  }
+  public static final String RULE_KEY = "S1778";
 
-  @Test
-  public void test_with_parameters() {
-    IndentationCheck check = new IndentationCheck();
-    check.setIndentSize(4);
-    check.setTabSize(4);
-    NewXmlVerifier.verifyIssues("IndentationCheckCustom.xml", check);
+  @Override
+  public void scanFile(XmlFile file) {
+    file.getPrologElement().ifPresent(prologElement -> {
+      XmlTextRange prologStartLocation = prologElement.getPrologStartLocation();
+      if (prologStartLocation.getStartLine() != 1 || prologStartLocation.getStartColumn() != 0) {
+        reportIssue(prologStartLocation, "Remove all characters located before \"<?xml\".", Collections.emptyList());
+      }
+    });
   }
 
 }

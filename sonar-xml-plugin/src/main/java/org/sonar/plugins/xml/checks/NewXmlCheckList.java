@@ -17,15 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.newchecks;
+package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.xml.newparser.checks.NewXmlVerifier;
+import java.util.Arrays;
+import java.util.List;
 
-public class NewlineCheckTest {
+public class NewXmlCheckList {
 
-  @Test
-  public void test() {
-    NewXmlVerifier.verifyIssues("test.xml", new NewlineCheck());
+  private NewXmlCheckList() {
   }
+
+  public static List<Class> getCheckClasses() {
+    return Arrays.asList(
+      CharBeforePrologCheck.class,
+      TabCharacterCheck.class,
+      ParsingErrorCheck.class,
+      NewlineCheck.class,
+      IndentationCheck.class,
+      XPathCheck.class
+    );
+  }
+
 }

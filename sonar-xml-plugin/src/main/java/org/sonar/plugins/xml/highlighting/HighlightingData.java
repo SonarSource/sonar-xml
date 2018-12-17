@@ -21,7 +21,7 @@ package org.sonar.plugins.xml.highlighting;
 
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.plugins.xml.newparser.XmlTextRange;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 
 public class HighlightingData {
 
