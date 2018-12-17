@@ -15,11 +15,3 @@ exclude:
   - SLAVE: linux
     TEST: ci
 
-  - TEST: ci
-    SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE
-
-  - TEST: ci
-    SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE[6.7]
-
