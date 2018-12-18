@@ -425,6 +425,15 @@
 'project:sonar-java/java-checks/pom.xml':[
 0,
 ],
+'project:special-cases/end-of-line/stateless_mac_cr.xml':[
+0,
+],
+'project:special-cases/end-of-line/stateless_unix_lf.xml':[
+0,
+],
+'project:special-cases/end-of-line/stateless_windows_crlf.xml':[
+0,
+],
 'project:spring-framework/spring-aop/src/test/resources/log4j2-test.xml':[
 0,
 ],

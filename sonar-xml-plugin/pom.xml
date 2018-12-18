@@ -32,14 +32,7 @@
       <groupId>xalan</groupId>
       <artifactId>xalan</artifactId>
     </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.woodstox</groupId>
-      <artifactId>woodstox-core</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -147,8 +140,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>1500000</maxsize>
-                  <minsize>1400000</minsize>
+                  <maxsize>2000000</maxsize>
+                  <minsize>1900000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
