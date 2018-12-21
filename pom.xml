@@ -58,7 +58,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>7.4</sonar.version>
-    <analyzerCommons.version>1.10.0.396</analyzerCommons.version>
+    <analyzerCommons.version>1.10.0.416</analyzerCommons.version>
     <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
