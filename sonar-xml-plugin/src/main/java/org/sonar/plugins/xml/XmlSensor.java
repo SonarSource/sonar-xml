@@ -20,7 +20,10 @@
 package org.sonar.plugins.xml;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,10 +40,11 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.highlighting.HighlightingData;
-import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonar.plugins.xml.checks.NewXmlCheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
+import org.sonar.plugins.xml.highlighting.HighlightingData;
+import org.sonar.plugins.xml.highlighting.XMLHighlighting;
+import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
@@ -68,16 +72,43 @@ public class XmlSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    List<InputFile> inputFiles = new ArrayList<>();
+    fileSystem.inputFiles(mainFilesPredicate).forEach(inputFiles::add);
 
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilesPredicate)) {
-      try {
-        XmlFile xmlFile = XmlFile.create(inputFile);
-        LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
-        runChecks(context, xmlFile);
-        saveSyntaxHighlighting(context, XMLHighlighting.highlight(xmlFile), inputFile);
-      } catch (Exception e) {
-        processParseException(e, context, inputFile);
+    if (inputFiles.isEmpty()) {
+      return;
+    }
+
+    ProgressReport progressReport = new ProgressReport("Report about progress of XML analyzer", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
+
+    boolean cancelled = false;
+    try {
+      for (InputFile inputFile : inputFiles) {
+        if (context.isCancelled()) {
+          cancelled = true;
+          break;
+        }
+        scanFile(context, inputFile);
+        progressReport.nextFile();
       }
+    } finally {
+      if (!cancelled) {
+        progressReport.stop();
+      } else {
+        progressReport.cancel();
+      }
+    }
+  }
+
+  private void scanFile(SensorContext context, InputFile inputFile) {
+    try {
+      XmlFile xmlFile = XmlFile.create(inputFile);
+      LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+      runChecks(context, xmlFile);
+      saveSyntaxHighlighting(context, XMLHighlighting.highlight(xmlFile), inputFile);
+    } catch (Exception e) {
+      processParseException(e, context, inputFile);
     }
   }
 
