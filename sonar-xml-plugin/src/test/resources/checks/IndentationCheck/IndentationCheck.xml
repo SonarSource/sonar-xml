@@ -19,10 +19,11 @@
 
   <hzml>
     <foo />
-    </hzml> <!-- Compliant - mis-alignment of end tag not covered -->
+    </hzml> <!-- Noncompliant {{Make this element start at column 3.}} -->
 
   <!-- tabs -->
 	<html>
+        test
 		<body>
 			<p>hello</p>
 		</body>
@@ -47,7 +48,7 @@
 	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this element start at column 5.}} -->
 	  	<bar>all</bar>            <!-- Noncompliant {{Make this element start at column 5.}} -->
 	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this element start at column 5.}} -->
-  	</properties> <!-- Compliant - mis-alignment of end tag not covered -->
+  	</properties> <!-- Noncompliant {{Make this element start at column 3.}} -->
 
 	<alpha>trululu
 	</alpha>

@@ -90,13 +90,18 @@ public class IndentationCheck extends SonarXmlCheck {
       }
     }
 
+    // Check indentation of closing tag
+    if (node.getNodeType() == Node.ELEMENT_NODE) {
+      checkClosingTag(node);
+    }
+
     return false;
   }
 
   private boolean checkIndentation(Element element) {
     int expectedIndent = depth(element) * indentSize;
 
-    if (expectedIndent != startIndent(element)) {
+    if (expectedIndent != startIndent(element.getPreviousSibling())) {
       reportIssue(XmlFile.startLocation(element), expectedIndent);
       // if reporting on start node, don't report on rest of the block
       return true;
@@ -116,9 +121,9 @@ public class IndentationCheck extends SonarXmlCheck {
     return depth;
   }
 
-  private int startIndent(Element element) {
+  private int startIndent(Node node) {
     int indent = 0;
-    for (Node sibling = element.getPreviousSibling(); sibling != null; sibling = sibling.getPreviousSibling()) {
+    for (Node sibling = node; sibling != null; sibling = sibling.getPreviousSibling()) {
       short nodeType = sibling.getNodeType();
 
       if (nodeType == Node.COMMENT_NODE || nodeType == Node.ELEMENT_NODE) {
@@ -126,10 +131,6 @@ public class IndentationCheck extends SonarXmlCheck {
 
       } else if (nodeType == Node.TEXT_NODE) {
         String text = sibling.getTextContent();
-        if (!text.trim().isEmpty()) {
-          // non whitespace found, we are done
-          return indent;
-        }
         for (int i = text.length() - 1; i >= 0; i--) {
           char c = text.charAt(i);
           switch (c) {
@@ -145,11 +146,26 @@ public class IndentationCheck extends SonarXmlCheck {
               indent++;
               break;
             default:
-              break;
+              return indent;
           }
         }
       }
     }
     return indent;
   }
+
+  private void checkClosingTag(Node node) {
+    XmlTextRange startLocation = XmlFile.startLocation((Element) node);
+    XmlTextRange endLocation = XmlFile.endLocation((Element) node);
+    boolean isSelfClosing = startLocation.getEndLine() == endLocation.getEndLine()
+      && startLocation.getEndColumn() == endLocation.getEndColumn();
+    if (!isSelfClosing && startLocation.getEndLine() != endLocation.getStartLine()) {
+      int startIndent = startIndent(node.getPreviousSibling());
+      int endIndent = startIndent(node.getLastChild());
+      if (startIndent != endIndent) {
+        reportIssue(endLocation, startIndent);
+      }
+    }
+  }
+  
 }
