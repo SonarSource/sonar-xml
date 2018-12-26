@@ -92,6 +92,26 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
+  public void test_analysis_cancellation() throws Exception {
+    init(false);
+    fs.add(createInputFile("src/pom.xml"));
+
+    context.setCancelled(true);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  public void test_nothing_is_executed_if_no_file() throws Exception {
+    init(false);
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
   public void test_descriptor() throws Exception {
     init(false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
