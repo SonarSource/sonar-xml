@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.highlighting;
+package org.sonar.plugins.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonarsource.analyzer.commons.xml.PrologElement;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
@@ -32,15 +35,27 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class XMLHighlighting {
+public class XmlHighlighting {
 
-  private List<HighlightingData> highlightingData = new ArrayList<>();
+  private final XmlFile xmlFile;
+  private NewHighlighting highlighting;
+  private int numberHighlighting = 0;
 
-  public static List<HighlightingData> highlight(XmlFile xmlFile) {
-    XMLHighlighting highlighting = new XMLHighlighting();
-    xmlFile.getPrologElement().ifPresent(highlighting::highlightProlog);
-    children(xmlFile.getDocument()).forEach(highlighting::highlightNode);
-    return highlighting.highlightingData;
+  private XmlHighlighting(XmlFile xmlFile) {
+    this.xmlFile = xmlFile;
+  }
+
+  public static XmlHighlighting highlight(SensorContext context, XmlFile xmlFile) {
+    XmlHighlighting highlighting = new XmlHighlighting(xmlFile);
+    highlighting.highlight(context);
+    return highlighting;
+  }
+
+  private void highlight(SensorContext context) {
+    highlighting = context.newHighlighting().onFile(xmlFile.getInputFile());
+    xmlFile.getPrologElement().ifPresent(this::highlightProlog);
+    children(xmlFile.getDocument()).forEach(this::highlightNode);
+    highlighting.save();
   }
 
   private void highlightNode(Node node) {
@@ -67,7 +82,7 @@ public class XMLHighlighting {
     XmlTextRange endLocation = XmlFile.endLocation((Element) node);
 
     // <foo
-    addHighlighting(startLocation, nameLocation, TypeOfText.KEYWORD);
+    addHighlighting(new XmlTextRange(startLocation, nameLocation), TypeOfText.KEYWORD);
 
     NamedNodeMap attributes = node.getAttributes();
     XmlTextRange lastLocation = nameLocation;
@@ -119,11 +134,17 @@ public class XMLHighlighting {
   }
 
   private void addHighlighting(XmlTextRange textRange, TypeOfText typeOfText) {
-    highlightingData.add(new HighlightingData(textRange, typeOfText));
+    highlighting.highlight(
+      textRange.getStartLine(),
+      textRange.getStartColumn(),
+      textRange.getEndLine(),
+      textRange.getEndColumn(),
+      typeOfText);
+    numberHighlighting++;
   }
 
-  private void addHighlighting(XmlTextRange start, XmlTextRange end, TypeOfText typeOfText) {
-    highlightingData.add(new HighlightingData(new XmlTextRange(start, end), typeOfText));
+  @VisibleForTesting
+  int numberHighlighting() {
+    return numberHighlighting;
   }
-
 }
