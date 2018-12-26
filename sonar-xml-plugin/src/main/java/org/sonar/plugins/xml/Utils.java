@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.xml;
 
-import java.io.Closeable;
-import java.io.IOException;
-import javax.annotation.Nullable;
-
 public class Utils {
   private Utils() {
     // utility class, forbidden constructor
@@ -30,20 +26,5 @@ public class Utils {
 
   public static String[] splitLines(String text) {
     return text.split("(\r)?\n|\r", -1);
-  }
-
-  /**
-   * Close and ignore exception on errors.
-   * It's not recommended to use this method, or at least its implementation
-   * should be improved in order to log the exception.
-   */
-  public static void closeQuietly(@Nullable Closeable closeable) {
-    try {
-      if (closeable != null) {
-        closeable.close();
-      }
-    } catch (IOException ioe) {
-      // ignore
-    }
   }
 }
