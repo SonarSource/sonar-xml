@@ -32,7 +32,6 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
@@ -42,8 +41,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.NewXmlCheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
-import org.sonar.plugins.xml.highlighting.HighlightingData;
-import org.sonar.plugins.xml.highlighting.XMLHighlighting;
 import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
@@ -106,7 +103,7 @@ public class XmlSensor implements Sensor {
       XmlFile xmlFile = XmlFile.create(inputFile);
       LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
       runChecks(context, xmlFile);
-      saveSyntaxHighlighting(context, XMLHighlighting.highlight(xmlFile), inputFile);
+      XmlHighlighting.highlight(context, xmlFile);
     } catch (Exception e) {
       processParseException(e, context, inputFile);
     }
@@ -130,15 +127,6 @@ public class XmlSensor implements Sensor {
 
   private static void logFailingRule(RuleKey rule, URI fileLocation, Exception e) {
     LOG.error(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
-  }
-
-  private static void saveSyntaxHighlighting(SensorContext context, List<HighlightingData> highlightingDataList, InputFile inputFile) {
-    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
-
-    for (HighlightingData highlightingData : highlightingDataList) {
-      highlightingData.highlight(highlighting);
-    }
-    highlighting.save();
   }
 
   @Override
