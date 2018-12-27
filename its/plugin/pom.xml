@@ -26,9 +26,17 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <version>3.21.0.1721</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -65,7 +73,7 @@
     </pluginManagement>
   </build>
 
-    <profiles>
+  <profiles>
     <profile>
       <id>qa</id>
       <activation>

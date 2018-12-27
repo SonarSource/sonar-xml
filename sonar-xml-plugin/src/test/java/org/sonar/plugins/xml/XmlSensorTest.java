@@ -45,14 +45,17 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -124,13 +127,34 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * Expect issue for rule: NewlineCheck
    */
   @Test
-  public void testSensor() throws Exception {
+  public void test_sensor() throws Exception {
     init(false);
-    fs.add(createInputFile("src/pom.xml"));
+    DefaultInputFile inputFile = createInputFile("src/pom.xml");
+    fs.add(inputFile);
 
     sensor.execute(context);
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
+
+    // other measures
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(16);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 4, 9)).containsOnly(TypeOfText.KEYWORD);
+  }
+
+  @Test
+  public void test_sensor_in_sonarlint_context() throws Exception {
+    init(false);
+    DefaultInputFile inputFile = createInputFile("src/pom.xml");
+    fs.add(inputFile);
+
+    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 1)));
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
+
+    // no other measures
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC)).isNull();
+    assertThat(context.highlightingTypeAt(inputFile.key(), 4, 9)).isEmpty();
   }
 
   /**
