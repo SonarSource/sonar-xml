@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -76,6 +77,8 @@ public class XmlSensor implements Sensor {
       return;
     }
 
+    boolean isSonarLintContext = context.runtime().getProduct() == SonarProduct.SONARLINT;
+
     ProgressReport progressReport = new ProgressReport("Report about progress of XML analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
 
@@ -86,7 +89,7 @@ public class XmlSensor implements Sensor {
           cancelled = true;
           break;
         }
-        scanFile(context, inputFile);
+        scanFile(context, inputFile, isSonarLintContext);
         progressReport.nextFile();
       }
     } finally {
@@ -98,12 +101,14 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void scanFile(SensorContext context, InputFile inputFile) {
+  private void scanFile(SensorContext context, InputFile inputFile, boolean isSonarLintContext) {
     try {
       XmlFile xmlFile = XmlFile.create(inputFile);
-      LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+      if (!isSonarLintContext) {
+        LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
+        XmlHighlighting.highlight(context, xmlFile);
+      }
       runChecks(context, xmlFile);
-      XmlHighlighting.highlight(context, xmlFile);
     } catch (Exception e) {
       processParseException(e, context, inputFile);
     }
