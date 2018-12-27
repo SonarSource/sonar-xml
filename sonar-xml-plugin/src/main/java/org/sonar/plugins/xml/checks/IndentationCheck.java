@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -27,6 +28,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
 import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
 /**
@@ -159,9 +161,12 @@ public class IndentationCheck extends SonarXmlCheck {
   }
 
   private void checkClosingTag(Element element) {
+    if (isSelfClosing(element)) {
+      return;
+    }
     XmlTextRange startLocation = XmlFile.startLocation(element);
     XmlTextRange endLocation = XmlFile.endLocation(element);
-    if (!isSelfClosing(element) && startLocation.getEndLine() != endLocation.getStartLine()) {
+    if (startLocation.getEndLine() != endLocation.getStartLine()) {
       if (!needToCheckIndentation(element)) {
         return;
       }
@@ -194,28 +199,18 @@ public class IndentationCheck extends SonarXmlCheck {
     for (Node parent = element.getParentNode(); parent != null && parent.getChildNodes().getLength() == 1; parent = parent.getParentNode()) {
       short parentType = parent.getNodeType();
       if (parentType == Node.ELEMENT_NODE) {
-        Node parentPrev = parent.getPreviousSibling();
-        if (null != parentPrev && parentPrev.getNodeType() == Node.TEXT_NODE) {
-          String text = parentPrev.getTextContent();
-          text = text.trim();
-          if (!text.isEmpty()) {
-            return false;
-          }
+        if (isNonEmptyTextNode(parent.getPreviousSibling())) {
+          return false;
         }
       }
     }
     return true;
   }
 
-  private boolean isNonEmptyTextNode(Node node) {
-    if (node != null && Node.TEXT_NODE == node.getNodeType()) {
-      String text = node.getTextContent();
-      text = text.trim();
-      if (!text.isEmpty()) {
-        return true;
-      }
-    }
-    return false;
+  private boolean isNonEmptyTextNode(@Nullable Node node) {
+    return node != null
+      && node.getNodeType() == Node.TEXT_NODE
+      && !node.getTextContent().trim().isEmpty();
   }
   
 }
