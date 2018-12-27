@@ -87,7 +87,7 @@
           <pluginClass>org.sonar.plugins.xml.XmlPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>false</sonarLintSupported>
-          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
+          <sonarQubeMinVersion>${sonar.minVersion}</sonarQubeMinVersion>
         </configuration>
       </plugin>
 
