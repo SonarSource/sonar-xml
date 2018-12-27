@@ -46,6 +46,7 @@
     <url>https://github.com/SonarSource/sonar-xml</url>
     <tag>HEAD</tag>
   </scm>
+
   <issueManagement>
     <system>JIRA</system>
     <url>https://jira.sonarsource.com/browse/SONARXML</url>
@@ -53,19 +54,18 @@
 
   <properties>
     <license.title>SonarQube XML Plugin</license.title>
-    <sonarQubeMinVersion>6.7</sonarQubeMinVersion>
+    <gitRepositoryName>sonar-xml</gitRepositoryName>
+
+    <sonar.version>7.4</sonar.version>
+    <sonar.minVersion>6.7</sonar.minVersion>
+
+    <sonar.analyzerCommons.version>1.10.0.416</sonar.analyzerCommons.version>
+    <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>7.4</sonar.version>
-    <analyzerCommons.version>1.10.0.416</analyzerCommons.version>
-    <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
-    <gitRepositoryName>sonar-xml</gitRepositoryName>
-
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
-
-    <commons-lang.version>2.6</commons-lang.version>
   </properties>
 
   <dependencyManagement>
@@ -79,13 +79,13 @@
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-commons</artifactId>
-        <version>${analyzerCommons.version}</version>
+        <version>${sonar.analyzerCommons.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-xml-parsing</artifactId>
-        <version>${analyzerCommons.version}</version>
+        <version>${sonar.analyzerCommons.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
@@ -105,7 +105,7 @@
        <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-test-commons</artifactId>
-        <version>${analyzerCommons.version}</version>
+        <version>${sonar.analyzerCommons.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
