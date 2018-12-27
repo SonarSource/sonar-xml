@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
 public class XmlHighlighting {
 
@@ -91,9 +92,7 @@ public class XmlHighlighting {
     }
 
     // self-closing element <foo ... />
-    boolean isSelfClosing = startLocation.getEndLine() == endLocation.getEndLine() && startLocation.getEndColumn() == endLocation.getEndColumn();
-
-    if (isSelfClosing) {
+    if (isSelfClosing((Element) node)) {
       XmlTextRange textRange = new XmlTextRange(lastLocation.getEndLine(), lastLocation.getEndColumn(), endLocation.getEndLine(), endLocation.getEndColumn());
       // '/>'
       addHighlighting(textRange, TypeOfText.KEYWORD);

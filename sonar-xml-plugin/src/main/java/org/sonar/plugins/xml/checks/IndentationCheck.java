@@ -27,6 +27,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
 /**
  * RSPEC-1120
@@ -92,15 +93,18 @@ public class IndentationCheck extends SonarXmlCheck {
 
     // Check indentation of closing tag
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      checkClosingTag(node);
+      checkClosingTag((Element) node);
     }
 
     return false;
   }
 
   private boolean checkIndentation(Element element) {
-    int expectedIndent = depth(element) * indentSize;
+    if (!needToCheckIndentation(element)) {
+      return false;
+    }
 
+    int expectedIndent = depth(element) * indentSize;
     if (expectedIndent != startIndent(element.getPreviousSibling())) {
       reportIssue(XmlFile.startLocation(element), expectedIndent);
       // if reporting on start node, don't report on rest of the block
@@ -154,18 +158,64 @@ public class IndentationCheck extends SonarXmlCheck {
     return indent;
   }
 
-  private void checkClosingTag(Node node) {
-    XmlTextRange startLocation = XmlFile.startLocation((Element) node);
-    XmlTextRange endLocation = XmlFile.endLocation((Element) node);
-    boolean isSelfClosing = startLocation.getEndLine() == endLocation.getEndLine()
-      && startLocation.getEndColumn() == endLocation.getEndColumn();
-    if (!isSelfClosing && startLocation.getEndLine() != endLocation.getStartLine()) {
-      int startIndent = startIndent(node.getPreviousSibling());
-      int endIndent = startIndent(node.getLastChild());
+  private void checkClosingTag(Element element) {
+    XmlTextRange startLocation = XmlFile.startLocation(element);
+    XmlTextRange endLocation = XmlFile.endLocation(element);
+    if (!isSelfClosing(element) && startLocation.getEndLine() != endLocation.getStartLine()) {
+      if (!needToCheckIndentation(element)) {
+        return;
+      }
+      int startIndent = startIndent(element.getPreviousSibling());
+      int endIndent = startIndent(element.getLastChild());
       if (startIndent != endIndent) {
         reportIssue(endLocation, startIndent);
       }
     }
+  }
+
+  private boolean needToCheckIndentation(Element element) {
+    // When tag is inside lines of text we do not check indentation
+
+    if (element.getChildNodes().getLength() > 1) {
+      return true;
+    }
+
+    Node previous = element.getPreviousSibling();
+    if (isNonEmptyTextNode(previous)) {
+      return false;
+    }
+
+    Node next = element.getNextSibling();
+    if (isNonEmptyTextNode(next)) {
+      return false;
+    }
+
+    // Current tag can be encapsulated in another tag which is inside lines of text
+    for (Node parent = element.getParentNode(); parent != null && parent.getChildNodes().getLength() == 1; parent = parent.getParentNode()) {
+      short parentType = parent.getNodeType();
+      if (parentType == Node.ELEMENT_NODE) {
+        Node parentPrev = parent.getPreviousSibling();
+        if (null != parentPrev && parentPrev.getNodeType() == Node.TEXT_NODE) {
+          String text = parentPrev.getTextContent();
+          text = text.trim();
+          if (!text.isEmpty()) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  private boolean isNonEmptyTextNode(Node node) {
+    if (node != null && Node.TEXT_NODE == node.getNodeType()) {
+      String text = node.getTextContent();
+      text = text.trim();
+      if (!text.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
   }
   
 }

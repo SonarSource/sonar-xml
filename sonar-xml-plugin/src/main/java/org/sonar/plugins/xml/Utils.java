@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.xml;
 
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.XmlTextRange;
+import org.w3c.dom.Element;
+
 public class Utils {
   private Utils() {
     // utility class, forbidden constructor
@@ -26,5 +30,15 @@ public class Utils {
 
   public static String[] splitLines(String text) {
     return text.split("(\r)?\n|\r", -1);
+  }
+
+  /**
+   * Check if element is self closing: <foo ... />
+   */
+  public static boolean isSelfClosing(Element element) {
+    XmlTextRange startLocation = XmlFile.startLocation(element);
+    XmlTextRange endLocation = XmlFile.endLocation(element);
+    return startLocation.getEndLine() == endLocation.getEndLine()
+      && startLocation.getEndColumn() == endLocation.getEndColumn();
   }
 }
