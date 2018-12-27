@@ -62,7 +62,7 @@ public class LineLengthCheck extends SonarXmlCheck {
     }
   }
 
-  private String trimEndOfLine(String line) {
+  private static String trimEndOfLine(String line) {
     int index = line.length()-1;
     for (; index > 0; index--) {
       char c = line.charAt(index);
