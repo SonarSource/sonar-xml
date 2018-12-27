@@ -50,7 +50,6 @@ public class XmlHighlightingTest {
   private DefaultFileSystem fileSystem;
   private SensorContextTester context;
   private XmlFile xmlFile;
-  private XmlHighlighting highlighting;
 
   @Before
   public void setUp() throws Exception {
@@ -61,7 +60,6 @@ public class XmlHighlightingTest {
   @Test
   public void testCDATAWithTagsInside() throws Exception {
     highlight("<tag><![CDATA[<tag/><!-- Comment -->]]></tag>");
-    assertNumberHighlighting(5);
     // <tag
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     // >
@@ -79,7 +77,6 @@ public class XmlHighlightingTest {
   @Test
   public void testCDATAWithBracketInside() throws Exception {
     highlight("<tag><![CDATA[aa]>bb]]></tag>");
-    assertNumberHighlighting(5);
 
     // <![CDATA[
     assertHighlighting(5, 14, TypeOfText.KEYWORD);
@@ -90,7 +87,6 @@ public class XmlHighlightingTest {
   @Test
   public void testHighlightSelfClosingTagWithAttribute() throws Exception {
     highlight("<input type='checkbox' />");
-    assertNumberHighlighting(4);
     // "<input"
     assertHighlighting(0, 6, TypeOfText.KEYWORD);
     // "type"
@@ -104,7 +100,6 @@ public class XmlHighlightingTest {
   @Test
   public void testHighlightTagWithDoubleQuoteAttribute() throws Exception {
     highlight("<tag att=\"value ' with simple quote\"> </tag>");
-    assertNumberHighlighting(5);
     // <tag
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     // att
@@ -125,7 +120,6 @@ public class XmlHighlightingTest {
         + " = 'value2' att3=\n"
         + "'value3' att4='multiline \n"
         + " \" attribute'> </tag>");
-    assertNumberHighlighting(11);
     // <tag
     assertHighlighting(1, 0, 1, 4, TypeOfText.KEYWORD);
 
@@ -147,7 +141,6 @@ public class XmlHighlightingTest {
     highlight(
       "<tag><!-- hello \n"
         + " world!! --></tag>");
-    assertNumberHighlighting(4);
     assertHighlighting(1, 5, 2, 12, TypeOfText.STRUCTURED_COMMENT);
   }
 
@@ -156,28 +149,24 @@ public class XmlHighlightingTest {
     highlight(
       "<tag><!-- hello \r\n"
         + " world!! --></tag>");
-    assertNumberHighlighting(4);
     assertHighlighting(1, 5, 2, 12, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
   public void testAttributeValueWithEqual() throws Exception {
     highlight("<meta content=\"charset=UTF-8\" />");
-    assertNumberHighlighting(4);
     assertHighlighting(14, 29, TypeOfText.STRING);
   }
 
   @Test
   public void testHighlightCommentsAndOtherTag() throws Exception {
     highlight("<!-- comment --><tag/>");
-    assertNumberHighlighting(3);
     assertHighlighting(0, 16, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
   public void testHighlightDoctype() throws Exception {
     highlight("<!DOCTYPE foo> <tag/>");
-    assertNumberHighlighting(3);
     assertHighlighting(0, 14, TypeOfText.STRUCTURED_COMMENT);
     assertHighlighting(15, 19, TypeOfText.KEYWORD);
     assertHighlighting(19, 21, TypeOfText.KEYWORD);
@@ -186,7 +175,6 @@ public class XmlHighlightingTest {
   @Test
   public void testCDATA() throws Exception {
     highlight("<tag><![CDATA[foo]]></tag>");
-    assertNumberHighlighting(5);
     assertHighlighting(5, 14, TypeOfText.KEYWORD);
     assertHighlighting(17, 20, TypeOfText.KEYWORD);
   }
@@ -197,7 +185,6 @@ public class XmlHighlightingTest {
       "<tag><![CDATA[foo\n"
         + "bar\n"
         + "]]></tag>");
-    assertNumberHighlighting(5);
     assertHighlighting(1, 5, 1, 14, TypeOfText.KEYWORD);
     assertHighlighting(3, 0, 3, 3, TypeOfText.KEYWORD);
   }
@@ -211,7 +198,6 @@ public class XmlHighlightingTest {
     }
     String cdataContent = sb.toString();
     highlight("<tag><![CDATA[" + cdataContent + "]]></tag>");
-    assertNumberHighlighting(5);
     assertHighlighting(5, 14, TypeOfText.KEYWORD);
     int expectedCDataEndOffset = 14 + cdataContent.length();
     assertHighlighting(expectedCDataEndOffset, expectedCDataEndOffset + 3, TypeOfText.KEYWORD);
@@ -220,7 +206,6 @@ public class XmlHighlightingTest {
   @Test
   public void testHighlightTag() throws Exception {
     highlight("<tr></tr>");
-    assertNumberHighlighting(3);
     // <tr
     assertHighlighting(0, 3, TypeOfText.KEYWORD);
     // >
@@ -232,7 +217,6 @@ public class XmlHighlightingTest {
   @Test
   public void testEmptyElement() throws Exception {
     highlight("<br/>");
-    assertNumberHighlighting(2);
     // <br
     assertHighlighting(0, 3, TypeOfText.KEYWORD);
     // "/>"
@@ -242,7 +226,6 @@ public class XmlHighlightingTest {
   @Test
   public void testSpacesInside() throws Exception {
     highlight("<tag > </tag >");
-    assertNumberHighlighting(3);
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     assertHighlighting(4, 6, TypeOfText.KEYWORD);
     assertHighlighting(7, 14, TypeOfText.KEYWORD);
@@ -252,7 +235,6 @@ public class XmlHighlightingTest {
   @Test
   public void testSpacesInsideSelfClosing() throws Exception {
     highlight("<tag />");
-    assertNumberHighlighting(2);
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     assertHighlighting(4, 7, TypeOfText.KEYWORD);
   }
@@ -262,7 +244,6 @@ public class XmlHighlightingTest {
     highlight(
       "<tag xmlns:x='url'>\n"
         + "<x:table>  </x:table></tag>");
-    assertNumberHighlighting(8);
     assertHighlighting(1, 5, 1, 12, TypeOfText.CONSTANT);
     assertHighlighting(1, 13, 1, 18, TypeOfText.STRING);
     assertHighlighting(2, 0, 2, 8, TypeOfText.KEYWORD);
@@ -277,7 +258,6 @@ public class XmlHighlightingTest {
         + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
         // ...
         + "</project>");
-    assertNumberHighlighting(15);
     // xmlns:xsi
     assertHighlighting(2, 51, 2, 60, TypeOfText.CONSTANT);
     // "http://www.w3.org/2001/XMLSchema-instance"
@@ -291,7 +271,6 @@ public class XmlHighlightingTest {
   @Test
   public void testXMLHeader() throws Exception {
     highlight("<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
-    assertNumberHighlighting(8);
     // <?xml
     assertHighlighting(0, 5, TypeOfText.KEYWORD);
     // ?>
@@ -314,7 +293,6 @@ public class XmlHighlightingTest {
         + "\n"
         + "\n"
         + "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
-    assertNumberHighlighting(8);
     // <?xml
     assertHighlighting(4, 0, 4, 5, TypeOfText.KEYWORD);
     // ?>
@@ -380,7 +358,13 @@ public class XmlHighlightingTest {
     fileSystem.add(defaultInputFile);
 
     highlight(defaultInputFile);
-    assertNumberHighlighting(11);
+
+    // <?xml
+    assertHighlighting(0, 5, TypeOfText.KEYWORD);
+    // version
+    assertHighlighting(6, 13, TypeOfText.CONSTANT);
+    // "1.0"
+    assertHighlighting(14, 19, TypeOfText.STRING);
   }
 
   private void highlightFromFile(String filename, String content) throws Exception {
@@ -421,11 +405,7 @@ public class XmlHighlightingTest {
   private void highlight(InputFile inputFile) throws Exception {
     fileSystem.add(inputFile);
     xmlFile = XmlFile.create(inputFile);
-    highlighting = XmlHighlighting.highlight(context, xmlFile);
-  }
-
-  private void assertNumberHighlighting(int expected) {
-    assertThat(highlighting.numberHighlighting()).isEqualTo(expected);
+    XmlHighlighting.highlight(context, xmlFile);
   }
 
   private void assertHighlighting(int startColumn, int endColumn, TypeOfText code) {

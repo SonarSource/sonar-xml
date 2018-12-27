@@ -24,7 +24,6 @@ import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonarsource.analyzer.commons.xml.PrologElement;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
@@ -39,16 +38,13 @@ public class XmlHighlighting {
 
   private final XmlFile xmlFile;
   private NewHighlighting highlighting;
-  private int numberHighlighting = 0;
 
   private XmlHighlighting(XmlFile xmlFile) {
     this.xmlFile = xmlFile;
   }
 
-  public static XmlHighlighting highlight(SensorContext context, XmlFile xmlFile) {
-    XmlHighlighting highlighting = new XmlHighlighting(xmlFile);
-    highlighting.highlight(context);
-    return highlighting;
+  public static void highlight(SensorContext context, XmlFile xmlFile) {
+    new XmlHighlighting(xmlFile).highlight(context);
   }
 
   private void highlight(SensorContext context) {
@@ -140,11 +136,5 @@ public class XmlHighlighting {
       textRange.getEndLine(),
       textRange.getEndColumn(),
       typeOfText);
-    numberHighlighting++;
-  }
-
-  @VisibleForTesting
-  int numberHighlighting() {
-    return numberHighlighting;
   }
 }
