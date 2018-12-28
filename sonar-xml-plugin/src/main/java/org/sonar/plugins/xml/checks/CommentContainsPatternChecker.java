@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import java.util.Locale;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -37,7 +38,7 @@ public class CommentContainsPatternChecker {
 
   public CommentContainsPatternChecker(SonarXmlCheck check, String pattern, String message) {
     this.check = check;
-    this.pattern = pattern.toLowerCase();
+    this.pattern = pattern.toLowerCase(Locale.ENGLISH);
     this.message = message;
   }
 
@@ -60,7 +61,7 @@ public class CommentContainsPatternChecker {
       for (int i = 0; i < nodes.getLength(); i++) {
         Node node = nodes.item(i);
         if (null != node) {
-          String comment = node.getNodeValue().toLowerCase();
+          String comment = node.getNodeValue().toLowerCase(Locale.ENGLISH);
           if (comment.contains(pattern) && !isLetterAround(comment, pattern)) {
             check.reportIssue(node, message);
           }
