@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -27,6 +28,8 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
 /**
  * RSPEC-1120
@@ -90,13 +93,21 @@ public class IndentationCheck extends SonarXmlCheck {
       }
     }
 
+    // Check indentation of closing tag
+    if (node.getNodeType() == Node.ELEMENT_NODE) {
+      checkClosingTag((Element) node);
+    }
+
     return false;
   }
 
   private boolean checkIndentation(Element element) {
-    int expectedIndent = depth(element) * indentSize;
+    if (!needToCheckIndentation(element)) {
+      return false;
+    }
 
-    if (expectedIndent != startIndent(element)) {
+    int expectedIndent = depth(element) * indentSize;
+    if (expectedIndent != startIndent(element.getPreviousSibling())) {
       reportIssue(XmlFile.startLocation(element), expectedIndent);
       // if reporting on start node, don't report on rest of the block
       return true;
@@ -116,9 +127,9 @@ public class IndentationCheck extends SonarXmlCheck {
     return depth;
   }
 
-  private int startIndent(Element element) {
+  private int startIndent(Node node) {
     int indent = 0;
-    for (Node sibling = element.getPreviousSibling(); sibling != null; sibling = sibling.getPreviousSibling()) {
+    for (Node sibling = node; sibling != null; sibling = sibling.getPreviousSibling()) {
       short nodeType = sibling.getNodeType();
 
       if (nodeType == Node.COMMENT_NODE || nodeType == Node.ELEMENT_NODE) {
@@ -126,10 +137,6 @@ public class IndentationCheck extends SonarXmlCheck {
 
       } else if (nodeType == Node.TEXT_NODE) {
         String text = sibling.getTextContent();
-        if (!text.trim().isEmpty()) {
-          // non whitespace found, we are done
-          return indent;
-        }
         for (int i = text.length() - 1; i >= 0; i--) {
           char c = text.charAt(i);
           switch (c) {
@@ -145,11 +152,63 @@ public class IndentationCheck extends SonarXmlCheck {
               indent++;
               break;
             default:
-              break;
+              return indent;
           }
         }
       }
     }
     return indent;
   }
+
+  private void checkClosingTag(Element element) {
+    if (isSelfClosing(element)) {
+      return;
+    }
+    XmlTextRange startLocation = XmlFile.startLocation(element);
+    XmlTextRange endLocation = XmlFile.endLocation(element);
+    if (startLocation.getEndLine() != endLocation.getStartLine()) {
+      if (!needToCheckIndentation(element)) {
+        return;
+      }
+      int startIndent = startIndent(element.getPreviousSibling());
+      int endIndent = startIndent(element.getLastChild());
+      if (startIndent != endIndent) {
+        reportIssue(endLocation, startIndent);
+      }
+    }
+  }
+
+  private static boolean needToCheckIndentation(Element element) {
+    // When tag is inside lines of text we do not check indentation
+
+    if (element.getChildNodes().getLength() > 1) {
+      return true;
+    }
+
+    Node previous = element.getPreviousSibling();
+    if (isNonEmptyTextNode(previous)) {
+      return false;
+    }
+
+    Node next = element.getNextSibling();
+    if (isNonEmptyTextNode(next)) {
+      return false;
+    }
+
+    // Current tag can be encapsulated in another tag which is inside lines of text
+    for (Node parent = element.getParentNode(); parent != null && parent.getChildNodes().getLength() == 1; parent = parent.getParentNode()) {
+      short parentType = parent.getNodeType();
+      if (parentType == Node.ELEMENT_NODE && isNonEmptyTextNode(parent.getPreviousSibling())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean isNonEmptyTextNode(@Nullable Node node) {
+    return node != null
+      && node.getNodeType() == Node.TEXT_NODE
+      && !node.getTextContent().trim().isEmpty();
+  }
+  
 }

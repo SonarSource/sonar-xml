@@ -19,10 +19,11 @@
 
   <hzml>
     <foo />
-    </hzml> <!-- Compliant - mis-alignment of end tag not covered -->
+    </hzml> <!-- Noncompliant {{Make this element start at column 3.}} -->
 
   <!-- tabs -->
 	<html>
+        test
 		<body>
 			<p>hello</p>
 		</body>
@@ -39,7 +40,7 @@
   <!-- non-white-space characters -->
   <html>
     <body>
-      xx<tag/> <!-- Noncompliant {{Make this element start at column 7.}} -->
+      xx<tag/> <!-- compliant - no indentation check when tag is inside text -->
     </body>
   </html>
 
@@ -47,8 +48,28 @@
 	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this element start at column 5.}} -->
 	  	<bar>all</bar>            <!-- Noncompliant {{Make this element start at column 5.}} -->
 	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this element start at column 5.}} -->
-  	</properties> <!-- Compliant - mis-alignment of end tag not covered -->
+  	</properties> <!-- Noncompliant {{Make this element start at column 3.}} -->
 
 	<alpha>trululu
 	</alpha>
+
+  <foo>
+    <bar>bar!</bar>BobyBalboa <!-- compliant - no indentation check when tag is inside text -->
+    qix<bar><gul><test>ragnarok</test></gul></bar>qonx
+  </foo>
+
+  And that can be <foo> on two
+  different </foo> lines.
+
+  <!-- comment before should be removed --><foo> text </foo> <!-- Noncompliant {{Make this element start at column 3.}} -->
+  <!-- comment before should be removed --><foo> text </foo> and other text.  <!-- compliant -->
+
+	trululu
+    <foo> ok </foo> <!-- compliant - no indentation check when tag is inside text -->
+
+  Test
+      <bar><foo> <!-- Noncompliant {{Make this element start at column 5.}} -->
+        <text>test</text>
+         </foo></bar>
+
 </root>
