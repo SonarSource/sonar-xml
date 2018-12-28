@@ -19,26 +19,25 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
-public class NewXmlCheckList {
+/**
+ * RSPEC-1135
+ */
+@Rule(key = TodoCommentCheck.RULE_KEY)
+public class TodoCommentCheck extends SonarXmlCheck {
 
-  private NewXmlCheckList() {
-  }
+  public static final String RULE_KEY = "S1135";
+  private static final String PATTERN = "TODO";
+  private static final String MESSAGE = "Complete the task associated to this \"TODO\" comment.";
 
-  public static List<Class> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      FixmeCommentCheck.class
-    );
+  private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
+
+  @Override
+  public void scanFile(XmlFile file) {
+    checker.checkIfCommentContainsPattern(file);
   }
 
 }

@@ -19,26 +19,14 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.junit.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class NewXmlCheckList {
+public class TodoCommentCheckTest {
 
-  private NewXmlCheckList() {
+  @Test
+  public void test() {
+    TodoCommentCheck check = new TodoCommentCheck();
+    SonarXmlCheckVerifier.verifyIssues("TodoCommentCheck.xml", check);
   }
-
-  public static List<Class> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      FixmeCommentCheck.class
-    );
-  }
-
 }

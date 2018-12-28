@@ -1,0 +1,16 @@
+<root>
+	<foo> fixme </foo>
+	<!-- Noncompliant@+1 -->
+	<!-- Noncompliant@+1 {{Take the required action to fix the issue indicated by this "FIXME" comment.}} -->
+      <!-- FIXME -->
+<!--  ^^^^^^^^^^^^^^ -->
+	<!-- Noncompliant@+1 -->
+	<!-- fixme -->
+	<!-- myFixMe -->
+	<!-- Noncompliant@+1 -->
+	<!-- FixMe explanation -->
+	<!-- Noncompliant@+1 -->
+	<!-- [FIXME] -->
+	<!-- Noncompliant@+1 -->
+	<!-- fixme.txt false positive -->
+</root>

@@ -1,0 +1,16 @@
+<root>
+	<foo> todo </foo>
+	<!-- Noncompliant@+1 -->
+	<!-- Noncompliant@+1 {{Complete the task associated to this "TODO" comment.}} -->
+      <!-- TODO -->
+<!--  ^^^^^^^^^^^^^ -->
+	<!-- Noncompliant@+1 -->
+	<!-- todo -->
+	<!-- myTodo -->
+	<!-- Noncompliant@+1 -->
+	<!-- toDo explanation -->
+	<!-- Noncompliant@+1 -->
+	<!-- [TODO] -->
+	<!-- Noncompliant@+1 -->
+	<!-- todo.txt false positive -->
+</root>
