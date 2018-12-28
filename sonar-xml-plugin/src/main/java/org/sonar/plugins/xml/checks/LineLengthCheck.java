@@ -35,13 +35,14 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 public class LineLengthCheck extends SonarXmlCheck {
 
   public static final String RULE_KEY = "S103";
+  private static final int DEFAULT_LENGTH = 120;
 
   @RuleProperty(
-    key = "S103",
+    key = "maximumLineLength",
     description = "The maximum authorized line length",
-    defaultValue = "120",
+    defaultValue = "" + DEFAULT_LENGTH,
     type = "INTEGER")
-  private int maximumLineLength = 120;
+  private int maximumLineLength = DEFAULT_LENGTH;
 
   private static final Pattern RTRIM = Pattern.compile("\\s+$");
 
