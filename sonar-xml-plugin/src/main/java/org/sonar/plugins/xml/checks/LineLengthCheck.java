@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
+import java.util.regex.Pattern;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.Utils;
@@ -40,7 +41,9 @@ public class LineLengthCheck extends SonarXmlCheck {
     description = "The maximum authorized line length",
     defaultValue = "120",
     type = "INTEGER")
-  private int maximumLineLength;
+  private int maximumLineLength = 120;
+
+  private static final Pattern RTRIM = Pattern.compile("\\s+$");
 
   public void setMaximumLineLength(int maximumLineLength) {
     this.maximumLineLength = maximumLineLength;
@@ -55,7 +58,7 @@ public class LineLengthCheck extends SonarXmlCheck {
       if (length > maximumLineLength) {
         XmlTextRange textRange = new XmlTextRange(lineNumber, 0, lineNumber, trimLine.length());
         reportIssue(textRange,
-          "Split this " + length + " characters long line (which is greater than " + maximumLineLength + " authorized).",
+          String.format("Split this %d characters long line (which is greater than %d authorized).", length, maximumLineLength),
           Collections.emptyList());
       }
       lineNumber++;
@@ -63,13 +66,6 @@ public class LineLengthCheck extends SonarXmlCheck {
   }
 
   private static String trimEndOfLine(String line) {
-    int index = line.length()-1;
-    for (; index > 0; index--) {
-      char c = line.charAt(index);
-      if (!Character.isWhitespace(c)) {
-        break;
-      }
-    }
-    return line.substring(0, index+1);
+    return RTRIM.matcher(line).replaceAll("");
   }
 }

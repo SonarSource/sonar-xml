@@ -29,7 +29,16 @@ public class LineLengthCheckTest {
     LineLengthCheck check = new LineLengthCheck();
     check.setMaximumLineLength(120);
     SonarXmlCheckVerifier.verifyIssues(
-      "test.xml",
+      "LineLengthCheck.xml",
+      check);
+  }
+
+  @Test
+  public void customTest() throws Exception {
+    LineLengthCheck check = new LineLengthCheck();
+    check.setMaximumLineLength(140);
+    SonarXmlCheckVerifier.verifyIssues(
+      "LineLengthCheckCustom.xml",
       check);
   }
 }
