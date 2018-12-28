@@ -1,4 +1,6 @@
 <root>
+	<!-- Noncompliant@+1 -->
+	<!--todo-->
 	<foo> todo </foo>
 	<!---->
 	<!-- Noncompliant@+1 -->

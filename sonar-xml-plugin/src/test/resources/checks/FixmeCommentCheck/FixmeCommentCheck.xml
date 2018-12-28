@@ -1,4 +1,6 @@
 <root>
+	<!-- Noncompliant@+1 -->
+	<!--fixme-->
 	<foo> fixme </foo>
 	<!---->
 	<!-- Noncompliant@+1 -->
