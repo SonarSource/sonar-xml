@@ -178,7 +178,7 @@ public class IndentationCheck extends SonarXmlCheck {
     }
   }
 
-  private boolean needToCheckIndentation(Element element) {
+  private static boolean needToCheckIndentation(Element element) {
     // When tag is inside lines of text we do not check indentation
 
     if (element.getChildNodes().getLength() > 1) {
