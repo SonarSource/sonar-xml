@@ -198,16 +198,14 @@ public class IndentationCheck extends SonarXmlCheck {
     // Current tag can be encapsulated in another tag which is inside lines of text
     for (Node parent = element.getParentNode(); parent != null && parent.getChildNodes().getLength() == 1; parent = parent.getParentNode()) {
       short parentType = parent.getNodeType();
-      if (parentType == Node.ELEMENT_NODE) {
-        if (isNonEmptyTextNode(parent.getPreviousSibling())) {
-          return false;
-        }
+      if (parentType == Node.ELEMENT_NODE && isNonEmptyTextNode(parent.getPreviousSibling())) {
+        return false;
       }
     }
     return true;
   }
 
-  private boolean isNonEmptyTextNode(@Nullable Node node) {
+  private static boolean isNonEmptyTextNode(@Nullable Node node) {
     return node != null
       && node.getNodeType() == Node.TEXT_NODE
       && !node.getTextContent().trim().isEmpty();
