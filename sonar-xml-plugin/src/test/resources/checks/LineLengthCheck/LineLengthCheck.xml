@@ -1,0 +1,13 @@
+<html>
+  <body style="background-color:powderblue;">
+    <p>hello</p>
+    <!-- Noncompliant@+1 {{Split this 141 characters long line (which is greater than 120 authorized).}} -->
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi cursus egestas sem. In vel bibendum velit. Cras nec nisl cras amet.</p>
+    <p>hello</p>
+    <!-- Noncompliant@+1 {{Split this 121 characters long line (which is greater than 120 authorized).}} -->
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut maximus, leo eu pretium feugiat, arcu leo posuere.</p>
+    <!-- Noncompliant@+1 {{Split this 122 characters long line (which is greater than 120 authorized).}} -->
+                                                                                                          <spacesBefore />
+    <spacesAfter />
+	</body>
+</html>
