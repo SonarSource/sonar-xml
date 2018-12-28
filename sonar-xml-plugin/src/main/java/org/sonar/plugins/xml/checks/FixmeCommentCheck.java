@@ -19,26 +19,25 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
-public class NewXmlCheckList {
+/**
+ * RSPEC-1134
+ */
+@Rule(key = FixmeCommentCheck.RULE_KEY)
+public class FixmeCommentCheck extends SonarXmlCheck {
 
-  private NewXmlCheckList() {
-  }
+  public static final String RULE_KEY = "S1134";
+  private static final String PATTERN = "FIXME";
+  private static final String MESSAGE = "Take the required action to fix the issue indicated by this \"FIXME\" comment.";
 
-  public static List<Class> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      FixmeCommentCheck.class
-    );
+  private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
+
+  @Override
+  public void scanFile(XmlFile file) {
+    checker.checkIfCommentContainsPattern(file);
   }
 
 }
