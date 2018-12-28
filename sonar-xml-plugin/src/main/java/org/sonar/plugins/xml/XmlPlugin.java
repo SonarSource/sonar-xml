@@ -34,6 +34,7 @@ public final class XmlPlugin implements Plugin {
         .name("File suffixes")
         .description("Comma-separated list of suffixes for files to analyze.")
         .defaultValue(".xml,.xsd,.xsl")
+        .multiValues(true)
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
