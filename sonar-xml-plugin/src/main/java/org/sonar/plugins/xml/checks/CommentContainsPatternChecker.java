@@ -32,14 +32,24 @@ import org.w3c.dom.NodeList;
 
 public class CommentContainsPatternChecker {
 
+  private static final String EXPRESSION = "//comment()";
+
   private final SonarXmlCheck check;
   private final String pattern;
   private final String message;
+  private final XPathExpression xPathExpression;
 
   public CommentContainsPatternChecker(SonarXmlCheck check, String pattern, String message) {
     this.check = check;
     this.pattern = pattern.toLowerCase(Locale.ENGLISH);
     this.message = message;
+
+    XPath xpath = XPathFactory.newInstance().newXPath();
+    try {
+      xPathExpression = xpath.compile(EXPRESSION);
+    } catch (XPathExpressionException e) {
+      throw new IllegalStateException("Failed to run XPath expression", e);
+    }
   }
 
   private static boolean isLetterAround(String line, String pattern) {
@@ -53,18 +63,13 @@ public class CommentContainsPatternChecker {
   }
 
   public void checkIfCommentContainsPattern(XmlFile file) {
-    XPath xpath = XPathFactory.newInstance().newXPath();
-    String expression = "//comment()";
     try {
-      XPathExpression xPathExpression = xpath.compile(expression);
       NodeList nodes = (NodeList) xPathExpression.evaluate(file.getNamespaceUnawareDocument(), XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
         Node node = nodes.item(i);
-        if (null != node) {
-          String comment = node.getNodeValue().toLowerCase(Locale.ENGLISH);
-          if (comment.contains(pattern) && !isLetterAround(comment, pattern)) {
-            check.reportIssue(node, message);
-          }
+        String comment = node.getNodeValue().toLowerCase(Locale.ENGLISH);
+        if (comment.contains(pattern) && !isLetterAround(comment, pattern)) {
+          check.reportIssue(node, message);
         }
       }
     } catch (XPathExpressionException e) {

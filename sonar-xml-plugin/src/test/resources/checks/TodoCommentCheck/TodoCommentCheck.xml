@@ -1,5 +1,6 @@
 <root>
 	<foo> todo </foo>
+	<!---->
 	<!-- Noncompliant@+1 -->
 	<!-- Noncompliant@+1 {{Complete the task associated to this "TODO" comment.}} -->
       <!-- TODO -->
@@ -13,4 +14,5 @@
 	<!-- [TODO] -->
 	<!-- Noncompliant@+1 -->
 	<!-- todo.txt false positive -->
+	<!-- TodoNot -->
 </root>
