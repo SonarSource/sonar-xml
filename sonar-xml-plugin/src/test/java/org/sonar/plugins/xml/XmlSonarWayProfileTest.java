@@ -26,7 +26,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.xml.checks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,8 +46,8 @@ public class XmlSonarWayProfileTest {
 
     assertThat(profile.language()).isEqualTo(Xml.KEY);
     assertThat(profile.name()).isEqualTo(Xml.SONAR_WAY_PROFILE_NAME);
-    assertThat(profile.rules().size()).isEqualTo(3);
-    assertThat(profile.rules().size()).isLessThan(NewXmlCheckList.getCheckClasses().size());
+    assertThat(profile.rules().size()).isEqualTo(4);
+    assertThat(profile.rules().size()).isLessThan(CheckList.getCheckClasses().size());
     assertThat(validation.hasErrors()).isFalse();
   }
 }

@@ -40,7 +40,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.plugins.xml.checks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.CheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -60,7 +60,7 @@ public class XmlSensor implements Sensor {
 
   public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) NewXmlCheckList.getCheckClasses());
+    this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) CheckList.getCheckClasses());
     this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates().and(

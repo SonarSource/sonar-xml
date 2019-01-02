@@ -21,7 +21,7 @@ package org.sonar.plugins.xml;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.CheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 public final class XmlRulesDefinition implements RulesDefinition {
@@ -39,7 +39,7 @@ public final class XmlRulesDefinition implements RulesDefinition {
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH, sonarRuntime);
 
     // add the new checks
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, NewXmlCheckList.getCheckClasses());
+    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
 
     repository.rule("XPathCheck").setTemplate(true);
     repository.done();
