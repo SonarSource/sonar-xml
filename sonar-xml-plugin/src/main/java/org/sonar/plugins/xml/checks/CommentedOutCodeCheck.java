@@ -62,15 +62,25 @@ public class CommentedOutCodeCheck extends SonarXmlCheck {
         continue;
       }
       List<Node> siblingComments = getNextCommentSiblings(comment);
-      if (isParseableXml(siblingComments, charset)) {
-        reportedNodes.addAll(siblingComments);
-        XmlTextRange start = XmlFile.nodeLocation(siblingComments.get(0));
-        XmlTextRange end = XmlFile.nodeLocation(siblingComments.get(siblingComments.size() - 1));
-        reportIssue(new XmlTextRange(start, end), "Remove this commented out code.", Collections.emptyList());
-      }
+      checkCommentBlock(siblingComments, charset);
+      reportedNodes.addAll(siblingComments);
     }
     // clear for next XML file
     reportedNodes.clear();
+  }
+
+  private void checkCommentBlock(List<Node> comments, Charset charset) {
+    int numberComments = comments.size();
+    for (int i = 0; i < numberComments; i++) {
+      // considering all the combinations, starting from the biggest list possible and reducing from the top then
+      List<Node> commentsGroup = comments.subList(i, numberComments);
+      if (isParseableXml(commentsGroup, charset)) {
+        XmlTextRange start = XmlFile.nodeLocation(commentsGroup.get(0));
+        XmlTextRange end = XmlFile.nodeLocation(commentsGroup.get(commentsGroup.size() - 1));
+        reportIssue(new XmlTextRange(start, end), "Remove this commented out code.", Collections.emptyList());
+        break;
+      }
+    }
   }
 
   private List<Node> getComments(XmlFile file) {

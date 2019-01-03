@@ -25,4 +25,16 @@
     yolo
     <!-- </crash> -->
   </foo>
+
+<!-- Noncompliant@+9 {{Remove this commented out code.}} -->
+  <foo />
+
+<!-- <foo> -->
+<!-- <bar> -->
+<!-- </bar> -->
+<!-- </foo> -->
+<!-- Random comment in the middle - discarding beginning of the comment, which is still valid, issue on '<bar>' -->
+<!--   <gul /> -->
+<!-- <bar> -->
+<!-- </bar> -->
 </bar>
