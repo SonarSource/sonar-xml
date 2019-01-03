@@ -50,23 +50,23 @@ public class CommentedOutCodeCheck extends SonarXmlCheck {
 
   private final XPathExpression commentsExpression = getXPathCommentsExpression();
 
-  private final Set<Node> reportedNodes = new HashSet<>();
+  private final Set<Node> visitedNodes = new HashSet<>();
 
   @Override
   protected void scanFile(XmlFile file) {
     Charset charset = file.getInputFile().charset();
 
     for (Node comment : getComments(file)) {
-      if (reportedNodes.contains(comment)) {
+      if (visitedNodes.contains(comment)) {
         // already reported in previous issue
         continue;
       }
       List<Node> siblingComments = getNextCommentSiblings(comment);
       checkCommentBlock(siblingComments, charset);
-      reportedNodes.addAll(siblingComments);
+      visitedNodes.addAll(siblingComments);
     }
     // clear for next XML file
-    reportedNodes.clear();
+    visitedNodes.clear();
   }
 
   private void checkCommentBlock(List<Node> comments, Charset charset) {
