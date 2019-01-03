@@ -26,7 +26,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.xml.checks.NewXmlCheckList;
+import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class XmlRulesDefinitionTest {
 
     assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("xml");
-    assertThat(repository.rules()).hasSize(NewXmlCheckList.getCheckClasses().size());
+    assertThat(repository.rules()).hasSize(CheckList.getCheckClasses().size());
 
     RulesDefinition.Rule alertUseRule = repository.rule("IndentCheck");
     assertThat(alertUseRule).isNotNull();

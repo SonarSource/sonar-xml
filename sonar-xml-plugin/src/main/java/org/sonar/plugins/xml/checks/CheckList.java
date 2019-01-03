@@ -22,9 +22,9 @@ package org.sonar.plugins.xml.checks;
 import java.util.Arrays;
 import java.util.List;
 
-public class NewXmlCheckList {
+public class CheckList {
 
-  private NewXmlCheckList() {
+  private CheckList() {
   }
 
   public static List<Class> getCheckClasses() {
@@ -37,7 +37,8 @@ public class NewXmlCheckList {
       XPathCheck.class,
       LineLengthCheck.class,
       TodoCommentCheck.class,
-      FixmeCommentCheck.class
+      FixmeCommentCheck.class,
+      CommentedOutCodeCheck.class
     );
   }
 

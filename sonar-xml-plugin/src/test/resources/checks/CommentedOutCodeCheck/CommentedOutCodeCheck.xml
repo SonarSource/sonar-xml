@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bar>
+
+  <!-- this is my comment about life and death -->
+  <foo>
+    <!-- <invalid> -->
+    <gul />
+  </foo>
+
+  <!-- Noncompliant@+1 {{Remove this commented out code.}} -->
+  <!-- <foo> -->
+  <!--   <gul /> -->
+  <!-- </foo> -->
+
+  <foo />
+
+<!-- Noncompliant@+1 {{Remove this commented out code.}} -->
+<!--   <foo>yolo</foo> -->
+
+  <foo />
+
+  <!-- following case is not detected, as none of the tags is valid alone -->
+  <foo>
+    <!-- <crash> -->
+    yolo
+    <!-- </crash> -->
+  </foo>
+
+<!-- Noncompliant@+9 {{Remove this commented out code.}} -->
+  <foo />
+
+<!-- <foo> -->
+<!-- <bar> -->
+<!-- </bar> -->
+<!-- </foo> -->
+<!-- Random comment in the middle - discarding beginning of the comment, which is still valid, issue on '<bar>' -->
+<!--   <gul /> -->
+<!-- <bar> -->
+<!-- </bar> -->
+</bar>
