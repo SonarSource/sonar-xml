@@ -20,36 +20,24 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Locale;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public class CommentContainsPatternChecker {
+public abstract class CommentContainsPatternChecker extends SimpleXPathBasedCheck {
 
-  private static final String EXPRESSION = "//comment()";
-
-  private final SonarXmlCheck check;
   private final String pattern;
   private final String message;
-  private final XPathExpression xPathExpression;
+  private final XPathExpression xPathExpression = getXPathExpression("//comment()");
 
-  public CommentContainsPatternChecker(SonarXmlCheck check, String pattern, String message) {
-    this.check = check;
+  public CommentContainsPatternChecker(String pattern, String message) {
     this.pattern = pattern.toLowerCase(Locale.ENGLISH);
     this.message = message;
+  }
 
-    XPath xpath = XPathFactory.newInstance().newXPath();
-    try {
-      xPathExpression = xpath.compile(EXPRESSION);
-    } catch (XPathExpressionException e) {
-      throw new IllegalStateException("Failed to run XPath expression", e);
-    }
+  @Override
+  public final void scanFile(XmlFile file) {
+    checkIfCommentContainsPattern(file);
   }
 
   private static boolean isLetterAround(String line, String pattern) {
@@ -62,18 +50,12 @@ public class CommentContainsPatternChecker {
     return pre || post;
   }
 
-  public void checkIfCommentContainsPattern(XmlFile file) {
-    try {
-      NodeList nodes = (NodeList) xPathExpression.evaluate(file.getNamespaceUnawareDocument(), XPathConstants.NODESET);
-      for (int i = 0; i < nodes.getLength(); i++) {
-        Node node = nodes.item(i);
-        String comment = node.getNodeValue().toLowerCase(Locale.ENGLISH);
-        if (comment.contains(pattern) && !isLetterAround(comment, pattern)) {
-          check.reportIssue(node, message);
-        }
+  private void checkIfCommentContainsPattern(XmlFile file) {
+    evaluateAsList(xPathExpression, file.getDocument()).forEach(node -> {
+      String comment = node.getNodeValue().toLowerCase(Locale.ENGLISH);
+      if (comment.contains(pattern) && !isLetterAround(comment, pattern)) {
+        reportIssue(node, message);
       }
-    } catch (XPathExpressionException e) {
-      throw new IllegalStateException("Failed to run XPath expression", e);
-    }
+    });
   }
 }

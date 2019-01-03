@@ -30,6 +30,8 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.xml.utils.PrefixResolver;
 import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -42,6 +44,8 @@ import org.w3c.dom.NodeList;
  */
 @Rule(key = XPathCheck.RULE_KEY)
 public class XPathCheck extends SonarXmlCheck {
+
+  private static final Logger LOG = Loggers.get(XPathCheck.class);
 
   public static final String RULE_KEY = "XPathCheck";
 
@@ -80,7 +84,10 @@ public class XPathCheck extends SonarXmlCheck {
           reportIssueOnFile(message, Collections.emptyList());
         }
       } catch (XPathExpressionException booleanException) {
-        throw new IllegalStateException("Failed to run XPath expression", booleanException);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(String.format("[%s] Unable to evaluate XPath expression '%s' on file %s", ruleKey(), expression, inputFile().toString()));
+          LOG.error("Xpath exception:", booleanException);
+        }
       }
     }
   }
@@ -98,13 +105,13 @@ public class XPathCheck extends SonarXmlCheck {
 
   private XPathExpression getXPathExpression(XmlFile file) {
     XPathExpression xPathExpression;
+    XPath xpath = XPathFactory.newInstance().newXPath();
+    PrefixResolver resolver = new PrefixResolverDefault(file.getDocument().getDocumentElement());
+    xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
     try {
-      XPath xpath = XPathFactory.newInstance().newXPath();
-      PrefixResolver resolver = new PrefixResolverDefault(file.getDocument().getDocumentElement());
-      xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
       xPathExpression = xpath.compile(expression);
     } catch (XPathExpressionException e) {
-      throw new IllegalStateException("Failed to build XPath expression based on user-provided parameter ["+ expression +"]", e);
+      throw new IllegalStateException("Failed to compile XPath expression based on user-provided parameter [" + expression + "]", e);
     }
     return xPathExpression;
   }
