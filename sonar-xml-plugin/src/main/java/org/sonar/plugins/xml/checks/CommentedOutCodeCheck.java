@@ -28,32 +28,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.SafetyFactory;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @Rule(key = CommentedOutCodeCheck.RULE_KEY)
-public class CommentedOutCodeCheck extends SonarXmlCheck {
+public class CommentedOutCodeCheck extends SimpleXPathBasedCheck {
 
   public static final String RULE_KEY = "S125";
 
-  private final XPathExpression commentsExpression = getXPathCommentsExpression();
+  private final XPathExpression commentsExpression = getXPathExpression("//comment()");
 
   private final Set<Node> visitedNodes = new HashSet<>();
 
   @Override
-  protected void scanFile(XmlFile file) {
+  public void scanFile(XmlFile file) {
     Charset charset = file.getInputFile().charset();
 
     for (Node comment : getComments(file)) {
@@ -84,14 +78,7 @@ public class CommentedOutCodeCheck extends SonarXmlCheck {
   }
 
   private List<Node> getComments(XmlFile file) {
-    NodeList comments;
-    try {
-      comments = (NodeList) commentsExpression.evaluate(file.getDocument(), XPathConstants.NODESET);
-    } catch (XPathExpressionException e) {
-      throw new IllegalStateException("Failed to run XPath expression", e);
-    }
-    return IntStream.range(0, comments.getLength())
-      .mapToObj(comments::item)
+    return evaluateAsList(commentsExpression, file.getDocument()).stream()
       .filter(comment -> comment.getTextContent().trim().startsWith("<"))
       .collect(Collectors.toList());
   }
@@ -129,14 +116,4 @@ public class CommentedOutCodeCheck extends SonarXmlCheck {
     }
     return true;
   }
-
-  private static XPathExpression getXPathCommentsExpression() {
-    XPath xpath = XPathFactory.newInstance().newXPath();
-    try {
-      return xpath.compile("//comment()");
-    } catch (XPathExpressionException e) {
-      throw new IllegalStateException("Failed to run XPath expression", e);
-    }
-  }
-
 }

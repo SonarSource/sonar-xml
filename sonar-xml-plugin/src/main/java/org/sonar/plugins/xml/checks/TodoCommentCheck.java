@@ -20,24 +20,19 @@
 package org.sonar.plugins.xml.checks;
 
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 /**
  * RSPEC-1135
  */
 @Rule(key = TodoCommentCheck.RULE_KEY)
-public class TodoCommentCheck extends SonarXmlCheck {
+public class TodoCommentCheck extends CommentContainsPatternChecker {
 
   public static final String RULE_KEY = "S1135";
   private static final String PATTERN = "TODO";
   private static final String MESSAGE = "Complete the task associated to this \"TODO\" comment.";
 
-  private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
-
-  @Override
-  public void scanFile(XmlFile file) {
-    checker.checkIfCommentContainsPattern(file);
+  public TodoCommentCheck() {
+    super(PATTERN, MESSAGE);
   }
 
 }

@@ -20,24 +20,19 @@
 package org.sonar.plugins.xml.checks;
 
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 /**
  * RSPEC-1134
  */
 @Rule(key = FixmeCommentCheck.RULE_KEY)
-public class FixmeCommentCheck extends SonarXmlCheck {
+public class FixmeCommentCheck extends CommentContainsPatternChecker {
 
   public static final String RULE_KEY = "S1134";
   private static final String PATTERN = "FIXME";
   private static final String MESSAGE = "Take the required action to fix the issue indicated by this \"FIXME\" comment.";
 
-  private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
-
-  @Override
-  public void scanFile(XmlFile file) {
-    checker.checkIfCommentContainsPattern(file);
+  public FixmeCommentCheck() {
+    super(PATTERN, MESSAGE);
   }
 
 }

@@ -19,10 +19,18 @@
  */
 package org.sonar.plugins.xml.checks;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class XPathCheckTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void test_nodes() throws Exception {
@@ -58,6 +66,22 @@ public class XPathCheckTest {
   @Test
   public void test_with_default_namespace() throws Exception {
     SonarXmlCheckVerifier.verifyIssues("with_default_namespaces.xml", getCheck("//template"));
+  }
+
+  @Test
+  public void test_failure_without_log() {
+    XPathCheck check = new XPathCheck();
+    check.setExpression("//comment()");
+
+    logTester.clear();
+    logTester.setLevel(LoggerLevel.INFO);
+    SonarXmlCheckVerifier.verifyNoIssue("../xPathFailure.xml", check);
+    assertThat(logTester.getLogs()).isEmpty();
+
+    logTester.clear();
+    logTester.setLevel(LoggerLevel.DEBUG);
+    SonarXmlCheckVerifier.verifyNoIssue("../xPathFailure.xml", check);
+    assertThat(logTester.getLogs()).isNotEmpty();
   }
 
   private static XPathCheck getCheck(String expression) {
