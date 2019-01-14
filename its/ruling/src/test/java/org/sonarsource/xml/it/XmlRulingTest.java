@@ -54,7 +54,7 @@ public class XmlRulingTest {
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(Optional.ofNullable(System.getProperty(SQ_VERSION_PROPERTY)).orElse(DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
-    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.7.0.961"))
+    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"))
     .build();
 
   @Before
