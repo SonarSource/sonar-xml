@@ -61,12 +61,7 @@
 
     <sonar.analyzerCommons.version>1.10.2.456</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.22.0.1791</sonar.orchestrator.version>
-    <!--
-      FIXME to be replaced with released version.
-      This is an unreleased artifact of SonarLint Core, which only adds XML in SonarLint whitelist
-      in order to allow our ITs to pass.
-    -->
-    <sonar.sonarlint-core.version>4.1.0.2158</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>4.1.0.2218</sonar.sonarlint-core.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
