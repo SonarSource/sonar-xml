@@ -93,7 +93,6 @@ public class XmlRulingTest {
       .setProperty("dump.old", FileLocation.of("src/test/resources/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.analysis.mode", "preview")
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath());
     orchestrator.executeBuild(build);
 
