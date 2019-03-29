@@ -6,7 +6,7 @@ TEST:
   - ci
 
 SQ_VERSION:
-  - DEV
+  - DOGFOOD
   - LATEST_RELEASE
   - LATEST_RELEASE[6.7]
 
