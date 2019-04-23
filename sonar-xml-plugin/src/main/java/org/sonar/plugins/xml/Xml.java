@@ -51,6 +51,8 @@ public class Xml extends AbstractLanguage {
 
   /**
    * Default constructor.
+   *
+   * @param configuration configuration to configure this class
    */
   public Xml(Configuration configuration) {
     super(KEY, XML_LANGUAGE_NAME);

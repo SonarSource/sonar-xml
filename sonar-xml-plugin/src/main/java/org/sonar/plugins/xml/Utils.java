@@ -33,7 +33,10 @@ public class Utils {
   }
 
   /**
-   * Check if element is self closing: <foo ... />
+   * Check if element is self closing: &lt;foo ... /&gt;
+   *
+   * @param element element to check
+   * @return true if element is self closing, false otherwise
    */
   public static boolean isSelfClosing(Element element) {
     XmlTextRange startLocation = XmlFile.startLocation(element);
