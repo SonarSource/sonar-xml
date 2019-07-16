@@ -47,7 +47,7 @@ public class ByteOrderMarkTest {
       .setSourceEncoding("utf-8")
       .setSourceDirs("."));
 
-    Object fileKey = PROJECT_KEY + ":utf8-bom.xml";
+    String fileKey = PROJECT_KEY + ":utf8-bom.xml";
     String highlighting = newWsClient().wsConnector().call(new GetRequest("api/sources/show").setParam("key", fileKey))
       .failIfNotSuccessful()
       .content();
