@@ -30,12 +30,13 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.measures.ComponentRequest;
+
 
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
@@ -72,8 +73,8 @@ public class XmlTestSuite {
 
   @CheckForNull
   static Measure getMeasure(String componentKey, String metricKey) {
-    WsMeasures.ComponentWsResponse response = newWsClient().measures().component(new ComponentWsRequest()
-      .setComponentKey(componentKey)
+    Measures.ComponentWsResponse response = newWsClient().measures().component(new ComponentRequest()
+      .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey)));
     List<Measure> measures = response.getComponent().getMeasuresList();
     return measures.size() == 1 ? measures.get(0) : null;
