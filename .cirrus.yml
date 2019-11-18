@@ -59,9 +59,8 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   maven_cache: { folder: .m2/repository }
   build_script:
+    - source cirrus-env CI
     - mvn test
-    - pwd
-    - ls -al
   cleanup_before_cache_script: cleanup_maven_repository
  
 plugin_qa_task:
