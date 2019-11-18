@@ -16,7 +16,7 @@ env:
   BURGR_PASSWORD: ENCRYPTED[!83e130718e92b8c9de7c5226355f730e55fb46e45869149a9223e724bb99656878ef9684c5f8cfef434aa716e87f4cf2!]
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
-  
+
 container_definition: &CONTAINER_DEFINITION
   image: gcr.io/language-team/base:latest
   cluster_name: cirrus-ci-lt-cluster
@@ -59,7 +59,7 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   maven_cache: { folder: .m2/repository }
   build_script:
-    - mvn.cmd test
+    - mvn test
   cleanup_before_cache_script: cleanup_maven_repository
  
 plugin_qa_task:
