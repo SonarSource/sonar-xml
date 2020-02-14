@@ -119,8 +119,8 @@ public class XmlRulingTest {
     String profileKey = qualityProfile.getKey();
 
     adminWSClient.wsConnector().call(new PostRequest("api/qualityprofiles/activate_rule")
-      .setParam("profile_key", profileKey)
-      .setParam("rule_key", LANGUAGE + ":" + newRuleKey)
+      .setParam("key", profileKey)
+      .setParam("rule", LANGUAGE + ":" + newRuleKey)
       .setParam("severity", "INFO")).failIfNotSuccessful();
   }
 
