@@ -60,7 +60,7 @@
     <sonar.minVersion>6.7</sonar.minVersion>
 
     <sonar.analyzerCommons.version>1.10.2.456</sonar.analyzerCommons.version>
-    <sonar.orchestrator.version>3.30.0.2630</sonar.orchestrator.version>
+    <sonar.orchestrator.version>3.31.0.2646</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>4.1.0.2218</sonar.sonarlint-core.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
