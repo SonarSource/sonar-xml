@@ -1,0 +1,9 @@
+<html>
+<!-- Noncompliant@+1 {{Replace all tab characters in this file by sequences of white-spaces.}} -->
+  <body		style="background-color:powderblue;">
+<!--   ^^ -->
+    		<p>hello</p>
+<!--^^< {{tab characters}}-->
+    	</body>
+<!--^< {{tab character}}-->
+</html>

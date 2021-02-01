@@ -1,5 +1,49 @@
 <html>
+<!-- Noncompliant@+1 {{Replace all tab characters in this file by sequences of white-spaces.}} -->
   <body		style="background-color:powderblue;">
-		<p>hello</p>
-	</body>
+<!--   ^^ -->
+    		<p>secondary location 1</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 2</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 3</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 4</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 5</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 6</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 7</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 8</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 9</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 10</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 11</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 12</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 13</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 14</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 15</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 16</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 17</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 18</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 19</p>
+<!--^^< {{tab characters}}-->
+    		<p>secondary location 20</p>
+<!--^^< {{tab characters (and 7 more in this file)}}-->
+    		<p>secondary location 22</p>
+    		<p>secondary location 23</p>
+    		<p>secondary location 24</p>
+    	</body>
 </html>
