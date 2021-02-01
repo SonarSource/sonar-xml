@@ -20,12 +20,8 @@
 package org.sonar.plugins.xml;
 
 import org.junit.Test;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,12 +30,11 @@ public class XmlSonarWayProfileTest {
 
   @Test
   public void should_create_sonar_way_profile() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SERVER);
     ValidationMessages validation = ValidationMessages.create();
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
 
-    XmlSonarWayProfile definition = new XmlSonarWayProfile(sonarRuntime);
+    XmlSonarWayProfile definition = new XmlSonarWayProfile();
     definition.define(context);
 
     BuiltInQualityProfilesDefinition.BuiltInQualityProfile profile = context.profile(Xml.KEY, Xml.SONAR_WAY_PROFILE_NAME);

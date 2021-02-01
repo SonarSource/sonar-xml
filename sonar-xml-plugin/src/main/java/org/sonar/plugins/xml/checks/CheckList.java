@@ -27,7 +27,7 @@ public class CheckList {
   private CheckList() {
   }
 
-  public static List<Class> getCheckClasses() {
+  public static List<Class<?>> getCheckClasses() {
     return Arrays.asList(
       CharBeforePrologCheck.class,
       TabCharacterCheck.class,

@@ -20,12 +20,8 @@
 package org.sonar.plugins.xml;
 
 import org.junit.Test;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
-import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,9 +30,7 @@ public class XmlRulesDefinitionTest {
 
   @Test
   public void test() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SERVER);
-
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(sonarRuntime);
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");

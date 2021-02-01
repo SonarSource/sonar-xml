@@ -19,22 +19,15 @@
  */
 package org.sonar.plugins.xml;
 
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public final class XmlSonarWayProfile implements BuiltInQualityProfilesDefinition {
 
-  private final SonarRuntime sonarRuntime;
-
-  public XmlSonarWayProfile(SonarRuntime sonarRuntime) {
-    this.sonarRuntime = sonarRuntime;
-  }
-
   @Override
   public void define(Context context) {
     NewBuiltInQualityProfile sonarWay = context.createBuiltInQualityProfile(Xml.SONAR_WAY_PROFILE_NAME, Xml.KEY);
-    BuiltInQualityProfileJsonLoader.load(sonarWay, Xml.REPOSITORY_KEY, Xml.SONAR_WAY_PATH, Xml.XML_RESOURCE_PATH, sonarRuntime);
+    BuiltInQualityProfileJsonLoader.load(sonarWay, Xml.REPOSITORY_KEY, Xml.SONAR_WAY_PATH);
     sonarWay.done();
   }
 
