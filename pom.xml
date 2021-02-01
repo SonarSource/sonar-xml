@@ -59,7 +59,7 @@
     <sonar.version>7.4</sonar.version>
     <sonar.minVersion>6.7</sonar.minVersion>
 
-    <sonar.analyzerCommons.version>1.10.2.456</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>1.12.0.632</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.34.0.2692</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>4.1.0.2218</sonar.sonarlint-core.version>
 
@@ -112,6 +112,12 @@
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-test-commons</artifactId>
+        <version>${sonar.analyzerCommons.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.analyzer-commons</groupId>
+        <artifactId>test-sonar-xml-parsing</artifactId>
         <version>${sonar.analyzerCommons.version}</version>
         <scope>test</scope>
       </dependency>
