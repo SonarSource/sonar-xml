@@ -80,7 +80,7 @@ public class XPathCheck extends SonarXmlCheck {
     } catch (XPathExpressionException nodeSetException) {
       try {
         Boolean result = (Boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
-        if (result) {
+        if (Boolean.TRUE.equals(result)) {
           reportIssueOnFile(message, Collections.emptyList());
         }
       } catch (XPathExpressionException booleanException) {
@@ -141,7 +141,7 @@ public class XPathCheck extends SonarXmlCheck {
 
     @Override
     // Dummy implementation - not used!
-    public Iterator getPrefixes(String val) {
+    public Iterator<?> getPrefixes(String val) {
       return null;
     }
   }

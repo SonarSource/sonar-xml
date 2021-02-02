@@ -30,7 +30,7 @@ public abstract class CommentContainsPatternChecker extends SimpleXPathBasedChec
   private final String message;
   private final XPathExpression xPathExpression = getXPathExpression("//comment()");
 
-  public CommentContainsPatternChecker(String pattern, String message) {
+  protected CommentContainsPatternChecker(String pattern, String message) {
     this.pattern = pattern.toLowerCase(Locale.ENGLISH);
     this.message = message;
   }
