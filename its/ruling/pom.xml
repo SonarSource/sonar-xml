@@ -12,7 +12,7 @@
 
   <artifactId>it-xml-ruling</artifactId>
 
-  <name>SonarXML :: IT Ruling</name>
+  <name>SonarSource XML analyzer :: IT Ruling</name>
   <inceptionYear>2018</inceptionYear>
 
   <properties>
