@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.xml.SafetyFactory;
+import org.sonarsource.analyzer.commons.xml.SafeDomParserFactory;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
@@ -109,7 +109,7 @@ public class CommentedOutCodeCheck extends SimpleXPathBasedCheck {
       .collect(Collectors.joining("\n"));
 
     try (ByteArrayInputStream stream = new ByteArrayInputStream(commentsAsSingleString.getBytes(charset))) {
-      SafetyFactory.createDocumentBuilder(false).parse(stream);
+      SafeDomParserFactory.createDocumentBuilder(false).parse(stream);
     } catch (IOException | SAXException e) {
       // swallow exception, we are just trying to parse to see if it could be some XML code
       return false;
