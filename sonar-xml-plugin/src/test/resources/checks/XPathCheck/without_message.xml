@@ -1,0 +1,4 @@
+<a>
+    <b /> <!-- Noncompliant {{Change this XML node to not match: //b}} -->
+<!--^^^^^ -->
+</a>
