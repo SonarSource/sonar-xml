@@ -19,17 +19,17 @@
  */
 package org.sonar.plugins.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlSonarWayProfileTest {
+class XmlSonarWayProfileTest {
 
   @Test
-  public void should_create_sonar_way_profile() {
+  void should_create_sonar_way_profile() {
     ValidationMessages validation = ValidationMessages.create();
 
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();

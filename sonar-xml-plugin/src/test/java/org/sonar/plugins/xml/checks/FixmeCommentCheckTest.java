@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class FixmeCommentCheckTest {
+class FixmeCommentCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     FixmeCommentCheck check = new FixmeCommentCheck();
     SonarXmlCheckVerifier.verifyIssues("FixmeCommentCheck.xml", check);
   }

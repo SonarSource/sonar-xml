@@ -19,33 +19,22 @@
  */
 package org.sonar.plugins.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlPluginTest {
+class XmlPluginTest {
 
+  @SuppressWarnings("unchecked")
   @Test
-  public void count_extensions_for_sonarqube_server_6_0() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 0), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.0").hasSize(5);
-  }
-
-  @Test
-  public void count_extensions_for_sonarqube_server_6_2() throws Exception {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER));
-    assertThat(context.getExtensions()).as("Number of extensions for SQ 6.2").hasSize(5);
-  }
-
-  private Plugin.Context setupContext(SonarRuntime runtime) {
-    Plugin.Context context = new Plugin.Context(runtime);
+  void count_extensions() {
+    Plugin.Context context = new Plugin.Context(SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER));
     new XmlPlugin().define(context);
-    return context;
+    assertThat(context.getExtensions()).as("Number of extensions for SQ 7.9").hasSize(5);
   }
 
 }

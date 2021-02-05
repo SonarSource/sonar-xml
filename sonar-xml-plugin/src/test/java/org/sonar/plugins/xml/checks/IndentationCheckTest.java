@@ -19,19 +19,19 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class IndentationCheckTest {
+class IndentationCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     IndentationCheck check = new IndentationCheck();
     SonarXmlCheckVerifier.verifyIssues("IndentationCheck.xml", check);
   }
 
   @Test
-  public void test_with_parameters() {
+  void test_with_parameters() {
     IndentationCheck check = new IndentationCheck();
     check.setIndentSize(4);
     check.setTabSize(4);

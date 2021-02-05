@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class CharBeforePrologCheckTest {
+class CharBeforePrologCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     CharBeforePrologCheck check = new CharBeforePrologCheck();
     SonarXmlCheckVerifier.verifyIssues("nok.xml", check);
 

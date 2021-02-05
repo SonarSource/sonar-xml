@@ -30,11 +30,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -68,7 +71,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class XmlSensorTest extends AbstractXmlPluginTester {
+@EnableRuleMigrationSupport
+class XmlSensorTest {
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -85,8 +89,9 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
 
-  @Test(timeout = 10000)
-  public void testPerformance() throws Exception {
+  @Test
+  @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+  void testPerformance() throws Exception {
     initFileSystemWithFile(createXmlFile(20000, "smallFile.xml"));
     long timeSmallFile = measureTimeToAnalyzeFile();
     initFileSystemWithFile(createXmlFile(40000, "bigFile.xml"));
@@ -95,7 +100,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void test_analysis_cancellation() throws Exception {
+  void test_analysis_cancellation() throws Exception {
     init(false);
     fs.add(createInputFile("src/pom.xml"));
 
@@ -106,7 +111,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void test_nothing_is_executed_if_no_file() throws Exception {
+  void test_nothing_is_executed_if_no_file() throws Exception {
     init(false);
 
     sensor.execute(context);
@@ -115,7 +120,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void test_descriptor() throws Exception {
+  void test_descriptor() throws Exception {
     init(false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
@@ -127,7 +132,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * Expect issue for rule: NewlineCheck
    */
   @Test
-  public void test_sensor() throws Exception {
+  void test_sensor() throws Exception {
     init(false);
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
@@ -142,7 +147,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void test_sensor_in_sonarlint_context() throws Exception {
+  void test_sensor_in_sonarlint_context() throws Exception {
     init(false);
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
@@ -161,7 +166,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * Expect issue for rule: TabCharacterCheck
    */
   @Test
-  public void should_execute_new_rules() throws Exception {
+  void should_execute_new_rules() throws Exception {
     init(false);
     fs.add(createInputFile("src/tabsEverywhere.xml"));
 
@@ -171,7 +176,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void failing_rules_should_not_report_parse_exception() throws Exception {
+  void failing_rules_should_not_report_parse_exception() throws Exception {
     init(true);
 
     sensor.runCheck(context, new SonarXmlCheck() {
@@ -194,7 +199,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * Expect issue for rule: NewlineCheck
    */
   @Test
-  public void should_execute_on_file_with_chars_before_prolog() throws Exception {
+  void should_execute_on_file_with_chars_before_prolog() throws Exception {
     init(false);
     fs.add(createInputFile("src/pom_with_chars_before_prolog_and_missing_new_line.xml"));
 
@@ -208,7 +213,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * As rule ParsingErrorCheck is enabled, this test should report a parsing issue. It should also log a trace.
    */
   @Test
-  public void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
+  void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
     init(true);
     fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
@@ -227,7 +232,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
    * As rule ParsingErrorCheck is not enabled, this test should not report any issue. It should log a trace instead.
    */
   @Test
-  public void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
+  void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
     init(false);
     fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
@@ -244,7 +249,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     context = SensorContextTester.create(moduleBaseDir);
 
     fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder("temp").toPath());
+    fs.setWorkDir(temporaryFolder.newFolder().toPath());
 
     ActiveRulesBuilder activeRuleBuilder = new ActiveRulesBuilder()
       .create(NEW_LINE_RULE_KEY)
@@ -279,7 +284,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
   }
 
   @Test
-  public void should_analyze_file_with_its_own_encoding() throws IOException {
+  void should_analyze_file_with_its_own_encoding() throws IOException {
     Charset fileSystemCharset = StandardCharsets.UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
@@ -353,7 +358,7 @@ public class XmlSensorTest extends AbstractXmlPluginTester {
     StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
     IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
     str.append("</root>");
-    FileUtils.write(file, str.toString());
+    FileUtils.write(file, str.toString(), StandardCharsets.UTF_8);
     return file;
   }
 

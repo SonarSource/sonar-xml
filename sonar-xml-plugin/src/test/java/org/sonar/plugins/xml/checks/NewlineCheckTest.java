@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class NewlineCheckTest {
+class NewlineCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     SonarXmlCheckVerifier.verifyIssues("test.xml", new NewlineCheck());
   }
 }

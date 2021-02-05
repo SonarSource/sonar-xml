@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class TodoCommentCheckTest {
+class TodoCommentCheckTest {
 
   @Test
-  public void test() {
+  void test() {
     TodoCommentCheck check = new TodoCommentCheck();
     SonarXmlCheckVerifier.verifyIssues("TodoCommentCheck.xml", check);
   }

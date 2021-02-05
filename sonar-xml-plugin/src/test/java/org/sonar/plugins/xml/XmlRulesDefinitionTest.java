@@ -19,17 +19,17 @@
  */
 package org.sonar.plugins.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlRulesDefinitionTest {
+class XmlRulesDefinitionTest {
 
   @Test
-  public void test() {
+  void test() {
     XmlRulesDefinition rulesDefinition = new XmlRulesDefinition();
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);

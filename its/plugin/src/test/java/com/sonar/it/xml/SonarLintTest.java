@@ -19,8 +19,6 @@
  */
 package com.sonar.it.xml;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -80,7 +79,7 @@ public class SonarLintTest {
         + "</foo>\n");
 
     List<Issue> issues = new ArrayList<>();
-    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), ImmutableMap.of());
+    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), Collections.emptyMap());
     sonarlintEngine.analyze(configuration, issues::add, null, null);
 
     assertThat(issues)
@@ -125,7 +124,7 @@ public class SonarLintTest {
 
       @Override
       public String contents() throws IOException {
-        return Files.toString(path.toFile(), StandardCharsets.UTF_8);
+        return FileUtils.readFileToString(path.toFile(), StandardCharsets.UTF_8);
       }
 
       @Override

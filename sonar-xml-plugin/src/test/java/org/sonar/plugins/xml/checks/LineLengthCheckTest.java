@@ -19,18 +19,18 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class LineLengthCheckTest {
+class LineLengthCheckTest {
 
   @Test
-  public void test() throws Exception {
+  void test() {
     SonarXmlCheckVerifier.verifyIssues("LineLengthCheck.xml", new LineLengthCheck());
   }
 
   @Test
-  public void customTest() throws Exception {
+  void customTest() {
     LineLengthCheck check = new LineLengthCheck();
     check.setMaximumLineLength(140);
     SonarXmlCheckVerifier.verifyIssues("LineLengthCheckCustom.xml", check);
