@@ -79,7 +79,7 @@ public class XmlSensor implements Sensor {
 
     boolean isSonarLintContext = context.runtime().getProduct() == SonarProduct.SONARLINT;
 
-    ProgressReport progressReport = new ProgressReport("Report about progress of XML analyzer", TimeUnit.SECONDS.toMillis(10));
+    ProgressReport progressReport = new ProgressReport("Report about progress of XML Analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
 
     boolean cancelled = false;

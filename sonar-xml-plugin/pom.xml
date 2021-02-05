@@ -11,7 +11,7 @@
   <artifactId>sonar-xml-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>SonarSource XML analyzer plugin</name>
+  <name>SonarSource XML Analyzer Plugin</name>
   <!-- Be careful when altering <description> as its value shows up in the SonarQube GUI -->
   <description>Code Analyzer for XML</description>
   <url>http://redirect.sonarsource.com/plugins/xml.html</url>

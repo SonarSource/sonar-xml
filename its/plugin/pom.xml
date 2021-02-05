@@ -11,7 +11,7 @@
 
   <artifactId>it-xml-plugin</artifactId>
 
-  <name>SonarSource XML analyzer :: IT Plugin</name>
+  <name>SonarSource XML Analyzer :: IT Plugin</name>
   <inceptionYear>2013</inceptionYear>
 
   <properties>
