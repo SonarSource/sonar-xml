@@ -11,5 +11,5 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1120",
-  "sqKey": "IndentCheck"
+  "sqKey": "S1120"
 }

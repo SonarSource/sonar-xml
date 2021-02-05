@@ -16,7 +16,7 @@
     </rule>
     <rule>
       <repositoryKey>xml</repositoryKey>
-      <key>IndentCheck</key>
+      <key>S1120</key>
       <priority>MINOR</priority>
       <parameters>
         <parameter>
