@@ -59,6 +59,18 @@ public class XPathCheckTest {
   }
 
   @Test
+  public void test_without_message() throws Exception {
+    XPathCheck check = new XPathCheck();
+    check.setExpression("//b");
+    check.setMessage(null);
+    check.setFilePattern("**/*.xml");
+    SonarXmlCheckVerifier.verifyIssues("without_message.xml", check);
+
+    check.setMessage("  ");
+    SonarXmlCheckVerifier.verifyIssues("without_message.xml", check);
+  }
+
+  @Test
   public void test_with_namespaces() throws Exception {
     SonarXmlCheckVerifier.verifyIssues("with_namespaces.xml", getCheck("//x:template"));
   }

@@ -74,14 +74,14 @@ public class XPathCheck extends SonarXmlCheck {
     try {
       NodeList nodes = (NodeList) xPathExpression.evaluate(document, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
-        reportIssue(nodes.item(i), message);
+        reportIssue(nodes.item(i), getMessage());
       }
 
     } catch (XPathExpressionException nodeSetException) {
       try {
         Boolean result = (Boolean) xPathExpression.evaluate(document, XPathConstants.BOOLEAN);
         if (Boolean.TRUE.equals(result)) {
-          reportIssueOnFile(message, Collections.emptyList());
+          reportIssueOnFile(getMessage(), Collections.emptyList());
         }
       } catch (XPathExpressionException booleanException) {
         if (LOG.isDebugEnabled()) {
@@ -101,6 +101,13 @@ public class XPathCheck extends SonarXmlCheck {
   }
   public void setMessage(String message) {
     this.message = message;
+  }
+
+  public String getMessage() {
+    if (message != null && !message.trim().isEmpty()) {
+      return message;
+    }
+    return "Change this XML node to not match: " + expression;
   }
 
   private XPathExpression getXPathExpression(XmlFile file) {
@@ -141,7 +148,7 @@ public class XPathCheck extends SonarXmlCheck {
 
     @Override
     // Dummy implementation - not used!
-    public Iterator<?> getPrefixes(String val) {
+    public Iterator<String> getPrefixes(String val) {
       return null;
     }
   }
