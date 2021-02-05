@@ -1,25 +1,25 @@
 <root>
 <!-- comments are OK on empty line-->
                           <!-- comments are really OK -->
-    <tag> <!-- Noncompliant {{Make this element start at column 3.}} -->
+    <tag> <!-- Noncompliant {{Make this line start after 2 spaces to indent the code consistently.}} -->
     <nested>value</nested> <!-- compliant - one issue per block -->
     </tag>
 
-<tag>value</tag> <tag>value</tag> <!-- Noncompliant {{Make this element start at column 3.}} -->
+<tag>value</tag> <tag>value</tag> <!-- Noncompliant {{Make this line start after 2 spaces to indent the code consistently.}} -->
 
   <html>
-  <body><p>hello</p></body> <!-- Noncompliant {{Make this element start at column 5.}} -->
+  <body><p>hello</p></body> <!-- Noncompliant {{Make this line start after 4 spaces to indent the code consistently.}} -->
   </html>
 
   <html>
     <body>
-  <p>hello</p>  <!-- Noncompliant {{Make this element start at column 7.}} -->
+  <p>hello</p>  <!-- Noncompliant {{Make this line start after 6 spaces to indent the code consistently.}} -->
     </body>
   </html>
 
   <hzml>
     <foo />
-    </hzml> <!-- Noncompliant {{Make this element start at column 3.}} -->
+    </hzml> <!-- Noncompliant {{Make this line start after 2 spaces to indent the code consistently.}} -->
 
   <!-- tabs -->
 	<html>
@@ -31,7 +31,7 @@
 
   <html>
     <body>
-    <!-- comment before should be removed --><tag /> <!-- Noncompliant {{Make this element start at column 7.}} -->
+    <!-- comment before should be removed --><tag /> <!-- Noncompliant {{Make this line start after 6 spaces to indent the code consistently.}} -->
     </body>
   </html>
 
@@ -45,10 +45,10 @@
   </html>
 
   <properties>
-	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this element start at column 5.}} -->
-	  	<bar>all</bar>            <!-- Noncompliant {{Make this element start at column 5.}} -->
-	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this element start at column 5.}} -->
-  	</properties> <!-- Noncompliant {{Make this element start at column 3.}} -->
+	  	<foo>${JBOSS_HOME}</foo>  <!-- Noncompliant {{Make this line start after 4 spaces to indent the code consistently.}} -->
+	  	<bar>all</bar>            <!-- Noncompliant {{Make this line start after 4 spaces to indent the code consistently.}} -->
+	    <qix>5.1.0.CR1</qix>      <!-- Noncompliant {{Make this line start after 4 spaces to indent the code consistently.}} -->
+  	</properties> <!-- Noncompliant {{Make this line start after 2 spaces to indent the code consistently.}} -->
 
 	<alpha>trululu
 	</alpha>
@@ -61,14 +61,14 @@
   And that can be <foo> on two
   different </foo> lines.
 
-  <!-- comment before should be removed --><foo> text </foo> <!-- Noncompliant {{Make this element start at column 3.}} -->
+  <!-- comment before should be removed --><foo> text </foo> <!-- Noncompliant {{Make this line start after 2 spaces to indent the code consistently.}} -->
   <!-- comment before should be removed --><foo> text </foo> and other text.  <!-- compliant -->
 
 	trululu
     <foo> ok </foo> <!-- compliant - no indentation check when tag is inside text -->
 
   Test
-      <bar><foo> <!-- Noncompliant {{Make this element start at column 5.}} -->
+      <bar><foo> <!-- Noncompliant {{Make this line start after 4 spaces to indent the code consistently.}} -->
         <text>test</text>
          </foo></bar>
 
