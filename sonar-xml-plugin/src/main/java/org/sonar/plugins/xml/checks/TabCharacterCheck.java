@@ -44,10 +44,11 @@ public class TabCharacterCheck extends SonarXmlCheck {
 
   @Override
   public void scanFile(XmlFile file) {
-    if (file.getContents().indexOf('\t') == -1) {
+    String content = file.getContents();
+    if (content.indexOf('\t') == -1) {
       return;
     }
-    String[] lines = Utils.splitLines(file.getContents());
+    String[] lines = Utils.splitLines(content);
     List<XmlTextRange> firstTabLocations = new ArrayList<>();
     int extraTabsCount = 0;
     for (int lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
@@ -69,9 +70,8 @@ public class TabCharacterCheck extends SonarXmlCheck {
     List<Secondary> secondaries = new ArrayList<>();
     for (int i = 1; i < firstTabLocations.size(); i++) {
       XmlTextRange range = firstTabLocations.get(i);
-      boolean hasSeveralTabs = range.getEndColumn() > range.getStartColumn() + 1;
       boolean limitReached = (i == MAX_REPORTED_LOCATION - 1);
-      secondaries.add(new Secondary(range, "tab character" + (hasSeveralTabs ? "s" : "") +
+      secondaries.add(new Secondary(range, "tab character(s)" +
         (limitReached && extraTabsCount > 0 ? (" (and " + extraTabsCount + " more in this file)") : "")));
     }
     reportIssue(primaryLocation, "Replace all tab characters in this file by sequences of white-spaces.", secondaries);

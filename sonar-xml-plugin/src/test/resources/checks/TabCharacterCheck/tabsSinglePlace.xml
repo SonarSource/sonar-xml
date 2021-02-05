@@ -2,5 +2,5 @@
       <body style="background-color:powderblue;">
         <p>hello</p>
     	</body> <!-- Noncompliant {{Replace all tab characters in this file by sequences of white-spaces.}} -->
-<!--^ {{tab character}} -->
+<!--^ {{tab character(s)}} -->
 </html>
