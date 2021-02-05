@@ -19,31 +19,31 @@
  */
 package org.sonar.plugins.xml;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlTest {
+class XmlTest {
 
   private MapSettings settings;
   private Xml xml;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     settings = new MapSettings();
     xml = new Xml(settings.asConfig());
   }
 
   @Test
-  public void defaultSuffixes() {
+  void defaultSuffixes() {
     settings.setProperty(XmlPlugin.FILE_SUFFIXES_KEY, "");
     assertThat(xml.getFileSuffixes()).containsOnly(".xml");
   }
 
   @Test
-  public void customSuffixes() {
+  void customSuffixes() {
     settings.setProperty(XmlPlugin.FILE_SUFFIXES_KEY, ".xhtml");
     assertThat(xml.getFileSuffixes()).containsOnly(".xhtml");
   }

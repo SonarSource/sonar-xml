@@ -38,8 +38,6 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
 
-import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
-import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.util.Collections.singletonList;
 
 @RunWith(Suite.class)
@@ -60,15 +58,11 @@ public class XmlTestSuite {
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .build();
 
-  public static SonarScanner createSonarScanner() {
+  static SonarScanner createSonarScanner() {
     SonarScanner build = SonarScanner.create();
     // xhtml has been removed from default file suffixes (SONARXML-5)
     build.setProperty("sonar.xml.file.suffixes", ".xml,.xhtml");
     return build;
-  }
-
-  public static boolean is_at_least_sonar_5_1() {
-    return ORCHESTRATOR.getServer().version().isGreaterThanOrEquals(5, 1);
   }
 
   @CheckForNull
@@ -86,15 +80,11 @@ public class XmlTestSuite {
     return (measure == null) ? null : Double.parseDouble(measure.getValue());
   }
 
-  protected static WsClient newWsClient() {
+  static WsClient newWsClient() {
     return newWsClient(null, null);
   }
 
-  protected static WsClient newAdminWsClient() {
-    return newWsClient(ADMIN_LOGIN, ADMIN_PASSWORD);
-  }
-
-  protected static WsClient newWsClient(@Nullable String login, @Nullable String password) {
+  static WsClient newWsClient(@Nullable String login, @Nullable String password) {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(ORCHESTRATOR.getServer().getUrl())
       .credentials(login, password)

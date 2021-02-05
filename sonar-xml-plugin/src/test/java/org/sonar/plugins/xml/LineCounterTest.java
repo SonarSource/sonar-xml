@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -36,43 +36,44 @@ import org.sonarsource.analyzer.commons.xml.ParseException;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class LineCounterTest {
+class LineCounterTest {
 
   private FileLinesContextFactory fileLinesContextFactory;
   private FileLinesContext fileLinesContext;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     fileLinesContextFactory = mock(FileLinesContextFactory.class);
     fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
   }
 
   @Test
-  public void test_simple_file() throws IOException {
+  void test_simple_file() throws IOException {
     verifyMetrics("simple.xml", 1,
       1, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18);
   }
 
   @Test
-  public void test_complex_file() throws IOException {
+  void test_complex_file() throws IOException {
     verifyMetrics("complex.xml", 17,
       1, 2, 3, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 25, 26, 27, 34, 35, 36, 37, 38, 39);
   }
 
-  @Test(expected = ParseException.class)
-  public void test_invalid_file() throws Exception {
-    verifyMetrics("invalid.xml", -1);
+  @Test
+  void test_invalid_file() {
+    assertThrows(ParseException.class, () -> verifyMetrics("invalid.xml", -1));
   }
 
   @Test // SONARXML-19
-  public void test_file_with_char_before_prolog() throws Exception {
+  void test_file_with_char_before_prolog() throws Exception {
     verifyMetrics("char_before_prolog.xml", 1, 3, 6, 7, 8, 9, 10, 11, 12, 13);
   }
 

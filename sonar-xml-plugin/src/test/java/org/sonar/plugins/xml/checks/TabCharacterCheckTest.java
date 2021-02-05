@@ -19,33 +19,33 @@
  */
 package org.sonar.plugins.xml.checks;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class TabCharacterCheckTest {
+class TabCharacterCheckTest {
 
   @Test
-  public void single_place() throws Exception {
+  void single_place() {
     SonarXmlCheckVerifier.verifyIssues("tabsSinglePlace.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void tabs_on_three_lines() throws Exception {
+  void tabs_on_three_lines() {
     SonarXmlCheckVerifier.verifyIssues("tabsOnThreeLines.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void tabs_everywhere() throws Exception {
+  void tabs_everywhere() {
     SonarXmlCheckVerifier.verifyIssues("tabsEverywhere.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void tabs_max_reported_without_extra() throws Exception {
+  void tabs_max_reported_without_extra() {
     SonarXmlCheckVerifier.verifyIssues("tabsMaxReportedWithoutExtra.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void no_tabs() throws Exception {
+  void no_tabs() {
     SonarXmlCheckVerifier.verifyNoIssue("noTabs.xml", new TabCharacterCheck());
   }
 

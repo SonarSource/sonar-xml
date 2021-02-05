@@ -27,9 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -42,7 +43,8 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlHighlightingTest {
+@EnableRuleMigrationSupport
+class XmlHighlightingTest {
 
   @Rule
   public TemporaryFolder tmpFolder = new TemporaryFolder();
@@ -51,14 +53,14 @@ public class XmlHighlightingTest {
   private SensorContextTester context;
   private XmlFile xmlFile;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     context = SensorContextTester.create(tmpFolder.getRoot());
     fileSystem = context.fileSystem();
   }
 
   @Test
-  public void testCDATAWithTagsInside() throws Exception {
+  void testCDATAWithTagsInside() throws Exception {
     highlight("<tag><![CDATA[<tag/><!-- Comment -->]]></tag>");
     // <tag
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
@@ -75,7 +77,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testCDATAWithBracketInside() throws Exception {
+  void testCDATAWithBracketInside() throws Exception {
     highlight("<tag><![CDATA[aa]>bb]]></tag>");
 
     // <![CDATA[
@@ -85,7 +87,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightSelfClosingTagWithAttribute() throws Exception {
+  void testHighlightSelfClosingTagWithAttribute() throws Exception {
     highlight("<input type='checkbox' />");
     // "<input"
     assertHighlighting(0, 6, TypeOfText.KEYWORD);
@@ -98,7 +100,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightTagWithDoubleQuoteAttribute() throws Exception {
+  void testHighlightTagWithDoubleQuoteAttribute() throws Exception {
     highlight("<tag att=\"value ' with simple quote\"> </tag>");
     // <tag
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
@@ -113,7 +115,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightMultilineTagWithAttributes() throws Exception {
+  void testHighlightMultilineTagWithAttributes() throws Exception {
     highlight(
       "<tag att1='value1' \n"
         + " att2\n"
@@ -137,7 +139,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightMultilineComments() throws Exception {
+  void testHighlightMultilineComments() throws Exception {
     highlight(
       "<tag><!-- hello \n"
         + " world!! --></tag>");
@@ -145,7 +147,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testWindowsLineEndingInComment() throws Exception {
+  void testWindowsLineEndingInComment() throws Exception {
     highlight(
       "<tag><!-- hello \r\n"
         + " world!! --></tag>");
@@ -153,19 +155,19 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testAttributeValueWithEqual() throws Exception {
+  void testAttributeValueWithEqual() throws Exception {
     highlight("<meta content=\"charset=UTF-8\" />");
     assertHighlighting(14, 29, TypeOfText.STRING);
   }
 
   @Test
-  public void testHighlightCommentsAndOtherTag() throws Exception {
+  void testHighlightCommentsAndOtherTag() throws Exception {
     highlight("<!-- comment --><tag/>");
     assertHighlighting(0, 16, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
-  public void testHighlightDoctype() throws Exception {
+  void testHighlightDoctype() throws Exception {
     highlight("<!DOCTYPE foo> <tag/>");
     assertHighlighting(0, 14, TypeOfText.STRUCTURED_COMMENT);
     assertHighlighting(15, 19, TypeOfText.KEYWORD);
@@ -173,14 +175,14 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testCDATA() throws Exception {
+  void testCDATA() throws Exception {
     highlight("<tag><![CDATA[foo]]></tag>");
     assertHighlighting(5, 14, TypeOfText.KEYWORD);
     assertHighlighting(17, 20, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testCDATAMultiline() throws Exception {
+  void testCDATAMultiline() throws Exception {
     highlight(
       "<tag><![CDATA[foo\n"
         + "bar\n"
@@ -190,7 +192,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testBigCDATA() throws Exception {
+  void testBigCDATA() throws Exception {
     StringBuilder sb = new StringBuilder();
     int length = 100000;
     for (int i = 0; i < length; i++) {
@@ -204,7 +206,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightTag() throws Exception {
+  void testHighlightTag() throws Exception {
     highlight("<tr></tr>");
     // <tr
     assertHighlighting(0, 3, TypeOfText.KEYWORD);
@@ -215,7 +217,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testEmptyElement() throws Exception {
+  void testEmptyElement() throws Exception {
     highlight("<br/>");
     // <br
     assertHighlighting(0, 3, TypeOfText.KEYWORD);
@@ -224,7 +226,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testSpacesInside() throws Exception {
+  void testSpacesInside() throws Exception {
     highlight("<tag > </tag >");
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     assertHighlighting(4, 6, TypeOfText.KEYWORD);
@@ -233,14 +235,14 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testSpacesInsideSelfClosing() throws Exception {
+  void testSpacesInsideSelfClosing() throws Exception {
     highlight("<tag />");
     assertHighlighting(0, 4, TypeOfText.KEYWORD);
     assertHighlighting(4, 7, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testHighlightTagWithNamespace() throws Exception {
+  void testHighlightTagWithNamespace() throws Exception {
     highlight(
       "<tag xmlns:x='url'>\n"
         + "<x:table>  </x:table></tag>");
@@ -251,7 +253,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testHighlightingTagWithNameSpaceMultipleLine() throws Exception {
+  void testHighlightingTagWithNameSpaceMultipleLine() throws Exception {
     highlight(
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
@@ -269,7 +271,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testXMLHeader() throws Exception {
+  void testXMLHeader() throws Exception {
     highlight("<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
     // <?xml
     assertHighlighting(0, 5, TypeOfText.KEYWORD);
@@ -287,7 +289,7 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testCharBeforeProlog() throws Exception {
+  void testCharBeforeProlog() throws Exception {
     highlightFromFile("char_before_prolog.xml",
       "\n"
         + "\n"
@@ -309,28 +311,28 @@ public class XmlHighlightingTest {
   }
 
   @Test
-  public void testBOM() throws Exception {
+  void testBOM() throws Exception {
     highlightFromFile("bom.xml");
     // <beans
     assertHighlighting(1, 0, 1, 6, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testBOMWithProlog() throws Exception {
+  void testBOMWithProlog() throws Exception {
     highlightFromFile("bomWithProlog.xml");
     // <?xml
     assertHighlighting(1, 0, 1, 5, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void testBOMWithCharBeforeProlog() throws Exception {
+  void testBOMWithCharBeforeProlog() throws Exception {
     highlightFromFile("bomCharBeforeProlog.xml");
     // <?xml
     assertHighlighting(2, 0, 2, 5, TypeOfText.KEYWORD);
   }
 
   @Test
-  public void should_parse_file_with_its_own_encoding() throws Exception {
+  void should_parse_file_with_its_own_encoding() throws Exception {
     Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 

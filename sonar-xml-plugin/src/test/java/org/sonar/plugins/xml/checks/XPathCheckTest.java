@@ -20,36 +20,40 @@
 package org.sonar.plugins.xml.checks;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class XPathCheckTest {
+@EnableRuleMigrationSupport
+class XPathCheckTest {
 
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
-  public void test_nodes() throws Exception {
+  void test_nodes() {
     SonarXmlCheckVerifier.verifyIssues("simple.xml", getCheck("//b"));
   }
 
   @Test
-  public void test_file() throws Exception {
+  void test_file() {
     SonarXmlCheckVerifier.verifyIssueOnFile("simple.xml", getCheck("boolean(a)"), "XPath issue message");
     SonarXmlCheckVerifier.verifyNoIssue("simple.xml", getCheck("not(boolean(a))"));
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void test_invalid_xpath() throws Exception {
-    SonarXmlCheckVerifier.verifyNoIssue("simple.xml", getCheck("boolean(a"));
+  @Test
+  void test_invalid_xpath() {
+    XPathCheck check = getCheck("boolean(a");
+    assertThrows(IllegalStateException.class, () -> SonarXmlCheckVerifier.verifyNoIssue("simple.xml", check));
   }
 
   @Test
-  public void test_file_pattern() throws Exception {
+  void test_file_pattern() {
     XPathCheck check = new XPathCheck();
     check.setExpression("//b");
     check.setMessage("XPath issue message");
@@ -59,7 +63,7 @@ public class XPathCheckTest {
   }
 
   @Test
-  public void test_without_message() throws Exception {
+  void test_without_message() {
     XPathCheck check = new XPathCheck();
     check.setExpression("//b");
     check.setMessage(null);
@@ -71,17 +75,17 @@ public class XPathCheckTest {
   }
 
   @Test
-  public void test_with_namespaces() throws Exception {
+  void test_with_namespaces() {
     SonarXmlCheckVerifier.verifyIssues("with_namespaces.xml", getCheck("//x:template"));
   }
 
   @Test
-  public void test_with_default_namespace() throws Exception {
+  void test_with_default_namespace() {
     SonarXmlCheckVerifier.verifyIssues("with_default_namespaces.xml", getCheck("//template"));
   }
 
   @Test
-  public void test_failure_without_log() {
+  void test_failure_without_log() {
     XPathCheck check = new XPathCheck();
     check.setExpression("//comment()");
 
