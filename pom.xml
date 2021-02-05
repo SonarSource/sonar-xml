@@ -13,7 +13,8 @@
   <version>2.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>SonarXML</name>
+  <name>SonarSource XML Analyzer</name>
+  <description>Code Analyzer for XML</description>
   <inceptionYear>2010</inceptionYear>
   <organization>
     <name>SonarSource</name>

@@ -11,7 +11,7 @@
   <artifactId>sonar-xml-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>SonarXML :: SonarQube Plugin</name>
+  <name>SonarSource XML Analyzer Plugin</name>
   <!-- Be careful when altering <description> as its value shows up in the SonarQube GUI -->
   <description>Code Analyzer for XML</description>
   <url>http://redirect.sonarsource.com/plugins/xml.html</url>
@@ -89,7 +89,7 @@
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
-          <pluginName>SonarXML</pluginName>
+          <pluginName>XML Code Quality and Security</pluginName>
           <pluginClass>org.sonar.plugins.xml.XmlPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>

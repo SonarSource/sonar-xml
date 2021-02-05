@@ -1,6 +1,6 @@
-# SonarXML [![Build Status](https://travis-ci.org/SonarSource/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
+# Code Quality and Security for XML [![Build Status](https://travis-ci.org/SonarSource/sonar-xml.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-xml)
 
-SonarXML is a code analyzer for XML files.
+This SonarSource project is a code analyzer for XML files.
 
 Project homepage:
 https://redirect.sonarsource.com/plugins/xml.html
