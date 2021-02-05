@@ -1,0 +1,10 @@
+<html>
+  <body>
+    abc	abc<!-- Noncompliant {{Replace all tab characters in this file by sequences of white-spaces.}} -->
+<!--   ^ -->
+    abc	abc	abc	abc	abc	abc	abc	abc	abc	abc	abc
+<!--   ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^< {{tab character(s)}}-->
+    abc	abc	abc	abc	abc	abc	abc	abc	abc	abc	abc
+<!--   ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^<  ^< {{tab character(s)}}-->
+  </body>
+</html>

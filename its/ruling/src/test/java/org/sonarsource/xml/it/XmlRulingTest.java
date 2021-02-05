@@ -59,8 +59,7 @@ public class XmlRulingTest {
 
   @Before
   public void setUp() throws Exception {
-    ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration()
-      .add("IllegalTabCheck", "markAll", "true");
+    ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration();
 
     // generate a profile called "rules"
     File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), LANGUAGE, LANGUAGE, rulesConfiguration, Collections.emptySet());

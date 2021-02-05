@@ -25,40 +25,27 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 public class TabCharacterCheckTest {
 
   @Test
-  public void should_have_only_one_issue_without_secondaries() throws Exception {
-    TabCharacterCheck check = new TabCharacterCheck();
-
-    SonarXmlCheckVerifier.verifyIssueOnFile(
-      "tabsEverywhere.xml",
-      check,
-      "Replace all tab characters in this file by sequences of white-spaces.");
-
-    SonarXmlCheckVerifier.verifyIssueOnFile(
-      "tabsSinglePlace.xml",
-      check,
-      "Replace all tab characters in this file by sequences of white-spaces.");
+  public void single_place() throws Exception {
+    SonarXmlCheckVerifier.verifyIssues("tabsSinglePlace.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void should_have_only_one_issue_with_secondaries() throws Exception {
-    TabCharacterCheck check = new TabCharacterCheck();
-    check.setMarkAll(true);
-
-    SonarXmlCheckVerifier.verifyIssueOnFile(
-      "tabsEverywhere.xml",
-      check,
-      "Replace all tab characters in this file by sequences of white-spaces.",
-      2, 3, 4);
-
-    SonarXmlCheckVerifier.verifyIssueOnFile(
-      "tabsSinglePlace.xml",
-      check,
-      "Replace all tab characters in this file by sequences of white-spaces.",
-      4);
+  public void tabs_on_three_lines() throws Exception {
+    SonarXmlCheckVerifier.verifyIssues("tabsOnThreeLines.xml", new TabCharacterCheck());
   }
 
   @Test
-  public void should_have_only_no_issue() throws Exception {
+  public void tabs_everywhere() throws Exception {
+    SonarXmlCheckVerifier.verifyIssues("tabsEverywhere.xml", new TabCharacterCheck());
+  }
+
+  @Test
+  public void tabs_max_reported_without_extra() throws Exception {
+    SonarXmlCheckVerifier.verifyIssues("tabsMaxReportedWithoutExtra.xml", new TabCharacterCheck());
+  }
+
+  @Test
+  public void no_tabs() throws Exception {
     SonarXmlCheckVerifier.verifyNoIssue("noTabs.xml", new TabCharacterCheck());
   }
 

@@ -5,17 +5,6 @@
   <rules>
     <rule>
       <repositoryKey>xml</repositoryKey>
-      <key>IllegalTabCheck</key>
-      <priority>MINOR</priority>
-      <parameters>
-        <parameter>
-          <key>markAll</key>
-          <value>false</value>
-        </parameter>
-      </parameters>
-    </rule>
-    <rule>
-      <repositoryKey>xml</repositoryKey>
       <key>S1120</key>
       <priority>MINOR</priority>
       <parameters>

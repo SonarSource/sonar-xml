@@ -183,7 +183,7 @@
           </params>
         </active-rule>
         <active-rule>
-          <key><![CDATA[IllegalTabCheck]]></key>
+          <key><![CDATA[S105]]></key>
           <plugin><![CDATA[Web]]></plugin>
           <level><![CDATA[MINOR]]></level>
         </active-rule>
