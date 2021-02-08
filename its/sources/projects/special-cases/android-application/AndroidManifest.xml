@@ -320,4 +320,7 @@
   <uses-sdk android:minSdkVersion="4">
   </uses-sdk>
 
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.ACCOUNT_MANAGER" />
+
 </manifest>

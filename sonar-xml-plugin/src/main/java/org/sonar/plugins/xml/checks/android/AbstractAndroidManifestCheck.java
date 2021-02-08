@@ -19,22 +19,24 @@
  */
 package org.sonar.plugins.xml.checks.android;
 
-import javax.xml.xpath.XPathExpression;
-import org.sonar.check.Rule;
-import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-@Rule(key = "S4507")
-public class DebugFeatureCheck extends AbstractAndroidManifestCheck {
+public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
 
-  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/application/@n1:debuggable[.='true']")
-    .withNamespace("n1", "http://schemas.android.com/apk/res/android")
-    .build();
+  private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
 
   @Override
-  protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument()).forEach(node -> reportIssue(node, MESSAGE));
+  public final void scanFile(XmlFile file) {
+    if (isAndroidManifestFile(file)) {
+      scanAndroidManifest(file);
+    }
+  }
+
+  protected abstract void scanAndroidManifest(XmlFile file);
+
+  private static boolean isAndroidManifestFile(XmlFile file) {
+    return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
   }
 
 }

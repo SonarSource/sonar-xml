@@ -19,22 +19,20 @@
  */
 package org.sonar.plugins.xml.checks.android;
 
-import javax.xml.xpath.XPathExpression;
-import org.sonar.check.Rule;
-import org.sonar.plugins.xml.XPathBuilder;
-import org.sonarsource.analyzer.commons.xml.XmlFile;
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-@Rule(key = "S4507")
-public class DebugFeatureCheck extends AbstractAndroidManifestCheck {
+class AndroidPermissionsCheckTest {
 
-  private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/application/@n1:debuggable[.='true']")
-    .withNamespace("n1", "http://schemas.android.com/apk/res/android")
-    .build();
+  @Test
+  void manifest() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
 
-  @Override
-  protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument()).forEach(node -> reportIssue(node, MESSAGE));
+  @Test
+  void not_manifest() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("AnyFileName.xml").toString(), new AndroidPermissionsCheck());
   }
 
 }
