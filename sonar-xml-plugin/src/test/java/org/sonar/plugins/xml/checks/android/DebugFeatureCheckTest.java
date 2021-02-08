@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.checks.android;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.plugins.xml.checks.android.DebugFeatureCheck;
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class CheckList {
-
-  private CheckList() {
+class DebugFeatureCheckTest {
+  @Test
+  void not_debug() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("not-debug", "AndroidManifest.xml").toString(), new DebugFeatureCheck());
   }
 
-  public static List<Class<?>> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      DebugFeatureCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      FixmeCommentCheck.class,
-      CommentedOutCodeCheck.class
-    );
+  @Test
+  void debug() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("debug", "AndroidManifest.xml").toString(), new DebugFeatureCheck());
   }
 
+  @Test
+  void not_manifest() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("not-manifest", "AnyFileName.xml").toString(), new DebugFeatureCheck());
+  }
 }

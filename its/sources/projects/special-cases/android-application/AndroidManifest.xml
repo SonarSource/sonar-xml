@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="org.cocos2d"
+      android:versionCode="5"
+      android:versionName="1.0.3">
+
+  <application
+    android:debuggable="true"
+    android:icon="@drawable/icon"
+    android:label="@string/app_name">
+    <activity
+      android:name=".Cocos2D"
+      android:label="@string/app_name"
+      android:screenOrientation="portrait">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+
+    <!-- ************************************* -->
+    <!-- APPLICATION PACKAGE SAMPLES -->
+    <!-- ************************************* -->
+
+
+    <!-- Activity Samples -->
+    <!-- android:configChanges="orientation" android:screenOrientation="landscape" -->
+
+    <activity
+    android:name=".tests.ActionManagerTest"
+    android:debuggable="true"
+    android:label="@string/activity_actionmanagertest"
+    android:launchMode="singleInstance"
+    android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.ActionsTest"
+      android:debuggable="true"
+      android:label="@string/activity_actionstest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.AtlasTest"
+      android:debuggable="true"
+      android:label="@string/activity_atlastest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.Box2dTest"
+      android:debuggable="true"
+      android:label="@string/activity_box2dtest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.ClickAndMoveTest"
+      android:debuggable="true"
+      android:label="@string/activity_clickandmovetest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="portrait">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.CocosNodeTest"
+      android:debuggable="true"
+      android:label="@string/activity_cocosnodetest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.DrawPrimitivesTest"
+      android:debuggable="true"
+      android:label="@string/activity_drawprimitivestest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.EaseActionsTest"
+      android:debuggable="true"
+      android:label="@string/activity_easeactionstest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.EffectsAdvancedTest"
+      android:debuggable="true"
+      android:label="@string/activity_effectsadvancedtest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.EffectsTest"
+      android:debuggable="true"
+      android:label="@string/activity_effectstest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.MenuTest"
+      android:debuggable="true"
+      android:label="@string/activity_menutest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.ParticleTest"
+      android:debuggable="true"
+      android:label="@string/activity_actionstest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.SchedulerTest"
+      android:debuggable="true"
+      android:label="@string/activity_schedulertest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.TileMapTest"
+      android:debuggable="true"
+      android:label="@string/activity_tilemaptest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.MotionStreakTest"
+      android:debuggable="true"
+      android:label="@string/activity_motionstreaktest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.ParallaxTest"
+      android:debuggable="true"
+      android:label="@string/activity_parallaxtest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.SceneTest"
+      android:debuggable="true"
+      android:label="@string/activity_scenetest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.SoundEngineTest"
+      android:debuggable="true"
+      android:label="@string/activity_soundenginetest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.SpritesTest"
+      android:debuggable="true"
+      android:label="@string/activity_spritestest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.TransitionsTest"
+      android:debuggable="true"
+      android:label="@string/activity_transitionstest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.RotateWorldTest"
+      android:debuggable="true"
+      android:label="@string/activity_rotateworldtest"
+      android:launchMode="singleInstance">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.PhysicsEditorTest"
+      android:debuggable="true"
+      android:label="@string/activity_petest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tests.DebugDrawTest"
+      android:debuggable="true"
+      android:label="@string/activity_debugdrawtest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+
+    <activity
+      android:name=".tests.LevelHelperTest"
+      android:debuggable="true"
+      android:label="@string/activity_leveHelpertest"
+      android:launchMode="singleInstance"
+      android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+
+    <activity
+       android:name=".tests.CocosBuilder"
+       android:debuggable="true"
+       android:label="@string/activity_leveHelpertest"
+       android:launchMode="singleInstance"
+       android:screenOrientation="landscape">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.TEST"/>
+      </intent-filter>
+    </activity>
+  </application>
+
+  <uses-sdk android:minSdkVersion="4">
+  </uses-sdk>
+
+</manifest>
