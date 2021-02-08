@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.checks.web;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.plugins.xml.checks.android.DebugFeatureCheck;
-import org.sonar.plugins.xml.checks.web.BasicAuthenticationCheck;
-import org.sonar.plugins.xml.checks.web.HttpOnlyOnCookiesCheck;
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public class CheckList {
+class BasicAuthenticationCheckTest {
 
-  private CheckList() {
+  @Test
+  void withoutHTTPS() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("without-https", "web.xml").toString(), new BasicAuthenticationCheck());
   }
 
-  public static List<Class<?>> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      DebugFeatureCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      HttpOnlyOnCookiesCheck.class,
-      BasicAuthenticationCheck.class,
-      FixmeCommentCheck.class,
-      CommentedOutCodeCheck.class
-    );
+  @Test
+  void withHTTPS() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("with-https", "web.xml").toString(), new BasicAuthenticationCheck());
+  }
+
+  @Test
+  void no_issue_if_not_web_xml() {
+    SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new BasicAuthenticationCheck());
   }
 
 }

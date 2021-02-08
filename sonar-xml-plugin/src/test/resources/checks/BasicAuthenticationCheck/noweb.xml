@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<whatever>
+  <some-parent>
+    <login-config>
+      <auth-method>BASIC</auth-method> <!-- Compliant not in web-xml -->
+    </login-config>
+  </some-parent>
+</whatever>

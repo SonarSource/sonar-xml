@@ -24,11 +24,10 @@ import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3330")
-public class HttpOnlyOnCookiesCheck extends SimpleXPathBasedCheck {
+public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
 
   private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
     .forExpression("/n:web-app/n:session-config/n:cookie-config")
@@ -40,17 +39,7 @@ public class HttpOnlyOnCookiesCheck extends SimpleXPathBasedCheck {
     .build();
 
   @Override
-  public void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
-  }
-
-  private static boolean isWebXmlFile(XmlFile file) {
-    return "web.xml".equalsIgnoreCase(file.getInputFile().filename());
-  }
-
-  private void scanWebXml(XmlFile file) {
+  void scanWebXml(XmlFile file) {
     evaluateAsList(sessionConfigCookieConfigExpression, file.getDocument()).forEach(this::checkHttpOnly);
   }
 
