@@ -1216,6 +1216,15 @@
 24,
 60,
 ],
+'project:special-cases/web/pwm/web.xml':[
+31,
+210,
+],
+'project:special-cases/web/uPortal/web.xml':[
+36,
+42,
+487,
+],
 'project:spring-framework/spring-aop/src/test/resources/org/springframework/aop/config/AopNamespaceHandlerEventTests-context.xml':[
 5,
 ],
