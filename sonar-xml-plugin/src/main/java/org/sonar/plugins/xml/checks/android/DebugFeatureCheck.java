@@ -21,6 +21,7 @@ package org.sonar.plugins.xml.checks.android;
 
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
@@ -29,11 +30,9 @@ public class DebugFeatureCheck extends SimpleXPathBasedCheck {
 
   private static final String ANDROID_MANIFEST = "AndroidManifest.xml";
   private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private final XPathExpression xPathExpression = getXPathExpression("/manifest/application/@*[" +
-    "local-name()='debuggable' and " +
-    "namespace-uri()='http://schemas.android.com/apk/res/android' and " +
-    ".='true'" +
-    "]");
+  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/application/@n1:debuggable[.='true']")
+    .withNamespace("n1", "http://schemas.android.com/apk/res/android")
+    .build();
 
   @Override
   public final void scanFile(XmlFile file) {

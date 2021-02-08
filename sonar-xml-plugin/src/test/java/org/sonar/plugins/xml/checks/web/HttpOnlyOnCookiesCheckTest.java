@@ -32,7 +32,17 @@ class HttpOnlyOnCookiesCheckTest {
 
   @Test
   void without_namespace() {
-    SonarXmlCheckVerifier.verifyIssues(Paths.get("without-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("without-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void without_prefixed_namespace() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("with-prefixed-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void without_schema() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("without-schema", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
   }
 
   @Test
