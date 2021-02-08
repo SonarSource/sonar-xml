@@ -1,0 +1,37 @@
+<p>Permissions that can have a large impact on user privacy, tagged as <a
+href="https://developer.android.com/reference/android/Manifest.permission">dangerous by Android</a>, should be requested only if they are really
+necessary to implement critical features of an application.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> It is not sure that <code>dangerous</code> permissions requested by the application are <a
+  href="https://developer.android.com/training/permissions/usage-notes#avoid_requesting_unnecessary_permissions">really necessary</a>. </li>
+  <li> The users are not <a href="https://developer.android.com/training/permissions/usage-notes#be_transparent">clearly informed</a> why and when
+  dangerous permissions are requested by the application. </li>
+</ul>
+<p>You are at risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> It is recommended to carefully review all the permissions and to use <code>dangerous</code> ones only if they are really necessary. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<p>In AndroidManifest.xml:</p>
+<pre>
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt; &lt;!-- Sensitive --&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" /&gt; &lt;!-- Sensitive --&gt;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt; &lt;!-- Compliant --&gt;
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M1-Improper_Platform_Usage">OWASP Mobile Top 10 2016 Category M1</a> - Improper
+  Platform Usage </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/250.html">CWE-250</a> - Execution with Unnecessary Privileges </li>
+  <li> <a href="https://developer.android.com/training/permissions/usage-notes">developer.android.com</a> - App permissions best practices </li>
+  <li> <a href="https://play.google.com/about/privacy-security-deception/permissions/">Google Play</a> - Privacy, Security, and Deception -
+  Permissions </li>
+</ul>
+<p> </p>
+<p> </p>
+
