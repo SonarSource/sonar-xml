@@ -41,7 +41,7 @@ class XmlSonarWayProfileTest {
 
     assertThat(profile.language()).isEqualTo(Xml.KEY);
     assertThat(profile.name()).isEqualTo(Xml.SONAR_WAY_PROFILE_NAME);
-    assertThat(profile.rules().size()).isEqualTo(4);
+    assertThat(profile.rules().size()).isEqualTo(5);
     assertThat(profile.rules().size()).isLessThan(CheckList.getCheckClasses().size());
     assertThat(validation.hasErrors()).isFalse();
   }
