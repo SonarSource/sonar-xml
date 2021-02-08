@@ -3,27 +3,18 @@
 
     <session-config>
       <cookie-config>
-        <http-only /> <!-- Noncompliant {{<http-only> tag should be set to true.}} -->
-   <!-- ^^^^^^^^^^^^^ -->
+        <http-only>false</http-only>  <!-- Compliant not in http://xmlns.jcp.org/xml/ns/javaee namespace -->
       </cookie-config>
     </session-config>
 
     <session-config>
       <cookie-config>
-        <http-only>maybe</http-only> <!-- Noncompliant {{<http-only> tag should be set to true.}} -->
-   <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+        <http-only>maybe</http-only>  <!-- Compliant not in http://xmlns.jcp.org/xml/ns/javaee namespace -->
       </cookie-config>
     </session-config>
 
     <session-config>
-      <cookie-config /> <!-- Noncompliant {{<http-only> tag is missing and should be set to true.}} -->
- <!-- ^^^^^^^^^^^^^^^^^ -->
-    </session-config>
-
-    <session-config>
-      <cookie-config>
-        <http-only>true</http-only> <!-- Compliant -->
-      </cookie-config>
+      <cookie-config />  <!-- Compliant not in http://xmlns.jcp.org/xml/ns/javaee namespace -->
     </session-config>
 
 </web-app>

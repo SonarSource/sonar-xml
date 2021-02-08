@@ -22,6 +22,7 @@ package org.sonar.plugins.xml.checks.web;
 import java.util.List;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
@@ -29,8 +30,14 @@ import org.w3c.dom.Node;
 @Rule(key = "S3330")
 public class HttpOnlyOnCookiesCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression sessionConfigCookieConfigExpression = getXPathExpression("/web-app/session-config/cookie-config");
-  private XPathExpression httpOnlyExpression = getXPathExpression("http-only");
+  private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
+    .forExpression("/n:web-app/n:session-config/n:cookie-config")
+    .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
+    .build();
+
+  private XPathExpression httpOnlyExpression = XPathBuilder.forExpression("n:http-only")
+    .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
+    .build();
 
   @Override
   public void scanFile(XmlFile file) {
@@ -44,7 +51,7 @@ public class HttpOnlyOnCookiesCheck extends SimpleXPathBasedCheck {
   }
 
   private void scanWebXml(XmlFile file) {
-    evaluateAsList(sessionConfigCookieConfigExpression, file.getNamespaceUnawareDocument()).forEach(this::checkHttpOnly);
+    evaluateAsList(sessionConfigCookieConfigExpression, file.getDocument()).forEach(this::checkHttpOnly);
   }
 
   private void checkHttpOnly(Node cookieConfig) {
