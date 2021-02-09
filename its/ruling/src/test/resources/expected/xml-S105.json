@@ -434,6 +434,9 @@
 'project:special-cases/end-of-line/stateless_windows_crlf.xml':[
 3,
 ],
+'project:special-cases/web/uPortal/web.xml':[
+341,
+],
 'project:spring-framework/spring-aop/src/test/resources/log4j2-test.xml':[
 3,
 ],
