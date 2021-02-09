@@ -4,14 +4,17 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-  <session-config>
-    <cookie-config>
-      <http-only>false</http-only> <!-- Noncompliant S3330 -->
-    </cookie-config>
-  </session-config>
+  <login-config>
+      <auth-method>BASIC</auth-method> <!-- Noncompliant {{Use a more secure method than basic authentication.}} -->
+<!--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  </login-config>
 
   <login-config>
-    <auth-method>BASIC</auth-method> <!-- Noncompliant S2647 -->
+    <auth-method>CLIENT-CERT</auth-method> <!-- Compliant -->
+  </login-config>
+
+   <login-config>
+    <auth-method />
   </login-config>
 
 </web-app>

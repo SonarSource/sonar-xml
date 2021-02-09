@@ -17,35 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks;
+package org.sonar.plugins.xml.checks.web;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.plugins.xml.checks.android.DebugFeatureCheck;
-import org.sonar.plugins.xml.checks.web.BasicAuthenticationCheck;
-import org.sonar.plugins.xml.checks.web.HttpOnlyOnCookiesCheck;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public class CheckList {
+public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
 
-  private CheckList() {
+  private static final String WEB_XML = "web.xml";
+
+  @Override
+  public final void scanFile(XmlFile file) {
+    if (isWebXmlFile(file)) {
+      scanWebXml(file);
+    }
   }
 
-  public static List<Class<?>> getCheckClasses() {
-    return Arrays.asList(
-      CharBeforePrologCheck.class,
-      DebugFeatureCheck.class,
-      TabCharacterCheck.class,
-      ParsingErrorCheck.class,
-      NewlineCheck.class,
-      IndentationCheck.class,
-      XPathCheck.class,
-      LineLengthCheck.class,
-      TodoCommentCheck.class,
-      HttpOnlyOnCookiesCheck.class,
-      BasicAuthenticationCheck.class,
-      FixmeCommentCheck.class,
-      CommentedOutCodeCheck.class
-    );
-  }
+  abstract void scanWebXml(XmlFile file);
 
+  private static boolean isWebXmlFile(XmlFile file) {
+    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  }
 }
