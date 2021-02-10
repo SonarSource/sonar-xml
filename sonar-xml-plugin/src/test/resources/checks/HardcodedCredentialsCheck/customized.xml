@@ -1,0 +1,18 @@
+<myXml>
+  <whatever>
+    <noncompliant>
+      <banana>admin1234</banana> <!-- Noncompliant {{"banana" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <apple value="admin1234" /> <!-- Noncompliant {{"apple" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <myTag apple="admin1234"> </myTag> <!-- Noncompliant {{"apple" detected here, make sure this is not a hard-coded credential.}} -->
+        <!-- ^^^^^^^^^^^^^^^^^ -->
+    </noncompliant>
+
+    <compliant>
+      <password>admin1234</password>
+      <passwd value="admin1234" />
+      <myTag pwd="admin1234"> </myTag>
+    </compliant>
+  </whatever>
+</myXml>

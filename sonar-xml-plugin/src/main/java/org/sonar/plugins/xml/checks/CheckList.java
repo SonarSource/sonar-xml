@@ -21,6 +21,7 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
@@ -41,6 +42,7 @@ public class CheckList {
       CrossOriginResourceSharingCheck.class,
       DebugFeatureCheck.class,
       TabCharacterCheck.class,
+      HardcodedCredentialsCheck.class,
       ParsingErrorCheck.class,
       NewlineCheck.class,
       IndentationCheck.class,

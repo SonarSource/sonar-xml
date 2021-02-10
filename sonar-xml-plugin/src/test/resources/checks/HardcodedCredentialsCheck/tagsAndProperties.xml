@@ -1,0 +1,26 @@
+<myXml>
+  <whatever>
+    <noncompliant>
+      <password>admin1234</password> <!-- Noncompliant {{"password" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <passwd value="admin1234" /> <!-- Noncompliant {{"passwd" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <myTag pwd="admin1234"> </myTag> <!-- Noncompliant {{"pwd" detected here, make sure this is not a hard-coded credential.}} -->
+        <!-- ^^^^^^^^^^^^^^^ -->
+    </noncompliant>
+
+    <compliant>
+      <password />
+      <password></password>
+      <password>    </password>
+      <password>${value}</password>
+      <password>#{value}</password>
+      <password>{{value}}</password>
+      <password><nonText /></password>
+      <password>
+        <child1></child1>
+        <child2></child2>
+      </password>
+    </compliant>
+  </whatever>
+</myXml>
