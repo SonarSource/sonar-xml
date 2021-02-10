@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.web;
+package org.sonar.plugins.xml.checks.security.android;
 
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
 
-  private static final String WEB_XML = "web.xml";
+  private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
 
   @Override
   public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
+    if (isAndroidManifestFile(file)) {
+      scanAndroidManifest(file);
     }
   }
 
-  abstract void scanWebXml(XmlFile file);
+  protected abstract void scanAndroidManifest(XmlFile file);
 
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  private static boolean isAndroidManifestFile(XmlFile file) {
+    return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
   }
+
 }

@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.android;
+package org.sonar.plugins.xml.checks.security.web;
 
-import java.nio.file.Paths;
-import org.junit.jupiter.api.Test;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
+import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-class DebugFeatureCheckTest {
-  @Test
-  void not_debug() {
-    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("not-debug", "AndroidManifest.xml").toString(), new DebugFeatureCheck());
+public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+
+  private static final String WEB_XML = "web.xml";
+
+  @Override
+  public final void scanFile(XmlFile file) {
+    if (isWebXmlFile(file)) {
+      scanWebXml(file);
+    }
   }
 
-  @Test
-  void debug() {
-    SonarXmlCheckVerifier.verifyIssues(Paths.get("debug", "AndroidManifest.xml").toString(), new DebugFeatureCheck());
-  }
+  abstract void scanWebXml(XmlFile file);
 
-  @Test
-  void not_manifest() {
-    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("not-manifest", "AnyFileName.xml").toString(), new DebugFeatureCheck());
+  private static boolean isWebXmlFile(XmlFile file) {
+    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
   }
 }
