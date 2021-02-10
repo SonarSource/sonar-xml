@@ -17,5 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.plugins.xml.checks.web;
+package org.sonar.plugins.xml.checks.security.android;
+
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
+
+class AndroidPermissionsCheckTest {
+
+  @Test
+  void manifest() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void not_manifest() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("AnyFileName.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+}

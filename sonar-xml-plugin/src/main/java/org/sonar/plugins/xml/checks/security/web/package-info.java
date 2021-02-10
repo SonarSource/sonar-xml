@@ -17,26 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.android;
-
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
-
-public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
-
-  private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
-
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isAndroidManifestFile(file)) {
-      scanAndroidManifest(file);
-    }
-  }
-
-  protected abstract void scanAndroidManifest(XmlFile file);
-
-  private static boolean isAndroidManifestFile(XmlFile file) {
-    return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.xml.checks.security.web;

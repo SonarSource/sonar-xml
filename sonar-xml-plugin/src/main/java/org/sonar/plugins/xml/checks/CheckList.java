@@ -21,10 +21,10 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.plugins.xml.checks.android.AndroidPermissionsCheck;
-import org.sonar.plugins.xml.checks.android.DebugFeatureCheck;
-import org.sonar.plugins.xml.checks.web.BasicAuthenticationCheck;
-import org.sonar.plugins.xml.checks.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
+import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
+import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
+import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
 
 public class CheckList {
 

@@ -17,27 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.web;
+package org.sonar.plugins.xml.checks.security.web;
 
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-class BasicAuthenticationCheckTest {
+class HttpOnlyOnCookiesCheckTest {
 
   @Test
-  void withoutHTTPS() {
-    SonarXmlCheckVerifier.verifyIssues(Paths.get("without-https", "web.xml").toString(), new BasicAuthenticationCheck());
+  void with_namespace() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("with-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
   }
 
   @Test
-  void withHTTPS() {
-    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("with-https", "web.xml").toString(), new BasicAuthenticationCheck());
+  void without_namespace() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("without-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void without_prefixed_namespace() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("with-prefixed-namespace", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void without_schema() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("without-schema", "web.xml").toString(), new HttpOnlyOnCookiesCheck());
   }
 
   @Test
   void no_issue_if_not_web_xml() {
-    SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new BasicAuthenticationCheck());
+    SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new HttpOnlyOnCookiesCheck());
   }
 
 }
