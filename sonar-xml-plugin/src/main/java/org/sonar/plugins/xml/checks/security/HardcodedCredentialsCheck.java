@@ -19,14 +19,18 @@
  */
 package org.sonar.plugins.xml.checks.security;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Document;
@@ -104,6 +108,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     Document namespaceUnawareDocument = file.getNamespaceUnawareDocument();
     checkTags(namespaceUnawareDocument);
     checkAttributes(namespaceUnawareDocument);
+    checkSpecialCases(file);
   }
 
   private void checkTags(Document namespaceUnawareDocument) {
@@ -143,8 +148,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         break;
       }
     }
-
   }
+
   private void checkCredential(Node credentialNode,  String candidate) {
     if (isValidCredential(candidate)) {
       return;
@@ -159,6 +164,109 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private static boolean isValidCredential(String candidate) {
     String trimmedCandidate = candidate.trim();
     return trimmedCandidate.isEmpty() || VALID_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
+  }
+
+  private void checkSpecialCases(XmlFile file) {
+    specialCases.forEach(specialCase -> specialCase.accept(file));
+  }
+
+  private final List<SpecialCase> specialCases = Arrays.asList(
+    // FileZilla3
+    new SpecialCase(
+      "/FileZilla3/Servers/Server/Pass"
+        + "|/FileZilla3/RecentServers/Server/Pass",
+      HardcodedCredentialsCheck::getTextValueSafe,
+      false),
+    // Jenkins
+    new SpecialCase(
+      "/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/secretPassword"
+        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/commonConfig/secretPassphrase"
+        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/keyInfo/secretPassphrase",
+      HardcodedCredentialsCheck::getTextValueSafe,
+      false),
+    // SonarQube
+    new SpecialCase(
+      "/SonarQubeAnalysisProperties/Property[@Name='sonar.login']"
+        + "|project/properties/sonar.login",
+      HardcodedCredentialsCheck::getTextValueSafe,
+      false),
+    // Spring Framework
+    new SpecialCase(
+      "/beans/bean/property/list/bean["
+        + "@class='org.springframework.social.facebook.connect.FacebookConnectionFactory'"
+        + " or @class='org.springframework.social.github.connect.GitHubConnectionFactory'"
+        + " or @class='org.springframework.social.google.connect.GoogleConnectionFactory'"
+        + " or @class='org.springframework.social.linkedin.connect.LinkedinConnectionFactory'"
+        + " or @class='org.springframework.social.twitter.connect.TwitterConnectionFactory'"
+        + "]/constructor-arg[2]",
+      node -> getAttributeSafe(node, "value"),
+      false),
+    new SpecialCase(
+      XPathBuilder.forExpression("/b:beans/f:config"
+        + "|/b:beans/gh:config"
+        + "|/b:beans/gg:config"
+        + "|/b:beans/l:config"
+        + "|/b:beans/t:config")
+        .withNamespace("b", "http://www.springframework.org/schema/beans")
+        .withNamespace("f", "http://www.springframework.org/schema/social/facebook")
+        .withNamespace("gh", "http://www.springframework.org/schema/social/github")
+        .withNamespace("gg", "http://www.springframework.org/schema/social/google")
+        .withNamespace("l", "http://www.springframework.org/schema/social/linkedin")
+        .withNamespace("t", "http://www.springframework.org/schema/social/twitter")
+        .build(),
+      node -> getAttributeSafe(node, "app-secret"),
+      true
+      ),
+    // Teiid
+    new SpecialCase(
+      "/security-domain/authentication/login-module/module-option["
+        + "@name='consumer-key' "
+        + "or @name='consumer-secret'"
+        + "or @name='access-key'"
+        + "or @name='access-secret'"
+        + "]",
+      node -> getAttributeSafe(node, "value"),
+      false)
+    );
+
+  private static Optional<Node> getTextValueSafe(Node node) {
+    return Optional.ofNullable(node.getFirstChild());
+  }
+
+  private static Optional<Node> getAttributeSafe(Node node, String attributeName) {
+    return node.hasAttributes() ? Optional.ofNullable(node.getAttributes().getNamedItem(attributeName)) : Optional.empty();
+  }
+
+  private class SpecialCase implements Consumer<XmlFile> {
+    private final XPathExpression xpathExpression;
+    private final Function<Node, Optional<Node>> credentialGetter;
+    private final boolean usesNamespaces;
+    private final boolean reportOnAttribute;
+
+    private SpecialCase(String xPathExpression, Function<Node, Optional<Node>> credentialGetter, boolean reportOnAttribute) {
+      this.xpathExpression = getXPathExpression(xPathExpression);
+      this.usesNamespaces = false;
+      this.credentialGetter = credentialGetter;
+      this.reportOnAttribute = reportOnAttribute;
+    }
+
+    private SpecialCase(XPathExpression xPathExpression, Function<Node, Optional<Node>> credentialGetter, boolean reportOnAttribute) {
+      this.xpathExpression = xPathExpression;
+      this.usesNamespaces = true;
+      this.credentialGetter = credentialGetter;
+      this.reportOnAttribute = reportOnAttribute;
+    }
+
+    @Override
+    public void accept(XmlFile file) {
+      for (Node node : evaluateAsList(xpathExpression, usesNamespaces ? file.getNamespaceAwareDocument() : file.getNamespaceUnawareDocument())) {
+        credentialGetter.apply(node).ifPresent(credentialNode -> {
+          if (!isValidCredential(credentialNode.getNodeValue())) {
+            reportIssue(reportOnAttribute ? credentialNode : node, "Make sure this is not a hard-coded credential.");
+          }
+        });
+      }
+    }
   }
 
 }

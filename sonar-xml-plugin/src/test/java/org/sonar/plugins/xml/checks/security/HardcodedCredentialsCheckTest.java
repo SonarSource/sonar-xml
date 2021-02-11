@@ -57,7 +57,8 @@ class HardcodedCredentialsCheckTest {
     "spring-social-google-beans.xml",
     "spring-social-linkedin-beans.xml",
     "spring-social-twitter-beans.xml",
-    "teiid-standalone.xml"})
+    "teiid-standalone.xml"
+  })
   void special_cases(String file) {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("special-cases", file).toString(), CHECK);
   }
