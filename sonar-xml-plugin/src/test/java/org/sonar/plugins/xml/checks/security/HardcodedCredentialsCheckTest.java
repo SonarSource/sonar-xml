@@ -19,14 +19,19 @@
  */
 package org.sonar.plugins.xml.checks.security;
 
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class HardcodedCredentialsCheckTest {
 
+  private static final HardcodedCredentialsCheck CHECK = new HardcodedCredentialsCheck();
+
   @Test
   void tags_and_properties() {
-    SonarXmlCheckVerifier.verifyIssues("tagsAndProperties.xml", new HardcodedCredentialsCheck());
+    SonarXmlCheckVerifier.verifyIssues("tagsAndProperties.xml", CHECK);
   }
 
   @Test
@@ -36,4 +41,24 @@ class HardcodedCredentialsCheckTest {
     SonarXmlCheckVerifier.verifyIssues("customized.xml", check);
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "dbeaver-data-sources.xml",
+    "filezilla-filezilla3-config.xml",
+    "filezilla-recentservers.xml",
+    "idea-WebServers.xml",
+    "jenkins-BapSshHostConfiguration.xml",
+    "jenkins-credentials.xml",
+    "sonarqube-analysis-properties.xml",
+    "sonarqube-pom.xml",
+    "spring-social-all.xml",
+    "spring-social-facebook-beans.xml",
+    "spring-social-github-beans.xml",
+    "spring-social-google-beans.xml",
+    "spring-social-linkedin-beans.xml",
+    "spring-social-twitter-beans.xml",
+    "teiid-standalone.xml"})
+  void special_cases(String file) {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("special-cases", file).toString(), CHECK);
+  }
 }

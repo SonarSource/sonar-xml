@@ -1,0 +1,11 @@
+<security-domain name="oauth-security">
+    <authentication>
+        <login-module code="org.teiid.jboss.webservices.OAuth10LoginModule" flag="required" module="org.jboss.teiid.security">  
+            <module-option name="consumer-key" value="muxw4rlZ8GJnvEcB3zLZxIBPo"/> <!-- Noncompliant -->
+       <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+            <module-option name="consumer-secret" value="oThgMitGa0zACpDUjPWFMM7RjxjHHAcolxkaH3PmdCDrfwMmgO"/> <!-- Noncompliant -->
+            <module-option name="access-key" value="15451665-yB69O3Rww8V4C2Y5ArnJHqYpQHrhFAbISoEBxGTYW"/> <!-- Noncompliant -->
+            <module-option name="access-secret" value="EmIpXOeTG9bikaRUCiX26XTPzvt8BH00GPKhtUuHlAhEH"/> <!-- Noncompliant -->
+        </login-module>
+    </authentication>
+</security-domain>
