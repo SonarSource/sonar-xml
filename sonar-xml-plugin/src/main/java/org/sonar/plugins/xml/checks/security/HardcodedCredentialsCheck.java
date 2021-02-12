@@ -20,8 +20,10 @@
 package org.sonar.plugins.xml.checks.security;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -33,7 +35,6 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,8 +42,11 @@ import org.w3c.dom.NodeList;
 @Rule(key = "S2068")
 public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
-  private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
+  private static final String VALUE = "value";
+  private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
   private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{.*", Pattern.DOTALL);
+
+  private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
 
   @RuleProperty(
     key = "credentialWords",
@@ -53,110 +57,71 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   /**
    * Can not be pre-computed as it depends of the parameter
    */
-  private XPathExpression anyCredentialAsTag = null;
-  private XPathExpression getAnyCredentialAsTag() {
-    if (anyCredentialAsTag == null) {
-      anyCredentialAsTag = getXPathExpression(
-        credentialWordsStream()
-        .map(keyword -> "//" + keyword)
-        .collect(Collectors.joining("|")));
-    }
-    return anyCredentialAsTag;
-  }
+  private Set<String> cleanedCredentialWords = null;
 
-  /**
-   * Can not be pre-computed as it depends of the parameter
-   */
-  private XPathExpression anyCredentialAsAttribute = null;
-  private XPathExpression getAnyCredentialAsAttribute() {
-    if (anyCredentialAsAttribute == null) {
-      anyCredentialAsAttribute = getXPathExpression(
-        credentialWordsStream()
-        .map(keyword -> "//*[@" + keyword + "]")
-        .collect(Collectors.joining("|")));
-    }
-    return anyCredentialAsAttribute;
-  }
-
-  /**
-   * Can not be pre-computed as it depends of the parameter
-   */
-  private List<Pattern> credentialPatterns = null;
-  private List<Pattern> getCredentialPatterns() {
-    if (credentialPatterns == null) {
-      credentialPatterns = credentialWordsStream().map(Pattern::compile).collect(Collectors.toList());
-    }
-    return credentialPatterns;
-  }
-
-  /**
-   * Can not be pre-computed as it depends of the parameter
-   */
-  private String[] cleanedCredentialWords = null;
-  private Stream<String> credentialWordsStream() {
+  private Set<String> credentialWordsSet() {
     if (cleanedCredentialWords == null) {
-      cleanedCredentialWords = Stream.of(credentialWords.split(","))
-        .map(String::trim)
-        .collect(Collectors.toList())
-        .toArray(new String[0]);
+      cleanedCredentialWords = Stream.of(credentialWords.split(",")).map(String::trim).collect(Collectors.toSet());
     }
-    return Stream.of(cleanedCredentialWords);
+    return cleanedCredentialWords;
   }
 
   @Override
   public void scanFile(XmlFile file) {
-    Document namespaceUnawareDocument = file.getNamespaceUnawareDocument();
-    checkTags(namespaceUnawareDocument);
-    checkAttributes(namespaceUnawareDocument);
+    checkTagsAndAttributes(file.getNamespaceUnawareDocument());
     checkSpecialCases(file);
   }
 
-  private void checkTags(Document namespaceUnawareDocument) {
-    for (Node tag : evaluateAsList(getAnyCredentialAsTag(), namespaceUnawareDocument)) {
-      NodeList childNodes = tag.getChildNodes();
-      if (childNodes.getLength() == 0) {
-        checkAttribute(tag, "value", false);
-      } else {
-        singleChildTextNode(tag).ifPresent(candidate -> checkCredential(tag, candidate));
-      }
+  private void checkTagsAndAttributes(Node node) {
+    checkNode(node);
+    checkAttributes(node, credentialWordsSet(), true);
+
+    NodeList children = node.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      checkTagsAndAttributes(children.item(i));
     }
   }
 
-  private static Optional<String> singleChildTextNode(Node node) {
+  private void checkNode(Node node) {
     NodeList childNodes = node.getChildNodes();
-    if (childNodes.getLength() == 1) {
-      Node childNode = childNodes.item(0);
-      if (childNode.getNodeType() == Node.TEXT_NODE) {
-        return Optional.of(childNode.getTextContent());
-      }
+    if (childNodes.getLength() == 0) {
+      checkAttributes(node, VALUE_ATTRIBUTE, false);
+      return;
     }
-    return Optional.empty();
+    if (childNodes.getLength() != 1) {
+      return;
+    }
+    Node childNode = childNodes.item(0);
+    if (childNode.getNodeType() != Node.TEXT_NODE) {
+      return;
+    }
+    checkCredential(node, childNode.getTextContent());
   }
 
-  private void checkAttributes(Document namespaceUnawareDocument) {
-    for (Node node : evaluateAsList(getAnyCredentialAsAttribute(), namespaceUnawareDocument)) {
-      credentialWordsStream().forEach(attribute -> checkAttribute(node, attribute, true));
+  private void checkAttributes(Node node, Set<String> credentialWords, boolean reportOnAttribute) {
+    if (!node.hasAttributes()) {
+      return;
     }
-  }
-
-  private void checkAttribute(Node node, String target, boolean reportOnAttribute) {
     NamedNodeMap attributes = node.getAttributes();
     for (int i = 0; i < attributes.getLength(); i++) {
       Node attribute = attributes.item(i);
-      if (attribute.getNodeName().contains(target)) {
+      if (credentialWords.stream().anyMatch(target -> isNodeName(target, attribute))) {
         checkCredential(reportOnAttribute ? attribute : node, attribute.getTextContent());
         break;
       }
     }
   }
 
+  private static boolean isNodeName(String target, Node node) {
+    return target.equalsIgnoreCase(node.getNodeName());
+  }
+
   private void checkCredential(Node credentialNode,  String candidate) {
     if (isValidCredential(candidate)) {
       return;
     }
-    String credentialNodeName = credentialNode.getNodeName();
-    getCredentialPatterns().stream()
-      .filter(credentialPattern -> credentialPattern.matcher(credentialNodeName).matches())
+    credentialWordsSet().stream()
+      .filter(credentialWord -> isNodeName(credentialWord, credentialNode))
       .findFirst()
       .ifPresent(credentialWord -> reportIssue(credentialNode, String.format("\"%s\" detected here, make sure this is not a hard-coded credential.", credentialWord)));
   }
@@ -199,7 +164,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + " or @class='org.springframework.social.linkedin.connect.LinkedinConnectionFactory'"
         + " or @class='org.springframework.social.twitter.connect.TwitterConnectionFactory'"
         + "]/constructor-arg[2]",
-      node -> getAttributeSafe(node, "value"),
+      node -> getAttributeSafe(node, VALUE),
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
@@ -225,7 +190,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "or @name='access-key'"
         + "or @name='access-secret'"
         + "]",
-      node -> getAttributeSafe(node, "value"),
+      node -> getAttributeSafe(node, VALUE),
       false)
     );
 
