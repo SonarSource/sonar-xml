@@ -25,6 +25,7 @@ import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermi
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
+import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
 
 public class CheckList {
@@ -37,6 +38,7 @@ public class CheckList {
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       CharBeforePrologCheck.class,
+      CrossOriginResourceSharingCheck.class,
       DebugFeatureCheck.class,
       TabCharacterCheck.class,
       ParsingErrorCheck.class,
