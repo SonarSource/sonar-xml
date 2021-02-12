@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+
+  <permission android:name="com.example.custom.dangerous.permission"
+              android:description="@string/perm_desc_custom_dangerous_permission"
+              android:label="@string/perm_label_custom_dangerous_permission"
+              android:protectionLevel="dangerous" />
+
+  <permission android:name="com.example.custom.normal.permission"
+              android:description="@string/perm_desc_custom_normal_permission"
+              android:label="@string/perm_label_custom_normal_permission"
+              android:protectionLevel="normal" />
+
+  <application>
+
+    <!-- activities, services and providers(since Android 4.2) are not exported by default and safe -->
+
+    <activity android:name="com.example.activity1">
+    </activity>
+
+    <service android:name="com.example.service1">
+    </service>
+
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB">
+    </provider>
+
+    <!-- explicitly not exported contents are always safe -->
+
+    <activity android:name="com.example.activity1"
+              android:exported="false">
+    </activity>
+
+    <service android:name="com.example.service1"
+             android:exported="false">
+    </service>
+
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB"
+              android:exported="false">
+    </provider>
+
+    <!-- exported contents with explicit read and write permissions is compliant -->
+
+    <activity android:name="com.example.activity1"
+              android:exported="true"
+              android:permission="com.example.custom.dangerous.permission">
+    </activity>
+
+    <service android:name="com.example.service1"
+             android:exported="true"
+             android:readPermission="com.example.custom.normal.permission"
+             android:writePermission="com.example.custom.dangerous.permission">
+    </service>
+
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB"
+              android:exported="true"
+              android:permission="com.example.custom.normal.permission"
+              android:writePermission="com.example.custom.dangerous.permission">
+    </provider>
+
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB"
+              android:exported="true"
+              android:readPermission="com.example.custom.normal.permission"
+              android:permission="com.example.custom.dangerous.permission">
+    </provider>
+
+    <!-- exported contents without explicit permissions is non-compliant -->
+
+    <!-- Noncompliant@+1 {{Implement permissions on this exported component.}} -->
+    <activity android:name="com.example.activity1" android:exported="true">
+<!-- ^^^^^^^^ -->
+    </activity>
+
+    <!-- Noncompliant@+1 -->
+    <service android:name="com.example.service1" android:exported="true">
+<!-- ^^^^^^^ -->
+    </service>
+
+    <!-- Noncompliant@+1 -->
+    <provider android:name="com.example.provider1" android:authorities="com.example.searchDB" android:exported="true">
+<!-- ^^^^^^^^ -->
+    </provider>
+
+    <!-- even with grantUriPermissions the permission should be set -->
+
+    <!-- Noncompliant@+1 -->
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB"
+              android:exported="true"
+              android:grantUriPermissions="true">
+    </provider>
+
+    <!-- exported contents without read or without write permission is non-compliant -->
+
+    <!-- Noncompliant@+1 -->
+    <activity android:name="com.example.activity1"
+              android:exported="true"
+              android:readPermission="com.example.custom.dangerous.permission">
+    </activity>
+
+    <!-- Noncompliant@+1 -->
+    <service android:name="com.example.service1"
+             android:exported="true"
+             android:writePermission="com.example.custom.dangerous.permission">
+    </service>
+
+    <!-- Noncompliant@+1 -->
+    <provider android:name="com.example.provider1"
+              android:authorities="com.example.searchDB"
+              android:exported="true"
+              android:writePermission="com.example.custom.dangerous.permission">
+    </provider>
+
+    <!-- intent-filter export the content by default -->
+
+    <!-- Noncompliant@+1 -->
+    <activity android:name="com.example.activity1">
+      <intent-filter>
+        <action android:name="com.example.vulnerableApp.OPEN_UI"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+
+    <!-- Noncompliant@+1 -->
+    <service android:name="com.example.service1">
+      <intent-filter>
+        <action android:name="com.example.vulnerableApp.START_BACKGROUND"/>
+      </intent-filter>
+    </service>
+
+    <!-- Compliant with permission -->
+    <activity android:name="com.example.activity1"
+              android:permission="com.example.custom.dangerous.permission">
+      <intent-filter>
+        <action android:name="com.example.vulnerableApp.OPEN_UI"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+
+    <!-- android:exported="false" and intent-filter combined will always throw a ActivityNotFoundException, but we consider it compliant -->
+    <activity android:name="com.example.activity1"
+              android:exported="false">
+      <intent-filter>
+        <action android:name="com.example.vulnerableApp.OPEN_UI"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+
+  </application>
+</manifest>
