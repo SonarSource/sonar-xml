@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
+  <filter>
+    <filter-name>CorsFilter1</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>*</param-value> <!-- Noncompliant {{Make sure this permissive CORS policy is safe here.}} -->
+      <!--         ^ -->
+    </init-param>
+    <init-param>
+      <param-name>cors.allowed.methods</param-name>
+      <param-value>GET,POST,HEAD,OPTIONS,PUT</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cors.exposed.headers</param-name>
+      <param-value>Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cors.support.credentials</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter1</filter-name>
+    <url-pattern>/rest1/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>CorsFilter2</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>https://www.tursted1.com,*,https://www.tursted2.com</param-value> <!-- Noncompliant -->
+      <!--         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter2</filter-name>
+    <url-pattern>/rest2/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>CorsFilter3</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>https://www.trusted1.com,*</param-value> <!-- Noncompliant -->
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter3</filter-name>
+    <url-pattern>/rest3/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>CorsFilter4</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>https://www.trusted1.com,https://*.trusted2.com</param-value> <!-- Compliant -->
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter4</filter-name>
+    <url-pattern>/rest4/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>CorsFilter5</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>https://www.trusted1.com</param-value> <!-- Compliant -->
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter5</filter-name>
+    <url-pattern>/rest5/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>OtherFilter</filter-name>
+    <filter-class>org.apache.OtherFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>*</param-value>
+    </init-param>
+  </filter>
+
+</web-app>
