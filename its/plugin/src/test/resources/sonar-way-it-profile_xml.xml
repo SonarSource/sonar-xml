@@ -20,7 +20,7 @@
     </rule>
     <rule>
       <repositoryKey>xml</repositoryKey>
-      <key>NewlineCheck</key>
+      <key>S2321</key>
       <priority>MINOR</priority>
     </rule>
     <rule>

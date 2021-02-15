@@ -84,7 +84,7 @@ class XmlSensorTest {
   private XmlSensor sensor;
   private SensorContextTester context;
 
-  private static final RuleKey NEW_LINE_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "NewlineCheck");
+  private static final RuleKey NEW_LINE_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "S2321");
   private static final String PARSING_ERROR_CHECK_KEY = "S2260";
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
@@ -129,7 +129,7 @@ class XmlSensorTest {
   }
 
   /**
-   * Expect issue for rule: NewlineCheck
+   * Expect issue for rule: S2321
    */
   @Test
   void test_sensor() throws Exception {
@@ -196,7 +196,7 @@ class XmlSensorTest {
 
   /**
    * SONARXML-19
-   * Expect issue for rule: NewlineCheck
+   * Expect issue for rule: S2321
    */
   @Test
   void should_execute_on_file_with_chars_before_prolog() throws Exception {
@@ -209,7 +209,7 @@ class XmlSensorTest {
   }
 
   /**
-   * Has issue for rule NewlineCheck, but should not be reported.
+   * Has issue for rule S2321, but should not be reported.
    * As rule ParsingErrorCheck is enabled, this test should report a parsing issue. It should also log a trace.
    */
   @Test
@@ -228,7 +228,7 @@ class XmlSensorTest {
   }
 
   /**
-   * Has issue for rule NewlineCheck, but should not be reported.
+   * Has issue for rule S2321, but should not be reported.
    * As rule ParsingErrorCheck is not enabled, this test should not report any issue. It should log a trace instead.
    */
   @Test
