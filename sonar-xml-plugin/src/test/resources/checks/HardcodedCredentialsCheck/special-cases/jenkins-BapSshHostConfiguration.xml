@@ -1,0 +1,26 @@
+<jenkins.plugins.publish_over_ssh.BapSshHostConfiguration>
+  <name>[redacted]</name>
+  <hostname>[redacted]</hostname>
+  <username>coucou</username>
+     <secretPassword>coucou</secretPassword> <!-- Noncompliant -->
+<!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <remoteRootDir>[redacted]</remoteRootDir>
+  <port>22</port>
+  <commonConfig
+    class="jenkins.plugins.publish_over_ssh.BapSshCommonConfiguration">
+     <secretPassphrase>dsfsdfs</secretPassphrase> <!-- Noncompliant -->
+<!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+    <key></key>
+    <keyPath>.ssh/id_rsa</keyPath>
+    <disableAllExec>false</disableAllExec>
+  </commonConfig>
+  <timeout>300000</timeout>
+  <overrideKey>false</overrideKey>
+  <disableExec>false</disableExec>
+  <keyInfo>
+     <secretPassphrase>dsfsdfd</secretPassphrase> <!-- Noncompliant -->
+<!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+    <key></key>
+    <keyPath></keyPath>
+  </keyInfo>
+</jenkins.plugins.publish_over_ssh.BapSshHostConfiguration> 

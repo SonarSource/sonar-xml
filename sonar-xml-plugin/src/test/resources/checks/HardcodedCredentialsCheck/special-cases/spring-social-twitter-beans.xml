@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="connectionFactoryLocator" class="org.springframework.social.connect.support.ConnectionFactoryRegistry">
+      <property name="connectionFactories">
+          <list>
+              <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
+                  <constructor-arg value="blablala-user" />
+                  <constructor-arg value="blablala-password" /> <!-- Noncompliant -->
+             <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+              </bean>
+              <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
+                  <constructor-arg value="blablala-user" />
+                  <constructor-arg value="${value}" /> <!-- Compliant -->
+              </bean>
+              <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
+                  <constructor-arg value="blablala-user" />
+                  <constructor-arg /> <!-- Compliant -->
+              </bean>
+              <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
+                  <constructor-arg value="blablala-user" />
+                  <constructor-arg other="random"/> <!-- Compliant -->
+              </bean>
+          </list>
+      </property>
+  </bean>
+</beans>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:social="http://www.springframework.org/schema/social"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:facebook="http://www.springframework.org/schema/social/facebook"
+  xmlns:google="http://www.springframework.org/schema/social/google"
+  xmlns:github="http://www.springframework.org/schema/social/github"
+  xmlns:linkedin="http://www.springframework.org/schema/social/linkedin"
+  xmlns:twitter="http://www.springframework.org/schema/social/twitter"
+  xsi:schemaLocation="http://www.springframework.org/schema/social/facebook https://www.springframework.org/schema/social/spring-social-facebook.xsd
+    http://www.springframework.org/schema/social/linkedin https://www.springframework.org/schema/social/spring-social-linkedin.xsd
+    http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/social/twitter https://www.springframework.org/schema/social/spring-social-twitter.xsd
+    http://www.springframework.org/schema/social http://docs.spring.io/autorepo/schema/spring-social/current/social/spring-social.xsd
+    http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+  <facebook:config app-id="facebook.clientId" app-secret="facebook.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+                                         <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <google:config app-id="google.clientId" app-secret="google.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+                                     <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <github:config app-id="github.clientId" app-secret="github.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+                                     <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <linkedin:config app-id="linkedin.consumerKey" app-secret="linkedin.consumerSecret" /> <!-- Noncompliant -->
+                                            <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <twitter:config app-id="comsumerclé" app-secret="consumerSecret" />  <!-- Noncompliant -->
+                                  <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+</beans>
