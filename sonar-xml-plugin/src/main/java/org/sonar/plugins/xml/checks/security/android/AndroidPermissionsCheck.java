@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
-import org.sonar.plugins.xml.XPathBuilder;
+import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 @Rule(key = "S5604")
