@@ -22,6 +22,7 @@ package org.sonar.plugins.xml.checks.security;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -61,14 +62,17 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private Set<String> credentialWordsSet() {
     if (cleanedCredentialWords == null) {
-      cleanedCredentialWords = Stream.of(credentialWords.split(",")).map(String::trim).collect(Collectors.toSet());
+      cleanedCredentialWords = Stream.of(credentialWords.split(","))
+        .map(String::trim)
+        .map(word -> word.toLowerCase(Locale.ROOT))
+        .collect(Collectors.toSet());
     }
     return cleanedCredentialWords;
   }
 
   @Override
   public void scanFile(XmlFile file) {
-    checkElements(file.getNamespaceUnawareDocument());
+    checkElements(file.getDocument());
     checkSpecialCases(file);
   }
 
@@ -105,25 +109,24 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     NamedNodeMap attributes = node.getAttributes();
     for (int i = 0; i < attributes.getLength(); i++) {
       Node attribute = attributes.item(i);
-      if (credentialWords.stream().anyMatch(target -> isNodeName(target, attribute))) {
+      if (isCredentialNode(attribute, credentialWords)) {
         checkCredential(reportOnAttribute ? attribute : node, attribute.getTextContent());
         break;
       }
     }
   }
 
-  private static boolean isNodeName(String target, Node node) {
-    return target.equalsIgnoreCase(node.getNodeName());
+  private static boolean isCredentialNode(Node node, Set<String> credentialWords) {
+    return credentialWords.contains(node.getLocalName().toLowerCase(Locale.ROOT));
   }
 
-  private void checkCredential(Node credentialNode,  String candidate) {
+  private void checkCredential(Node node, String candidate) {
     if (isValidCredential(candidate)) {
       return;
     }
-    credentialWordsSet().stream()
-      .filter(credentialWord -> isNodeName(credentialWord, credentialNode))
-      .findFirst()
-      .ifPresent(credentialWord -> reportIssue(credentialNode, String.format("\"%s\" detected here, make sure this is not a hard-coded credential.", credentialWord)));
+    if (isCredentialNode(node, credentialWordsSet())) {
+      reportIssue(node, String.format("\"%s\" detected here, make sure this is not a hard-coded credential.", node.getLocalName()));
+    }
   }
 
   private static boolean isValidCredential(String candidate) {

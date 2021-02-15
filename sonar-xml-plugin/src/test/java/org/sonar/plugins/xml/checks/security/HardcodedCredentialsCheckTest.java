@@ -37,7 +37,7 @@ class HardcodedCredentialsCheckTest {
   @Test
   void customized() {
     HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
-    check.credentialWords = "banana , apple   ";
+    check.credentialWords = "banana , APPLE   ";
     SonarXmlCheckVerifier.verifyIssues("customized.xml", check);
   }
 
