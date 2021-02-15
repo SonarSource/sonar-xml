@@ -2,17 +2,20 @@
 href="https://developer.android.com/guide/topics/manifest/application-element#debug">debuggable</a></code> property to <code>true</code> could
 introduce a security risk.</p>
 <p>It's more easy to perform reverse engineering and inject arbitrary code in the context of a debuggable application.</p>
-<p> </p>
 <h2>Ask Yourself Whether</h2>
-<p> * the development of the app is completed and the <code>debuggable</code> property is set to <em>true</em></p>
-<p> * the app will be published on the Play Store or distributed in any other ways and the <code>debuggable</code> property is set to
-<em>true</em></p>
+<ul>
+  <li> the development of the app is completed and the <code>debuggable</code> property is set to <em>true</em> </li>
+  <li> the app will be published on the Play Store or distributed in any other ways and the <code>debuggable</code> property is set to <em>true</em>
+  </li>
+</ul>
 <p>You are at risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p> * It is not recommended to release debuggable application. Avoid hardcoding the debug mode in the manifest because the build tool will add the
-property automatically and assign the correct value depending on the build type.</p>
+<ul>
+  <li> It is not recommended to release debuggable application. Avoid hardcoding the debug mode in the manifest because the build tool will add the
+  property automatically and assign the correct value depending on the build type. </li>
+</ul>
 <h2>Sensitive Code Example</h2>
-<p>In AndroidManifest.xml:</p>
+<p>In <code>AndroidManifest.xml</code> the android debuggable property is set to <code>true</code>:</p>
 <pre>
 &lt;application
   android:icon="@mipmap/ic_launcher"
@@ -24,6 +27,7 @@ property automatically and assign the correct value depending on the build type.
 &lt;/application&gt;  &lt;!-- Sensitive --&gt;
 </pre>
 <h2>Compliant Solution</h2>
+<p>In <code>AndroidManifest.xml</code> the android debuggable property is set to <code>false</code>:</p>
 <pre>
 &lt;application
   android:icon="@mipmap/ic_launcher"
@@ -35,10 +39,10 @@ property automatically and assign the correct value depending on the build type.
 &lt;/application&gt; &lt;!-- Compliant --&gt;
 </pre>
 <h2>See</h2>
-<p> * <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M10-Extraneous_Functionality">OWASP Mobile Top 10 2016 Category M10</a> - Extraneous
-Functionality</p>
-<p> * <a href="https://cwe.mitre.org/data/definitions/215.html">CWE-215</a> - Information Exposure Through Debug Information</p>
 <ul>
+  <li> <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M10-Extraneous_Functionality">OWASP Mobile Top 10 2016 Category M10</a> -
+  Extraneous Functionality </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/215.html">CWE-215</a> - Information Exposure Through Debug Information </li>
   <li> <a href="https://developer.android.com/studio/publish/preparing">developer.android.com</a> - Prepare for release </li>
 </ul>
 
