@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.xml.XPathBuilder;
+import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.NamedNodeMap;
@@ -68,17 +68,17 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   @Override
   public void scanFile(XmlFile file) {
-    checkTagsAndAttributes(file.getNamespaceUnawareDocument());
+    checkElements(file.getNamespaceUnawareDocument());
     checkSpecialCases(file);
   }
 
-  private void checkTagsAndAttributes(Node node) {
-    checkNode(node);
-    checkAttributes(node, credentialWordsSet(), true);
+  private void checkElements(Node element) {
+    checkNode(element);
+    checkAttributes(element, credentialWordsSet(), true);
 
-    NodeList children = node.getChildNodes();
+    NodeList children = element.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
-      checkTagsAndAttributes(children.item(i));
+      checkElements(children.item(i));
     }
   }
 
