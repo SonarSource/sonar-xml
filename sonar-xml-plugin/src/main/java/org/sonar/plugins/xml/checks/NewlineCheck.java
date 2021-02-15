@@ -24,16 +24,17 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.Xml;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-@Rule(key = NewlineCheck.RULE_KEY)
+@Rule(key = "S2321")
+@DeprecatedRuleKey(ruleKey = "NewlineCheck", repositoryKey = Xml.REPOSITORY_KEY)
 public class NewlineCheck extends SonarXmlCheck {
-
-  public static final String RULE_KEY = "NewlineCheck";
 
   private static final String MESSAGE_START = "Put this element on a separate line.";
   private static final String MESSAGE_END = "Add a newline after this tag.";
