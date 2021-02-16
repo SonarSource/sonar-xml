@@ -113,7 +113,11 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
   protected final void scanAndroidManifest(XmlFile file) {
     evaluateAsList(xPathExpression, file.getDocument()).stream()
       .filter(node -> DANGEROUS_PERMISSIONS.contains(node.getNodeValue()))
-      .forEach(node -> reportIssue(node, String.format(MESSAGE, node.getNodeValue())));
+      .forEach(node -> reportIssue(node, String.format(MESSAGE, simpleName(node.getNodeValue()))));
+  }
+
+  private static String simpleName(String fullyQualifiedName) {
+    return fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf('.') + 1);
   }
 
 }
