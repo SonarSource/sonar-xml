@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
 
-  <!-- Noncompliant@+1 {{Make sure the use of "android.permission.ACCEPT_HANDOVER" permission is necessary.}} -->
+  <!-- Noncompliant@+1 {{Make sure the use of "ACCEPT_HANDOVER" permission is necessary.}} -->
   <uses-permission android:name="android.permission.ACCEPT_HANDOVER" />
   <!--             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
 
-  <!-- Noncompliant@+1 {{Make sure the use of "android.permission.ACCESS_BACKGROUND_LOCATION" permission is necessary.}} -->
+  <!-- Noncompliant@+1 {{Make sure the use of "ACCESS_BACKGROUND_LOCATION" permission is necessary.}} -->
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
   <!--             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
 
