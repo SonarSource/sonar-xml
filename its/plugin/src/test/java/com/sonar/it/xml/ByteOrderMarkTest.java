@@ -23,6 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.internal.google.gson.Gson;
+import org.sonar.api.internal.google.gson.JsonObject;
 import org.sonarqube.ws.client.GetRequest;
 
 import static com.sonar.it.xml.XmlTestSuite.newWsClient;
@@ -51,7 +53,13 @@ public class ByteOrderMarkTest {
     String highlighting = newWsClient().wsConnector().call(new GetRequest("api/sources/show").setParam("key", fileKey))
       .failIfNotSuccessful()
       .content();
-    assertThat(highlighting).contains("<span class=\\\"k\\\">&lt;?xml</span>");
+
+    JsonObject response = new Gson().fromJson(highlighting, JsonObject.class);
+    String lineOneCode = response.get("sources").getAsJsonArray()
+      .get(0).getAsJsonArray()
+      .get(1).getAsString();
+
+    assertThat(lineOneCode).startsWith("<span class=\"k\">&lt;?xml</span>");
   }
 
 }
