@@ -10,10 +10,8 @@ introduce a security risk.</p>
 </ul>
 <p>You are at risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> It is not recommended to release debuggable application. Avoid hardcoding the debug mode in the manifest because the build tool will add the
-  property automatically and assign the correct value depending on the build type. </li>
-</ul>
+<p>It is not recommended to release debuggable application. Avoid hardcoding the debug mode in the manifest because the build tool will add the
+property automatically and assign the correct value depending on the build type.</p>
 <h2>Sensitive Code Example</h2>
 <p>In <code>AndroidManifest.xml</code> the android debuggable property is set to <code>true</code>:</p>
 <pre>
