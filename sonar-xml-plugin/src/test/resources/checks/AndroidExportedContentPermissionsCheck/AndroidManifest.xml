@@ -140,6 +140,14 @@
       </intent-filter>
     </activity>
 
+    <!--  Compliant -->
+    <activity android:name=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
     <!-- android:exported="false" and intent-filter combined will always throw a ActivityNotFoundException, but we consider it compliant -->
     <activity android:name="com.example.activity1"
               android:exported="false">

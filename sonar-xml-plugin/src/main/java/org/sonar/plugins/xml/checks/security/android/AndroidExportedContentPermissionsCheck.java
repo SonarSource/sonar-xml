@@ -41,6 +41,8 @@ public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManif
       " (@n:exported='true' or intent-filter)" +
       "and" +
       " not(@n:permission or (@n:readPermission and @n:writePermission))" +
+       "and" +
+       " not(intent-filter/action[@n:name='android.intent.action.MAIN'])" +
       "]")
     .withNamespace("n", "http://schemas.android.com/apk/res/android")
     .build();
