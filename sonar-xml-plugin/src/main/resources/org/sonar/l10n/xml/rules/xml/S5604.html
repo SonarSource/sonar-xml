@@ -1,6 +1,6 @@
-<p>Permissions that can have a large impact on user privacy, tagged as <a
-href="https://developer.android.com/reference/android/Manifest.permission">dangerous by Android</a>, should be requested only if they are really
-necessary to implement critical features of an application.</p>
+<p>Permissions that can have a large impact on user privacy, marked as <a
+href="https://developer.android.com/reference/android/Manifest.permission">dangerous or "not for use by third-party applications" by Android</a>,
+should be requested only if they are really necessary to implement critical features of an application.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> It is not sure that <code>dangerous</code> permissions requested by the application are <a
@@ -10,9 +10,7 @@ necessary to implement critical features of an application.</p>
 </ul>
 <p>You are at risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> It is recommended to carefully review all the permissions and to use <code>dangerous</code> ones only if they are really necessary. </li>
-</ul>
+<p>It is recommended to carefully review all the permissions and to use <code>dangerous</code> ones only if they are really necessary.</p>
 <h2>Sensitive Code Example</h2>
 <p>In AndroidManifest.xml:</p>
 <pre>
