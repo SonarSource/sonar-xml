@@ -35,6 +35,11 @@ class HardcodedCredentialsCheckTest {
   }
 
   @Test
+  void entities() {
+    SonarXmlCheckVerifier.verifyNoIssue("entities.xml", CHECK);
+  }
+
+  @Test
   void customized() {
     HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
     check.credentialWords = "banana , APPLE   ";

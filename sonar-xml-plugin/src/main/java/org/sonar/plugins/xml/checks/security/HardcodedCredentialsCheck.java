@@ -117,7 +117,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   }
 
   private static boolean isCredentialNode(Node node, Set<String> credentialWords) {
-    return credentialWords.contains(node.getLocalName().toLowerCase(Locale.ROOT));
+    String localName = node.getLocalName();
+    return localName != null && credentialWords.contains(localName.toLowerCase(Locale.ROOT));
   }
 
   private void checkCredential(Node node, String candidate) {
