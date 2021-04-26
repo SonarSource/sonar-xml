@@ -1,5 +1,8 @@
 {
-'project:special-cases/android-application/AndroidManifest.xml':[
+'project:special-cases/android-application/app1/AndroidManifest.xml':[
 324,
+],
+'project:special-cases/android-application/app3/AndroidManifest.xml':[
+5,
 ],
 }

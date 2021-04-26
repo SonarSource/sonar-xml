@@ -1588,6 +1588,16 @@
 3,
 17,
 ],
+'project:special-cases/android-application/app2/AndroidManifest.xml':[
+7,
+8,
+17,
+],
+'project:special-cases/android-application/app3/AndroidManifest.xml':[
+5,
+6,
+8,
+],
 'project:special-cases/end-of-line/persistence_mac_cr.xml':[
 7,
 ],
