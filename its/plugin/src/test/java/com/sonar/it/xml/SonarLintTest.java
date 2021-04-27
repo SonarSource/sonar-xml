@@ -29,8 +29,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -39,6 +37,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
+import org.sonarsource.sonarlint.core.client.api.common.Language;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
@@ -63,6 +62,7 @@ public class SonarLintTest {
       .addPlugin(xmlPlugin.getFile().toURI().toURL())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .setLogOutput((msg, level) -> System.out.println(String.format("[%s] %s", level.name(), msg)))
+      .addEnabledLanguage(Language.XML)
       .build();
     sonarlintEngine = new StandaloneSonarLintEngineImpl(config);
     baseDir = temp.newFolder();
@@ -79,7 +79,10 @@ public class SonarLintTest {
         + "</foo>\n");
 
     List<Issue> issues = new ArrayList<>();
-    StandaloneAnalysisConfiguration configuration = new StandaloneAnalysisConfiguration(baseDir.toPath(), temp.newFolder().toPath(), Arrays.asList(inputFile), Collections.emptyMap());
+    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .build();
     sonarlintEngine.analyze(configuration, issues::add, null, null);
 
     assertThat(issues)
