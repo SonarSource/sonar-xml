@@ -21,6 +21,7 @@ package org.sonar.plugins.xml;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
@@ -32,7 +33,7 @@ class XmlPluginTest {
   @SuppressWarnings("unchecked")
   @Test
   void count_extensions() {
-    Plugin.Context context = new Plugin.Context(SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER));
+    Plugin.Context context = new Plugin.Context(SonarRuntimeImpl.forSonarQube(Version.create(7, 9), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
     new XmlPlugin().define(context);
     assertThat(context.getExtensions()).as("Number of extensions for SQ 7.9").hasSize(5);
   }

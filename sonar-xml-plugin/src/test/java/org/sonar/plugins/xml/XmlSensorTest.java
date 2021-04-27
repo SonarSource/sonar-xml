@@ -22,7 +22,6 @@ package org.sonar.plugins.xml;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -44,10 +43,12 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -90,18 +91,24 @@ class XmlSensorTest {
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
 
   @Test
-  @Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
+  @Timeout(value = 12000, unit = TimeUnit.MILLISECONDS)
   void testPerformance() throws Exception {
-    initFileSystemWithFile(createXmlFile(20000, "smallFile.xml"));
+    init();
+    File smallXmlFile = createXmlFile(20000, "smallFile.xml");
+    fs.add(createInputFile(Paths.get(smallXmlFile.getParent()), smallXmlFile.getName(), StandardCharsets.UTF_8));
     long timeSmallFile = measureTimeToAnalyzeFile();
-    initFileSystemWithFile(createXmlFile(40000, "bigFile.xml"));
+
+    init();
+    File bigXmlFile = createXmlFile(40000, "bigFile.xml");
+    fs.add(createInputFile(Paths.get(bigXmlFile.getParent()), bigXmlFile.getName(), StandardCharsets.UTF_8));
     long timeBigFile = measureTimeToAnalyzeFile();
+
     assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
   }
 
   @Test
   void test_analysis_cancellation() throws Exception {
-    init(false);
+    init();
     fs.add(createInputFile("src/pom.xml"));
 
     context.setCancelled(true);
@@ -112,7 +119,7 @@ class XmlSensorTest {
 
   @Test
   void test_nothing_is_executed_if_no_file() throws Exception {
-    init(false);
+    init();
 
     sensor.execute(context);
 
@@ -121,7 +128,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor() throws Exception {
-    init(false);
+    init();
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
@@ -133,7 +140,7 @@ class XmlSensorTest {
    */
   @Test
   void test_sensor() throws Exception {
-    init(false);
+    init();
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
@@ -148,7 +155,7 @@ class XmlSensorTest {
 
   @Test
   void test_sensor_in_sonarlint_context() throws Exception {
-    init(false);
+    init();
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
@@ -167,7 +174,7 @@ class XmlSensorTest {
    */
   @Test
   void should_execute_new_rules() throws Exception {
-    init(false);
+    init();
     fs.add(createInputFile("src/tabsEverywhere.xml"));
 
     sensor.execute(context);
@@ -200,7 +207,7 @@ class XmlSensorTest {
    */
   @Test
   void should_execute_on_file_with_chars_before_prolog() throws Exception {
-    init(false);
+    init();
     fs.add(createInputFile("src/pom_with_chars_before_prolog_and_missing_new_line.xml"));
 
     sensor.execute(context);
@@ -233,7 +240,7 @@ class XmlSensorTest {
    */
   @Test
   void should_not_execute_test_on_corrupted_file_and_should_not_raise_parsing_issue() throws Exception {
-    init(false);
+    init();
     fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
     sensor.execute(context);
@@ -244,6 +251,10 @@ class XmlSensorTest {
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
   }
 
+  private void init() throws Exception {
+    init(false);
+  }
+
   private void init(boolean activateParsingErrorCheck) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
@@ -252,15 +263,11 @@ class XmlSensorTest {
     fs.setWorkDir(temporaryFolder.newFolder().toPath());
 
     ActiveRulesBuilder activeRuleBuilder = new ActiveRulesBuilder()
-      .create(NEW_LINE_RULE_KEY)
-      .activate()
-      .create(TAB_CHARACTER_RULE_KEY)
-      .activate();
+      .addRule(new NewActiveRule.Builder().setRuleKey(NEW_LINE_RULE_KEY).build())
+      .addRule(new NewActiveRule.Builder().setRuleKey(TAB_CHARACTER_RULE_KEY).build());
 
     if (activateParsingErrorCheck) {
-      activeRuleBuilder = activeRuleBuilder
-        .create(PARSING_ERROR_RULE_KEY)
-        .activate();
+      activeRuleBuilder.addRule(new NewActiveRule.Builder().setRuleKey(PARSING_ERROR_RULE_KEY).build());
     }
 
     CheckFactory checkFactory = new CheckFactory(activeRuleBuilder.build());
@@ -271,20 +278,8 @@ class XmlSensorTest {
     sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
   }
 
-  private DefaultInputFile createInputFile(String name) throws FileNotFoundException {
-    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", name)
-      .setModuleBaseDir(Paths.get("src/test/resources"))
-      .setType(Type.MAIN)
-      .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8)
-      .build();
-
-    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
-    return inputFile;
-  }
-
   @Test
-  void should_analyze_file_with_its_own_encoding() throws IOException {
+  void should_analyze_file_with_its_own_encoding() throws Exception {
     Charset fileSystemCharset = StandardCharsets.UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
@@ -300,20 +295,10 @@ class XmlSensorTest {
       writer.write("<tag></tag>");
     }
 
-    String modulekey = "modulekey";
-    DefaultInputFile defaultInputFile = TestInputFileBuilder.create(modulekey, filename)
-      .setModuleBaseDir(moduleBaseDir)
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(Xml.KEY)
-      .setCharset(fileCharset)
-      .build();
-    fileSystem.add(defaultInputFile);
-
-    defaultInputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(defaultInputFile.file()), StandardCharsets.UTF_8, defaultInputFile.absolutePath()));
+    fileSystem.add(createInputFile(moduleBaseDir, filename, fileCharset));
 
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .create(NEW_LINE_RULE_KEY)
-      .activate()
+      .addRule(new NewActiveRule.Builder().setRuleKey(NEW_LINE_RULE_KEY).build())
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);
 
@@ -322,7 +307,7 @@ class XmlSensorTest {
     sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory);
     sensor.execute(context);
 
-    String componentKey = modulekey + ":" + filename;
+    String componentKey = "modulekey:" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(2);
   }
 
@@ -338,34 +323,38 @@ class XmlSensorTest {
     }
   }
 
-  private void initFileSystemWithFile(File file) throws Exception {
-    init(false);
-
-    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", file.getName())
-      .setModuleBaseDir(Paths.get(file.getParent()))
-      .setType(Type.MAIN)
-      .setLanguage(Xml.KEY)
-      .setCharset(StandardCharsets.UTF_8)
-      .build();
-
-    inputFile.setMetadata(new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), StandardCharsets.UTF_8, inputFile.absolutePath()));
-
-    fs.add(inputFile);
-  }
-
-  private File createXmlFile(int numberOfTags, String fileName) throws IOException {
-    File file = temporaryFolder.newFile(fileName);
-    StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
-    IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
-    str.append("</root>");
-    FileUtils.write(file, str.toString(), StandardCharsets.UTF_8);
-    return file;
+  private File createXmlFile(int numberOfTags, String fileName) {
+    try {
+      File file = temporaryFolder.newFile(fileName);
+      StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
+      IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
+      str.append("</root>");
+      FileUtils.write(file, str.toString(), StandardCharsets.UTF_8);
+      return file;
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to create " + fileName);
+    }
   }
 
   private long measureTimeToAnalyzeFile() {
     long t1 = System.currentTimeMillis();
     sensor.execute(context);
     return System.currentTimeMillis() - t1;
+  }
+
+  private static DefaultInputFile createInputFile(String filename) throws Exception {
+    return createInputFile(Paths.get("src/test/resources"), filename, StandardCharsets.UTF_8);
+  }
+
+  private static DefaultInputFile createInputFile(Path moduleBaseDir, String filename, Charset charset) throws Exception {
+    DefaultInputFile inputFile = TestInputFileBuilder.create("modulekey", filename)
+      .setModuleBaseDir(moduleBaseDir)
+      .setType(Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .setCharset(charset)
+      .build();
+    Metadata metadata = new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), inputFile.charset(), inputFile.absolutePath());
+    return inputFile.setMetadata(metadata);
   }
 
 }
