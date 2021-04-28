@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>58.0.22</version>
+    <version>59.0.29</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -60,7 +60,7 @@
     <sonar.version>7.9</sonar.version>
     <sonar.minVersion>7.9</sonar.minVersion>
 
-    <sonar.analyzerCommons.version>1.14.0.681</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>1.14.1.690</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.35.1.2719</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>5.3.0.30337</sonar.sonarlint-core.version>
 
@@ -76,6 +76,7 @@
         <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${sonar.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -93,6 +94,7 @@
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${sonar.orchestrator.version}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>
