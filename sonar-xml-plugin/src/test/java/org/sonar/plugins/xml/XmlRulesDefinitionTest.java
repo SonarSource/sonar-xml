@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class XmlRulesDefinitionTest {
 
   private static final Set<String> JAVA_DEPRECATED_KEYS = Stream
-    .of("S3281", "S3355", "S3373", "S3822")
+    .of("S3281", "S3355", "S3373", "S3822", "S3439", "S3417", "S3282", "S3419")
     .collect(Collectors.toSet());
   private static final Map<String, String> XML_DEPRECATED_KEYS = new HashMap<>();
   static {
@@ -61,7 +61,7 @@ class XmlRulesDefinitionTest {
 
     assertThat(repository.rules().stream().filter(Rule::template).map(Rule::key))
         .isNotEmpty()
-        .containsOnly("XPathCheck");
+        .containsOnly("XPathCheck", "S3417");
 
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {

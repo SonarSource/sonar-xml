@@ -17,25 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml;
+package org.sonar.plugins.xml.checks.ejb;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.CheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public final class XmlRulesDefinition implements RulesDefinition {
+class InterceptorExclusionsCheckTest {
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
+  private static final SonarXmlCheck CHECK = new InterceptorExclusionsCheck();
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH);
+  @Test
+  void ejb_jar() {
+    SonarXmlCheckVerifier.verifyIssues("ejb-jar.xml", CHECK);
+  }
 
-    // add the new checks
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
-
-    repository.rule("XPathCheck").setTemplate(true);
-    repository.rule("S3417").setTemplate(true);
-    repository.done();
+  @Test
+  void not_an_ejb_jar() {
+    SonarXmlCheckVerifier.verifyNoIssue("../irrelevant.xml", CHECK);
   }
 }

@@ -76,6 +76,16 @@ public class XmlRulingTest {
       "checkstyleXPath",
       "expression=\"//checkstyle\";" +
         "message=\"Don't do that, dammit!\";");
+
+    createTemplateRule(
+      "S3417",
+      "S3417_doNotUseCommonsBeanutils",
+      "dependencyName=\"commons-beanutils:*\";");
+
+    createTemplateRule(
+      "S3417",
+      "S3417_doNotUseJunitBefore4",
+      "dependencyName=\"junit:junit\";version=\"*-3.9.9\"");
   }
 
   @Test
