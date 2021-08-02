@@ -30,6 +30,7 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.spring.DefaultMessageListenerContainerCheck;
 import org.sonar.plugins.xml.checks.struts.ActionNumberCheck;
 import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 
@@ -47,6 +48,7 @@ public class CheckList {
       CrossOriginResourceSharingCheck.class,
       DatabaseSchemaUpdateCheck.class,
       DefaultInterceptorsLocationCheck.class,
+      DefaultMessageListenerContainerCheck.class,
       DebugFeatureCheck.class,
       TabCharacterCheck.class,
       HardcodedCredentialsCheck.class,
