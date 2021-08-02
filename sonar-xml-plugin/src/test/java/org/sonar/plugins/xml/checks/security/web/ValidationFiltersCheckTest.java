@@ -19,24 +19,32 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+class ValidationFiltersCheckTest {
 
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+  private static final SonarXmlCheck CHECK = new ValidationFiltersCheck();
 
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
+  @Test
+  void web_xml_without_filter() {
+    SonarXmlCheckVerifier.verifyNoIssue("withoutFilters/web.xml", CHECK);
   }
 
-  abstract void scanWebXml(XmlFile file);
+  @Test
+  void web_xml_incomplete_filter() {
+    SonarXmlCheckVerifier.verifyIssues("incompleteFilters/web.xml", CHECK);
+  }
 
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  @Test
+  void web_xml_incoherent_filters() {
+    SonarXmlCheckVerifier.verifyIssues("incoherentFilters/web.xml", CHECK);
+  }
+
+  @Test
+  void web_xml_with_filter() {
+    SonarXmlCheckVerifier.verifyNoIssue("withFilters/web.xml", CHECK);
   }
 }

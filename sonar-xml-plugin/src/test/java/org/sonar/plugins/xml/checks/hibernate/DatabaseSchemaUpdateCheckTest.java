@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.hibernate;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+class DatabaseSchemaUpdateCheckTest {
 
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+  private static final SonarXmlCheck CHECK = new DatabaseSchemaUpdateCheck();
 
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
+  @Test
+  void test() {
+    SonarXmlCheckVerifier.verifyIssues("hibernate11.cfg.xml", CHECK);
+    SonarXmlCheckVerifier.verifyIssues("hibernate20.cfg.xml", CHECK);
+    SonarXmlCheckVerifier.verifyIssues("hibernate30.cfg.xml", CHECK);
   }
 
-  abstract void scanWebXml(XmlFile file);
-
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  @Test
+  void no_issue() {
+    SonarXmlCheckVerifier.verifyNoIssue("hibernate30NoProperty.cfg.xml", CHECK);
+    SonarXmlCheckVerifier.verifyNoIssue("../irrelevant.xml", CHECK);
   }
+
 }

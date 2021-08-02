@@ -17,26 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.struts;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+class ActionNumberCheckTest {
 
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+  private ActionNumberCheck check;
 
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
+  @BeforeEach
+  public void setup() {
+    check = new ActionNumberCheck();
   }
 
-  abstract void scanWebXml(XmlFile file);
+  @Test
+  void struts_config_with_too_many_forwards() {
+    SonarXmlCheckVerifier.verifyIssues("tooManyActionsDefault/struts-config.xml", check);
+  }
 
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  @Test
+  void struts_config_with_too_many_forwards_custom() {
+    check.maximumForwards = 3;
+    SonarXmlCheckVerifier.verifyIssues("tooManyActionsCustom/struts-config.xml", check);
+  }
+
+  @Test
+  void not_a_struts_config_xml() {
+    SonarXmlCheckVerifier.verifyNoIssue("../irrelevant.xml", check);
   }
 }

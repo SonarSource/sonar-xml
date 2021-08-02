@@ -1,0 +1,17 @@
+{
+'project:sonar-java/java-checks/src/test/files/checks/xml/hibernate/DatabaseSchemaUpdateCheck/hibernate11.cfg.xml':[
+6,
+9,
+],
+'project:sonar-java/java-checks/src/test/files/checks/xml/hibernate/DatabaseSchemaUpdateCheck/hibernate20.cfg.xml':[
+7,
+],
+'project:sonar-java/java-checks/src/test/files/checks/xml/hibernate/DatabaseSchemaUpdateCheck/hibernate30.cfg.xml':[
+7,
+8,
+9,
+10,
+12,
+16,
+],
+}

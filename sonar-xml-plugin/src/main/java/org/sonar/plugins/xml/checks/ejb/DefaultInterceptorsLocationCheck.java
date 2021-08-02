@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.ejb;
 
+import javax.xml.xpath.XPathExpression;
+import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+@Rule(key = "S3281")
+@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3281")
+public class DefaultInterceptorsLocationCheck extends SimpleXPathBasedCheck {
 
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+  private XPathExpression defaultInterceptorClassesExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name=\"*\"]/interceptor-class");
 
   @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
+  public void scanFile(XmlFile file) {
+    if ("ejb-jar.xml".equalsIgnoreCase(file.getInputFile().filename())) {
+      return;
     }
-  }
-
-  abstract void scanWebXml(XmlFile file);
-
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+    evaluateAsList(defaultInterceptorClassesExpression, file.getNamespaceUnawareDocument())
+      .forEach(node -> reportIssue(node, "Move this default interceptor to \"ejb-jar.xml\""));
   }
 }
