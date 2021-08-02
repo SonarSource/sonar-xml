@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.xml;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.plugins.xml.checks.CheckList;
@@ -27,6 +31,9 @@ import org.sonar.plugins.xml.checks.CheckList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class XmlRulesDefinitionTest {
+
+  private static final Set<String> DEPRECATED_KEYS = Stream.of("S3281")
+    .collect(Collectors.toSet());
 
   @Test
   void test() {
@@ -50,6 +57,9 @@ class XmlRulesDefinitionTest {
     for (Rule rule : repository.rules()) {
       for (RulesDefinition.Param param : rule.params()) {
         assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
+      }
+      if (DEPRECATED_KEYS.contains(rule.key())) {
+        assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("java", rule.key()));
       }
     }
   }
