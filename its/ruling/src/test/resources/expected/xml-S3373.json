@@ -1,0 +1,8 @@
+{
+'project:sonar-java/java-checks/src/test/files/checks/xml/struts/ActionNumberCheck/tooManyActionsCustom/struts-config.xml':[
+15,
+],
+'project:sonar-java/java-checks/src/test/files/checks/xml/struts/ActionNumberCheck/tooManyActionsDefault/struts-config.xml':[
+15,
+],
+}

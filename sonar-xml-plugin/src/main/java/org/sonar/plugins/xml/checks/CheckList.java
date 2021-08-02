@@ -30,6 +30,7 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.struts.ActionNumberCheck;
 import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 
 public class CheckList {
@@ -39,6 +40,7 @@ public class CheckList {
 
   public static List<Class<?>> getCheckClasses() {
     return Arrays.asList(
+      ActionNumberCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       CharBeforePrologCheck.class,
