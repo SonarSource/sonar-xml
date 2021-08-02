@@ -17,25 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml;
+package org.sonar.plugins.xml.checks.maven.helpers;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.CheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
-public final class XmlRulesDefinition implements RulesDefinition {
+@FunctionalInterface
+public interface StringMatcher extends Predicate<String> {
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
+  static StringMatcher any() {
+    return str -> true;
+  }
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH);
+  static boolean isBlank(@Nullable String str) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return true;
+    }
+    for (int i = 0; i < strLen; i++) {
+      if (!Character.isWhitespace(str.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-    // add the new checks
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
-
-    repository.rule("XPathCheck").setTemplate(true);
-    repository.rule("S3417").setTemplate(true);
-    repository.done();
+  static boolean isWildCard(String pattern) {
+    return "*".equals(pattern);
   }
 }

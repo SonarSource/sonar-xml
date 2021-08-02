@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml;
+package org.sonar.plugins.xml.checks.maven.helpers;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.CheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import java.util.regex.Pattern;
 
-public final class XmlRulesDefinition implements RulesDefinition {
+public class PatternMatcher implements StringMatcher {
+
+  private final Pattern pattern;
+
+  public PatternMatcher(String regex) {
+    this.pattern = compileRegex(regex);
+  }
 
   @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
-
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH);
-
-    // add the new checks
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
-
-    repository.rule("XPathCheck").setTemplate(true);
-    repository.rule("S3417").setTemplate(true);
-    repository.done();
+  public boolean test(String value) {
+    return !value.isEmpty() && pattern.matcher(value).matches();
   }
+
+  private static Pattern compileRegex(String regex) {
+    try {
+      return Pattern.compile(regex, Pattern.DOTALL);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Unable to compile the regular expression: " + regex, e);
+    }
+  }
+
 }

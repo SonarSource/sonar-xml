@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
 import org.sonar.plugins.xml.checks.hibernate.DatabaseSchemaUpdateCheck;
+import org.sonar.plugins.xml.checks.maven.DisallowedDependenciesCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
@@ -58,6 +59,7 @@ public class CheckList {
       BasicAuthenticationCheck.class,
       FixmeCommentCheck.class,
       ValidationFiltersCheck.class,
+      DisallowedDependenciesCheck.class,
       CommentedOutCodeCheck.class
     );
   }
