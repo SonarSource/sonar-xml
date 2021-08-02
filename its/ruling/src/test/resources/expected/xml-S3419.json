@@ -1,0 +1,17 @@
+{
+'project:sonar-java/its/plugin/projects/coverage_error/pom.xml':[
+4,
+],
+'project:sonar-java/its/plugin/projects/no_coverage/pom.xml':[
+4,
+],
+'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/api/SurefireUtilsTest/shouldGetReportsPathFromDeprecatedProperty/pom.xml':[
+4,
+],
+'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/api/SurefireUtilsTest/shouldGetReportsPathFromProperty/pom.xml':[
+4,
+],
+'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/api/SurefireUtilsTest/shouldGetReportsPathFromProperty/submodule/pom.xml':[
+4,
+],
+}

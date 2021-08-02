@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml;
+package org.sonar.plugins.xml.checks.maven.helpers;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.plugins.xml.checks.CheckList;
-import org.sonarsource.analyzer.commons.RuleMetadataLoader;
+import org.junit.jupiter.api.Test;
 
-public final class XmlRulesDefinition implements RulesDefinition {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-  @Override
-  public void define(Context context) {
-    NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
+class PatternMatcherTest {
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH);
+  private PatternMatcher matcher;
 
-    // add the new checks
-    ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
-
-    repository.rule("XPathCheck").setTemplate(true);
-    repository.rule("S3417").setTemplate(true);
-    repository.done();
+  @Test
+  void should_match_patterns() {
+    matcher = new PatternMatcher("[a-z]*");
+    assertThat(matcher.test("test")).isTrue();
+    assertThat(matcher.test("012")).isFalse();
   }
+
+  @Test
+  void should_fail_on_invalid_regex() {
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+      () -> new PatternMatcher("*"));
+    assertThat(e.getMessage()).isEqualTo("Unable to compile the regular expression: *");
+  }
+
 }
