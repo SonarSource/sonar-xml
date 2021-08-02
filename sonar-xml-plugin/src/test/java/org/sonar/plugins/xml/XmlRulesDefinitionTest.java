@@ -20,6 +20,8 @@
 package org.sonar.plugins.xml;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.plugins.xml.checks.CheckList;
@@ -42,6 +44,16 @@ class XmlRulesDefinitionTest {
     RulesDefinition.Rule alertUseRule = repository.rule("S1120");
     assertThat(alertUseRule).isNotNull();
     assertThat(alertUseRule.name()).isEqualTo("Source code should be indented consistently");
+    assertThat(alertUseRule.deprecatedRuleKeys()).containsExactly(RuleKey.of("xml", "IndentCheck"));
+    assertThat(alertUseRule.activatedByDefault()).isFalse();
+    assertThat(alertUseRule.type()).isEqualTo(RuleType.CODE_SMELL);
+
+    RulesDefinition.Rule httpOnlyRule = repository.rule("S3330");
+    assertThat(httpOnlyRule).isNotNull();
+    assertThat(httpOnlyRule.name()).isEqualTo("Creating cookies without the \"HttpOnly\" flag is security-sensitive");
+    assertThat(httpOnlyRule.deprecatedRuleKeys()).isEmpty();
+    assertThat(httpOnlyRule.activatedByDefault()).isTrue();
+    assertThat(httpOnlyRule.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
 
     assertThat(repository.rules().stream().filter(Rule::template).map(Rule::key))
         .isNotEmpty()
