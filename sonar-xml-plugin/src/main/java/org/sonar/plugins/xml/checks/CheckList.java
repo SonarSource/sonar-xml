@@ -30,6 +30,7 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 
 public class CheckList {
 
@@ -56,6 +57,7 @@ public class CheckList {
       HttpOnlyOnCookiesCheck.class,
       BasicAuthenticationCheck.class,
       FixmeCommentCheck.class,
+      ValidationFiltersCheck.class,
       CommentedOutCodeCheck.class
     );
   }

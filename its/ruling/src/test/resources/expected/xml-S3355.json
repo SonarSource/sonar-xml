@@ -1,0 +1,11 @@
+{
+'project:sonar-java/java-checks/src/test/files/checks/xml/web/ValidationFiltersCheck/incoherentFilters/web.xml':[
+13,
+],
+'project:sonar-java/java-checks/src/test/files/checks/xml/web/ValidationFiltersCheck/incompleteFilters/web.xml':[
+9,
+],
+'project:special-cases/web/fake/web.xml':[
+18,
+],
+}
