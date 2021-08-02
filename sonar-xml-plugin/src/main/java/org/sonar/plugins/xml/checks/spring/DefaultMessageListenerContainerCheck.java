@@ -22,12 +22,14 @@ package org.sonar.plugins.xml.checks.spring;
 import java.util.stream.IntStream;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3439")
+@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3439")
 public class DefaultMessageListenerContainerCheck extends SimpleXPathBasedCheck {
 
   private XPathExpression defaultMessageListenerContainerBeanExpression = getXPathExpression(
