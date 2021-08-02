@@ -21,6 +21,7 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
@@ -40,6 +41,7 @@ public class CheckList {
       AndroidPermissionsCheck.class,
       CharBeforePrologCheck.class,
       CrossOriginResourceSharingCheck.class,
+      DefaultInterceptorsLocationCheck.class,
       DebugFeatureCheck.class,
       TabCharacterCheck.class,
       HardcodedCredentialsCheck.class,
