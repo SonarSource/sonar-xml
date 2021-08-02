@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.xml;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,8 +34,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class XmlRulesDefinitionTest {
 
-  private static final Set<String> DEPRECATED_KEYS = Stream.of("S3281", "S3822")
+  private static final Set<String> JAVA_DEPRECATED_KEYS = Stream
+    .of("S3281", "S3355", "S3822")
     .collect(Collectors.toSet());
+  private static final Map<String, String> XML_DEPRECATED_KEYS = new HashMap<>();
+  static {
+    XML_DEPRECATED_KEYS.put("S105", "IllegalTabCheck");
+    XML_DEPRECATED_KEYS.put("S1120", "IndentCheck");
+    XML_DEPRECATED_KEYS.put("S2321", "NewlineCheck");
+  }
 
   @Test
   void test() {
@@ -58,8 +67,13 @@ class XmlRulesDefinitionTest {
       for (RulesDefinition.Param param : rule.params()) {
         assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
       }
-      if (DEPRECATED_KEYS.contains(rule.key())) {
-        assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("java", rule.key()));
+      String key = rule.key();
+      if (JAVA_DEPRECATED_KEYS.contains(key)) {
+        assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("java", key));
+      } else if (XML_DEPRECATED_KEYS.containsKey(key)) {
+        assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("xml", XML_DEPRECATED_KEYS.get(key)));
+      } else {
+        assertThat(rule.deprecatedRuleKeys()).isEmpty();
       }
     }
   }
