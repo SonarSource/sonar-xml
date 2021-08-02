@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class XmlRulesDefinitionTest {
 
-  private static final Set<String> DEPRECATED_KEYS = Stream.of("S3281")
+  private static final Set<String> DEPRECATED_KEYS = Stream.of("S3281", "S3822")
     .collect(Collectors.toSet());
 
   @Test
