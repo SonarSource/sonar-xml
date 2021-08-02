@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.ejb;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
+class DefaultInterceptorsLocationCheckTest {
 
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+  private static final SonarXmlCheck CHECK = new DefaultInterceptorsLocationCheck();
 
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
+  @Test
+  void interceptors_in_ejb_jar() {
+    SonarXmlCheckVerifier.verifyNoIssue("ejb-jar.xml", CHECK);
   }
 
-  abstract void scanWebXml(XmlFile file);
+  @Test
+  void interceptors_not_in_ejb_jar() {
+    SonarXmlCheckVerifier.verifyIssues("ejb-interceptors.xml", CHECK);
+  }
 
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+  @Test
+  void not_an_ejb_jar() {
+    SonarXmlCheckVerifier.verifyNoIssue("../irrelevant.xml", CHECK);
   }
 }
