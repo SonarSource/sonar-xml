@@ -34,11 +34,11 @@ public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManif
   private final XPathExpression xPathExpression = XPathBuilder
     .forExpression("/manifest/application/*" +
       "[" +
-      " (self::provider or self::activity or self::service)" +
+      " (self::provider or self::activity or self::activity-alias or self::service)" +
       "and" +
       " not(@n:exported='false')" +
       "and" +
-      " (@n:exported='true' or intent-filter)" +
+      " ((@n:exported='true' and not(intent-filter)) or intent-filter/action)" +
       "and" +
       " not(@n:permission or (@n:readPermission and @n:writePermission))" +
        "and" +
