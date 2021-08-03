@@ -21,11 +21,13 @@ package org.sonar.plugins.xml.checks.ejb;
 
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3282")
+@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3282")
 public class InterceptorExclusionsCheck extends SimpleXPathBasedCheck {
 
   private XPathExpression notDefaultInterceptorBindingsExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name!=\"*\"]");
