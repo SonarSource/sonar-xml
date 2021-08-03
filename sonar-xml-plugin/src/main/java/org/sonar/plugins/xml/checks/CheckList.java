@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
 import org.sonar.plugins.xml.checks.hibernate.DatabaseSchemaUpdateCheck;
+import org.sonar.plugins.xml.checks.maven.GroupIdNamingConventionCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
@@ -48,6 +49,7 @@ public class CheckList {
       DatabaseSchemaUpdateCheck.class,
       DefaultInterceptorsLocationCheck.class,
       DebugFeatureCheck.class,
+      GroupIdNamingConventionCheck.class,
       TabCharacterCheck.class,
       HardcodedCredentialsCheck.class,
       ParsingErrorCheck.class,
