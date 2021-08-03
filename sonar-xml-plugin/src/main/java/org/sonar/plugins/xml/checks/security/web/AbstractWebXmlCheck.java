@@ -24,7 +24,6 @@ import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
 public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
 
-  public static final String WEB_XML_ROOT = "web-app";
   private static final String WEB_XML = "web.xml";
 
   @Override
