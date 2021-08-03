@@ -122,7 +122,11 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       return false;
     }
     String fullName = node.getNodeName();
-    return fullName == null || !fullName.equalsIgnoreCase("android:password");
+    if (fullName == null || !fullName.equalsIgnoreCase("android:password")) {
+      return true;
+    }
+    String value = node.getNodeValue();
+    return value != null && !value.trim().equalsIgnoreCase("true");
   }
 
   private void checkCredential(Node node, String candidate) {
