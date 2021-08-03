@@ -32,7 +32,7 @@ public final class XmlPlugin implements Plugin {
     context.addExtensions(
       PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")
-        .description("Comma-separated list of suffixes for files to analyze.")
+        .description("List of suffixes for XML files to analyze.")
         .defaultValue(".xml,.xsd,.xsl")
         .multiValues(true)
         .category("XML")
