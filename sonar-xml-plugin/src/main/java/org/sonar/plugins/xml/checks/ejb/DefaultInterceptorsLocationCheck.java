@@ -21,12 +21,10 @@ package org.sonar.plugins.xml.checks.ejb;
 
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
 @Rule(key = "S3281")
-@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3281")
 public class DefaultInterceptorsLocationCheck extends SimpleXPathBasedCheck {
 
   private XPathExpression defaultInterceptorClassesExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name=\"*\"]/interceptor-class");

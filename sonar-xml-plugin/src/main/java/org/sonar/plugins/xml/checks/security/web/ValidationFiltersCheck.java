@@ -24,12 +24,10 @@ import java.util.Optional;
 import java.util.Set;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3355")
-@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3355")
 public class ValidationFiltersCheck extends AbstractWebXmlCheck {
   private XPathExpression filterNamesFromFilterExpression = getXPathExpression(WEB_XML_ROOT + "/filter/filter-name");
   private XPathExpression filterNamesFromFilterMappingExpression = getXPathExpression(WEB_XML_ROOT + "/filter-mapping/filter-name");

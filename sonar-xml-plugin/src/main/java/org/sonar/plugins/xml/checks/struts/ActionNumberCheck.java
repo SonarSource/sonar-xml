@@ -24,13 +24,11 @@ import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3373")
-@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3373")
 public class ActionNumberCheck extends SimpleXPathBasedCheck {
 
   private static final int DEFAULT_MAXIMUM_NUMBER_FORWARDS = 4;

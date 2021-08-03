@@ -21,14 +21,12 @@ package org.sonar.plugins.xml.checks.hibernate;
 
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
-import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 @Rule(key = "S3822")
-@DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3822")
 public class DatabaseSchemaUpdateCheck extends SimpleXPathBasedCheck {
 
   private XPathExpression hibernateHbm2ddlAutoProperty = getXPathExpression("//property[@name='hibernate.hbm2ddl.auto']");

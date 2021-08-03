@@ -69,7 +69,9 @@ class XmlRulesDefinitionTest {
       }
       String key = rule.key();
       if (JAVA_DEPRECATED_KEYS.contains(key)) {
-        assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("java", key));
+        assertThat(rule.deprecatedRuleKeys()).isEmpty();
+        // FIXME SQ bug - rules part of SonarWay are activated in Java and makes SQ crash
+        // assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("java", key));
       } else if (XML_DEPRECATED_KEYS.containsKey(key)) {
         assertThat(rule.deprecatedRuleKeys()).contains(RuleKey.of("xml", XML_DEPRECATED_KEYS.get(key)));
       } else {
