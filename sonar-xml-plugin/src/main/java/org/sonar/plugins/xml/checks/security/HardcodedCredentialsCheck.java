@@ -121,12 +121,12 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (localName == null || !credentialWords.contains(localName.toLowerCase(Locale.ROOT))) {
       return false;
     }
-    String fullName = node.getNodeName();
-    if (fullName == null || !fullName.equalsIgnoreCase("android:password")) {
-      return true;
-    }
-    String value = node.getNodeValue();
-    return value != null && !value.trim().equalsIgnoreCase("true");
+    return !isTruthyAndroidPasswordAttribute(node);
+  }
+
+  private static boolean isTruthyAndroidPasswordAttribute(Node node) {
+    return node.getNodeName().equalsIgnoreCase("android:password") &&
+      node.getNodeValue().trim().equalsIgnoreCase("true");
   }
 
   private void checkCredential(Node node, String candidate) {
@@ -180,10 +180,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
-        + "|/b:beans/gh:config"
-        + "|/b:beans/gg:config"
-        + "|/b:beans/l:config"
-        + "|/b:beans/t:config")
+          + "|/b:beans/gh:config"
+          + "|/b:beans/gg:config"
+          + "|/b:beans/l:config"
+          + "|/b:beans/t:config")
         .withNamespace("b", "http://www.springframework.org/schema/beans")
         .withNamespace("f", "http://www.springframework.org/schema/social/facebook")
         .withNamespace("gh", "http://www.springframework.org/schema/social/github")
@@ -193,7 +193,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .build(),
       node -> getAttributeSafe(node, "app-secret"),
       true
-      ),
+    ),
     // Teiid
     new SpecialCase(
       "/security-domain/authentication/login-module/module-option["
@@ -204,7 +204,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "]",
       node -> getAttributeSafe(node, VALUE),
       false)
-    );
+  );
 
   private static Optional<Node> getTextValueSafe(Node node) {
     return Optional.ofNullable(node.getFirstChild());
