@@ -24,8 +24,12 @@ import java.util.List;
 import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
 import org.sonar.plugins.xml.checks.ejb.InterceptorExclusionsCheck;
 import org.sonar.plugins.xml.checks.hibernate.DatabaseSchemaUpdateCheck;
+import org.sonar.plugins.xml.checks.maven.ArtifactIdNamingConventionCheck;
+import org.sonar.plugins.xml.checks.maven.DependencyWithSystemScopeCheck;
+import org.sonar.plugins.xml.checks.maven.DeprecatedPomPropertiesCheck;
 import org.sonar.plugins.xml.checks.maven.DisallowedDependenciesCheck;
 import org.sonar.plugins.xml.checks.maven.GroupIdNamingConventionCheck;
+import org.sonar.plugins.xml.checks.maven.PomElementOrderCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidApplicationBackupCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
@@ -38,9 +42,11 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
-import org.sonar.plugins.xml.checks.spring.DefaultMessageListenerContainerCheck;
-import org.sonar.plugins.xml.checks.struts.ActionNumberCheck;
 import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
+import org.sonar.plugins.xml.checks.spring.DefaultMessageListenerContainerCheck;
+import org.sonar.plugins.xml.checks.spring.SingleConnectionFactoryCheck;
+import org.sonar.plugins.xml.checks.struts.ActionNumberCheck;
+import org.sonar.plugins.xml.checks.struts.FormNameDuplicationCheck;
 
 public class CheckList {
 
@@ -49,6 +55,12 @@ public class CheckList {
 
   public static List<Class<?>> getCheckClasses() {
     return Arrays.asList(
+      ArtifactIdNamingConventionCheck.class,
+      DependencyWithSystemScopeCheck.class,
+      DeprecatedPomPropertiesCheck.class,
+      FormNameDuplicationCheck.class,
+      PomElementOrderCheck.class,
+      SingleConnectionFactoryCheck.class,
       ActionNumberCheck.class,
       AndroidClearTextCheck.class,
       AndroidCustomPermissionCheck.class,

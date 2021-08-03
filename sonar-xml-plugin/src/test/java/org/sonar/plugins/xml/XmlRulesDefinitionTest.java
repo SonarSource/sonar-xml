@@ -34,9 +34,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class XmlRulesDefinitionTest {
 
-  private static final Set<String> JAVA_DEPRECATED_KEYS = Stream
-    .of("S3281", "S3355", "S3373", "S3822", "S3439", "S3417", "S3282", "S3419")
-    .collect(Collectors.toSet());
+  private static final Set<String> JAVA_DEPRECATED_KEYS = Stream.of(
+    "S3281",
+    "S3282",
+    "S3439",
+    "S3417",
+    "S3419",
+    "S3420",
+    "S3421",
+    "S3422",
+    "S3423",
+    "S3438",
+    "S3355",
+    "S3373",
+    "S3374",
+    "S3822"
+    ).collect(Collectors.toSet());
   private static final Map<String, String> XML_DEPRECATED_KEYS = new HashMap<>();
   static {
     XML_DEPRECATED_KEYS.put("S105", "IllegalTabCheck");
