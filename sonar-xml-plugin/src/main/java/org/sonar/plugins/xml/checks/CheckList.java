@@ -21,8 +21,6 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
-import org.sonar.plugins.xml.checks.hibernate.DatabaseSchemaUpdateCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
@@ -30,8 +28,6 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
-import org.sonar.plugins.xml.checks.struts.ActionNumberCheck;
-import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 
 public class CheckList {
 
@@ -40,13 +36,10 @@ public class CheckList {
 
   public static List<Class<?>> getCheckClasses() {
     return Arrays.asList(
-      ActionNumberCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       CharBeforePrologCheck.class,
       CrossOriginResourceSharingCheck.class,
-      DatabaseSchemaUpdateCheck.class,
-      DefaultInterceptorsLocationCheck.class,
       DebugFeatureCheck.class,
       TabCharacterCheck.class,
       HardcodedCredentialsCheck.class,
@@ -59,7 +52,6 @@ public class CheckList {
       HttpOnlyOnCookiesCheck.class,
       BasicAuthenticationCheck.class,
       FixmeCommentCheck.class,
-      ValidationFiltersCheck.class,
       CommentedOutCodeCheck.class
     );
   }
