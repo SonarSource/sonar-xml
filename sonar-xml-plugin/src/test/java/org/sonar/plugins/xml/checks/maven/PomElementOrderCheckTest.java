@@ -17,33 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.maven;
 
 import org.junit.jupiter.api.Test;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-class ValidationFiltersCheckTest {
-
-  private static final SonarXmlCheck CHECK = new ValidationFiltersCheck();
+class PomElementOrderCheckTest {
 
   @Test
-  void web_xml_without_filter() {
-    SonarXmlCheckVerifier.verifyNoIssue("withoutFilters/web.xml", CHECK);
+  void should_raise_issue_if_order_is_wrong() {
+    SonarXmlCheckVerifier.verifyIssues("Wrong1/pom.xml", new PomElementOrderCheck());
   }
 
   @Test
-  void web_xml_incomplete_filter() {
-    SonarXmlCheckVerifier.verifyIssues("incompleteFilters/web.xml", CHECK);
+  void should_raise_issue_with_location_only_between_first_and_last_wrong() {
+    SonarXmlCheckVerifier.verifyIssues("Wrong2/pom.xml", new PomElementOrderCheck());
   }
 
   @Test
-  void web_xml_incoherent_filters() {
-    SonarXmlCheckVerifier.verifyIssues("incoherentFilters/web.xml", CHECK);
+  void should_not_raise_issue_if_order_is_correct() {
+    SonarXmlCheckVerifier.verifyNoIssue("Ok/pom.xml", new PomElementOrderCheck());
   }
 
-  @Test
-  void web_xml_with_filter() {
-    SonarXmlCheckVerifier.verifyNoIssue("withFilters/web.xml", CHECK);
-  }
 }

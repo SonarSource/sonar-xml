@@ -17,33 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.xml.checks.security.web;
+package org.sonar.plugins.xml.checks.maven;
 
 import org.junit.jupiter.api.Test;
-import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-class ValidationFiltersCheckTest {
-
-  private static final SonarXmlCheck CHECK = new ValidationFiltersCheck();
-
+class DependencyWithSystemScopeCheckTest {
   @Test
-  void web_xml_without_filter() {
-    SonarXmlCheckVerifier.verifyNoIssue("withoutFilters/web.xml", CHECK);
-  }
-
-  @Test
-  void web_xml_incomplete_filter() {
-    SonarXmlCheckVerifier.verifyIssues("incompleteFilters/web.xml", CHECK);
-  }
-
-  @Test
-  void web_xml_incoherent_filters() {
-    SonarXmlCheckVerifier.verifyIssues("incoherentFilters/web.xml", CHECK);
-  }
-
-  @Test
-  void web_xml_with_filter() {
-    SonarXmlCheckVerifier.verifyNoIssue("withFilters/web.xml", CHECK);
+  void test() {
+    DependencyWithSystemScopeCheck check = new DependencyWithSystemScopeCheck();
+    SonarXmlCheckVerifier.verifyIssues("pom.xml", check);
+    SonarXmlCheckVerifier.verifyNoIssue("../irrelevant.xml", check);
   }
 }

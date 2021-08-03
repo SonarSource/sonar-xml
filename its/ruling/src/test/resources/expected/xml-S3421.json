@@ -1,0 +1,17 @@
+{
+'project:jboss-ejb3-tutorial/common/pom.xml':[
+7,
+7,
+7,
+],
+'project:sonar-java/its/plugin/projects/struts-1.3.9-lite/taglib/pom.xml':[
+94,
+],
+'project:sonar-java/its/plugin/projects/struts-1.3.9-lite/tiles/pom.xml':[
+87,
+],
+'project:sonar-java/java-checks/src/test/files/checks/xml/maven/DeprecatedPomPropertiesCheck/pom.xml':[
+9,
+20,
+],
+}
