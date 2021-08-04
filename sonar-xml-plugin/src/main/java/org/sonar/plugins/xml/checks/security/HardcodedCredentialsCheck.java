@@ -118,15 +118,11 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static boolean isCredentialNode(Node node, Set<String> credentialWords) {
     String localName = node.getLocalName();
-    if (localName == null || !credentialWords.contains(localName.toLowerCase(Locale.ROOT))) {
+    if (localName == null) {
       return false;
     }
-    return !isTruthyAndroidPasswordAttribute(node);
-  }
-
-  private static boolean isTruthyAndroidPasswordAttribute(Node node) {
-    return node.getNodeName().equalsIgnoreCase("android:password") &&
-      node.getNodeValue().trim().equalsIgnoreCase("true");
+    return credentialWords.contains(localName.toLowerCase(Locale.ROOT)) &&
+      !node.getNodeName().equalsIgnoreCase("android:password");
   }
 
   private void checkCredential(Node node, String candidate) {

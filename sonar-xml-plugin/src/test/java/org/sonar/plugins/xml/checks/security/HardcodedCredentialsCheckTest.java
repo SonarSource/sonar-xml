@@ -70,7 +70,7 @@ class HardcodedCredentialsCheckTest {
   }
 
   @Test
-  void android_password_true_is_ignored() {
-    SonarXmlCheckVerifier.verifyIssues("android_password.xml", CHECK);
+  void android_password_attribute_is_ignored() {
+    SonarXmlCheckVerifier.verifyNoIssue("android_password.xml", CHECK);
   }
 }
