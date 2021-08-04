@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks.security;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,5 +67,10 @@ class HardcodedCredentialsCheckTest {
   })
   void special_cases(String file) {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("special-cases", file).toString(), CHECK);
+  }
+
+  @Test
+  void android_password_attribute_is_ignored() {
+    SonarXmlCheckVerifier.verifyNoIssue("android_password.xml", CHECK);
   }
 }

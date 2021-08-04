@@ -118,7 +118,11 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static boolean isCredentialNode(Node node, Set<String> credentialWords) {
     String localName = node.getLocalName();
-    return localName != null && credentialWords.contains(localName.toLowerCase(Locale.ROOT));
+    if (localName == null) {
+      return false;
+    }
+    return credentialWords.contains(localName.toLowerCase(Locale.ROOT)) &&
+      !node.getNodeName().equalsIgnoreCase("android:password");
   }
 
   private void checkCredential(Node node, String candidate) {
@@ -172,10 +176,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
-        + "|/b:beans/gh:config"
-        + "|/b:beans/gg:config"
-        + "|/b:beans/l:config"
-        + "|/b:beans/t:config")
+          + "|/b:beans/gh:config"
+          + "|/b:beans/gg:config"
+          + "|/b:beans/l:config"
+          + "|/b:beans/t:config")
         .withNamespace("b", "http://www.springframework.org/schema/beans")
         .withNamespace("f", "http://www.springframework.org/schema/social/facebook")
         .withNamespace("gh", "http://www.springframework.org/schema/social/github")
@@ -185,7 +189,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .build(),
       node -> getAttributeSafe(node, "app-secret"),
       true
-      ),
+    ),
     // Teiid
     new SpecialCase(
       "/security-domain/authentication/login-module/module-option["
@@ -196,7 +200,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "]",
       node -> getAttributeSafe(node, VALUE),
       false)
-    );
+  );
 
   private static Optional<Node> getTextValueSafe(Node node) {
     return Optional.ofNullable(node.getFirstChild());
