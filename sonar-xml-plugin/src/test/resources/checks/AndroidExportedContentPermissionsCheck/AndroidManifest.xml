@@ -290,5 +290,19 @@
       </intent-filter>
     </activity-alias>
 
+    <!-- We suppose that intent-filter is not inherited from parent activity -->
+    <activity android:name="activity.with.alias.with.filter3" android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <!-- Noncompliant@+1 -->
+    <activity-alias
+            android:name="alias13"
+            android:targetActivity="activity.with.alias.with.filter3"
+            android:exported="true">
+    </activity-alias>
+
   </application>
 </manifest>
