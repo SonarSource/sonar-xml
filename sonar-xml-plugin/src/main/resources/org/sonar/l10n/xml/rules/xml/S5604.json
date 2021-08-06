@@ -10,7 +10,7 @@
     "cwe",
     "android",
     "privacy",
-    "owasp-a3"
+    "owasp-m1"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5604",
@@ -20,8 +20,11 @@
     "CWE": [
       250
     ],
-    "OWASP": [
-      "A3"
+    "OWASP Mobile": [
+      "M1"
+    ],
+    "MASVS": [
+      "MSTG-PLATFORM-1"
     ]
   }
 }

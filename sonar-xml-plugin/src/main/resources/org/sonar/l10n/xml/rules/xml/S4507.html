@@ -1,7 +1,7 @@
 <p>In the application manifest element of an android application, setting <code><a
 href="https://developer.android.com/guide/topics/manifest/application-element#debug">debuggable</a></code> property to <code>true</code> could
 introduce a security risk.</p>
-<p>It's more easy to perform reverse engineering and inject arbitrary code in the context of a debuggable application.</p>
+<p>It’s more easy to perform reverse engineering and inject arbitrary code in the context of a debuggable application.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
   <li> the development of the app is completed and the <code>debuggable</code> property is set to <em>true</em> </li>
@@ -38,6 +38,8 @@ property automatically and assign the correct value depending on the build type.
 </pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x12-v7-code_quality_and_build_setting_requirements">Mobile AppSec
+  Verification Standard</a> - Code Quality and Build Setting Requirements </li>
   <li> <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M10-Extraneous_Functionality">OWASP Mobile Top 10 2016 Category M10</a> -
   Extraneous Functionality </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/215.html">CWE-215</a> - Information Exposure Through Debug Information </li>

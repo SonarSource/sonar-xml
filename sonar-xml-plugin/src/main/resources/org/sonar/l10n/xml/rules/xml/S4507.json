@@ -12,7 +12,7 @@
     "debug",
     "android",
     "user-experience",
-    "owasp-a3"
+    "owasp-m10"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4507",
@@ -23,8 +23,11 @@
       489,
       215
     ],
-    "OWASP": [
-      "A3"
+    "OWASP Mobile": [
+      "M10"
+    ],
+    "MASVS": [
+      "MSTG-CODE-2"
     ]
   }
 }

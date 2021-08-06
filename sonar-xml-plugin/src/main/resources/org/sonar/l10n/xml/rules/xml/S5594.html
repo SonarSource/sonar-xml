@@ -1,7 +1,7 @@
 <p>If an Android component is exported and no permissions are defined then other mobile apps can interact with it and perform potential unauthorized
 actions.</p>
 <p>For instance, an exported content provider can expose sensitive data, if no permissions are defined, to other mobile apps.</p>
-<p>It's highly recommended to implement restrictive permissions on exposed components.</p>
+<p>It’s highly recommended to implement restrictive permissions on exposed components.</p>
 <h2>Noncompliant Code Example</h2>
 <p>In an <code>AndroidManifest.xml</code> file, an exported component is vulnerable when read and write permissions are not defined:</p>
 <pre>
@@ -17,7 +17,7 @@ actions.</p>
   android:exported="true"
   android:writePermission="com.example.myapp.WRITE_PERMISSION" /&gt;  &lt;!-- Noncompliant: read permission is not defined --&gt;
 </pre>
-<p>With an <code>&lt;intent-filter&gt;</code> the component's attibute <code>android:exported</code> default value is "true":</p>
+<p>With an <code>&lt;intent-filter&gt;</code> the component’s attibute <code>android:exported</code> default value is "true":</p>
 <pre>
 &lt;activity android:name="com.example.activity1"&gt;  &lt;!-- Noncompliant: permissions are not defined --&gt;
   &lt;intent-filter&gt;
@@ -60,6 +60,8 @@ component):</p>
 </pre>
 <h2>See</h2>
 <ul>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment">Mobile AppSec Verification
+  Standard</a> - Platform Interaction Requirements </li>
   <li> <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M2-Insecure_Data_Storage">OWASP Mobile Top 10 2016 Category M2</a> - Insecure Data
   Storage </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/926.html">MITRE, CWE-926</a> - Improper Export of Android Application Components </li>
