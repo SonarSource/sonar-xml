@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+  <!-- Noncompliant@+1 {{Make sure allowing clear-text traffic is safe here.}} -->
+    <application android:usesCleartextTraffic="true">
+<!-- ^^^^^^^^^^^ -->
+    </application>
+
+  <!-- Compliant: can not guess the API level, no issue-->
+  <application>
+  </application>
+
+</manifest>
