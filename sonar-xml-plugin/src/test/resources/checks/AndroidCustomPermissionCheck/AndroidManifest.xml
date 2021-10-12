@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+
+  <!-- Noncompliant@+1 {{Use a different namespace for the "MyPermission" permission.}} -->
+  <permission android:name="android.permission.MyPermission" />
+  <!--        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+  <permission android:name="com.myname.MyOtherPermission" />
+
+  <!-- Noncompliant@+1 {{Use a different namespace for the "MyPermission2" permission.}} -->
+  <permission android:name="android.permission.MyPermission2" />
+  <!--        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+
+</manifest>
