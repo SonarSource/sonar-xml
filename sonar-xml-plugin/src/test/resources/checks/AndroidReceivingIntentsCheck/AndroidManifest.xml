@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+
+  <application>
+
+    <!-- Noncompliant@+1 {{Make sure that intents are received safely here.}} -->
+    <receiver android:name="name1_noncompliant" android:exported="true">
+<!-- ^^^^^^^^ -->
+      <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+      </intent-filter>
+    </receiver>
+
+    <!-- Compliant, permission is explicitly set -->
+    <receiver android:name="name1_compliant"
+              android:permission="android.permission.SEND_SMS"
+              android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+      </intent-filter>
+    </receiver>
+
+    <!-- Noncompliant@+1  -->
+    <receiver android:name="name2_noncompliant">
+      <!-- android:exported is true when the receiver has at least one intent filter -->
+      <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+      </intent-filter>
+    </receiver>
+
+    <!-- Compliant, permission is explicitly set -->
+    <receiver android:name="name2_compliant" android:permission="android.permission.SEND_SMS">
+      <!-- android:exported is true when the receiver has at least one intent filter -->
+      <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+      </intent-filter>
+    </receiver>
+
+    <!-- Compliant, exported is explicitly false -->
+    <receiver android:name="name3"
+              android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+      </intent-filter>
+    </receiver>
+
+    <!-- Compliant, android:exported is false when the receiver has no intent filter -->
+    <receiver android:name="name4">
+    </receiver>
+
+    <!-- Noncompliant@+1  -->
+    <receiver android:name="name5" android:exported="true">
+    </receiver>
+
+    <!-- Compliant, permission is explicitly set -->
+    <receiver android:name="name6" android:exported="true" android:permission="android.permission.SEND_SMS">
+    </receiver>
+
+  </application>
+</manifest>
