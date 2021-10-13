@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.xml.checks.security.android;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class AndroidProviderPermissionCheck extends AbstractAndroidManifestCheck
       "or" +
       " (@n:permission and not(@n:readPermission) and @n:writePermission and @n:permission = @n:writePermission)" +
       "or" +
-      " (not(@n:permission) and @n:readPermission and @n:writePermission and @n:readPermission = @n:writePermission)" +
+      " (@n:readPermission and @n:writePermission and @n:readPermission = @n:writePermission)" +
       "]")
     .withNamespace("n", ANDROID_NS)
     .build();
@@ -54,17 +55,16 @@ public class AndroidProviderPermissionCheck extends AbstractAndroidManifestCheck
     evaluateAsList(xPathExpression, file.getDocument())
       .forEach(node -> {
         final NamedNodeMap attributes = node.getAttributes();
-        final List<Node> nodes = Stream.of("permission", "readPermission", "writePermission")
+        // readPermission and writePermission have priority over permission
+        // order matters to handle the case where the 3 are defined and readPermission and writePermission are equal
+        final List<Node> nodes = Stream.of("readPermission", "writePermission", "permission")
           .map(s -> attributes.getNamedItemNS(ANDROID_NS, s))
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
         reportIssue(
           XmlFile.nodeLocation(nodes.get(0)),
           MESSAGE,
-          nodes.stream()
-            .skip(1)
-            .map(n -> new Secondary(n, null))
-            .collect(Collectors.toList()));
+          nodes.size() > 1 ? Collections.singletonList(new Secondary(nodes.get(1), null)) : Collections.emptyList());
       });
   }
 
