@@ -1,0 +1,30 @@
+{
+  "title": "Custom permissions should not be defined in the \u0027android.permission\u0027 namespace",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "android",
+    "owasp-m1"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6359",
+  "sqKey": "S6359",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      732
+    ],
+    "OWASP Mobile": [
+      "M1"
+    ],
+    "MASVS": [
+      "MSTG-PLATFORM-1"
+    ]
+  },
+  "quickfix": "unknown"
+}

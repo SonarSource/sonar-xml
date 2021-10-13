@@ -1,0 +1,35 @@
+<p>Defining a custom permission in the <code>android.permission</code> namespace may result in an unexpected permission assignment if a newer version
+of Android adds a permission with the same name. It is recommended to use a namespace specific to the application for custom permissions.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.organization.app"&gt;
+
+    &lt;permission
+        android:name="android.permission.MYPERMISSION" /&gt; &lt;!-- Sensitive --&gt;
+
+&lt;/manifest&gt;
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.organization.app"&gt;
+
+    &lt;permission
+        android:name="com.organization.app.permission.MYPERMISSION" /&gt;
+
+&lt;/manifest&gt;
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment">Mobile AppSec Verification
+  Standard</a> - Platform Interaction Requirements </li>
+  <li> <a href="https://www.owasp.org/index.php/Mobile_Top_10_2016-M1-Improper_Platform_Usage">OWASP Mobile Top 10 2016 Category M1</a> - Improper
+  Platform Usage </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/265.html">MITRE, CWE-265</a> - Privilege Issues </li>
+  <li> <a href="https://cwe.mitre.org/data/definitions/732.html">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
+  <li> <a href="https://developer.android.com/guide/topics/permissions/defining">developer.android.com</a> - Define a Custom App Permission </li>
+</ul>
+

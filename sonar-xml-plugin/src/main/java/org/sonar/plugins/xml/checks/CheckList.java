@@ -22,6 +22,7 @@ package org.sonar.plugins.xml.checks;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
@@ -38,6 +39,7 @@ public class CheckList {
     return Arrays.asList(
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
+      AndroidCustomPermissionCheck.class,
       CharBeforePrologCheck.class,
       CrossOriginResourceSharingCheck.class,
       DebugFeatureCheck.class,
