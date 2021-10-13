@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+
+  <!-- Noncompliant@+1 {{Make sure backup of application data is safe here.}} -->
+     <application>
+<!--  ^^^^^^^^^^^ -->
+       <!-- Backup enabled by default -->
+     </application>
+
+  <!-- Noncompliant@+1 -->
+  <application android:allowBackup="true">
+    <!-- Backup explicitly enabled -->
+  </application>
+
+  <!-- Compliant: allowBackup explicitly set to false -->
+  <application android:allowBackup="false">
+  </application>
+
+  <!-- Compliant: backupAgent defined -->
+  <application android:backupAgent="CustomBackupAgent">
+  </application>
+
+  <!-- Compliant: backupAgent defined -->
+  <application
+          android:allowBackup="true"
+          android:backupAgent="CustomBackupAgent">
+  </application>
+
+  <!-- Compliant, fullBackupContent is defined and points to @xml -->
+  <application android:allowBackup="true"
+               android:fullBackupContent="@xml/backup.xml">
+  </application>
+
+  <!-- Compliant -->
+  <application android:allowBackup="true"
+               android:fullBackupContent="${var}">
+  </application>
+
+  <!-- Noncompliant@+1 -->
+  <application android:fullBackupContent="true">
+  </application>
+
+  <!-- Noncompliant@+1 -->
+  <application android:fullBackupContent="false">
+  </application>
+
+  <!-- Noncompliant@+1 -->
+  <application android:fullBackupContent="myFile.xml">
+  </application>
+
+</manifest>
