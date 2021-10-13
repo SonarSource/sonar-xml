@@ -25,6 +25,7 @@ import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidProviderPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidReceivingIntentsCheck;
 import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
@@ -41,6 +42,7 @@ public class CheckList {
       AndroidCustomPermissionCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
+      AndroidProviderPermissionCheck.class,
       AndroidReceivingIntentsCheck.class,
       CharBeforePrologCheck.class,
       CrossOriginResourceSharingCheck.class,
