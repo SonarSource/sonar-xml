@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
-  <uses-sdk android:minSdkVersion="27" />
 
   <!-- Noncompliant@+1 {{Make sure allowing clear-text traffic is safe here.}} -->
     <application android:usesCleartextTraffic="true">
 <!-- ^^^^^^^^^^^ -->
     </application>
 
-  <!-- Noncompliant@+1 {{"usesCleartextTraffic" is implicitly enabled for older Android version.Make sure allowing clear-text traffic is safe here.}} -->
-  <application>
-    <!-- Version can be 27, usesCleartextTraffic default to true -->
+  <!-- Noncompliant@+1 {{"usesCleartextTraffic" is implicitly enabled for older Android versions. Make sure allowing clear-text traffic is safe here.}} -->
+    <application>
+    </application>
+
+  <!-- Compliant -->
+  <application android:usesCleartextTraffic="false">
   </application>
 
-</manifest>
+  </manifest>

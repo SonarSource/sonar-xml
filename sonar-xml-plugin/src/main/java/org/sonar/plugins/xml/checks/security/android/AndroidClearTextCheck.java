@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
 public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
 
   private static final String MESSAGE = "Make sure allowing clear-text traffic is safe here.";
-  private static final String MESSAGE_IMPLICIT = "\"usesCleartextTraffic\" is implicitly enabled for older Android version." + MESSAGE;
+  private static final String MESSAGE_IMPLICIT = "\"usesCleartextTraffic\" is implicitly enabled for older Android versions. " + MESSAGE;
 
   private static final String ANDROID_NAME_SPACE = "http://schemas.android.com/apk/res/android";
 
@@ -46,30 +46,15 @@ public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
     .withNamespace("n", ANDROID_NAME_SPACE)
     .build();
 
-  private final XPathExpression xPathMinVersionBelow27 = XPathBuilder
-    .forExpression("/manifest/uses-sdk[@n:minSdkVersion<=27]")
-    .withNamespace("n", ANDROID_NAME_SPACE)
-    .build();
-
   @Override
   protected void scanAndroidManifest(XmlFile file) {
     Document document = file.getDocument();
     evaluateAsList(xPathClearTextTrue, document).forEach(node -> reportAtNameLocation(node, MESSAGE));
-    if (shouldReportImplicitFlag(document)) {
-      evaluateAsList(xPathClearTextImplicit, document).forEach(node -> reportAtNameLocation(node, MESSAGE_IMPLICIT));
-    }
+    evaluateAsList(xPathClearTextImplicit, document).forEach(node -> reportAtNameLocation(node, MESSAGE_IMPLICIT));
   }
 
   private void reportAtNameLocation(Node node, String message) {
     reportIssue(XmlFile.nameLocation((Element) node), message, Collections.emptyList());
-  }
-
-  private boolean shouldReportImplicitFlag(Document document) {
-    // Flag is implicitly set to true when min version is <= 27.
-    // In theory, when max is defined and < 24, the flag does not exist, we should not report an issue.
-    // We accept it as a corner case though: it is advised to not set a max, and it would mean that the application
-    // supports a maximum version that is 6 years old.
-    return !evaluateAsList(xPathMinVersionBelow27, document).isEmpty();
   }
 
 }

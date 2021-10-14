@@ -25,34 +25,8 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 class AndroidClearTextCheckTest {
 
   @Test
-  void manifest_no_api_version() {
-    SonarXmlCheckVerifier.verifyIssues("no_api_version/AndroidManifest.xml", new AndroidClearTextCheck());
-  }
-
-  @Test
-  void manifest_api_28() {
-    SonarXmlCheckVerifier.verifyIssues("api_28/AndroidManifest.xml", new AndroidClearTextCheck());
-  }
-
-  @Test
-  void manifest_api_27() {
-    SonarXmlCheckVerifier.verifyIssues("api_27/AndroidManifest.xml", new AndroidClearTextCheck());
-  }
-
-
-  @Test
-  void manifest_api_23() {
-    SonarXmlCheckVerifier.verifyIssues("api_23/AndroidManifest.xml", new AndroidClearTextCheck());
-  }
-
-  @Test
-  void manifest_api_23_to_28() {
-    SonarXmlCheckVerifier.verifyIssues("api_23_to_28/AndroidManifest.xml", new AndroidClearTextCheck());
-  }
-
-  @Test
-  void manifest_api_broken() {
-    SonarXmlCheckVerifier.verifyIssues("api_version_broken/AndroidManifest.xml", new AndroidClearTextCheck());
+  void test() {
+    SonarXmlCheckVerifier.verifyIssues("AndroidManifest.xml", new AndroidClearTextCheck());
   }
 
   @Test
