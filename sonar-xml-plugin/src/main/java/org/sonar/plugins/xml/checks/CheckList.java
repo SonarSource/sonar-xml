@@ -22,6 +22,7 @@ package org.sonar.plugins.xml.checks;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidApplicationBackupCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidPermissionsCheck;
@@ -40,6 +41,7 @@ public class CheckList {
   public static List<Class<?>> getCheckClasses() {
     return Arrays.asList(
       AndroidCustomPermissionCheck.class,
+      AndroidApplicationBackupCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       AndroidProviderPermissionCheck.class,
