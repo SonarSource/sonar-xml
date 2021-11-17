@@ -57,7 +57,7 @@
     <license.title>SonarQube XML Plugin</license.title>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
-    <sonar.version>7.9</sonar.version>
+    <sonar.version>8.9.0.43852</sonar.version>
     <sonar.minVersion>8.9</sonar.minVersion>
 
     <sonar.analyzerCommons.version>1.21.0.829</sonar.analyzerCommons.version>
@@ -100,6 +100,12 @@
         <groupId>org.sonarsource.sonarlint.core</groupId>
         <artifactId>sonarlint-core</artifactId>
         <version>${sonar.sonarlint-core.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api-impl</artifactId>
+        <version>${sonar.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

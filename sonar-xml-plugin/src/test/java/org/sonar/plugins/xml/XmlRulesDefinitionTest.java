@@ -64,7 +64,7 @@ class XmlRulesDefinitionTest {
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
 
-    assertThat(repository.name()).isEqualTo("SonarAnalyzer");
+    assertThat(repository.name()).isEqualTo("SonarQube");
     assertThat(repository.language()).isEqualTo("xml");
     assertThat(repository.rules()).hasSize(CheckList.getCheckClasses().size());
 

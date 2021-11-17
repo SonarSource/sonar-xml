@@ -36,6 +36,7 @@ import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
@@ -61,7 +62,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.xml.checks.TabCharacterCheck;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -78,8 +79,8 @@ class XmlSensorTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private DefaultFileSystem fs;
   private XmlSensor sensor;
@@ -353,7 +354,8 @@ class XmlSensorTest {
       .setLanguage(Xml.KEY)
       .setCharset(charset)
       .build();
-    Metadata metadata = new FileMetadata().readMetadata(new FileInputStream(inputFile.file()), inputFile.charset(), inputFile.absolutePath());
+    Metadata metadata = new FileMetadata(s -> {
+    }).readMetadata(new FileInputStream(inputFile.file()), inputFile.charset(), inputFile.absolutePath());
     return inputFile.setMetadata(metadata);
   }
 

@@ -19,12 +19,12 @@
  */
 package com.sonar.it.xml;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.internal.google.gson.Gson;
-import org.sonar.api.internal.google.gson.JsonObject;
 import org.sonarqube.ws.client.GetRequest;
 
 import static com.sonar.it.xml.XmlTestSuite.newWsClient;
