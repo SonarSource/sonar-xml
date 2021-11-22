@@ -155,6 +155,17 @@ class XmlSensorTest {
   }
 
   @Test
+  void test_sensor_should_not_fail() throws Exception {
+    init();
+    DefaultInputFile inputFile = createInputFile("src/shouldNotFail.xml");
+    fs.add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
+  }
+
+  @Test
   void test_sensor_in_sonarlint_context() throws Exception {
     init();
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
