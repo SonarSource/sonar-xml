@@ -39,6 +39,9 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -50,6 +53,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -69,6 +73,7 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -90,6 +95,7 @@ class XmlSensorTest {
   private static final String PARSING_ERROR_CHECK_KEY = "S2260";
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
+  public static final SonarRuntime SQ_LTS_RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
 
   @Test
   @Timeout(value = 12000, unit = TimeUnit.MILLISECONDS)
@@ -134,6 +140,41 @@ class XmlSensorTest {
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
     assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
+  }
+
+  @Test
+  void test_descriptor_sonarlint() throws Exception {
+    init(SonarRuntimeImpl.forSonarLint(Version.create(6, 5)), false);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
+    assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_3() throws Exception {
+    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    final boolean[] called = {false};
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
+      public SensorDescriptor processesFilesIndependently() {
+        called[0] = true;
+        return this;
+      }
+    };
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
+    assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
+    assertTrue(called[0]);
+  }
+
+  @Test
+  void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
+    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    sensor.describe(sensorDescriptor);
+    assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
+    assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
+    assertTrue(logTester.logs().contains("Could not call SensorDescriptor.processesFilesIndependently() method"));
   }
 
   /**
@@ -196,7 +237,7 @@ class XmlSensorTest {
 
   @Test
   void failing_rules_should_not_report_parse_exception() throws Exception {
-    init(true);
+    init(SQ_LTS_RUNTIME, true);
 
     sensor.runCheck(context, new SonarXmlCheck() {
       @Override
@@ -233,7 +274,7 @@ class XmlSensorTest {
    */
   @Test
   void should_not_execute_test_on_corrupted_file_and_should_raise_parsing_issue() throws Exception {
-    init(true);
+    init(SQ_LTS_RUNTIME, true);
     fs.add(createInputFile("src/wrong-ampersand.xhtml"));
 
     sensor.execute(context);
@@ -264,10 +305,10 @@ class XmlSensorTest {
   }
 
   private void init() throws Exception {
-    init(false);
+    init(SQ_LTS_RUNTIME, false);
   }
 
-  private void init(boolean activateParsingErrorCheck) throws Exception {
+  private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
 
@@ -287,7 +328,7 @@ class XmlSensorTest {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
 
-    sensor = new XmlSensor(fs, checkFactory, fileLinesContextFactory);
+    sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory);
   }
 
   @Test
@@ -316,7 +357,7 @@ class XmlSensorTest {
 
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
-    sensor = new XmlSensor(fileSystem, checkFactory, fileLinesContextFactory);
+    sensor = new XmlSensor(SQ_LTS_RUNTIME, fileSystem, checkFactory, fileLinesContextFactory);
     sensor.execute(context);
 
     String componentKey = "modulekey:" + filename;

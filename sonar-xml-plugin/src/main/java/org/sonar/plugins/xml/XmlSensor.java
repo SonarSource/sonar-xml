@@ -19,12 +19,14 @@
  */
 package org.sonar.plugins.xml;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,6 +39,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.CheckList;
@@ -55,9 +58,11 @@ public class XmlSensor implements Sensor {
   private final boolean parsingErrorCheckEnabled;
   private final FileSystem fileSystem;
   private final FilePredicate mainFilesPredicate;
+  private final SonarRuntime sonarRuntime;
   private final FileLinesContextFactory fileLinesContextFactory;
 
-  public XmlSensor(FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
+  public XmlSensor(SonarRuntime sonarRuntime, FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
+    this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) CheckList.getCheckClasses());
     this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
@@ -143,6 +148,20 @@ public class XmlSensor implements Sensor {
     descriptor
       .onlyOnLanguage(Xml.KEY)
       .name("XML Sensor");
+    processesFilesIndependently(descriptor);
+  }
+
+  private void processesFilesIndependently(SensorDescriptor descriptor) {
+    if ((sonarRuntime.getProduct() != SonarProduct.SONARQUBE)
+      || !sonarRuntime.getApiVersion().isGreaterThanOrEqual(Version.create(9, 3))) {
+      return;
+    }
+    try {
+      Method method = descriptor.getClass().getMethod("processesFilesIndependently");
+      method.invoke(descriptor);
+    } catch (ReflectiveOperationException e) {
+      LOG.warn("Could not call SensorDescriptor.processesFilesIndependently() method", e);
+    }
   }
 
   private void processParseException(Exception e, SensorContext context, InputFile inputFile) {
