@@ -7,11 +7,11 @@
     "constantCost": "0min"
   },
   "tags": [
-    "maven",
-    "java"
+    "maven"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3417",
   "sqKey": "S3417",
-  "scope": "Main"
+  "scope": "Main",
+  "quickfix": "unknown"
 }
