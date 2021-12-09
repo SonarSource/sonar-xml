@@ -7,8 +7,7 @@
     "constantCost": "30min"
   },
   "tags": [
-    "owasp-a6",
-    "java"
+    "owasp-a6"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3355",
@@ -17,6 +16,10 @@
   "securityStandards": {
     "OWASP": [
       "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
     ]
-  }
+  },
+  "quickfix": "unknown"
 }

@@ -7,11 +7,11 @@
     "constantCost": "15min"
   },
   "tags": [
-    "pitfall",
-    "java"
+    "pitfall"
   ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-3282",
   "sqKey": "S3282",
-  "scope": "Main"
+  "scope": "Main",
+  "quickfix": "unknown"
 }

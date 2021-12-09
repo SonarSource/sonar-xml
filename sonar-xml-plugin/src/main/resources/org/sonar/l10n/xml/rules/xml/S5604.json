@@ -15,7 +15,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5604",
   "sqKey": "S5604",
-  "scope": "Main",
+  "scope": "All",
   "securityStandards": {
     "CWE": [
       250
@@ -25,6 +25,12 @@
     ],
     "MASVS": [
       "MSTG-PLATFORM-1"
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
     ]
   }
 }

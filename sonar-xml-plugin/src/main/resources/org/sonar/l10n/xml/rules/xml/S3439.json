@@ -7,11 +7,11 @@
     "constantCost": "2min"
   },
   "tags": [
-    "spring",
-    "java"
+    "spring"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3439",
   "sqKey": "S3439",
-  "scope": "Main"
+  "scope": "Main",
+  "quickfix": "unknown"
 }
