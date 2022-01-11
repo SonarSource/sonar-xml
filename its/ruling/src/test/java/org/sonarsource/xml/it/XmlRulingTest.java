@@ -54,7 +54,7 @@ public class XmlRulingTest {
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .setSonarVersion(Optional.ofNullable(System.getProperty(SQ_VERSION_PROPERTY)).orElse(DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
-    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.8.0.1209"))
+    .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.10.0.2181"))
     .build();
 
   @Before
@@ -99,10 +99,10 @@ public class XmlRulingTest {
       .setProjectVersion("1")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProperty("dump.old", FileLocation.of("src/test/resources/expected").getFile().getAbsolutePath())
-      .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath());
+      .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath());
     orchestrator.executeBuild(build);
 
     assertThat(Files.readAllLines(litsDifferencesFile.toPath(), StandardCharsets.UTF_8)).isEmpty();
