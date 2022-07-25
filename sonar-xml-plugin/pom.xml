@@ -28,10 +28,6 @@
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
@@ -163,7 +159,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>2600000</maxsize>
-                  <minsize>2500000</minsize>
+                  <minsize>2400000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
