@@ -19,17 +19,24 @@
  */
 package org.sonar.plugins.xml;
 
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.plugins.xml.checks.CheckList;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 public final class XmlRulesDefinition implements RulesDefinition {
 
+  private final SonarRuntime sonarRuntime;
+
+  public XmlRulesDefinition(SonarRuntime sonarRuntime) {
+    this.sonarRuntime = sonarRuntime;
+  }
+
   @Override
   public void define(Context context) {
     NewRepository repository = context.createRepository(Xml.REPOSITORY_KEY, Xml.KEY).setName(Xml.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH);
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(Xml.XML_RESOURCE_PATH, Xml.SONAR_WAY_PATH, sonarRuntime);
 
     // add the new checks
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CheckList.getCheckClasses());
