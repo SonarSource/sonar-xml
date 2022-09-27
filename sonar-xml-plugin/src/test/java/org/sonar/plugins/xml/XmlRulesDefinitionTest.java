@@ -25,9 +25,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +61,7 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition();
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
@@ -89,6 +91,30 @@ class XmlRulesDefinitionTest {
         assertThat(rule.deprecatedRuleKeys()).isEmpty();
       }
     }
+  }
+
+  @Test
+  void test_security_standards() {
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    RulesDefinition.Repository repository = context.repository("xml");
+
+    RulesDefinition.Rule rule = repository.rule("S3281");
+
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "owaspTop10-2021:a5");
+  }
+
+  @Test
+  void test_security_standards_before_sq_9_3() {
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 2)));
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    RulesDefinition.Repository repository = context.repository("xml");
+
+    RulesDefinition.Rule rule = repository.rule("S3281");
+
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6");
   }
 
 }
