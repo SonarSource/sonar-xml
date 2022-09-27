@@ -13,6 +13,6 @@ https://jira.sonarsource.com/browse/SONARXML/
 License
 --------
 
-Copyright 2010-2021 SonarSource.
+Copyright 2010-2022 SonarSource.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](http://www.gnu.org/licenses/lgpl.txt)
