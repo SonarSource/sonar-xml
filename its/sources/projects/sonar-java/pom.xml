@@ -100,9 +100,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
+        <groupId>org.sonarsource.api.plugin</groupId>
         <artifactId>sonar-plugin-api</artifactId>
-        <version>${sonar.version}</version>
+        <version>${sonar.pluginApi.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>

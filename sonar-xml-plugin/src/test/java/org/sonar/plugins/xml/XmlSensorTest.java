@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
@@ -156,6 +158,7 @@ class XmlSensorTest {
     init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
     final boolean[] called = {false};
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
+      @Override
       public SensorDescriptor processesFilesIndependently() {
         called[0] = true;
         return this;
@@ -170,7 +173,12 @@ class XmlSensorTest {
   @Test
   void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
     init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
-    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
+      @Override
+      public SensorDescriptor processesFilesIndependently() {
+       throw new NotImplementedException();
+      }
+    };
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
     assertThat(sensorDescriptor.languages()).containsOnly(Xml.KEY);
