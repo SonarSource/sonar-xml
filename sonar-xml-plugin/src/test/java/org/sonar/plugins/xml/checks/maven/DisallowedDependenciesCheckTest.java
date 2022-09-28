@@ -21,6 +21,8 @@ package org.sonar.plugins.xml.checks.maven;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,18 +43,16 @@ class DisallowedDependenciesCheckTest {
     SonarXmlCheckVerifier.verifyIssues("noVersion/pom.xml", check);
   }
 
-  @Test
-  void with_simple_version() {
+  @ParameterizedTest
+  @CsvSource({
+          "1.2.*,regexVersion/pom.xml",
+          "1.1.0-1.2.15,rangeVersion/pom.xml",
+          "1.1.0-1.2.15,propertyVersion/pom.xml",
+  })
+  void with_versions(String version, String filePath) {
     check.dependencyName = "*:log4j";
-    check.version = "1.2.*";
-    SonarXmlCheckVerifier.verifyIssues("regexVersion/pom.xml", check);
-  }
-
-  @Test
-  void with_range_version() {
-    check.dependencyName = "*:log4j";
-    check.version = "1.1.0-1.2.15";
-    SonarXmlCheckVerifier.verifyIssues("rangeVersion/pom.xml", check);
+    check.version = version;
+    SonarXmlCheckVerifier.verifyIssues(filePath, check);
   }
 
   @Test

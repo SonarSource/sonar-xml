@@ -29,13 +29,20 @@ import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Rule(key = DisallowedDependenciesCheck.KEY)
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = DisallowedDependenciesCheck.KEY)
 public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
 
   public static final String KEY = "S3417";
 
-  private XPathExpression dependencyExpression = getXPathExpression("//dependencies/dependency");
+  private final XPathExpression dependencyExpression = getXPathExpression("//dependencies/dependency");
+  private final XPathExpression propertiesExpression = getXPathExpression("//properties");
+  private final Pattern propertyPlaceholderPattern = Pattern.compile("\\$\\{(?<property>[^}]++)}");
 
   @RuleProperty(
     key = "dependencyName",
@@ -55,14 +62,32 @@ public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
       return;
     }
 
+    Map<String, String> propertiesMap = new HashMap<>();
+
+    evaluateAsList(propertiesExpression, xmlFile.getNamespaceUnawareDocument())
+            .forEach(properties -> XmlFile.children(properties).stream()
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .forEach(property -> propertiesMap.put(property.getNodeName(), property.getTextContent())));
+
     evaluateAsList(dependencyExpression, xmlFile.getNamespaceUnawareDocument()).forEach(dependency -> {
       String groupId = getChildElementText("groupId", dependency);
       String artifactId = getChildElementText("artifactId", dependency);
-      String dependencyVersion = getChildElementText("version", dependency);
+      String dependencyVersion = resolveDependencyVersion(propertiesMap, dependency);
+
       if (getMatcher().matches(groupId, artifactId, dependencyVersion)) {
         reportIssue(dependency, "Remove this forbidden dependency.");
       }
     });
+  }
+
+  private String resolveDependencyVersion(Map<String, String> propertiesMap, Node dependency) {
+    String dependencyVersion = getChildElementText("version", dependency);
+
+    Matcher placeholderMatcher = propertyPlaceholderPattern.matcher(dependencyVersion);
+    if (placeholderMatcher.matches()) {
+      dependencyVersion = propertiesMap.getOrDefault(placeholderMatcher.group("property"), "");
+    }
+    return dependencyVersion;
   }
 
   private static String getChildElementText(String childElementName, Node parent) {
