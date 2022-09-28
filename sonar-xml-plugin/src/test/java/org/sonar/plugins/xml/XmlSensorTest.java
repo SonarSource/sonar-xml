@@ -204,6 +204,19 @@ class XmlSensorTest {
   }
 
   @Test
+  void test_sensor_does_not_scan_apex_class_metadata_files() throws Exception {
+    init();
+    // This file contains an issue triggered by S105 but should not be analyzed due to its name
+    DefaultInputFile inputFile = createInputFile("src/MyClass.cls-meta.xml");
+    fs.add(inputFile);
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.measures(inputFile.key())).isEmpty();
+  }
+
+  @Test
   void test_sensor_should_not_fail() throws Exception {
     init();
     DefaultInputFile inputFile = createInputFile("src/shouldNotFail.xml");

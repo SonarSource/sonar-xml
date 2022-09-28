@@ -64,12 +64,15 @@ public class XmlSensor implements Sensor {
   public XmlSensor(SonarRuntime sonarRuntime, FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
     this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks((Iterable<?>) CheckList.getCheckClasses());
+    this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks(CheckList.getCheckClasses());
     this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
-    this.mainFilesPredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(Xml.KEY));
+    this.mainFilesPredicate = fileSystem.predicates()
+            .and(
+                    fileSystem.predicates().hasType(InputFile.Type.MAIN),
+                    fileSystem.predicates().hasLanguage(Xml.KEY),
+                    fileSystem.predicates().doesNotMatchPathPattern("**/*.cls-meta.xml")
+            );
   }
 
   @Override
