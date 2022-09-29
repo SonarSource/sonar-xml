@@ -22,7 +22,6 @@ package org.sonar.plugins.xml.checks;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -170,6 +169,7 @@ public class XPathCheck extends SonarXmlCheck {
       return getNamespaceForPrefix(prefix, mContext);
     }
 
+    @CheckForNull
     public String getNamespaceForPrefix(String prefix, Node namespaceContext) {
       if (prefix.equals("xml")) {
         return "http://www.w3.org/XML/1998/namespace";
@@ -187,6 +187,10 @@ public class XPathCheck extends SonarXmlCheck {
           }
         }
       }
+      /*
+      Because of current test setup, we cannot create an XML file where a prefix's namespace is looked up but not found.
+      For this reason, the next line is not covered by our unit tests.
+       */
       return null;
     }
 
