@@ -1,0 +1,5 @@
+<transform version='1.0'>
+  <xml:template match='/'> <!-- Noncompliant -->
+    <hello_world/>
+  </xml:template>
+</transform>

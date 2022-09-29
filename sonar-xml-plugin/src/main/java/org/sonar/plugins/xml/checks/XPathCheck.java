@@ -21,14 +21,13 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
 import java.util.Iterator;
+import javax.annotation.CheckForNull;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.apache.xml.utils.PrefixResolver;
-import org.apache.xml.utils.PrefixResolverDefault;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -37,6 +36,8 @@ import org.sonar.check.RuleProperty;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -99,6 +100,7 @@ public class XPathCheck extends SonarXmlCheck {
   public void setFilePattern(String filePattern) {
     this.filePattern = filePattern;
   }
+
   public void setMessage(String message) {
     this.message = message;
   }
@@ -113,7 +115,7 @@ public class XPathCheck extends SonarXmlCheck {
   private XPathExpression getXPathExpression(XmlFile file) {
     XPathExpression xPathExpression;
     XPath xpath = XPathFactory.newInstance().newXPath();
-    PrefixResolver resolver = new PrefixResolverDefault(file.getDocument().getDocumentElement());
+    PrefixResolver resolver = new PrefixResolver(file.getDocument().getDocumentElement());
     xpath.setNamespaceContext(new DocumentNamespaceContext(resolver));
     try {
       xPathExpression = xpath.compile(expression);
@@ -149,6 +151,55 @@ public class XPathCheck extends SonarXmlCheck {
     @Override
     // Dummy implementation - not used!
     public Iterator<String> getPrefixes(String val) {
+      return null;
+    }
+  }
+
+  /**
+   * An internal re-implementation of the PrefixResolver from the xalan-j library.
+   */
+  private static class PrefixResolver {
+    Node mContext;
+
+    public PrefixResolver(Node xpathExpressionContext) {
+      mContext = xpathExpressionContext;
+    }
+
+    public String getNamespaceForPrefix(String prefix) {
+      return getNamespaceForPrefix(prefix, mContext);
+    }
+
+    @CheckForNull
+    public String getNamespaceForPrefix(String prefix, Node namespaceContext) {
+      if (prefix.equals("xml")) {
+        return "http://www.w3.org/XML/1998/namespace";
+      }
+
+      for (Node current = namespaceContext; current != null; current = current.getParentNode()) {
+        if (current.getNodeName().indexOf(prefix + ":") == 0) {
+          return current.getNamespaceURI();
+        }
+        NamedNodeMap attributes = current.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+          Node attr = attributes.item(i);
+          if (prefix.equals(extractPrefixFromAttribute(attr))) {
+            return attr.getNodeValue();
+          }
+        }
+      }
+      /*
+      Because of current test setup, we cannot create an XML file where a prefix's namespace is looked up but not found.
+      For this reason, the next line is not covered by our unit tests.
+       */
+      return null;
+    }
+
+    @CheckForNull
+    private static String extractPrefixFromAttribute(Node attr) {
+      String attrName = attr.getNodeName();
+      if (attrName.startsWith("xmlns:")) {
+        return attrName.substring(attrName.indexOf(':') + 1);
+      }
       return null;
     }
   }

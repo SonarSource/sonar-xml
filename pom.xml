@@ -115,11 +115,6 @@
         <version>3.0.2</version>
       </dependency>
       <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-analyzer-test-commons</artifactId>
         <version>${sonar.analyzerCommons.version}</version>

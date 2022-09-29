@@ -77,6 +77,8 @@ class XPathCheckTest {
   @Test
   void test_with_namespaces() {
     SonarXmlCheckVerifier.verifyIssues("with_namespaces.xml", getCheck("//x:template"));
+    SonarXmlCheckVerifier.verifyIssues("with_xml_namespace.xml", getCheck("//xml:template"));
+    SonarXmlCheckVerifier.verifyIssues("with_out_of_parent_namespace.xml", getCheck("//other:template"));
   }
 
   @Test

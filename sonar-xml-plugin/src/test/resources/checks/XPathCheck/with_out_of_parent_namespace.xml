@@ -1,0 +1,5 @@
+<transform version='1.0' xmlns:other="http://www.w3.org/1999/XSL/Transform">
+  <other:template match='/'> <!-- Noncompliant -->
+    <hello_world/>
+  </other:template>
+</transform>
