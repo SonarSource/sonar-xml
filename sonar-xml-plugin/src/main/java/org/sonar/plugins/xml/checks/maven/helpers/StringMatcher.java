@@ -30,12 +30,13 @@ public interface StringMatcher extends Predicate<String> {
   }
 
   static boolean isBlank(@Nullable String str) {
-    int strLen;
-    if (str == null || (strLen = str.length()) == 0) {
+    int length;
+    if (str == null || (length = str.length()) == 0) {
       return true;
     }
-    for (int i = 0; i < strLen; i++) {
-      if (!Character.isWhitespace(str.charAt(i))) {
+    for (int i = 0; i < length; i++) {
+      char ch = str.charAt(i);
+      if (!Character.isWhitespace(ch)) {
         return false;
       }
     }
