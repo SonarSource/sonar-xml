@@ -31,4 +31,14 @@ class StringMatcherTest {
     assertThat(matcher.test(null)).isTrue();
     assertThat(matcher.test("test")).isTrue();
   }
+
+  @Test
+  void test_isBlank() {
+    assertThat(StringMatcher.isBlank(null)).isTrue();
+    assertThat(StringMatcher.isBlank("")).isTrue();
+    assertThat(StringMatcher.isBlank(" ")).isTrue();
+    assertThat(StringMatcher.isBlank("               ")).isTrue();
+    assertThat(StringMatcher.isBlank("               \t\t\t")).isTrue();
+    assertThat(StringMatcher.isBlank("abc")).isFalse();
+  }
 }
