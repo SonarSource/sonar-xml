@@ -82,6 +82,13 @@ class XPathCheckTest {
   }
 
   @Test
+  void test_with_namespace_uri() {
+    XPathCheck check = getCheck("//*[namespace-uri()='sap.ui.core.mvc']");
+    SonarXmlCheckVerifier.verifyIssues("with_namespace_uri.xml", check);
+    SonarXmlCheckVerifier.verifyNoIssue("with_namespace_uri_no_issues.xml", check);
+  }
+
+  @Test
   void test_with_default_namespace() {
     SonarXmlCheckVerifier.verifyIssues("with_default_namespaces.xml", getCheck("//template"));
   }

@@ -1,0 +1,3 @@
+<mvc:View xmlns:mvc="org.foo.bar">
+  <!-- some stuff -->
+</mvc:View>
