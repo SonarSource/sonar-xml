@@ -70,7 +70,7 @@ public class XPathCheck extends SonarXmlCheck {
 
     XPathExpression xPathExpression = getXPathExpression(file);
 
-    boolean xPathRequiresNamespaces = expression.contains(":");
+    boolean xPathRequiresNamespaces = expression.contains(":") || expression.contains("namespace-uri");
     Document document = xPathRequiresNamespaces ? file.getNamespaceAwareDocument() : file.getNamespaceUnawareDocument();
     try {
       NodeList nodes = (NodeList) xPathExpression.evaluate(document, XPathConstants.NODESET);
