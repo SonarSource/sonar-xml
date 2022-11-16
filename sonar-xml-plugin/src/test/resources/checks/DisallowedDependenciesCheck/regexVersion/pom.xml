@@ -24,7 +24,7 @@
     <dependency> <!-- Compliant - Not covered by name pattern -->
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.5</version>
+      <version>2.17.1</version>
     </dependency>
   </dependencies>
 
