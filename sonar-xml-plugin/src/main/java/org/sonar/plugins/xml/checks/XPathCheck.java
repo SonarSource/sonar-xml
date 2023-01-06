@@ -62,6 +62,9 @@ public class XPathCheck extends SonarXmlCheck {
     defaultValue = "The XPath expression matches this piece of code")
   private String message;
 
+  @CheckForNull
+  private Boolean requiresNamespace = null;
+
   @Override
   public void scanFile(XmlFile file) {
     if (!isFileIncluded(file)) {
@@ -70,8 +73,7 @@ public class XPathCheck extends SonarXmlCheck {
 
     XPathExpression xPathExpression = getXPathExpression(file);
 
-    boolean xPathRequiresNamespaces = expression.contains(":") || expression.contains("namespace-uri");
-    Document document = xPathRequiresNamespaces ? file.getNamespaceAwareDocument() : file.getNamespaceUnawareDocument();
+    Document document = requiresNamespace() ? file.getNamespaceAwareDocument() : file.getNamespaceUnawareDocument();
     try {
       NodeList nodes = (NodeList) xPathExpression.evaluate(document, XPathConstants.NODESET);
       for (int i = 0; i < nodes.getLength(); i++) {
@@ -91,6 +93,22 @@ public class XPathCheck extends SonarXmlCheck {
         }
       }
     }
+  }
+
+  private boolean requiresNamespace() {
+    if (requiresNamespace == null) {
+      requiresNamespace = false;
+      // '::' can be used for various xpath operator
+      for(String subExpr: expression.split("::")) {
+        // presence of ':' identifying a namespace requirement
+        if (subExpr.contains(":")
+        // explicit requirement of namespaces
+        || subExpr.contains("namespace-uri")) {
+          requiresNamespace = true;
+        }
+      }
+    }
+    return requiresNamespace;
   }
 
   public void setExpression(String expression) {

@@ -94,6 +94,16 @@ class XPathCheckTest {
   }
 
   @Test
+  void test_with_double_colon() {
+    XPathCheck check1 = getCheck("//dependency/artifactId[starts-with(text(),'mule-http-connector')]//following-sibling::version[not(starts-with(text(),'1.6'))]");
+    SonarXmlCheckVerifier.verifyIssues("double_colon_with_default_namespace.xml", check1);
+    SonarXmlCheckVerifier.verifyIssues("double_colon_without_default_namespace.xml", check1);
+
+    XPathCheck check2 = getCheck("//bar//following-sibling::mvc:View[namespace-uri()='sap.ui.core.mvc']");
+    SonarXmlCheckVerifier.verifyIssues("double_colon_with_namespace_in_query.xml", check2);
+  }
+
+  @Test
   void test_failure_without_log() {
     XPathCheck check = new XPathCheck();
     check.setExpression("//comment()");
