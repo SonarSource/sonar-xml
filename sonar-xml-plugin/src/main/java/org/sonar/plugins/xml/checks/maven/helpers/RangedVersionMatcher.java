@@ -29,11 +29,19 @@ public class RangedVersionMatcher implements StringMatcher {
   private final ArtifactVersion upperBound;
 
   public RangedVersionMatcher(String lowerBound, String upperBound) {
-    this.lowerBound = isWildCard(lowerBound) ? null : getVersion(lowerBound);
-    this.upperBound = isWildCard(upperBound) ? null : getVersion(upperBound);
+    try {
+      this.lowerBound = isWildCard(lowerBound) ? null : getVersion(lowerBound);
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Invalid version range lower bound  '" + lowerBound + "'. " + e.getMessage());
+    }
+    try {
+      this.upperBound = isWildCard(upperBound) ? null : getVersion(upperBound);
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Invalid version range upper bound  '" + upperBound + "'. " + e.getMessage());
+    }
     // check that we are not bypassing both bounds
     if ((this.lowerBound == null && this.upperBound == null)) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Version range '*-*' is not valid. You should specify at least the lower or the upper bound.");
     }
   }
 
@@ -49,9 +57,9 @@ public class RangedVersionMatcher implements StringMatcher {
   private static ArtifactVersion getVersion(String version) {
     try {
       return ArtifactVersion.parseString(version);
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Provided version does not match expected pattern:"
-        + " <major version>.<minor version>.<incremental version> (recieved: " + version + ")", e);
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Unsupported version format '" + version + "'. " +
+        "The version does not match expected pattern: '<major version>.<minor version>.<incremental version>'");
     }
   }
 

@@ -37,8 +37,8 @@ public class PatternMatcher implements StringMatcher {
   private static Pattern compileRegex(String regex) {
     try {
       return Pattern.compile(regex, Pattern.DOTALL);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Unable to compile the regular expression: " + regex, e);
+    } catch (RuntimeException e) {
+      throw new IllegalArgumentException("Unable to compile the regular expression '"+regex+"', " + e.getMessage());
     }
   }
 

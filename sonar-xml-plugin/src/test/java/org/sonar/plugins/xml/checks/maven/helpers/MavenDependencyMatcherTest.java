@@ -21,26 +21,36 @@ package org.sonar.plugins.xml.checks.maven.helpers;
 
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MavenDependencyMatcherTest {
 
   private MavenDependencyMatcher matcher;
 
-  @Test
-  void no_name_should_fail() {
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-      () -> new MavenDependencyMatcher("", ""));
-    assertThat(e.getMessage()).isEqualTo("Invalid dependency name. Should match '[groupId]:[artifactId]' use '*' as wildcard");
-  }
+  private static final String DEPENDENCY_NAME_HELP = " Should match '[groupId]:[artifactId]', you can use '*' as wildcard or a regular expression.";
+  private static final String DEPENDENCY_VERSION_HELP = " Leave blank for all versions. You can use '*' as wildcard and '-' as range like '1.0-3.1' or '*-3.1'.";
 
-  @Test
-  void invalid_format_should_fail() {
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-      () -> new MavenDependencyMatcher(":", ""));
-    assertThat(e.getMessage()).isEqualTo("Invalid dependency name. Should match '[groupId]:[artifactId]' use '*' as wildcard");
+  @ParameterizedTest
+  @CsvSource(delimiter = '|', value = {
+    "junit:junit:junit||" +
+      "Invalid DependencyName pattern 'junit:junit:junit'." + DEPENDENCY_NAME_HELP + " Error: Only one ':' separator expected.",
+    "||" +
+      "Invalid DependencyName pattern ''." + DEPENDENCY_NAME_HELP + " Error: Missing ':' separator.",
+    "org(:||" +
+      "Invalid DependencyName pattern 'org(:'." + DEPENDENCY_NAME_HELP + " Error: Unable to compile the regular expression 'org(', "/* ... */,
+    "org.apache:log4j|1\\.2(|" +
+      "Invalid Version pattern '1\\.2('." + DEPENDENCY_VERSION_HELP + " Error: Unable to compile the regular expression '1\\.2(', "/* ... */
+  })
+  void invalid_arguments_format_should_fail(@Nullable String dependencyName, @Nullable String dependencyVersion, String expected) {
+    assertThatThrownBy(() -> new MavenDependencyMatcher(
+      dependencyName != null ? dependencyName : "",
+      dependencyVersion != null ? dependencyVersion : ""))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageStartingWith(expected);
   }
 
   @Test

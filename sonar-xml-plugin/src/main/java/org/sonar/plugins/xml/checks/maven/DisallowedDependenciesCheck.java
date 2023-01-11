@@ -19,7 +19,14 @@
  */
 package org.sonar.plugins.xml.checks.maven;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 import javax.xml.xpath.XPathExpression;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.checks.maven.helpers.MavenDependencyMatcher;
@@ -29,14 +36,11 @@ import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Rule(key = DisallowedDependenciesCheck.KEY)
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = DisallowedDependenciesCheck.KEY)
 public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
+
+  private static final Logger LOG = Loggers.get(DisallowedDependenciesCheck.class);
 
   public static final String KEY = "S3417";
 
@@ -54,14 +58,19 @@ public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
     description = "Dependency version pattern or dash-delimited range. Leave blank for all versions. E.G. '``1.3.*``', '``1.0-3.1``', '``1.0-*``' or '``*-3.1``'")
   public String version = "";
 
-  private MavenDependencyMatcher matcher = null;
+  private boolean needToInitializedMatcher = true;
+  @CheckForNull
+  private MavenDependencyMatcher dependencyMatcher = null;
 
   @Override
   public void scanFile(XmlFile xmlFile) {
     if (!"pom.xml".equalsIgnoreCase(xmlFile.getInputFile().filename())) {
       return;
     }
-
+    MavenDependencyMatcher matcher = getMatcher();
+    if (matcher == null) {
+      return;
+    }
     Map<String, String> propertiesMap = new HashMap<>();
 
     evaluateAsList(propertiesExpression, xmlFile.getNamespaceUnawareDocument())
@@ -74,7 +83,7 @@ public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
       String artifactId = getChildElementText("artifactId", dependency);
       String dependencyVersion = resolveDependencyVersion(propertiesMap, dependency);
 
-      if (getMatcher().matches(groupId, artifactId, dependencyVersion)) {
+      if (matcher.matches(groupId, artifactId, dependencyVersion)) {
         reportIssue(dependency, "Remove this forbidden dependency.");
       }
     });
@@ -101,13 +110,14 @@ public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
   }
 
   private MavenDependencyMatcher getMatcher() {
-    if (matcher == null) {
+    if (needToInitializedMatcher) {
+      needToInitializedMatcher = false;
       try {
-        matcher = new MavenDependencyMatcher(dependencyName, version);
-      } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException("[" + KEY + "] Unable to build matchers from provided dependency name: " + dependencyName, e);
+        dependencyMatcher = new MavenDependencyMatcher(dependencyName, version);
+      } catch (RuntimeException e) {
+        LOG.error("The rule xml:" + KEY + " is configured with some invalid parameters. " + e.getMessage());
       }
     }
-    return matcher;
+    return dependencyMatcher;
   }
 }

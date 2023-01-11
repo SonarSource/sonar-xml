@@ -54,7 +54,10 @@ class RangedVersionMatcherTest {
   void fail_with_invalid_version() {
     IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
       () -> new RangedVersionMatcher("1.2.3", "invalid"));
-    assertThat(e.getMessage()).isEqualTo("Provided version does not match expected pattern: <major version>.<minor version>.<incremental version> (recieved: invalid)");
+    assertThat(e.getMessage())
+      .isEqualTo("Invalid version range upper bound  'invalid'." +
+        " Unsupported version format 'invalid'." +
+        " The version does not match expected pattern: '<major version>.<minor version>.<incremental version>'");
   }
 
   @Test
