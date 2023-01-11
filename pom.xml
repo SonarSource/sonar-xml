@@ -60,7 +60,7 @@
     <sonar.version>9.6.1.59531</sonar.version>
     <sonar.minVersion>8.9</sonar.minVersion>
 
-    <sonar.analyzerCommons.version>1.28.0.1058</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.1.0.1111</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.40.0.183</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>6.3.0.36253</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>9.11.0.290</sonar.pluginApi.version>
