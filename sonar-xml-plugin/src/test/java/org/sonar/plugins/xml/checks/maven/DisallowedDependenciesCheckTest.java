@@ -21,14 +21,19 @@ package org.sonar.plugins.xml.checks.maven;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.sonar.api.utils.log.LogTesterJUnit5;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DisallowedDependenciesCheckTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private DisallowedDependenciesCheck check;
 
@@ -56,19 +61,29 @@ class DisallowedDependenciesCheckTest {
   }
 
   @Test
-  void should_fail_with_invalid_name_provided() {
+  void should_log_error_when_invalid_dependency_name_is_provided() {
     check.dependencyName = "org.sonar";
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-      () -> SonarXmlCheckVerifier.verifyIssues("noVersion/pom.xml", check));
-    assertThat(e.getMessage()).isEqualTo("[S3417] Unable to build matchers from provided dependency name: org.sonar");
+    check.version = "";
+    SonarXmlCheckVerifier.verifyNoIssue("noVersion/pom.xml", check);
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("The rule xml:S3417 is configured with some invalid parameters." +
+        " Invalid DependencyName pattern 'org.sonar'." +
+        " Should match '[groupId]:[artifactId]', you can use '*' as wildcard or a regular expression." +
+        " Error: Missing ':' separator.");
   }
 
   @Test
-  void should_fail_with_invalid_version_provided() {
+  void should_log_error_when_invalid_dependency_version_is_provided() {
     check.dependencyName = "org.sonar.*:*";
     check.version = "version-0";
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-      () -> SonarXmlCheckVerifier.verifyIssues("noVersion/pom.xml", check));
-    assertThat(e.getMessage()).isEqualTo("[S3417] Unable to build matchers from provided dependency name: org.sonar.*:*");
+    SonarXmlCheckVerifier.verifyNoIssue("noVersion/pom.xml", check);
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsExactly("The rule xml:S3417 is configured with some invalid parameters." +
+        " Invalid Version pattern 'version-0'." +
+        " Leave blank for all versions. You can use '*' as wildcard and '-' as range like '1.0-3.1' or '*-3.1'." +
+        " Error: Invalid version range lower bound  'version'." +
+        " Unsupported version format 'version'." +
+        " The version does not match expected pattern: '<major version>.<minor version>.<incremental version>'");
   }
+
 }

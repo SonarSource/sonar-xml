@@ -51,18 +51,29 @@ public class MavenDependencyMatcher {
    *         <li>"<code>*-3.1</code>" : any version before version 3.1</li>
    *      </ul>
    *   </ul>
-   * @return the corresponding matcher
    */
   public MavenDependencyMatcher(String dependencyName, String version) {
-    String[] name = dependencyName.split(":");
-    if (name.length != 2) {
-      throw new IllegalArgumentException(
-        "Invalid dependency name. Should match '[groupId]:[artifactId]' use '*' as wildcard");
+    try {
+      String[] name = dependencyName.split(":", -1);
+      if (name.length == 1) {
+        throw new IllegalArgumentException("Missing ':' separator.");
+      } else if (name.length > 2) {
+        throw new IllegalArgumentException("Only one ':' separator expected.");
+      }
+      groupIdMatcher = getMatcherForPattern(name[0].trim());
+      artifactIdMatcher = getMatcherForPattern(name[1].trim());
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Invalid DependencyName pattern '" + dependencyName + "'." +
+        " Should match '[groupId]:[artifactId]', you can use '*' as wildcard or a regular expression." +
+        " Error: " + ex.getMessage());
     }
-
-    groupIdMatcher = getMatcherForPattern(name[0].trim());
-    artifactIdMatcher = getMatcherForPattern(name[1].trim());
-    versionMatcher = getMatcherForVersion(version);
+    try {
+      versionMatcher = getMatcherForVersion(version);
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Invalid Version pattern '" + version + "'." +
+        " Leave blank for all versions. You can use '*' as wildcard and '-' as range like '1.0-3.1' or '*-3.1'." +
+        " Error: " + ex.getMessage());
+    }
   }
 
   private static StringMatcher getMatcherForPattern(String pattern) {
@@ -71,7 +82,7 @@ public class MavenDependencyMatcher {
 
   private static StringMatcher getMatcherForVersion(String version) {
     if (version.contains("-")) {
-      String[] bounds = version.split("-");
+      String[] bounds = version.split("-", -1);
       return new RangedVersionMatcher(bounds[0], bounds[1]);
     }
     return getMatcherForPattern(version);
