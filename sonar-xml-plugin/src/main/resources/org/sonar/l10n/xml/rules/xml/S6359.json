@@ -1,5 +1,5 @@
 {
-  "title": "Custom permissions should not be defined in the \u0027android.permission\u0027 namespace",
+  "title": "Custom permissions should not be defined in the \"android.permission\" namespace",
   "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {

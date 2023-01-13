@@ -1,6 +1,6 @@
 <p>Android has a built-in backup mechanism that can save and restore application data. When application backup is enabled, local data from your
 application can be exported to Google Cloud or to an external device via <code>adb backup</code>. Enabling Android backup exposes your application to
-disclosure of sensitive data. It can also lead to corruption of local data when restore is performed from an untrusted source.</p>
+disclosure of sensitive data. It can also lead to corruption of local data when restoration is performed from an untrusted source.</p>
 <p>By default application backup is enabled and it includes:</p>
 <ul>
   <li> Shared preferences files </li>
@@ -17,20 +17,20 @@ disclosure of sensitive data. It can also lead to corruption of local data when 
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> Application backup is enabled and sensitive data is stored in local files, local databases or shared preferences. </li>
-  <li> Your application never validates data from files that are included in backups </li>
+  <li> Application backup is enabled and sensitive data is stored in local files, local databases, or shared preferences. </li>
+  <li> Your application never validates data from files that are included in backups. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Disable application backup unless it’s required for your application to work properly. </li>
+  <li> Disable application backup unless it is required for your application to work properly. </li>
   <li> Narrow the scope of backed-up files by using either
     <ul>
-      <li> backup rules (see <code>android:fullBackupContent</code> attribute) </li>
-      <li> a custom <code>BackupAgent</code> </li>
-      <li> or the dedicated "no_backup" folder (see <code> android.content.Context#getNoBackupFilesDir()</code>). </li>
+      <li> backup rules (see <code>android:fullBackupContent</code> attribute). </li>
+      <li> a custom <code>BackupAgent</code>. </li>
+      <li> the dedicated <code>no_backup</code> folder (see <code>android.content.Context#getNoBackupFilesDir()</code>). </li>
     </ul>  </li>
-  <li> Don’t backup local data containing sensitive information unless they are properly encrypted. </li>
+  <li> Do not back up local data containing sensitive information unless they are properly encrypted. </li>
   <li> Make sure that the keys used to encrypt backup data are not included in the backup. </li>
   <li> Validate data from backed-up files. They should be considered untrusted as they could have been restored from an untrusted source. </li>
 </ul>
@@ -47,9 +47,13 @@ disclosure of sensitive data. It can also lead to corruption of local data when 
     android:allowBackup="false"&gt;
 &lt;/application&gt;
 </pre>
-<p>If targeting Android 6.0 or above (API level 23), define files to include/exclude from the application backup. &lt;application
-android:allowBackup="true" android:fullBackupContent="@xml/backup.xml"&gt; &lt;/application&gt;</p>
-<h2>See</h2>
+<p>If targeting Android 6.0 or above (API level 23), define files to include/exclude from the application backup.</p>
+<pre>
+&lt;application
+    android:allowBackup="true"
+    android:fullBackupContent="@xml/backup.xml"&gt;
+&lt;/application&gt;
+</pre>
 <h2>See</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
