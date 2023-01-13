@@ -1,9 +1,23 @@
-<p>If an Android component is exported and no permissions are defined then other mobile apps can interact with it and perform potential unauthorized
-actions.</p>
-<p>For instance, an exported content provider can expose sensitive data, if no permissions are defined, to other mobile apps.</p>
-<p>It’s highly recommended to implement restrictive permissions on exposed components.</p>
+<p>Once an Android component has been exported, it can be used by attackers to launch malicious actions and might also give access to other components
+that are not exported.</p>
+<p>As a result, sensitive user data can be stolen, and components can be launched unexpectedly.</p>
+<p>For this reason, the following components should be protected:</p>
+<ul>
+  <li> Providers </li>
+  <li> Activities </li>
+  <li> Activity-aliases </li>
+  <li> Services </li>
+</ul>
+<p>To do so, it is recommended to either set <code>exported</code> to <code>false</code>, add <code>android:readPermission</code> and
+<code>android:writePermission</code> attributes, or add a <code>&lt;permission&gt;</code> tag.</p>
+<p><strong>Warning</strong>: When targeting Android&nbsp;versions lower than 12, the presence of intent filters will cause <code>exported</code> to be
+set to <code>true</code> by default.</p>
+<p>If a component must be exported, use a <code>&lt;permission&gt;</code> tag and the <a
+href="https://developer.android.com/guide/topics/manifest/permission-element#plevel">protection level</a> that matches your use case and data
+confidentiality requirements.<br> For example, <a href="https://developer.android.com/training/sync-adapters">Sync adapters</a> should use a
+<code>signature</code> protection level to remain both exported <strong>and</strong> protected.</p>
 <h2>Noncompliant Code Example</h2>
-<p>An exported component is vulnerable when read and write permissions are not defined:</p>
+<p>The following components are vulnerable because permissions are undefined or partially defined:</p>
 <pre>
 &lt;provider
   android:authorities="com.example.app.Provider"
@@ -18,7 +32,6 @@ actions.</p>
   android:exported="true"
   android:writePermission="com.example.app.WRITE_PERMISSION" /&gt;  &lt;!-- Noncompliant: read permission is not defined --&gt;
 </pre>
-<p>With an <code>&lt;intent-filter&gt;</code> the component’s attibute <code>android:exported</code> default value is "true":</p>
 <pre>
 &lt;activity android:name="com.example.activity.Activity"&gt;  &lt;!-- Noncompliant: permissions are not defined --&gt;
   &lt;intent-filter&gt;
@@ -28,26 +41,25 @@ actions.</p>
 &lt;/activity&gt;
 </pre>
 <h2>Compliant Solution</h2>
-<p>If the component is not intended to be shared with other apps <code>exported</code> attribute should be set to <code>false</code>:</p>
+<p>If the component’s capabilities or data are not intended to be shared with other apps, its <code>exported</code> attribute should be set to
+<code>false</code>:</p>
 <pre>
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
   android:exported="false" /&gt;
 </pre>
-<p>Otherwise, implement permissions (<code>protectionLevel</code> <a
-href="https://developer.android.com/guide/topics/manifest/permission-element#plevel">value</a> must be defined depending on the sensitivity of the
-component):</p>
+<p>Otherwise, implement permissions:</p>
 <pre>
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
   android:exported="true"
   android:readPermission="com.example.app.READ_PERMISSION"
-  android:readPermission="com.example.app.WRITE_PERMISSION" /&gt;
+  android:writePermission="com.example.app.WRITE_PERMISSION" /&gt;
 
 &lt;activity android:name="com.example.activity.Activity"
-          android:permission="com.example.app.PERMISSION"&gt;
+          android:permission="com.example.app.PERMISSION" &gt;
   &lt;intent-filter&gt;
     &lt;action android:name="com.example.OPEN_UI"/&gt;
     &lt;category android:name="android.intent.category.DEFAULT" /&gt;

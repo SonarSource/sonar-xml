@@ -19,15 +19,15 @@ grant read and write together.</p>
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
-  android:permission="com.example.app.PERMISSION"
+  android:permission="com.example.app.PERMISSION"  &lt;!-- Sensitive --&gt;
   android:exported="true"/&gt;
 </pre>
 <pre>
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
-  android:readPermission="com.example.app.PERMISSION"
-  android:writePermission="com.example.app.PERMISSION"
+  android:readPermission="com.example.app.PERMISSION"  &lt;!-- Sensitive --&gt;
+  android:writePermission="com.example.app.PERMISSION" &lt;!-- Sensitive --&gt;
   android:exported="true"/&gt;
 </pre>
 <h2>Compliant Solution</h2>
