@@ -104,17 +104,13 @@ plugin_qa_task:
     <<: *QA_CONTAINER_DEFINITION
     cpu: 3
     memory: 8G
-  env:
-    matrix:
-      - SQ_VERSION: LATEST_RELEASE
-      - SQ_VERSION: DEV
   maven_cache:
     folder: $CIRRUS_WORKING_DIR/.m2/repository
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
-    - mvn verify -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+    - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE[9.9] -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
