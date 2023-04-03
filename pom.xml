@@ -58,7 +58,7 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <sonar.version>10.0.0.68432</sonar.version>
-    <sonar.minVersion>8.9</sonar.minVersion>
+    <sonar.minVersion>9.9</sonar.minVersion>
 
     <sonar.analyzerCommons.version>2.4.0.1317</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.42.0.312</sonar.orchestrator.version>
