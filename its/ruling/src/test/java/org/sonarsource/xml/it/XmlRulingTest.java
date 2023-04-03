@@ -114,12 +114,12 @@ public class XmlRulingTest {
     WsClient adminWSClient = newAdminWsClient();
     adminWSClient.wsConnector().call(new PostRequest("api/rules/create")
       .setParam("name", newRuleKey)
-      .setParam("markdown_description", newRuleKey)
+      .setParam("markdownDescription", newRuleKey)
       .setParam("severity", "INFO")
       .setParam("status", "READY")
-      .setParam("template_key", LANGUAGE + ":" + templateRuleKey)
-      .setParam("custom_key", newRuleKey)
-      .setParam("prevent_reactivation", "true")
+      .setParam("templateKey", LANGUAGE + ":" + templateRuleKey)
+      .setParam("customKey", newRuleKey)
+      .setParam("preventReactivation", "true")
       .setParam("params", newRuleParameters)).failIfNotSuccessful();
 
     QualityProfile qualityProfile = adminWSClient.qualityprofiles().search(new SearchRequest()).getProfilesList().stream()
