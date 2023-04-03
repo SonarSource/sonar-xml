@@ -37,12 +37,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
-import org.sonarsource.sonarlint.core.client.api.common.Language;
-import org.sonarsource.sonarlint.core.client.api.common.analysis.ClientInputFile;
+import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
 import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
+import org.sonarsource.sonarlint.core.commons.IssueSeverity;
+import org.sonarsource.sonarlint.core.commons.Language;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -59,7 +60,7 @@ public class SonarLintTest {
   public static void prepare() throws Exception {
     FileLocation xmlPlugin = FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
     StandaloneGlobalConfiguration config = StandaloneGlobalConfiguration.builder()
-      .addPlugin(xmlPlugin.getFile().toURI().toURL())
+      .addPlugin(xmlPlugin.getFile().toPath())
       .setSonarLintUserHome(temp.newFolder().toPath())
       .setLogOutput((msg, level) -> System.out.println(String.format("[%s] %s", level.name(), msg)))
       .addEnabledLanguage(Language.XML)
@@ -87,7 +88,7 @@ public class SonarLintTest {
 
     assertThat(issues)
       .extracting("ruleKey", "startLine", "inputFile.path", "severity")
-      .containsOnly(tuple("xml:S1778", 2, inputFile.relativePath(), "CRITICAL"));
+      .containsOnly(tuple("xml:S1778", 2, inputFile.relativePath(), IssueSeverity.CRITICAL));
   }
 
   private ClientInputFile prepareInputFile(String relativePath, String content) throws IOException {

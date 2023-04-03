@@ -62,7 +62,7 @@
 
     <sonar.analyzerCommons.version>2.4.0.1317</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.42.0.312</sonar.orchestrator.version>
-    <sonar.sonarlint-core.version>6.3.0.36253</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>8.15.0.65216</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>9.14.0.375</sonar.pluginApi.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -95,6 +95,12 @@
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator</artifactId>
         <version>${sonar.orchestrator.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-plugin-api</artifactId>
+        <version>${sonar.sonarlint-core.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
