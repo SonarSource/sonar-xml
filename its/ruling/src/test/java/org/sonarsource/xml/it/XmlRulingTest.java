@@ -26,17 +26,21 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.qualityprofiles.ActivateRuleRequest;
 import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import org.sonarqube.ws.client.rules.CreateRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
@@ -59,7 +63,7 @@ public class XmlRulingTest {
     .build();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration();
 
     // generate a profile called "rules"
@@ -112,15 +116,15 @@ public class XmlRulingTest {
   private static void createTemplateRule(String templateRuleKey, String newRuleKey, String newRuleParameters) {
 
     WsClient adminWSClient = newAdminWsClient();
-    adminWSClient.wsConnector().call(new PostRequest("api/rules/create")
-      .setParam("name", newRuleKey)
-      .setParam("markdownDescription", newRuleKey)
-      .setParam("severity", "INFO")
-      .setParam("status", "READY")
-      .setParam("templateKey", LANGUAGE + ":" + templateRuleKey)
-      .setParam("customKey", newRuleKey)
-      .setParam("preventReactivation", "true")
-      .setParam("params", newRuleParameters)).failIfNotSuccessful();
+    adminWSClient.rules().create(new CreateRequest()
+      .setName(newRuleKey)
+      .setMarkdownDescription(newRuleKey)
+      .setSeverity(Severity.INFO)
+      .setStatus(RuleStatus.READY.name())
+      .setTemplateKey(LANGUAGE + ":" + templateRuleKey)
+      .setCustomKey(newRuleKey)
+      .setPreventReactivation("true")
+      .setParams(Arrays.asList(newRuleParameters.split(";"))));
 
     QualityProfile qualityProfile = adminWSClient.qualityprofiles().search(new SearchRequest()).getProfilesList().stream()
       .filter(qp -> qp.getLanguage().equals(LANGUAGE))
@@ -128,10 +132,10 @@ public class XmlRulingTest {
       .findFirst().orElseThrow(() -> new IllegalStateException(String.format("Could not find quality profile '%s' for language '%s' ", QUALITY_PROFILE_NAME, LANGUAGE)));
     String profileKey = qualityProfile.getKey();
 
-    adminWSClient.wsConnector().call(new PostRequest("api/qualityprofiles/activate_rule")
-      .setParam("key", profileKey)
-      .setParam("rule", LANGUAGE + ":" + newRuleKey)
-      .setParam("severity", "INFO")).failIfNotSuccessful();
+    adminWSClient.qualityprofiles().activateRule(new ActivateRuleRequest()
+      .setKey(profileKey)
+      .setRule(LANGUAGE + ":" + newRuleKey)
+      .setSeverity("INFO"));
   }
 
   private static WsClient newAdminWsClient() {
