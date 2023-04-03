@@ -57,7 +57,7 @@
     <license.title>SonarQube XML Plugin</license.title>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
-    <sonar.version>9.6.1.59531</sonar.version>
+    <sonar.version>10.0.0.68432</sonar.version>
     <sonar.minVersion>8.9</sonar.minVersion>
 
     <sonar.analyzerCommons.version>2.4.0.1317</sonar.analyzerCommons.version>
