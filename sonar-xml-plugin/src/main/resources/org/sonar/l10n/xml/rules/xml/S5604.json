@@ -9,8 +9,7 @@
   "tags": [
     "cwe",
     "android",
-    "privacy",
-    "owasp-m1"
+    "privacy"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5604",

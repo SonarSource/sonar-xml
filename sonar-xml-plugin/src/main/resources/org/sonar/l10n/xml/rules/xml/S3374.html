@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>According to the Common Weakness Enumeration,</p>
 <blockquote>
   <p>If two validation forms have the same name, the Struts Validator arbitrarily chooses one of the forms to use for input validation and discards
   the other. This decision might not correspond to the programmer’s expectations…​</p>
 </blockquote>
 <p>In such a case, it is likely that the two forms should be combined. At the very least, one should be removed.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 &lt;form-validation&gt;
   &lt;formset&gt;
@@ -13,7 +14,7 @@
   &lt;/formset&gt;
 &lt;/form-validation&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 &lt;form-validation&gt;
   &lt;formset&gt;
@@ -21,7 +22,7 @@
   &lt;/formset&gt;
 &lt;/form-validation&gt;
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/102">MITRE, CWE-102</a> - Struts: Duplicate Validation Forms </li>
   <li> <a href="https://owasp.org/www-community/vulnerabilities/Improper_Data_Validation">OWASP, Improper Data Validation</a> - Struts: Duplicate

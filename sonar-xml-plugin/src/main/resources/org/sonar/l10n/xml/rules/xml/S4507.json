@@ -11,8 +11,7 @@
     "error-handling",
     "debug",
     "android",
-    "user-experience",
-    "owasp-m10"
+    "user-experience"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4507",

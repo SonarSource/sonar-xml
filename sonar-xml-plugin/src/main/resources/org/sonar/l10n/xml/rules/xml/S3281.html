@@ -1,8 +1,9 @@
+<h2>Why is this an issue?</h2>
 <p>Default interceptors, such as application security interceptors, must be listed in the <code>ejb-jar.xml</code> file, or they will not be treated
 as default.</p>
 <p>This rule applies to projects that contain JEE Beans (any one of <code>javax.ejb.Singleton</code>, <code>MessageDriven</code>,
 <code>Stateless</code> or <code>Stateful</code>).</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 // file: ejb-interceptors.xml
 &lt;assembly-descriptor&gt;
@@ -12,7 +13,7 @@ as default.</p>
    &lt;/interceptor-binding&gt;
 &lt;/assembly-descriptor&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 // file: ejb-jar.xml
 &lt;assembly-descriptor&gt;
@@ -22,7 +23,7 @@ as default.</p>
    &lt;/interceptor-binding&gt;
 &lt;/assembly-descriptor&gt;
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
   <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security

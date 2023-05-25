@@ -1,10 +1,11 @@
+<h2>Why is this an issue?</h2>
 <p>The prolog header is the following piece of code that some XML documents start with:</p>
 <pre>
 &lt;?xml version="y.x" encoding="zzzzz"?&gt;
 </pre>
 <p>When the prolog exists in an XML document, it should be at the beginning of the file to enable programs to determine the encoding of non-UTF-8,
 non-UTF-16 files.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 &lt;!-- Generated file --&gt;  &lt;!--  Noncompliant  --&gt;
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -12,7 +13,7 @@ non-UTF-16 files.</p>
   content
 &lt;/firstNode&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!-- Generated file --&gt;
