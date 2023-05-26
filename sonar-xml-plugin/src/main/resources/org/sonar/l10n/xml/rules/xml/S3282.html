@@ -1,6 +1,7 @@
+<h2>Why is this an issue?</h2>
 <p>Exclusions for default interceptors can be declared either in xml or as class annotations. Since annotations are more visible to maintainers, they
 are preferred.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <pre>
 &lt;assembly-descriptor&gt;
       &lt;interceptor-binding&gt;
@@ -14,7 +15,7 @@ are preferred.</p>
 
 &lt;/assembly-descriptor&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <pre>
 @ExcludeDefaultInterceptors
 public class MyExcludedClass implements MessageListener

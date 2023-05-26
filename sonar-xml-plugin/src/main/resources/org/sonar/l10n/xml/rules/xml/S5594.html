@@ -1,3 +1,4 @@
+<h2>Why is this an issue?</h2>
 <p>Once an Android component has been exported, it can be used by attackers to launch malicious actions and might also give access to other components
 that are not exported.</p>
 <p>As a result, sensitive user data can be stolen, and components can be launched unexpectedly.</p>
@@ -16,7 +17,7 @@ set to <code>true</code> by default.</p>
 href="https://developer.android.com/guide/topics/manifest/permission-element#plevel">protection level</a> that matches your use case and data
 confidentiality requirements.<br> For example, <a href="https://developer.android.com/training/sync-adapters">Sync adapters</a> should use a
 <code>signature</code> protection level to remain both exported <strong>and</strong> protected.</p>
-<h2>Noncompliant Code Example</h2>
+<h3>Noncompliant code example</h3>
 <p>The following components are vulnerable because permissions are undefined or partially defined:</p>
 <pre>
 &lt;provider
@@ -40,7 +41,7 @@ confidentiality requirements.<br> For example, <a href="https://developer.androi
   &lt;/intent-filter&gt;
 &lt;/activity&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant solution</h3>
 <p>If the component’s capabilities or data are not intended to be shared with other apps, its <code>exported</code> attribute should be set to
 <code>false</code>:</p>
 <pre>
@@ -66,7 +67,7 @@ confidentiality requirements.<br> For example, <a href="https://developer.androi
   &lt;/intent-filter&gt;
 &lt;/activity&gt;
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
 <ul>
   <li> <a href="https://developer.android.com/guide/topics/providers/content-provider-creating#Permissions">developer.android.com</a> - Implementing
   content provider permissions </li>

@@ -1,14 +1,16 @@
+<p>Development tools and frameworks usually have options to make debugging easier for developers. Although these features are useful during
+development, they should never be enabled for applications deployed in production.</p>
 <p>In the application manifest element of an android application, setting <code><a
-href="https://developer.android.com/guide/topics/manifest/application-element#debug">debuggable</a></code> property to <code>true</code> could
-introduce a security risk.</p>
-<p>It’s more easy to perform reverse engineering and inject arbitrary code in the context of a debuggable application.</p>
+href="https://developer.android.com/guide/topics/manifest/application-element#debug">android:debuggable</a></code> property to <code>"true"</code>
+makes the application debuggable.</p>
+<p>This introduces a security risk as it makes it easy for an attacker to reverse engineer the application and eventually steal the user’s
+secrets.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> the development of the app is completed and the <code>debuggable</code> property is set to <em>true</em> </li>
-  <li> the app will be published on the Play Store or distributed in any other ways and the <code>debuggable</code> property is set to <em>true</em>
-  </li>
+  <li> The development of the app is completed and the <code>debuggable</code> property is set to <em>true</em> </li>
+  <li> The app is distributed to end users with the <code>debuggable</code> property set to <em>true</em> </li>
 </ul>
-<p>You are at risk if you answered yes to any of those questions.</p>
+<p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <p>It is not recommended to release debuggable application. Avoid hardcoding the debug mode in the manifest because the build tool will add the
 property automatically and assign the correct value depending on the build type.</p>
