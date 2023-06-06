@@ -2,10 +2,14 @@
   "title": "Track breaches of an XPath rule",
   "type": "CODE_SMELL",
   "status": "ready",
-  "tags": [
-    
-  ],
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-140",
-  "sqKey": "XPathCheck"
+  "sqKey": "XPathCheck",
+  "scope": "Main",
+  "quickfix": "unknown"
 }
