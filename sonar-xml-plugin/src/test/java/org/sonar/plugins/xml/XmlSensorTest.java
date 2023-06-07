@@ -112,7 +112,7 @@ class XmlSensorTest {
     fs.add(createInputFile(Paths.get(bigXmlFile.getParent()), bigXmlFile.getName(), StandardCharsets.UTF_8));
     long timeBigFile = measureTimeToAnalyzeFile();
 
-    assertThat(timeBigFile < (2.5 * timeSmallFile)).isTrue();
+    assertThat(timeBigFile).isLessThan((long) Math.floor(2.5 * timeSmallFile));
   }
 
   @Test

@@ -122,7 +122,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       return false;
     }
     return credentialWords.contains(localName.toLowerCase(Locale.ROOT)) &&
-      !node.getNodeName().equalsIgnoreCase("android:password");
+      !"android:password".equalsIgnoreCase(node.getNodeName());
   }
 
   private void checkCredential(Node node, String candidate) {
