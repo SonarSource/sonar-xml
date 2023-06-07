@@ -189,7 +189,7 @@ public class XPathCheck extends SonarXmlCheck {
 
     @CheckForNull
     public String getNamespaceForPrefix(String prefix, Node namespaceContext) {
-      if (prefix.equals("xml")) {
+      if ("xml".equals(prefix)) {
         return "http://www.w3.org/XML/1998/namespace";
       }
 
