@@ -21,6 +21,7 @@ package org.sonar.plugins.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -80,4 +81,10 @@ public class Xml extends AbstractLanguage {
     }
     return nonEmptyStrings.toArray(new String[nonEmptyStrings.size()]);
   }
+
+  public static boolean isDotNetApplicationConfig(InputFile inputFile) {
+    String filename = inputFile.filename();
+    return "web.config".equalsIgnoreCase(filename) || "machine.config".equalsIgnoreCase(filename);
+  }
+
 }

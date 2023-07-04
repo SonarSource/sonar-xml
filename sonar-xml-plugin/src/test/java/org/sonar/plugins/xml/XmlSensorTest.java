@@ -127,6 +127,17 @@ class XmlSensorTest {
   }
 
   @Test
+  void test_not_xml_web_config() throws Exception {
+    init();
+    fs.add(createInputFile("src/not-web-application/web.config"));
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+  }
+
+  @Test
   void test_nothing_is_executed_if_no_file() throws Exception {
     init();
 
@@ -323,6 +334,22 @@ class XmlSensorTest {
 
     assertLog("Unable to analyse file .*wrong-ampersand.*", true);
     assertLog("Cause: org.xml.sax.SAXParseException.* Element type \"as\\.length\" must be followed by either attribute specifications, .*", true);
+  }
+
+  @Test
+  void should_log_a_warning_if_file_does_not_exist() throws Exception {
+    init();
+    InputFile invalidFile = TestInputFileBuilder.create("modulekey", "file-not-found.xml")
+      .setModuleBaseDir(Paths.get("."))
+      .setType(Type.MAIN)
+      .setLanguage(Xml.KEY)
+      .build();
+    fs.add(invalidFile);
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Unable to analyse file " + invalidFile.uri() + ";");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   private void init() throws Exception {
