@@ -35,7 +35,7 @@ public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck
 
   protected abstract void scanAndroidManifest(XmlFile file);
 
-  private static boolean isAndroidManifestFile(XmlFile file) {
+  public static boolean isAndroidManifestFile(XmlFile file) {
     return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
   }
 

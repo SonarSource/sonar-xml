@@ -21,20 +21,32 @@ package org.sonar.plugins.xml.checks.security.android;
 
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
+import org.sonar.plugins.xml.Xml;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+
+import static org.sonar.plugins.xml.checks.security.android.AbstractAndroidManifestCheck.isAndroidManifestFile;
 
 @Rule(key = "S4507")
-public class DebugFeatureCheck extends AbstractAndroidManifestCheck {
+public class DebugFeatureCheck extends SimpleXPathBasedCheck {
 
   private static final String MESSAGE = "Make sure this debug feature is deactivated before delivering the code in production.";
-  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/application/@n1:debuggable[.='true']")
+  private final XPathExpression debuggableXPath = XPathBuilder.forExpression("/manifest/application/@n1:debuggable[.='true']")
     .withNamespace("n1", "http://schemas.android.com/apk/res/android")
+    .build();
+  private final XPathExpression customErrorsXPath = XPathBuilder.forExpression("/configuration/system.web/customErrors/@mode")
     .build();
 
   @Override
-  protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument()).forEach(node -> reportIssue(node, MESSAGE));
+  public final void scanFile(XmlFile file) {
+    if (isAndroidManifestFile(file)) {
+      evaluateAsList(debuggableXPath, file.getDocument()).forEach(node -> reportIssue(node, MESSAGE));
+    }
+    if (Xml.isDotNetApplicationConfig(file.getInputFile())) {
+      evaluateAsList(customErrorsXPath, file.getDocument()).stream()
+        .filter(modeAttribute -> "off".equalsIgnoreCase(modeAttribute.getNodeValue()))
+        .forEach(node -> reportIssue(node, MESSAGE));
+    }
   }
-
 }

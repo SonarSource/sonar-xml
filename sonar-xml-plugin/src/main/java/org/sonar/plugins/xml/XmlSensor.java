@@ -45,6 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.CheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonarsource.analyzer.commons.xml.ParseException;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
@@ -68,11 +69,10 @@ public class XmlSensor implements Sensor {
     this.parsingErrorCheckEnabled = this.checks.of(PARSING_ERROR_RULE_KEY) != null;
     this.fileSystem = fileSystem;
     this.mainFilesPredicate = fileSystem.predicates()
-            .and(
-                    fileSystem.predicates().hasType(InputFile.Type.MAIN),
-                    fileSystem.predicates().hasLanguage(Xml.KEY),
-                    fileSystem.predicates().doesNotMatchPathPattern("**/*.cls-meta.xml")
-            );
+      .and(
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().or(fileSystem.predicates().hasLanguage(Xml.KEY), Xml::isDotNetApplicationConfig),
+        fileSystem.predicates().doesNotMatchPathPattern("**/*.cls-meta.xml"));
   }
 
   @Override
@@ -117,6 +117,10 @@ public class XmlSensor implements Sensor {
       }
       runChecks(context, xmlFile);
     } catch (Exception e) {
+      if (e instanceof ParseException && Xml.isDotNetApplicationConfig(inputFile)) {
+        // it's not mandatory for a "web.config" file to be an XML .Net configuration.
+        return;
+      }
       processParseException(e, context, inputFile);
     }
   }

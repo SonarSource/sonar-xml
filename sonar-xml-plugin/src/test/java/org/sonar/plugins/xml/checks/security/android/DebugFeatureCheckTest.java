@@ -38,4 +38,30 @@ class DebugFeatureCheckTest {
   void not_manifest() {
     SonarXmlCheckVerifier.verifyNoIssue(Paths.get("not-manifest", "AnyFileName.xml").toString(), new DebugFeatureCheck());
   }
+
+  @Test
+  void web_application_without_custom_errors() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "web.config").toString(), new DebugFeatureCheck());
+  }
+
+  @Test
+  void web_application_with_custom_errors() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("other-web-application", "web.config").toString(), new DebugFeatureCheck());
+  }
+
+  @Test
+  void not_in_web_config() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("web-application", "not.a.web.config.xml").toString(), new DebugFeatureCheck());
+  }
+
+  @Test
+  void debug_web_application() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("web-application", "web.debug.config").toString(), new DebugFeatureCheck());
+  }
+
+  @Test
+  void web_server() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "Machine.config").toString(), new DebugFeatureCheck());
+  }
+
 }
