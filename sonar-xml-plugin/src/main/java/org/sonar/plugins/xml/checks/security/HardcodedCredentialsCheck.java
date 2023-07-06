@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.xml.Xml;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
@@ -45,9 +46,15 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static final String VALUE = "value";
   private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
-  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{.*", Pattern.DOTALL);
+
+  private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
+    .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
+
+  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{");
+  private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
+  private static final String ISSUE_MESSAGE = "\"%s\" detected here, make sure this is not a hard-coded credential.";
 
   @RuleProperty(
     key = "credentialWords",
@@ -72,8 +79,14 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   @Override
   public void scanFile(XmlFile file) {
-    checkElements(file.getDocument());
-    checkSpecialCases(file);
+    if (Xml.isDotNetApplicationConfig(file.getInputFile())) {
+      evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).stream()
+        .filter(passwordAttrNode -> !isValidWebConfigCredential(passwordAttrNode.getNodeValue()))
+        .forEach(this::reportIssue);
+    } else {
+      checkElements(file.getDocument());
+      checkSpecialCases(file);
+    }
   }
 
   private void checkElements(Node element) {
@@ -130,17 +143,24 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       return;
     }
     if (isCredentialNode(node, credentialWordsSet())) {
-      reportIssue(node, String.format("\"%s\" detected here, make sure this is not a hard-coded credential.", node.getLocalName()));
+      reportIssue(node);
     }
   }
 
   private static boolean isValidCredential(String candidate) {
-    String trimmedCandidate = candidate.trim();
-    return trimmedCandidate.isEmpty() || VALID_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
+    return candidate.trim().isEmpty() || VALID_CREDENTIAL_VALUES.matcher(candidate).find();
+  }
+
+  private static boolean isValidWebConfigCredential(String candidate) {
+    return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
   }
 
   private void checkSpecialCases(XmlFile file) {
     specialCases.forEach(specialCase -> specialCase.accept(file));
+  }
+
+  private void reportIssue(Node node) {
+    reportIssue(node, String.format(ISSUE_MESSAGE, node.getLocalName()));
   }
 
   private final List<SpecialCase> specialCases = Arrays.asList(
@@ -176,10 +196,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
-          + "|/b:beans/gh:config"
-          + "|/b:beans/gg:config"
-          + "|/b:beans/l:config"
-          + "|/b:beans/t:config")
+        + "|/b:beans/gh:config"
+        + "|/b:beans/gg:config"
+        + "|/b:beans/l:config"
+        + "|/b:beans/t:config")
         .withNamespace("b", "http://www.springframework.org/schema/beans")
         .withNamespace("f", "http://www.springframework.org/schema/social/facebook")
         .withNamespace("gh", "http://www.springframework.org/schema/social/github")
@@ -188,8 +208,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .withNamespace("t", "http://www.springframework.org/schema/social/twitter")
         .build(),
       node -> getAttributeSafe(node, "app-secret"),
-      true
-    ),
+      true),
     // Teiid
     new SpecialCase(
       "/security-domain/authentication/login-module/module-option["
@@ -199,8 +218,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "or @name='access-secret'"
         + "]",
       node -> getAttributeSafe(node, VALUE),
-      false)
-  );
+      false));
 
   private static Optional<Node> getTextValueSafe(Node node) {
     return Optional.ofNullable(node.getFirstChild());
