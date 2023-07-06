@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.xml.Xml;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
@@ -45,7 +46,12 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static final String VALUE = "value";
   private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
+
+  private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
+    .forExpression(".//authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user[string-length(@password) > 0]").build();
+
   private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{.*", Pattern.DOTALL);
+  private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
 
@@ -59,6 +65,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
    * Can not be pre-computed as it depends of the parameter
    */
   private Set<String> cleanedCredentialWords = null;
+  private boolean isWebConfigFile = false;
 
   private Set<String> credentialWordsSet() {
     if (cleanedCredentialWords == null) {
@@ -72,7 +79,12 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   @Override
   public void scanFile(XmlFile file) {
-    checkElements(file.getDocument());
+    isWebConfigFile = Xml.isDotNetApplicationConfig(file.getInputFile());
+    if (isWebConfigFile) {
+      evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).forEach(this::checkElements);
+    } else {
+      checkElements(file.getDocument());
+    }
     checkSpecialCases(file);
   }
 
@@ -134,9 +146,13 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     }
   }
 
-  private static boolean isValidCredential(String candidate) {
+  private boolean isValidCredential(String candidate) {
     String trimmedCandidate = candidate.trim();
-    return trimmedCandidate.isEmpty() || VALID_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
+    boolean isValid = trimmedCandidate.isEmpty() || VALID_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
+    if (isWebConfigFile) {
+      isValid = VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
+    }
+    return isValid;
   }
 
   private void checkSpecialCases(XmlFile file) {
@@ -176,10 +192,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
-          + "|/b:beans/gh:config"
-          + "|/b:beans/gg:config"
-          + "|/b:beans/l:config"
-          + "|/b:beans/t:config")
+        + "|/b:beans/gh:config"
+        + "|/b:beans/gg:config"
+        + "|/b:beans/l:config"
+        + "|/b:beans/t:config")
         .withNamespace("b", "http://www.springframework.org/schema/beans")
         .withNamespace("f", "http://www.springframework.org/schema/social/facebook")
         .withNamespace("gh", "http://www.springframework.org/schema/social/github")
@@ -188,8 +204,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .withNamespace("t", "http://www.springframework.org/schema/social/twitter")
         .build(),
       node -> getAttributeSafe(node, "app-secret"),
-      true
-    ),
+      true),
     // Teiid
     new SpecialCase(
       "/security-domain/authentication/login-module/module-option["
@@ -199,8 +214,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "or @name='access-secret'"
         + "]",
       node -> getAttributeSafe(node, VALUE),
-      false)
-  );
+      false));
 
   private static Optional<Node> getTextValueSafe(Node node) {
     return Optional.ofNullable(node.getFirstChild());

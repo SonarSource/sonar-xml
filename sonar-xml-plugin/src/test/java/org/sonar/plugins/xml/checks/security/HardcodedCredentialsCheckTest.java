@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.xml.checks.security;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,5 +71,11 @@ class HardcodedCredentialsCheckTest {
   @Test
   void android_password_attribute_is_ignored() {
     SonarXmlCheckVerifier.verifyNoIssue("android_password.xml", CHECK);
+  }
+
+  @Test
+  void web_application() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "web.config").toString(), CHECK);
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "Machine.config").toString(), CHECK);
   }
 }
