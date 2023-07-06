@@ -48,12 +48,13 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
 
   private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
-    .forExpression(".//authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user[string-length(@password) > 0]").build();
+    .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
 
-  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{.*", Pattern.DOTALL);
+  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{");
   private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
+  private static final String ISSUE_MESSAGE = "\"%s\" detected here, make sure this is not a hard-coded credential.";
 
   @RuleProperty(
     key = "credentialWords",
@@ -65,7 +66,6 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
    * Can not be pre-computed as it depends of the parameter
    */
   private Set<String> cleanedCredentialWords = null;
-  private boolean isWebConfigFile = false;
 
   private Set<String> credentialWordsSet() {
     if (cleanedCredentialWords == null) {
@@ -79,9 +79,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   @Override
   public void scanFile(XmlFile file) {
-    isWebConfigFile = Xml.isDotNetApplicationConfig(file.getInputFile());
-    if (isWebConfigFile) {
-      evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).forEach(this::checkElements);
+    if (Xml.isDotNetApplicationConfig(file.getInputFile())) {
+      evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).stream()
+        .filter(passwordAttrNode -> !isValidWebConfigCredential(passwordAttrNode.getNodeValue()))
+        .forEach(this::reportIssue);
     } else {
       checkElements(file.getDocument());
     }
@@ -142,21 +143,24 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       return;
     }
     if (isCredentialNode(node, credentialWordsSet())) {
-      reportIssue(node, String.format("\"%s\" detected here, make sure this is not a hard-coded credential.", node.getLocalName()));
+      reportIssue(node);
     }
   }
 
-  private boolean isValidCredential(String candidate) {
-    String trimmedCandidate = candidate.trim();
-    boolean isValid = trimmedCandidate.isEmpty() || VALID_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
-    if (isWebConfigFile) {
-      isValid = VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(trimmedCandidate).matches();
-    }
-    return isValid;
+  private static boolean isValidCredential(String candidate) {
+    return candidate.trim().isEmpty() || VALID_CREDENTIAL_VALUES.matcher(candidate).find();
+  }
+
+  private static boolean isValidWebConfigCredential(String candidate) {
+    return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
   }
 
   private void checkSpecialCases(XmlFile file) {
     specialCases.forEach(specialCase -> specialCase.accept(file));
+  }
+
+  private void reportIssue(Node node) {
+    reportIssue(node, String.format(ISSUE_MESSAGE, node.getLocalName()));
   }
 
   private final List<SpecialCase> specialCases = Arrays.asList(
