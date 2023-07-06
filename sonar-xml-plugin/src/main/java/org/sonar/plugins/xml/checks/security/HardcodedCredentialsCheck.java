@@ -85,8 +85,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .forEach(this::reportIssue);
     } else {
       checkElements(file.getDocument());
+      checkSpecialCases(file);
     }
-    checkSpecialCases(file);
   }
 
   private void checkElements(Node element) {
