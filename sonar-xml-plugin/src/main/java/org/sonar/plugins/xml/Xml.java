@@ -82,6 +82,10 @@ public class Xml extends AbstractLanguage {
     return nonEmptyStrings.toArray(new String[nonEmptyStrings.size()]);
   }
 
+  public static boolean isConfigFile(InputFile inputFile) {
+    return inputFile.filename().endsWith(".config");
+  }
+
   public static boolean isDotNetApplicationConfig(InputFile inputFile) {
     String filename = inputFile.filename();
     return "web.config".equalsIgnoreCase(filename) || "machine.config".equalsIgnoreCase(filename);
