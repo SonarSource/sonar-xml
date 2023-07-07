@@ -71,7 +71,7 @@ public class XmlSensor implements Sensor {
     this.mainFilesPredicate = fileSystem.predicates()
       .and(
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().or(fileSystem.predicates().hasLanguage(Xml.KEY), Xml::isDotNetApplicationConfig),
+        fileSystem.predicates().or(fileSystem.predicates().hasLanguage(Xml.KEY)),
         fileSystem.predicates().doesNotMatchPathPattern("**/*.cls-meta.xml"));
   }
 
@@ -117,8 +117,8 @@ public class XmlSensor implements Sensor {
       }
       runChecks(context, xmlFile);
     } catch (Exception e) {
-      if (e instanceof ParseException && Xml.isDotNetApplicationConfig(inputFile)) {
-        // it's not mandatory for a "web.config" file to be an XML .Net configuration.
+      if (e instanceof ParseException && Xml.isConfigFile(inputFile)) {
+        // it's not mandatory for a "*.config" file to have an XML format.
         return;
       }
       processParseException(e, context, inputFile);
@@ -154,6 +154,7 @@ public class XmlSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguage(Xml.KEY)
+      .onlyOnFileType(InputFile.Type.MAIN)
       .name("XML Sensor");
     processesFilesIndependently(descriptor);
   }

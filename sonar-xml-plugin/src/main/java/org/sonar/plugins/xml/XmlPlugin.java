@@ -33,7 +33,7 @@ public final class XmlPlugin implements Plugin {
       PropertyDefinition.builder(XmlPlugin.FILE_SUFFIXES_KEY)
         .name("File suffixes")
         .description("List of suffixes for XML files to analyze.")
-        .defaultValue(".xml,.xsd,.xsl")
+        .defaultValue(".xml,.xsd,.xsl,.config")
         .multiValues(true)
         .category("XML")
         .onQualifiers(Qualifiers.PROJECT)
