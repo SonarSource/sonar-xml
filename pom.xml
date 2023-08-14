@@ -60,11 +60,10 @@
     <sonar.version>10.0.0.68432</sonar.version>
     <sonar.minVersion>9.9</sonar.minVersion>
 
-    <sonar.analyzerCommons.version>2.5.0.1358</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.7.0.1482</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.42.0.312</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>8.15.0.65216</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>9.14.0.375</sonar.pluginApi.version>
-
+    <sonar.pluginApi.version>10.1.0.809</sonar.pluginApi.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- Release: enable publication to Bintray -->
@@ -85,7 +84,16 @@
         <artifactId>sonar-analyzer-commons</artifactId>
         <version>${sonar.analyzerCommons.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.sonarsource.api.plugin</groupId>
+        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+        <version>${sonar.pluginApi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.30</version>
+      </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-xml-parsing</artifactId>

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -40,8 +42,6 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.xml.checks.CheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonarsource.analyzer.commons.ProgressReport;
@@ -51,7 +51,7 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
 public class XmlSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(XmlSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, ParsingErrorCheck.RULE_KEY);
 
@@ -142,7 +142,7 @@ public class XmlSensor implements Sensor {
   }
 
   private static void logFailingRule(RuleKey rule, URI fileLocation, Exception e) {
-    LOG.error(String.format("Unable to execute rule %s on %s", rule, fileLocation), e);
+    LOG.error("Unable to execute rule {} on {}", rule, fileLocation, e);
   }
 
   @Override
@@ -175,7 +175,7 @@ public class XmlSensor implements Sensor {
   private void processParseException(Exception e, SensorContext context, InputFile inputFile) {
     reportAnalysisError(e, context, inputFile);
 
-    LOG.warn(String.format("Unable to analyse file %s;", inputFile.uri()));
+    LOG.warn("Unable to analyse file {};", inputFile.uri());
     LOG.debug("Cause: {}", e.getMessage());
 
     if (parsingErrorCheckEnabled) {

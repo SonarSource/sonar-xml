@@ -28,9 +28,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -46,7 +46,7 @@ import org.w3c.dom.NodeList;
 @Rule(key = XPathCheck.RULE_KEY)
 public class XPathCheck extends SonarXmlCheck {
 
-  private static final Logger LOG = Loggers.get(XPathCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XPathCheck.class);
 
   public static final String RULE_KEY = "XPathCheck";
 

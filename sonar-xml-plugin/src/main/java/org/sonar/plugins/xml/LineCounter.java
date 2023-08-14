@@ -22,14 +22,14 @@ package org.sonar.plugins.xml;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.w3c.dom.Document;
@@ -40,7 +40,7 @@ import static org.sonar.plugins.xml.Utils.splitLines;
 
 public final class LineCounter {
 
-  private static final Logger LOG = Loggers.get(LineCounter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LineCounter.class);
 
   private LineCounter() {
   }
