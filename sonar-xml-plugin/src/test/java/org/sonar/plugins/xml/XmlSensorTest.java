@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
@@ -41,6 +40,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -66,10 +66,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LogAndArguments;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.xml.checks.TabCharacterCheck;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
@@ -87,7 +85,7 @@ class XmlSensorTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   private DefaultFileSystem fs;
   private XmlSensor sensor;
@@ -133,8 +131,8 @@ class XmlSensorTest {
     sensor.execute(context);
 
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   @Test
@@ -281,9 +279,9 @@ class XmlSensorTest {
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.getLogs()).isNotEmpty();
 
-    List<LogAndArguments> errors = logTester.getLogs(LoggerLevel.ERROR);
+    List<String> errors = logTester.logs(Level.ERROR);
     assertThat(errors).hasSize(1);
-    assertThat(errors.get(0).getRawMsg()).startsWith("Unable to execute rule xml:S666");
+    assertThat(errors.get(0)).startsWith("Unable to execute rule xml:S666");
   }
 
   /**
@@ -348,8 +346,8 @@ class XmlSensorTest {
     sensor.execute(context);
 
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Unable to analyse file " + invalidFile.uri() + ";");
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).contains("Unable to analyse file " + invalidFile.uri() + ";");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
   private void init() throws Exception {

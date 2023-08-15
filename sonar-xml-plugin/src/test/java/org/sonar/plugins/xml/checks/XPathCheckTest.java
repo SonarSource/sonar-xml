@@ -22,8 +22,8 @@ package org.sonar.plugins.xml.checks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,12 +109,12 @@ class XPathCheckTest {
     check.setExpression("//comment()");
 
     logTester.clear();
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
     SonarXmlCheckVerifier.verifyNoIssue("../xPathFailure.xml", check);
     assertThat(logTester.getLogs()).isEmpty();
 
     logTester.clear();
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     SonarXmlCheckVerifier.verifyNoIssue("../xPathFailure.xml", check);
     assertThat(logTester.getLogs()).isNotEmpty();
   }

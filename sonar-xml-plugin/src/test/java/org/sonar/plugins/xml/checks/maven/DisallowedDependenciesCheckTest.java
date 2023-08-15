@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.sonar.api.utils.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +65,7 @@ class DisallowedDependenciesCheckTest {
     check.dependencyName = "org.sonar";
     check.version = "";
     SonarXmlCheckVerifier.verifyNoIssue("noVersion/pom.xml", check);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("The rule xml:S3417 is configured with some invalid parameters." +
         " Invalid DependencyName pattern 'org.sonar'." +
         " Should match '[groupId]:[artifactId]', you can use '*' as wildcard or a regular expression." +
@@ -77,7 +77,7 @@ class DisallowedDependenciesCheckTest {
     check.dependencyName = "org.sonar.*:*";
     check.version = "version-0";
     SonarXmlCheckVerifier.verifyNoIssue("noVersion/pom.xml", check);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .containsExactly("The rule xml:S3417 is configured with some invalid parameters." +
         " Invalid Version pattern 'version-0'." +
         " Leave blank for all versions. You can use '*' as wildcard and '-' as range like '1.0-3.1' or '*-3.1'." +

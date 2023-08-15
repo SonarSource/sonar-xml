@@ -25,8 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.xml.xpath.XPathExpression;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.checks.maven.helpers.MavenDependencyMatcher;
@@ -40,7 +40,7 @@ import org.w3c.dom.Node;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = DisallowedDependenciesCheck.KEY)
 public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
 
-  private static final Logger LOG = Loggers.get(DisallowedDependenciesCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DisallowedDependenciesCheck.class);
 
   public static final String KEY = "S3417";
 
@@ -115,7 +115,7 @@ public class DisallowedDependenciesCheck extends SimpleXPathBasedCheck {
       try {
         dependencyMatcher = new MavenDependencyMatcher(dependencyName, version);
       } catch (RuntimeException e) {
-        LOG.error("The rule xml:" + KEY + " is configured with some invalid parameters. " + e.getMessage());
+        LOG.error("The rule xml:{} is configured with some invalid parameters. {}", KEY, e.getMessage());
       }
     }
     return dependencyMatcher;
