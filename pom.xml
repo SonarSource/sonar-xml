@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>68.0.0.247</version>
+    <version>70.0.0.270</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -58,7 +58,7 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <sonar.version>10.0.0.68432</sonar.version>
-    <sonar.minVersion>9.9</sonar.minVersion>
+    <sonar.pluginApi.minVersion>9.14.0.375</sonar.pluginApi.minVersion>
 
     <sonar.analyzerCommons.version>2.7.0.1482</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>3.42.0.312</sonar.orchestrator.version>
