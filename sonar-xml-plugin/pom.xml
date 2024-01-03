@@ -111,7 +111,7 @@
           <pluginClass>org.sonar.plugins.xml.XmlPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
-          <sonarQubeMinVersion>${sonar.minVersion}</sonarQubeMinVersion>
+          <pluginApiMinVersion>${sonar.minVersion}</pluginApiMinVersion>
         </configuration>
       </plugin>
 
@@ -170,8 +170,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>2550000</maxsize>
-                  <minsize>2500000</minsize>
+                  <maxsize>2680000</maxsize>
+                  <minsize>2630000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
