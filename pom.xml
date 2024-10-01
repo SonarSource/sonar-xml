@@ -39,6 +39,7 @@
 
   <modules>
     <module>sonar-xml-plugin</module>
+    <module>its</module>
   </modules>
 
   <scm>
@@ -61,7 +62,7 @@
     <sonar.minVersion>9.9</sonar.minVersion>
 
     <sonar.analyzerCommons.version>2.7.0.1482</sonar.analyzerCommons.version>
-    <sonar.orchestrator.version>3.42.0.312</sonar.orchestrator.version>
+    <sonar.orchestrator.version>5.0.0.2065</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>8.15.0.65216</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>10.1.0.809</sonar.pluginApi.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -101,7 +102,7 @@
       </dependency>
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
-        <artifactId>sonar-orchestrator</artifactId>
+        <artifactId>sonar-orchestrator-junit5</artifactId>
         <version>${sonar.orchestrator.version}</version>
         <scope>test</scope>
       </dependency>

@@ -31,11 +31,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
@@ -48,29 +47,29 @@ import org.sonarsource.sonarlint.core.commons.Language;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class SonarLintTest {
+class SonarLintTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public static File temp;
 
   private static StandaloneSonarLintEngine sonarlintEngine;
   private static File baseDir;
 
-  @BeforeClass
-  public static void prepare() throws Exception {
+  @BeforeAll
+  static void prepare() {
     FileLocation xmlPlugin = FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
     StandaloneGlobalConfiguration config = StandaloneGlobalConfiguration.builder()
       .addPlugin(xmlPlugin.getFile().toPath())
-      .setSonarLintUserHome(temp.newFolder().toPath())
+      .setSonarLintUserHome(temp.toPath())
       .setLogOutput((msg, level) -> System.out.println(String.format("[%s] %s", level.name(), msg)))
       .addEnabledLanguage(Language.XML)
       .build();
     sonarlintEngine = new StandaloneSonarLintEngineImpl(config);
-    baseDir = temp.newFolder();
+    baseDir = temp;
   }
 
   @Test
-  public void simpleXml() throws Exception {
+  void simpleXml() throws Exception {
     // Rule S1778 is part of SonarWay (characters before prolog)
     ClientInputFile inputFile = prepareInputFile("foo.xml",
       "<!-- Ohlala, there is a comment before prolog! -->\n"
@@ -143,7 +142,7 @@ public class SonarLintTest {
     };
   }
 
-  @AfterClass
+  @AfterAll
   public static void stop() {
     sonarlintEngine.stop();
   }

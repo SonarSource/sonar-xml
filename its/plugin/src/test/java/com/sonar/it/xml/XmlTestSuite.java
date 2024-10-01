@@ -19,17 +19,16 @@
  */
 package com.sonar.it.xml;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.HttpConnector;
@@ -37,11 +36,10 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.measures.ComponentRequest;
 
-
 import static java.util.Collections.singletonList;
 
-@RunWith(Suite.class)
-@SuiteClasses({
+@Suite
+@SelectClasses({
   ByteOrderMarkTest.class,
   XmlTest.class,
   SonarLintTest.class})
@@ -50,8 +48,8 @@ public class XmlTestSuite {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
 
-  @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  @RegisterExtension
+  static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))

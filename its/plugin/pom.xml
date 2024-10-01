@@ -20,8 +20,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-suite</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -36,7 +41,7 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
+      <artifactId>sonar-orchestrator-junit5</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -81,13 +86,10 @@
 
   <profiles>
     <profile>
-      <id>qa</id>
-      <activation>
-        <property>
-          <name>env.SONARSOURCE_QA</name>
-          <value>true</value>
-        </property>
-      </activation>
+      <id>it-plugin</id>
+      <properties>
+        <skipTests>false</skipTests>
+      </properties>
       <build>
         <plugins>
           <plugin>

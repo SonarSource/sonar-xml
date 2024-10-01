@@ -19,8 +19,8 @@
  */
 package org.sonarsource.xml.it;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.io.File;
@@ -29,11 +29,11 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.api.rule.Severity;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -47,28 +47,28 @@ import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlRulingTest {
+class XmlRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LANGUAGE = "xml";
   private static final String QUALITY_PROFILE_NAME = "rules";
 
-  @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
+  @RegisterExtension
+  static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(Optional.ofNullable(System.getProperty(SQ_VERSION_PROPERTY)).orElse(DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
     .addPlugin(MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.11.0.2659"))
     .build();
 
-  @Before
-  public void setUp() {
+  @BeforeAll
+  static void beforeAll() {
     ProfileGenerator.RulesConfiguration rulesConfiguration = new ProfileGenerator.RulesConfiguration();
 
     // generate a profile called "rules"
-    File profile = ProfileGenerator.generateProfile(orchestrator.getServer().getUrl(), LANGUAGE, LANGUAGE, rulesConfiguration, Collections.emptySet());
-    orchestrator.getServer().restoreProfile(FileLocation.of(profile));
+    File profile = ProfileGenerator.generateProfile(ORCHESTRATOR.getServer().getUrl(), LANGUAGE, LANGUAGE, rulesConfiguration, Collections.emptySet());
+    ORCHESTRATOR.getServer().restoreProfile(FileLocation.of(profile));
 
     createTemplateRule(
       "XPathCheck",
@@ -94,9 +94,9 @@ public class XmlRulingTest {
   }
 
   @Test
-  public void test() throws Exception {
-    orchestrator.getServer().provisionProject("project", "project");
-    orchestrator.getServer().associateProjectToQualityProfile("project", LANGUAGE, QUALITY_PROFILE_NAME);
+  void test() throws Exception {
+    ORCHESTRATOR.getServer().provisionProject("project", "project");
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", LANGUAGE, QUALITY_PROFILE_NAME);
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarScanner build = SonarScanner.create(FileLocation.of("../sources/projects").getFile())
       .setProjectKey("project")
@@ -108,7 +108,7 @@ public class XmlRulingTest {
       .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath());
-    orchestrator.executeBuild(build);
+    ORCHESTRATOR.executeBuild(build);
 
     assertThat(Files.readAllLines(litsDifferencesFile.toPath(), StandardCharsets.UTF_8)).isEmpty();
   }
@@ -140,8 +140,8 @@ public class XmlRulingTest {
 
   private static WsClient newAdminWsClient() {
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-    .url(orchestrator.getServer().getUrl())
-    .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
-    .build());
+      .url(ORCHESTRATOR.getServer().getUrl())
+      .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
+      .build());
   }
 }

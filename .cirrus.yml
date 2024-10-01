@@ -30,12 +30,12 @@ qa_container_definition: &QA_CONTAINER_DEFINITION
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
-    image: base-windows-jdk11-v*
+    image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
-    type: t3.xlarge
+    disk: 128
+    type: c5.4xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
-    preemptible: false
 
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
@@ -110,7 +110,7 @@ plugin_qa_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
-    - mvn verify -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+    - mvn verify -Pit-plugin -Dsonar.runtimeVersion=${SQ_VERSION} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
@@ -127,7 +127,18 @@ ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn verify -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+    - mvn verify -Pit-ruling -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+  cleanup_before_cache_script: cleanup_maven_repository
+
+ruling_win_task:
+  depends_on:
+    - build_win
+  <<: *WINDOWS_VM_DEFINITION
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  build_script:
+    - source cirrus-env QA
+    - mvn verify -Pit-ruling -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
@@ -135,6 +146,7 @@ promote_task:
     - build
     - build_win
     - ruling
+    - ruling_win
     - plugin_qa
     - ws_scan
   <<: *ONLY_SONARSOURCE_QA
