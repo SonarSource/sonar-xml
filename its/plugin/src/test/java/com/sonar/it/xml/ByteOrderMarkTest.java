@@ -21,27 +21,26 @@ package com.sonar.it.xml;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import java.io.File;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.client.GetRequest;
 
 import static com.sonar.it.xml.XmlTestSuite.newWsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ByteOrderMarkTest {
-
+class ByteOrderMarkTest {
   private static final String PROJECT_KEY = "byte-order-mark";
 
-  @ClassRule
-  public static Orchestrator orchestrator = XmlTestSuite.ORCHESTRATOR;
+  @RegisterExtension
+  private static final OrchestratorExtension ORCHESTRATOR = XmlTestSuite.ORCHESTRATOR;
 
   @Test
-  public void test() throws Exception {
-    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xml", "it-profile");
-    orchestrator.executeBuild(XmlTestSuite.createSonarScanner()
+  void test() {
+    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xml", "it-profile");
+    ORCHESTRATOR.executeBuild(XmlTestSuite.createSonarScanner()
       .setProjectDir(new File("projects/" + PROJECT_KEY))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)

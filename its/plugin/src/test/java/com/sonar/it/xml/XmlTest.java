@@ -19,33 +19,33 @@
  */
 package com.sonar.it.xml;
 
-import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import java.io.File;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.Measures.Measure;
 
 import static com.sonar.it.xml.XmlTestSuite.getMeasure;
 import static com.sonar.it.xml.XmlTestSuite.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class XmlTest {
-
-  @ClassRule
-  public static Orchestrator orchestrator = XmlTestSuite.ORCHESTRATOR;
+class XmlTest {
 
   private static final String PROJECT = "xml-sonar-runner";
   private static final String FILE_TOKEN_PARSER = "xml-sonar-runner" + ":src/spring.xml";
 
-  @BeforeClass
+  @RegisterExtension
+  private static final OrchestratorExtension ORCHESTRATOR = XmlTestSuite.ORCHESTRATOR;
+
+  @BeforeAll
   public static void inspect() throws Exception {
     inspectProject(PROJECT);
   }
 
   @Test
-  public void testBaseMetrics() {
+  void testBaseMetrics() {
     assertThat(getProjectMeasureAsDouble("lines")).isEqualTo(319);
     assertThat(getProjectMeasureAsDouble("ncloc")).isEqualTo(282);
     assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(3.1);
@@ -55,7 +55,7 @@ public class XmlTest {
   }
 
   @Test
-  public void should_be_compatible_with_DevCockpit() {
+  void should_be_compatible_with_DevCockpit() {
     assertThat(getFileMeasure("ncloc_data").getValue())
       .contains(";7=1")
       .doesNotContain("8=1")
@@ -64,20 +64,21 @@ public class XmlTest {
       .contains(";11=1");
   }
 
-  @Test // SONARXML-19
-  public void should_correctly_count_lines_when_char_before_prolog() {
+  @Test
+    // SONARXML-19
+  void should_correctly_count_lines_when_char_before_prolog() {
     assertThat(getFileMeasureAsDouble("lines")).isEqualTo(14);
   }
 
-  private static void inspectProject(String name) throws InterruptedException {
-    orchestrator.getServer().provisionProject(name, name);
-    orchestrator.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
+  private static void inspectProject(String name) {
+    ORCHESTRATOR.getServer().provisionProject(name, name);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(name, "xml", "it-profile");
 
     SonarScanner build = XmlTestSuite.createSonarScanner()
       .setProjectName(name)
       .setProjectKey(name)
       .setProjectDir(new File("projects/" + name));
-    orchestrator.executeBuild(build);
+    ORCHESTRATOR.executeBuild(build);
   }
 
   private Double getProjectMeasureAsDouble(String metricKey) {
