@@ -112,6 +112,7 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <pluginApiMinVersion>${sonar.minVersion}</pluginApiMinVersion>
+          <requiredForLanguages>xml</requiredForLanguages>
         </configuration>
       </plugin>
 

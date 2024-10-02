@@ -40,6 +40,7 @@ import static java.util.Collections.singletonList;
 
 @Suite
 @SelectClasses({
+  RequiredForLanguagesTest.class,
   ByteOrderMarkTest.class,
   XmlTest.class,
   SonarLintTest.class})
