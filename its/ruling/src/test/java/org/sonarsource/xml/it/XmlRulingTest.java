@@ -33,7 +33,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -119,7 +118,7 @@ class XmlRulingTest {
     adminWSClient.rules().create(new CreateRequest()
       .setName(newRuleKey)
       .setMarkdownDescription(newRuleKey)
-      .setSeverity(Severity.INFO)
+      .setSeverity("INFO")
       .setStatus(RuleStatus.READY.name())
       .setTemplateKey(LANGUAGE + ":" + templateRuleKey)
       .setCustomKey(newRuleKey)
