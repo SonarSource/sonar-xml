@@ -19,12 +19,16 @@
  */
 package org.sonar.plugins.xml.checks.security.android;
 
+import org.sonar.api.config.Configuration;
+import org.sonar.plugins.xml.checks.ReadAnalysisConfiguration;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
+public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck implements ReadAnalysisConfiguration {
 
   private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
+  private static final String ANDROID_MIN_SDK_VERSION = "sonar.android.minsdkversion.min";
+  protected Integer minSdkVersion;
 
   @Override
   public final void scanFile(XmlFile file) {
@@ -37,6 +41,11 @@ public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck
 
   public static boolean isAndroidManifestFile(XmlFile file) {
     return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
+  }
+
+  @Override
+  public void readAnalysisConfiguration(Configuration configuration) {
+    minSdkVersion = configuration.getInt(ANDROID_MIN_SDK_VERSION).orElse(null);
   }
 
 }

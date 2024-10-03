@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -39,11 +40,13 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
+import org.sonar.plugins.xml.checks.ReadAnalysisConfiguration;
 import org.sonarsource.analyzer.commons.ProgressReport;
 import org.sonarsource.analyzer.commons.xml.ParseException;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
@@ -61,8 +64,14 @@ public class XmlSensor implements Sensor {
   private final FilePredicate mainFilesPredicate;
   private final SonarRuntime sonarRuntime;
   private final FileLinesContextFactory fileLinesContextFactory;
+  private final Configuration configuration;
 
   public XmlSensor(SonarRuntime sonarRuntime, FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory) {
+    this(sonarRuntime, fileSystem, checkFactory, fileLinesContextFactory, null);
+  }
+
+  public XmlSensor(SonarRuntime sonarRuntime, FileSystem fileSystem, CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
+    @Nullable Configuration configuration) {
     this.sonarRuntime = sonarRuntime;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.checks = checkFactory.create(Xml.REPOSITORY_KEY).addAnnotatedChecks(CheckList.getCheckClasses());
@@ -73,6 +82,7 @@ public class XmlSensor implements Sensor {
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
         fileSystem.predicates().or(fileSystem.predicates().hasLanguage(Xml.KEY)),
         fileSystem.predicates().doesNotMatchPathPattern("**/*.cls-meta.xml"));
+    this.configuration = configuration;
   }
 
   @Override
@@ -115,6 +125,9 @@ public class XmlSensor implements Sensor {
         LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
         XmlHighlighting.highlight(context, xmlFile);
       }
+      if (configuration != null) {
+        configureChecks();
+      }
       runChecks(context, xmlFile);
     } catch (Exception e) {
       if (e instanceof ParseException && Xml.isConfigFile(inputFile)) {
@@ -123,6 +136,13 @@ public class XmlSensor implements Sensor {
       }
       processParseException(e, context, inputFile);
     }
+  }
+
+  private void configureChecks() {
+    checks.all().stream()
+      .filter(ReadAnalysisConfiguration.class::isInstance)
+      .map(ReadAnalysisConfiguration.class::cast)
+      .forEach(check -> check.readAnalysisConfiguration(configuration));
   }
 
   private void runChecks(SensorContext context, XmlFile newXmlFile) {
