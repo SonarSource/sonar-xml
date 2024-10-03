@@ -59,7 +59,8 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <sonar.version>10.0.0.68432</sonar.version>
-    <sonar.minVersion>9.9</sonar.minVersion>
+    <!-- Minimum version of the plugin API in SQ -->
+    <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
     <sonar.analyzerCommons.version>2.7.0.1482</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>5.0.0.2065</sonar.orchestrator.version>
