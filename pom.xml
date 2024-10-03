@@ -64,7 +64,8 @@
 
     <sonar.analyzerCommons.version>2.7.0.1482</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>5.0.0.2065</sonar.orchestrator.version>
-    <sonar.sonarlint-core.version>8.15.0.65216</sonar.sonarlint-core.version>
+    <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
+    <sonar.sonarlint-core.version>8.17.0.70351</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>10.1.0.809</sonar.pluginApi.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
