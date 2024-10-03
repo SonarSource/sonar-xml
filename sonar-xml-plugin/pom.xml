@@ -111,7 +111,8 @@
           <pluginClass>org.sonar.plugins.xml.XmlPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
-          <pluginApiMinVersion>${sonar.minVersion}</pluginApiMinVersion>
+          <pluginApiMinVersion>${sonar.pluginApi.minVersion}</pluginApiMinVersion>
+          <requiredForLanguages>xml</requiredForLanguages>
         </configuration>
       </plugin>
 
