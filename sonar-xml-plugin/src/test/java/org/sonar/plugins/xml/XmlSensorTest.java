@@ -60,9 +60,6 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.ConfigurationBridge;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
@@ -188,7 +185,7 @@ class XmlSensorTest {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
       public SensorDescriptor processesFilesIndependently() {
-       throw new NotImplementedException();
+        throw new NotImplementedException();
       }
     };
     sensor.describe(sensorDescriptor);
@@ -202,10 +199,7 @@ class XmlSensorTest {
    */
   @Test
   void test_sensor() throws Exception {
-    Configuration config = new ConfigurationBridge(
-      new MapSettings().setProperty("sonar.xml.maxFileSize", "10")
-    );
-    init(config);
+    init();
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
@@ -357,18 +351,10 @@ class XmlSensorTest {
   }
 
   private void init() throws Exception {
-    init(SQ_LTS_RUNTIME, false, null);
-  }
-
-  private void init(Configuration config) throws Exception {
-    init(SQ_LTS_RUNTIME, false, config);
+    init(SQ_LTS_RUNTIME, false);
   }
 
   private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck) throws Exception {
-    init(sonarRuntime, activateParsingErrorCheck, null);
-  }
-
-  private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck, Configuration config) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
 
@@ -388,7 +374,7 @@ class XmlSensorTest {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
 
-    sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory, config);
+    sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory);
   }
 
   @Test

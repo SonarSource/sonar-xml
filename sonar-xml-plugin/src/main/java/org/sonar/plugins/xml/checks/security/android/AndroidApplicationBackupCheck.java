@@ -31,6 +31,7 @@ import org.w3c.dom.Node;
 @Rule(key = "S6358")
 public class AndroidApplicationBackupCheck extends AbstractAndroidManifestCheck {
 
+  private static final String ANDROID_MIN_SDK_VERSION = "sonar.android.minsdkversion.min";
   private static final String MESSAGE = "Make sure backup of application data is safe here.";
   private static final String BASE_XPATH_QUERY = "/manifest/application" +
     "[" +
@@ -57,6 +58,7 @@ public class AndroidApplicationBackupCheck extends AbstractAndroidManifestCheck 
   @Override
   protected void scanAndroidManifest(XmlFile file) {
     List<Node> nodes;
+    Integer minSdkVersion = getContext().config().getInt(ANDROID_MIN_SDK_VERSION).orElse(null);
     if(minSdkVersion != null && minSdkVersion < 23) {
       nodes = evaluateAsList(X_PATH_APPLICATION_BELOW_SDK_23, file.getDocument());
     } else {
