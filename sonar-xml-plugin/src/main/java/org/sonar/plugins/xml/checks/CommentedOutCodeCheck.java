@@ -108,22 +108,17 @@ public class CommentedOutCodeCheck extends SimpleXPathBasedCheck {
       .map(Node::getTextContent)
       .collect(Collectors.joining("\n"));
 
-    boolean result = true;
     try (ByteArrayInputStream stream = new ByteArrayInputStream(commentsAsSingleString.getBytes(charset))) {
       SafeDomParserFactory.createDocumentBuilder(false).parse(stream);
-    } catch (SAXException e) {
-      if (e.getMessage().equals("The markup in the document following the root element must be well-formed.")) {
-        result = retryParseWrappedWithRootElement(commentsAsSingleString, charset);
+    } catch (IOException | SAXException e) {
+      if ("The markup in the document following the root element must be well-formed.".equals(e.getMessage())) {
+        return retryParseWrappedWithRootElement(commentsAsSingleString, charset);
       } else {
         // swallow exception, we are just trying to parse to see if it could be some XML code
-        result = false;
+        return false;
       }
     }
-    catch (IOException e) {
-      // swallow exception, we are just trying to parse to see if it could be some XML code
-      result = false;
-    }
-    return result;
+    return true;
   }
 
   private static boolean retryParseWrappedWithRootElement(String commentsAsSingleString, Charset charset) {
