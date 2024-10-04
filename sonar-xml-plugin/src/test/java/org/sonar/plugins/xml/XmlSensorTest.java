@@ -60,6 +60,9 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
@@ -199,7 +202,10 @@ class XmlSensorTest {
    */
   @Test
   void test_sensor() throws Exception {
-    init();
+    Configuration config = new ConfigurationBridge(
+      new MapSettings().setProperty("sonar.xml.maxFileSize", "10")
+    );
+    init(config);
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
@@ -351,10 +357,18 @@ class XmlSensorTest {
   }
 
   private void init() throws Exception {
-    init(SQ_LTS_RUNTIME, false);
+    init(SQ_LTS_RUNTIME, false, null);
+  }
+
+  private void init(Configuration config) throws Exception {
+    init(SQ_LTS_RUNTIME, false, config);
   }
 
   private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck) throws Exception {
+    init(sonarRuntime, activateParsingErrorCheck, null);
+  }
+
+  private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck, Configuration config) throws Exception {
     File moduleBaseDir = new File("src/test/resources");
     context = SensorContextTester.create(moduleBaseDir);
 
@@ -374,7 +388,7 @@ class XmlSensorTest {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
 
-    sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory);
+    sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory, config);
   }
 
   @Test

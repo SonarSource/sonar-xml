@@ -38,7 +38,14 @@ class AndroidApplicationBackupCheckTest {
     Configuration analysisConfig = new ConfigurationBridge(
       new MapSettings().setProperty("sonar.android.minsdkversion.min", "22"));
     check.readAnalysisConfiguration(analysisConfig);
+
     SonarXmlCheckVerifier.verifyIssues("AndroidApplicationBelowSDK23/AndroidManifest.xml", check);
+
+    analysisConfig = new ConfigurationBridge(
+      new MapSettings().setProperty("sonar.android.minsdkversion.min", "23"));
+    check.readAnalysisConfiguration(analysisConfig);
+
+    SonarXmlCheckVerifier.verifyNoIssue("AndroidApplicationBelowSDK23/AndroidManifest.xml", check);
   }
 
   @Test
