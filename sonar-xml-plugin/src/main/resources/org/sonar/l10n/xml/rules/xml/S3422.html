@@ -11,4 +11,13 @@ in an environment that’s not configured just like yours is, your code won’t 
   &lt;systemPath&gt;/usr/bin/lib/rt.jar&lt;/systemPath&gt;  &lt;!-- remove this --&gt;
 &lt;/dependency&gt;
 </pre>
+<h3>Compliant solution</h3>
+<pre>
+&lt;dependency&gt;
+  &lt;groupId&gt;javax.sql&lt;/groupId&gt;
+  &lt;artifactId&gt;jdbc-stdext&lt;/artifactId&gt;
+  &lt;version&gt;2.0&lt;/version&gt;
+  &lt;scope&gt;provided&lt;/scope&gt;
+&lt;/dependency&gt;
+</pre>
 
