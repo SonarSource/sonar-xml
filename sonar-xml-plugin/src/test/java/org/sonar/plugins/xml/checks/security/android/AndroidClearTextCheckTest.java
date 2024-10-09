@@ -20,6 +20,7 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class AndroidClearTextCheckTest {
@@ -32,6 +33,24 @@ class AndroidClearTextCheckTest {
   @Test
   void not_manifest() {
     SonarXmlCheckVerifier.verifyNoIssue("NotManifest.xml", new AndroidClearTextCheck());
+  }
+
+  @Test
+  void does_not_raise_when_usesCleartextTraffic_is_not_set_and_minSdk_greater_or_equal_to_28() {
+    SonarXmlCheckVerifier.verifyNoIssue(
+      "implicit/AndroidManifest.xml",
+      new AndroidClearTextCheck(),
+      new MapSettings().setProperty("android:minSdkVersion", 28)
+    );
+  }
+
+  @Test
+  void raises_when_usesCleartextTraffic_is_not_set_and_minSdk_is_less_than_28() {
+    SonarXmlCheckVerifier.verifyIssues(
+      "implicit/AndroidManifest.xml",
+      new AndroidClearTextCheck(),
+      new MapSettings().setProperty("android:minSdkVersion", 27)
+    );
   }
 
 }
