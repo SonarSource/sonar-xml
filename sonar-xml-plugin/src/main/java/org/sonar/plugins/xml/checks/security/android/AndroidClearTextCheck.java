@@ -50,7 +50,12 @@ public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
   protected void scanAndroidManifest(XmlFile file) {
     Document document = file.getDocument();
     evaluateAsList(xPathClearTextTrue, document).forEach(node -> reportAtNameLocation(node, MESSAGE));
-    evaluateAsList(xPathClearTextImplicit, document).forEach(node -> reportAtNameLocation(node, MESSAGE_IMPLICIT));
+    Integer minSdk = getContext().config().getInt("android:minSdkVersion").orElse(27);
+    // As of Android SDK 28, `usesCleartextTraffic` is implicitly set to false by default
+    // See https://developer.android.com/guide/topics/manifest/application-element
+    if (minSdk < 28) {
+      evaluateAsList(xPathClearTextImplicit, document).forEach(node -> reportAtNameLocation(node, MESSAGE_IMPLICIT));
+    }
   }
 
   private void reportAtNameLocation(Node node, String message) {
