@@ -26,7 +26,49 @@
     <!-- </crash> -->
   </foo>
 
-<!-- Noncompliant@+9 {{Remove this commented out code.}} -->
+  <foo>
+    <!-- Noncompliant@+1 {{Remove this commented out code.}} -->
+    <!--
+    <parent>
+      <groupId>com.test</groupId>
+      <artifactid>test</artifactid>
+      <version>1.0.0</version>
+    </parent>
+
+    <scm>
+    <connection>ssh</connection>
+    <developerConnection>shs</developerConnection>
+    <url>https://www.google.com</url>
+    <tag>HEAD</tag>
+    </scm>
+    -->
+  </foo>
+
+  <foo>
+    <!-- Noncompliant@+1 {{Remove this commented out code.}} -->
+      <!--
+      <parent>
+        <groupId>com.test</groupId>
+        <artifactid>test</artifactid>
+        <version>1.0.0</version>
+      </parent>
+      -->
+      <!--
+      <scm>
+      <connection>ssh</connection>
+      <developerConnection>shs</developerConnection>
+      <url>https://www.google.com</url>
+      <tag>HEAD</tag>
+      </scm>
+      -->
+  </foo>
+
+  <!-- False Negative? - commented code is not valid XML and attempted parse fails -->
+  <!-- <foo> -->
+  <!--   <gul> -->
+  <!-- </foo> -->
+
+  <!-- Noncompliant@+8 {{Remove this commented out code.}} -->
   <foo />
 
 <!-- <foo> -->
