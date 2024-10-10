@@ -58,7 +58,7 @@
     <license.title>SonarQube XML Plugin</license.title>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
-    <sonar.version>10.0.0.68432</sonar.version>
+    <sonar.version>10.7.0.96327</sonar.version>
     <!-- Minimum version of the plugin API in SQ -->
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
@@ -66,7 +66,7 @@
     <sonar.orchestrator.version>5.0.0.2065</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>8.17.0.70351</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>10.1.0.809</sonar.pluginApi.version>
+    <sonar.pluginApi.version>10.11.0.2468</sonar.pluginApi.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- Release: enable publication to Bintray -->
