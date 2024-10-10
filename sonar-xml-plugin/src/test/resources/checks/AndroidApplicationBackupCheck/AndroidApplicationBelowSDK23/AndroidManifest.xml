@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+  <!-- fullBackupContent is ignored below SDK 23 -->
+  <!-- Noncompliant@+1 -->
+  <application android:allowBackup="true"
+               android:fullBackupContent="@xml/backup.xml">
+  </application>
+
+  <!-- Noncompliant@+1 -->
+  <application android:allowBackup="true"
+               android:fullBackupContent="${var}">
+  </application>
+</manifest>

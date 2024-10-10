@@ -20,13 +20,31 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class AndroidApplicationBackupCheckTest {
 
+
+
   @Test
   void test() {
     SonarXmlCheckVerifier.verifyIssues("AndroidManifest.xml", new AndroidApplicationBackupCheck());
+  }
+
+  @Test
+  void test_sdk_below_23() {
+    AndroidApplicationBackupCheck check = new AndroidApplicationBackupCheck();
+    MapSettings settings = new MapSettings().setProperty("sonar.android.minsdkversion.min", "22");
+    SonarXmlCheckVerifier.verifyIssues("AndroidApplicationBelowSDK23/AndroidManifest.xml", check, settings);
+  }
+
+  @Test
+  void test_sdk_23_or_greater(){
+    AndroidApplicationBackupCheck check = new AndroidApplicationBackupCheck();
+    MapSettings settings = new MapSettings().setProperty("sonar.android.minsdkversion.min", "23");
+
+    SonarXmlCheckVerifier.verifyNoIssue("AndroidApplicationBelowSDK23/AndroidManifest.xml", check, settings);
   }
 
   @Test

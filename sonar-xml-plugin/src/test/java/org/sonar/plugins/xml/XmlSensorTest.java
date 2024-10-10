@@ -185,7 +185,7 @@ class XmlSensorTest {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
       public SensorDescriptor processesFilesIndependently() {
-       throw new NotImplementedException();
+        throw new NotImplementedException();
       }
     };
     sensor.describe(sensorDescriptor);
