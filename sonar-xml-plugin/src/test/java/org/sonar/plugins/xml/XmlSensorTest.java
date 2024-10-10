@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import org.apache.commons.lang.NotImplementedException;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
@@ -185,7 +184,7 @@ class XmlSensorTest {
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
       public SensorDescriptor processesFilesIndependently() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
       }
     };
     sensor.describe(sensorDescriptor);
