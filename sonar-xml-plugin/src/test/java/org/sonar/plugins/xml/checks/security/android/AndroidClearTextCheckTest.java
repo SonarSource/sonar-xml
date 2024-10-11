@@ -40,7 +40,7 @@ class AndroidClearTextCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(
       "implicit/AndroidManifest.xml",
       new AndroidClearTextCheck(),
-      new MapSettings().setProperty("android:minSdkVersion", 28)
+      new MapSettings().setProperty("sonar.android.minsdkversion.min", 28)
     );
   }
 
@@ -49,7 +49,7 @@ class AndroidClearTextCheckTest {
     SonarXmlCheckVerifier.verifyIssues(
       "implicit/AndroidManifest.xml",
       new AndroidClearTextCheck(),
-      new MapSettings().setProperty("android:minSdkVersion", 27)
+      new MapSettings().setProperty("sonar.android.minsdkversion.min", 27)
     );
   }
 
