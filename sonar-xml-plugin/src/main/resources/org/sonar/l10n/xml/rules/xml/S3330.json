@@ -38,6 +38,9 @@
     ],
     "ASVS 4.0": [
       "3.4.2"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222575"
     ]
   },
   "quickfix": "unknown"

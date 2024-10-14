@@ -1,29 +1,53 @@
+<p>This vulnerability exposes the application to failures of a wide range of application-specific features the Strut filter was supposed to perform,
+such as authentication, logging, encryption, and more.</p>
 <h2>Why is this an issue?</h2>
-<p>Every filter defined in <code>web.xml</code> file should be used in a <code>&lt;filter-mapping&gt;</code> element. Otherwise such filters are not
-invoked.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-  &lt;filter&gt;
-     &lt;filter-name&gt;DefinedNotUsed&lt;/filter-name&gt;
-     &lt;filter-class&gt;com.myco.servlet.ValidationFilter&lt;/filter-class&gt;
-  &lt;/filter&gt;
+<p>Filters are used to intercept requests and responses from a server and allow developers to manipulate them. When a <code>filter</code> is declared,
+but the corresponding <code>filter assignment</code> is inadvertently not, then the code is vulnerable to security problems or business logic
+instability.</p>
+<p>If a filter is defined in the web application descriptor file <code>web.xml</code> but is not used in a "filter mapping", this is an indication
+that it may have been forgotten.</p>
+<h3>What is the potential impact?</h3>
+<p>If a filter is not used in a <code>&lt;filter-mapping&gt;</code> element, it will not be called. Below are some examples of the impact of this
+oversight.</p>
+<h4>Unauthorized access</h4>
+<p>One of the main uses of Struts filters is to provide security measures such as authentication and authorization. If a filter is forgotten in the
+filter mappings, unauthorized users could gain access to sensitive data or perform actions that they are not authorized to perform.</p>
+<h4>Functional problems</h4>
+<p>Filters can also be used to modify requests and responses, format data, or even handle errors. If these features are not included in the filter
+mappings, they may not work as expected, resulting in a poor user experience or even application crash.</p>
+<h4>Performance issues</h4>
+<p>Some filters are designed to improve the performance of your application, such as those that implement caching strategies. If these are not mapped,
+you may experience slow response times or increased server load on your application.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;filter&gt;
+    &lt;filter-name&gt;ValidationFilter&lt;/filter-name&gt; &lt;!-- Noncompliant --&gt;
+    &lt;filter-class&gt;com.myco.servlet.ValidationFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
 </pre>
-<h3>Compliant solution</h3>
-<pre>
-  &lt;filter&gt;
-     &lt;filter-name&gt;ValidationFilter&lt;/filter-name&gt;
-     &lt;filter-class&gt;com.myco.servlet.ValidationFilter&lt;/filter-class&gt;
-  &lt;/filter&gt;
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;filter&gt;
+    &lt;filter-name&gt;ValidationFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;com.myco.servlet.ValidationFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
 
-  &lt;filter-mapping&gt;
-     &lt;filter-name&gt;ValidationFilter&lt;/filter-name&gt;
-     &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-  &lt;/filter-mapping&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;ValidationFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
+  <li> Struts Docs - <a href="https://struts.apache.org/core-developers/web-xml">Web.xml Developpers Guide</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a> </li>
 </ul>
 

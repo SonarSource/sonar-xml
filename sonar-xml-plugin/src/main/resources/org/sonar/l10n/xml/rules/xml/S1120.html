@@ -1,6 +1,67 @@
+<p>Indentation should be consistent to make the code easy to read, review and modify. To fix this issue, change the indentation so that the text
+starts at the expected column.</p>
 <h2>Why is this an issue?</h2>
-<p>Proper indentation is a simple and effective way to improve the code’s readability. Consistent indentation among the developers within a team also
-reduces the differences that are committed to source control systems, making code reviews easier.</p>
-<p>By default this rule checks that each block of code is indented, although it does not check the size of the indent. Parameter "indentSize" allows
-the expected indent size to be defined. Only the first line of a badly indented section is reported.</p>
+<p>Consistent indentation is a simple and effective way to improve the code’s readability. It reduces the differences that are committed to source
+control systems, making code reviews easier.</p>
+<p>This rule raises an issue when the indentation does not match the configured value. Only the first line of a badly indented section is
+reported.</p>
+<h3>What is the potential impact?</h3>
+<p>The readability is decreased. It becomes more tedious to review and modify the code.</p>
+<h2>How to fix it</h2>
+<p>Change the indentation so that the text starts at the expected column. The expected column should be the configured indent size multiplied by the
+level at which the code block is nested.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>With an indent size of 2:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;?xml version="1.0"?&gt;
+&lt;catalog&gt;
+  &lt;book id="bk101"&gt;
+    &lt;author&gt;Gambardella, Matthew&lt;/author&gt;
+     &lt;title&gt;XML Developer's Guide&lt;/title&gt;  &lt;!-- Noncompliant, expected to start at column 4 --&gt;
+    &lt;genre&gt;Computer&lt;/genre&gt;
+    &lt;price&gt;44.95&lt;/price&gt;
+    &lt;publish_date&gt;2000-10-01&lt;/publish_date&gt;
+    &lt;description&gt;An in-depth look at creating applications
+    with XML.&lt;/description&gt;
+  &lt;/book&gt;
+    &lt;book id="bk102"&gt;  &lt;!-- Noncompliant, expected to start at column 2 --&gt;
+      &lt;author&gt;Ralls, Kim&lt;/author&gt;
+      &lt;title&gt;Midnight Rain&lt;/title&gt;
+      &lt;genre&gt;Fantasy&lt;/genre&gt;
+      &lt;price&gt;5.95&lt;/price&gt;
+      &lt;publish_date&gt;2000-12-16&lt;/publish_date&gt;
+      &lt;description&gt;A former architect battles corporate zombies,
+      an evil sorceress, and her own childhood to become queen
+      of the world.&lt;/description&gt;
+    &lt;/book&gt;
+&lt;/catalog&gt;
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;?xml version="1.0"?&gt;
+&lt;catalog&gt;
+  &lt;book id="bk101"&gt;
+    &lt;author&gt;Gambardella, Matthew&lt;/author&gt;
+    &lt;title&gt;XML Developer's Guide&lt;/title&gt;
+    &lt;genre&gt;Computer&lt;/genre&gt;
+    &lt;price&gt;44.95&lt;/price&gt;
+    &lt;publish_date&gt;2000-10-01&lt;/publish_date&gt;
+    &lt;description&gt;An in-depth look at creating applications
+    with XML.&lt;/description&gt;
+  &lt;/book&gt;
+  &lt;book id="bk102"&gt;
+    &lt;author&gt;Ralls, Kim&lt;/author&gt;
+    &lt;title&gt;Midnight Rain&lt;/title&gt;
+    &lt;genre&gt;Fantasy&lt;/genre&gt;
+    &lt;price&gt;5.95&lt;/price&gt;
+    &lt;publish_date&gt;2000-12-16&lt;/publish_date&gt;
+    &lt;description&gt;A former architect battles corporate zombies,
+    an evil sorceress, and her own childhood to become queen
+    of the world.&lt;/description&gt;
+  &lt;/book&gt;
+&lt;/catalog&gt;
+</pre>
+<h3>Going the extra mile</h3>
+<p>You can adopt a tool or configure your IDE to take care of code formatting automatically.</p>
 

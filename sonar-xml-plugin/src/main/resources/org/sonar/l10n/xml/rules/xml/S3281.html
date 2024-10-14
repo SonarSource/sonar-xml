@@ -1,32 +1,59 @@
 <h2>Why is this an issue?</h2>
-<p>Default interceptors, such as application security interceptors, must be listed in the <code>ejb-jar.xml</code> file, or they will not be treated
-as default.</p>
-<p>This rule applies to projects that contain JEE Beans (any one of <code>javax.ejb.Singleton</code>, <code>MessageDriven</code>,
-<code>Stateless</code> or <code>Stateful</code>).</p>
-<h3>Noncompliant code example</h3>
-<pre>
-// file: ejb-interceptors.xml
-&lt;assembly-descriptor&gt;
- &lt;interceptor-binding&gt; &lt;!-- should be declared in ejb-jar.xml --&gt;
-      &lt;ejb-name&gt;*&lt;/ejb-name&gt;
-      &lt;interceptor-class&gt;com.myco.ImportantInterceptor&lt;/interceptor-class&gt; &lt;!-- Noncompliant; will NOT be treated as default --&gt;
-   &lt;/interceptor-binding&gt;
-&lt;/assembly-descriptor&gt;
-</pre>
-<h3>Compliant solution</h3>
-<pre>
-// file: ejb-jar.xml
+<p>EJB interceptors provide a way to define code that can be executed before and after a method call. They are typically used for logging, testing,
+auditing or security purposes.</p>
+<p>Interceptor methods can be applied or bound at three levels:</p>
+<ul>
+  <li> The default interceptor is called for each bean as part of the deployment and can only be applied through an XML file. </li>
+  <li> The class-level interceptor is invoked for each method of the bean. The class-level interceptor can be applied both through an annotation and
+  through an XML file. </li>
+  <li> The method-level interceptor is invoked for a specific method of the bean. The method-level interceptor can be applied both through an
+  annotation and through an XML file. </li>
+</ul>
+<p>If you want to declare these methods in an XML file, you must declare them in a file named <code>ejb-jar.xml</code>. Otherwise, they may not be
+applied or used as intended.</p>
+<h3>What is the potential impact?</h3>
+<p>If EJB interceptors are not applied or used as intended, inconsistent application behavior in the app business logic or security might happen.</p>
+<p>Below are some real-world examples of this issue.</p>
+<h4>Inconsistent Behavior</h4>
+<p>Interceptors declared outside of <code>ejb-jar.xml</code> may not be applied consistently across all EJBs. This can lead to unpredictable
+application behavior, making debugging and maintaining the code difficult.</p>
+<h4>Security Risks</h4>
+<p>Interceptors often handle sensitive operations such as security checks or transaction management. If an interceptor is not applied due to incorrect
+declaration, these operations may not be performed, leading to potential security vulnerabilities.<br> For example, if an interceptor responsible for
+user authentication is not applied, unauthorized users may gain access to sensitive information.</p>
+<h4>Performance Impact</h4>
+<p>Interceptors can also be used to improve application performance, for instance, by managing database transactions. If these interceptors are not
+applied, it could lead to performance issues, such as longer response times or increased server load.</p>
+<p>This could open the way for efficient Denial of Service attacks.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;!-- ejb-interceptors.xml --&gt;
+
 &lt;assembly-descriptor&gt;
  &lt;interceptor-binding&gt;
       &lt;ejb-name&gt;*&lt;/ejb-name&gt;
-      &lt;interceptor-class&gt;com.myco.ImportantInterceptor&lt;/interceptor-class&gt;
+      &lt;interceptor-class&gt;com.myco.ImportantInterceptor&lt;/interceptor-class&gt; &lt;!-- Noncompliant --&gt;
    &lt;/interceptor-binding&gt;
 &lt;/assembly-descriptor&gt;
 </pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;!-- ejb-jar.xml --&gt;
+
+&lt;assembly-descriptor&gt;
+    &lt;interceptor-binding&gt;
+        &lt;ejb-name&gt;*&lt;/ejb-name&gt;
+        &lt;interceptor-class&gt;com.myco.ImportantInterceptor&lt;/interceptor-class&gt;
+    &lt;/interceptor-binding&gt;
+&lt;/assembly-descriptor&gt;
+</pre>
 <h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a> </li>
 </ul>
 

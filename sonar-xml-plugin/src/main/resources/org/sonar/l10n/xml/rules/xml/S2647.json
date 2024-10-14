@@ -5,16 +5,14 @@
     "impacts": {
       "SECURITY": "HIGH"
     },
-    "attribute": "COMPLETE"
+    "attribute": "TRUSTWORTHY"
   },
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "2h"
   },
-  "tags": [
-    "cwe"
-  ],
+  "tags": [],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2647",
   "sqKey": "S2647",
@@ -37,6 +35,9 @@
     ],
     "ASVS 4.0": [
       "2.10.3"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222533"
     ]
   },
   "quickfix": "unknown"
