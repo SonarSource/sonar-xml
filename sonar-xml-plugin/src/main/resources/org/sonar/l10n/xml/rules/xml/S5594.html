@@ -1,63 +1,68 @@
+<p>Android components that are exported can be used by other applications. This may give access to functionalities that should remain private.</p>
 <h2>Why is this an issue?</h2>
 <p>Once an Android component has been exported, it can be used by attackers to launch malicious actions and might also give access to other components
-that are not exported.</p>
-<p>As a result, sensitive user data can be stolen, and components can be launched unexpectedly.</p>
-<p>For this reason, the following components should be protected:</p>
+that are not exported. For this reason, the following components should be protected:</p>
 <ul>
   <li> Providers </li>
   <li> Activities </li>
   <li> Activity-aliases </li>
   <li> Services </li>
 </ul>
-<p>To do so, it is recommended to either set <code>exported</code> to <code>false</code>, add <code>android:readPermission</code> and
-<code>android:writePermission</code> attributes, or add a <code>&lt;permission&gt;</code> tag.</p>
-<p><strong>Warning</strong>: When targeting Android&nbsp;versions lower than 12, the presence of intent filters will cause <code>exported</code> to be
-set to <code>true</code> by default.</p>
-<p>If a component must be exported, use a <code>&lt;permission&gt;</code> tag and the <a
-href="https://developer.android.com/guide/topics/manifest/permission-element#plevel">protection level</a> that matches your use case and data
-confidentiality requirements.<br> For example, <a href="https://developer.android.com/training/sync-adapters">Sync adapters</a> should use a
-<code>signature</code> protection level to remain both exported <strong>and</strong> protected.</p>
-<h3>Noncompliant code example</h3>
-<p>The following components are vulnerable because permissions are undefined or partially defined:</p>
-<pre>
+<h3>What is the potential impact?</h3>
+<p>When components are exported unintentionally, they can be accessed and manipulated by other applications, potentially leading to unauthorized data
+access, data corruption, or even control over certain functionalities of the application.</p>
+<p>Below are some real-world scenarios that illustrate some impacts of an attacker exploiting the vulnerability:</p>
+<h4>Unauthorized Data Access</h4>
+<p>If a component that handles sensitive data is exported, other applications can potentially access this data. For instance, if an activity that
+displays private messages is exported, a malicious application could send an intent to this activity and read the user’s private messages.</p>
+<h4>Unwanted Control Over Application Functionality</h4>
+<p>If a broadcast receiver is exported, other applications can send intents to it, triggering it to perform actions. This could lead to unwanted
+behaviors. For instance, a malicious application could trigger a receiver that starts a certain activity, causing the user’s device to open unwanted
+screens, consume unnecessary resources, or even perform harmful actions.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<p>This sample exports a provider and does not define permissions:</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;provider
+  android:authorities="com.example.app.Provider"
+  android:name="com.example.app.Provider"
+  android:exported="true" /&gt;  &lt;!-- Noncompliant --&gt;
+</pre>
+<p>This sample exports a provider and does not define <code>READ</code> permission:</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
   android:exported="true"
-  android:readPermission="com.example.app.READ_PERMISSION" /&gt;  &lt;!-- Noncompliant: write permission is not defined --&gt;
+  android:writePermission="com.example.app.WRITE_PERMISSION" /&gt;  &lt;!-- Noncompliant --&gt;
 </pre>
-<pre>
-&lt;provider
-  android:authorities="com.example.app.Provider"
-  android:name="com.example.app.Provider"
-  android:exported="true"
-  android:writePermission="com.example.app.WRITE_PERMISSION" /&gt;  &lt;!-- Noncompliant: read permission is not defined --&gt;
-</pre>
-<pre>
-&lt;activity android:name="com.example.activity.Activity"&gt;  &lt;!-- Noncompliant: permissions are not defined --&gt;
+<p>This sample exports a provider and does not define permissions:</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+&lt;activity android:name="com.example.activity.Activity"&gt;  &lt;!-- Noncompliant --&gt;
   &lt;intent-filter&gt;
     &lt;action android:name="com.example.OPEN_UI"/&gt;
     &lt;category android:name="android.intent.category.DEFAULT"/&gt;
   &lt;/intent-filter&gt;
 &lt;/activity&gt;
 </pre>
-<h3>Compliant solution</h3>
-<p>If the component’s capabilities or data are not intended to be shared with other apps, its <code>exported</code> attribute should be set to
-<code>false</code>:</p>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
   android:exported="false" /&gt;
 </pre>
-<p>Otherwise, implement permissions:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 &lt;provider
   android:authorities="com.example.app.Provider"
   android:name="com.example.app.Provider"
   android:exported="true"
   android:readPermission="com.example.app.READ_PERMISSION"
   android:writePermission="com.example.app.WRITE_PERMISSION" /&gt;
+</pre>
+<pre data-diff-id="3" data-diff-type="compliant">
+&lt;permission android:name="com.example.app.PERMISSION" android:protectionLevel="signature" /&gt;
 
 &lt;activity android:name="com.example.activity.Activity"
           android:permission="com.example.app.PERMISSION" &gt;
@@ -67,16 +72,33 @@ confidentiality requirements.<br> For example, <a href="https://developer.androi
   &lt;/intent-filter&gt;
 &lt;/activity&gt;
 </pre>
+<h3>How does this work?</h3>
+<p>The preferred way to protect components is to set <code>exported</code> to <code>false</code>. The component is not exported and can only be used
+by its application.</p>
+<p>If the component, such as a provider, has to be exported because it is shared with some other application, add <code>android:readPermission</code>
+and <code>android:writePermission</code> attributes.</p>
+<p>Another way to secure access to components is to create a permission with the <code>&lt;permission&gt;</code> tag and add it to the component with
+the <code>android:permission</code> attribute.</p>
+<h3>Pitfalls</h3>
+<p>When targeting Android API versions lower than 12, intent filters will cause <code>exported</code> to be set to <code>true</code> by default.</p>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.android.com/guide/topics/providers/content-provider-creating#Permissions">developer.android.com</a> - Implementing
-  content provider permissions </li>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment">Mobile AppSec Verification
-  Standard</a> - Platform Interaction Requirements </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">OWASP Mobile Top 10 2016 Category M1</a> - Improper
-  platform usage </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">OWASP Mobile Top 10 2016 Category M2</a> - Insecure
-  Data Storage </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/926">MITRE, CWE-926</a> - Improper Export of Android Application Components </li>
+  <li> Android Documentation - <a href="https://developer.android.com/guide/topics/manifest/permission-element#plevel">protection level</a> </li>
+  <li> Android Documentation - <a href="https://developer.android.com/guide/topics/providers/content-provider-creating#Permissions">Implement content
+  provider permissions</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
+  platform usage</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">Mobile Top 10 2016 Category M2 - Insecure
+  Data Storage</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/926">CWE-926 - Improper Export of Android Application Components</a> </li>
+</ul>
+<h3>External coding guidelines</h3>
+<ul>
+  <li> OWASP - <a href="https://mas.owasp.org/checklists/MASVS-PLATFORM/">Mobile AppSec Verification Standard - V6: Platform Interaction
+  Requirements</a> </li>
 </ul>
 

@@ -1,36 +1,63 @@
 <h2>Why is this an issue?</h2>
-<p>Defining a custom permission in the <code>android.permission</code> namespace may result in an unexpected permission assignment if a newer version
-of Android adds a permission with the same name. It is recommended to use a namespace specific to the application for custom permissions.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Namespaces act as a container for grouping together permissions with a common theme or purpose. They also prevent conflicts when multiple apps want
+to use the same permission name.</p>
+<p>The <code>android.permission</code> namespace holds all of the permissions defined by the Android operating system. It is not intended to be a
+general use container for all permissions.</p>
+<p>Defining permissions in the <code>android.permission</code> namespace increases the risk of a permission name collision. The collision could be due
+to a new Android system permission, or it could be due to another app using the same permission name.</p>
+<h3>What is the potential impact?</h3>
+<p>Below are some examples of the problems caused by a collision of Android permission names.</p>
+<h4>App installations may fail</h4>
+<p>Android will not allow multiple apps to define the same permission unless they are signed with the same key. This will be checked during when an
+app is installed or upgraded, and can cause the installation to fail with an <code>INSTALL_FAILED_DUPLICATE_PERMISSION</code> error.</p>
+<p>If the permission name collision is with an Android system permission, your app will no longer be allowed to install or upgrade.</p>
+<p>If the permission name collision is with another app, only one of the apps can be installed at a time. The presence of either app on the device
+will prevent the other app from being installed.</p>
+<h4>Unexpected permission grants</h4>
+<p>Permissions can be restricted so that they are only granted to apps signed with the same key. This allows apps from the same developer to work
+together but doesn’t expose that functionality to other apps.</p>
+<p>When an app is granted a permission, that grant exists for as long as the app is installed. It remains in place even if the app that defined the
+permission is removed.</p>
+<p>If your app reuses a permission that had previously been defined, any apps that retain the that permission will be able to bypass the signing key
+check.</p>
+<h2>How to fix it</h2>
+<p>Applications should define custom permissions in an application-specific namespace. This greatly reduces the chance of a permission name
+conflict.</p>
+<p>It is common practice to use the application package name as part of the namespace.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.organization.app"&gt;
 
     &lt;permission
-        android:name="android.permission.MYPERMISSION" /&gt; &lt;!-- Noncompliant --&gt;
+        android:name="android.permission.MY_PERMISSION" /&gt; &lt;!-- Noncompliant --&gt;
 
 &lt;/manifest&gt;
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 &lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.organization.app"&gt;
 
     &lt;permission
-        android:name="com.organization.app.permission.MYPERMISSION" /&gt;
+        android:name="com.organization.app.permission.MY_PERMISSION" /&gt;
 
 &lt;/manifest&gt;
 </pre>
 <h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment">Mobile AppSec Verification
-  Standard</a> - Platform Interaction Requirements </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">OWASP Mobile Top 10 2016 Category M1</a> - Improper
-  Platform Usage </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/265">MITRE, CWE-265</a> - Privilege Issues </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/732">MITRE, CWE-732</a> - Incorrect Permission Assignment for Critical Resource </li>
-  <li> <a href="https://developer.android.com/guide/topics/permissions/defining">developer.android.com</a> - Define a Custom App Permission </li>
+  <li> Mobile AppSec Verification Standard - <a href="https://mas.owasp.org/checklists/MASVS-PLATFORM/">Platform Interaction Requirements</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
+  Platform Usage</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/265">CWE-265 - Privilege Issues</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/732">CWE-732 - Incorrect Permission Assignment for Critical Resource</a> </li>
+</ul>
+<h3>External coding guidelines</h3>
+<ul>
+  <li> Android Developers - <a href="https://developer.android.com/guide/topics/permissions/defining">Define a Custom App Permission</a> </li>
 </ul>
 

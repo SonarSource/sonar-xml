@@ -1,12 +1,18 @@
+<p>Having two form validation entries with the same name indicates a configuration issue. Only one of the two configurations will be applied, which
+can lead to validation gaps.</p>
 <h2>Why is this an issue?</h2>
-<p>According to the Common Weakness Enumeration,</p>
-<blockquote>
-  <p>If two validation forms have the same name, the Struts Validator arbitrarily chooses one of the forms to use for input validation and discards
-  the other. This decision might not correspond to the programmer’s expectations…​</p>
-</blockquote>
-<p>In such a case, it is likely that the two forms should be combined. At the very least, one should be removed.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>In Struts, form validation is used to validate the data the application’s clients provide as part of a form submission to the server. Configuring
+two different form validations with the same name leads to unexpected behaviors.</p>
+<p>When faced with multiple form validations with the same name, Struts will arbitrarily choose one and apply it while discarding the others.</p>
+<h3>What is the potential impact?</h3>
+<p>The application might perform an incomplete validation of user-submitted forms. Some parts of the validation configuration defined in discarded
+items will not apply, which can have severe consequences if not duplicated in the applied one.</p>
+<p>Missing input validation can make the application vulnerable to injection attacks or other severe issues. They might affect the confidentiality,
+integrity, or availability of the application or the data it stores.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;form-validation&gt;
   &lt;formset&gt;
     &lt;form name="BookForm"&gt; ... &lt;/form&gt;
@@ -14,18 +20,26 @@
   &lt;/formset&gt;
 &lt;/form-validation&gt;
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 &lt;form-validation&gt;
   &lt;formset&gt;
     &lt;form name="BookForm"&gt; ... &lt;/form&gt;
   &lt;/formset&gt;
 &lt;/form-validation&gt;
 </pre>
+<h3>How does this work?</h3>
+<p>Only one validation configuration should remain. Depending on what was previously configured, one should either remove the useless validation
+entries or merge all of them into a single complete one.</p>
 <h2>Resources</h2>
+<h3>Standards</h3>
 <ul>
-  <li> <a href="https://cwe.mitre.org/data/definitions/102">MITRE, CWE-102</a> - Struts: Duplicate Validation Forms </li>
-  <li> <a href="https://owasp.org/www-community/vulnerabilities/Improper_Data_Validation">OWASP, Improper Data Validation</a> - Struts: Duplicate
-  Validation Forms </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/102">CWE-102 - Struts: Duplicate Validation Forms</a> </li>
+</ul>
+<h3>Documentation</h3>
+<ul>
+  <li> Struts Documentation - <a href="https://svn.apache.org/repos/asf/struts/struts1/tags/STRUTS_1_1_B1/contrib/validator/docs/overview.html">Struts
+  Validator</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-community/vulnerabilities/Improper_Data_Validation">Improper Data Validation</a> </li>
 </ul>
 

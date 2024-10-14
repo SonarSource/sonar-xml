@@ -1,40 +1,92 @@
+<p>This rule is deprecated, and will eventually be removed.</p>
+<p>Basic authentication is a vulnerable method of user authentication that should be avoided. It functions by transmitting a Base64 encoded username
+and password. As Base64 is easy to recognize and reverse, sensitive data may be leaked this way.</p>
 <h2>Why is this an issue?</h2>
-<p>Basic authentication’s only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the
-thinnest veil of protection to your users, and should not be used.</p>
-<h3>Noncompliant code example</h3>
-<pre>
-// in web.xml
-&lt;web-app  ...&gt;
-  &lt;!--  ...  --&gt;
+<p>Basic authentication is a simple and widely used method of user authentication for HTTP requests. When a client sends a request to a server that
+requires authentication, the client includes the username and password (concatenated together and Base64 encoded) in the "Authorization" header of the
+HTTP request. The server verifies the credentials and grants access if they are valid. Every request sent to the server to a protected endpoint must
+include these credentials.</p>
+<p>Basic authentication is considered insecure for several reasons:</p>
+<ul>
+  <li> It transmits user credentials in plain text, making them susceptible to interception and eavesdropping. </li>
+  <li> It relies solely on the server’s ability to verify the provided credentials. There is no mechanism for additional security measures like
+  multi-factor authentication or account lockouts after multiple failed login attempts. </li>
+  <li> It does not provide a way to manage user sessions securely. The client typically includes the credentials in every request, which creates more
+  opportunities for an attacker to steal these credentials. </li>
+</ul>
+<p>These security limitations make basic authentication an insecure choice for authentication or authorization over HTTP.</p>
+<h3>What is the potential impact?</h3>
+<p>Basic authentication transmits passwords in plain text, which makes it vulnerable to interception by attackers.</p>
+<h4>Session hijacking and man-in-the-middle attack</h4>
+<p>If an attacker gains access to the network traffic, they can easily capture the username and password. Basic authentication does not provide any
+mechanism to protect against session hijacking attacks. Once a user is authenticated, the session identifier (the username and password) is sent in
+clear text with each subsequent request. If attackers can intercept one request, they can use it to impersonate the authenticated user, gaining
+unauthorized access to their account and potentially performing malicious actions.</p>
+<h4>Brute-force attacks</h4>
+<p>Basic authentication does not have any built-in protection against brute-force attacks. Attackers can repeatedly guess passwords until they find
+the correct one, especially if weak or commonly used passwords are used. This can lead to unauthorized access to user accounts and potential data
+breaches.</p>
+<h2>How to fix it in Java EE</h2>
+<h3>Code examples</h3>
+<p>The following code uses basic authentication to protect web server endpoints.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="201" data-diff-type="noncompliant">
+&lt;!-- web.xml --&gt;
+&lt;web-app&gt;
   &lt;login-config&gt;
     &lt;auth-method&gt;BASIC&lt;/auth-method&gt;
   &lt;/login-config&gt;
 &lt;/web-app&gt;
 </pre>
-<h3>Exceptions</h3>
-<p>The rule will not raise any issue if HTTPS is enabled, on any URL-pattern.</p>
-<pre>
-&lt;web-app  ...&gt;
-  &lt;!--  ...  --&gt;
-  &lt;security-constraint&gt;
-    &lt;web-resource-collection&gt;
-      &lt;web-resource-name&gt;HTTPS enabled&lt;/web-resource-name&gt;
-      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-    &lt;/web-resource-collection&gt;
-    &lt;user-data-constraint&gt;
-      &lt;transport-guarantee&gt;CONFIDENTIAL&lt;/transport-guarantee&gt;
-    &lt;/user-data-constraint&gt;
-  &lt;/security-constraint&gt;
+<h4>Compliant solution</h4>
+<pre data-diff-id="201" data-diff-type="compliant">
+&lt;!-- web.xml --&gt;
+&lt;web-app&gt;
+  &lt;login-config&gt;
+    &lt;auth-method&gt;FORM&lt;/auth-method&gt;
+    &lt;form-login-config&gt;
+      &lt;form-login-page&gt;/login.jsp&lt;/form-login-page&gt;
+      &lt;form-error-page&gt;/login-error.jsp&lt;/form-error-page&gt;
+    &lt;/form-login-config&gt;
+  &lt;/login-config&gt;
 &lt;/web-app&gt;
 </pre>
+<h3>How does this work?</h3>
+<h4>Token-based authentication and OAuth</h4>
+<p>Token-based authentication is a safer alternative than basic authentication. A unique token is generated upon successful authentication and sent to
+the client, which is then included in subsequent requests. Therefore, it eliminates the need to transmit sensitive credentials with each request.
+OAuth also works by authenticating users via tokens. It gives even more flexibility on top of this by offering scopes, which limit an application’s
+access to a user’s account.</p>
+<p>Additionally, both token-based authentication and OAuth support mechanisms for token expiration, revocation, and refresh. This gives more
+flexibility than basic authentication, as compromised tokens carry much less risk than a compromised password.</p>
+<p>The Jakarta EE Security API offers robust and standardized methods to handle authentication and authorization in Jakarta EE applications. In the
+example, form-based authentication is applied to the <code>web.xml</code> configuration file. After a user successfully logs into the application, a
+session is created for the user. A session token is stored in a cookie and is used for subsequent requests.</p>
+<h4>Integrate with an Identity and Access Management (IAM) System</h4>
+<p>For more advanced authentication and authorization capabilities, consider integrating the backend with an IAM system. Doing so gives access to
+features like single sign-on (SSO), role-based access control, and centralized user management. As of Jakarta EE 10, support for OpenID Connect (OIDC)
+is included. Using this authentication method, several OIDC providers can be integrated easily, such as Auth0, Okta, and Azure Active Directory.</p>
+<h4>SSL encryption for HTTP requests</h4>
+<p>With basic authentication, user credentials are transmitted in plain text, which makes them vulnerable to interception and eavesdropping. However,
+when HTTPS is employed, the data is encrypted before transmission, making it significantly more difficult for attackers to intercept and decipher the
+credentials. If no other form of authentication is possible for this code, then every request must be sent over HTTPS to ensure credentials are kept
+safe.</p>
+<p>In Jakarta EE, HTTPS traffic can be enabled by setting the <code>transportGuarantee</code> attribute to <code>CONFIDENTIAL</code> in
+<code>web.xml</code>.</p>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">OWASP Top 10 2021 Category A4</a> - Insecure Design </li>
-  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication">HTTP authentication</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A04_2021-Insecure_Design/">Top 10 2021 Category A4 - Insecure Design</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a> </li>
   <li> <a href="https://cheatsheetseries.owasp.org/cheatsheets/Web_Service_Security_Cheat_Sheet.html#user-authentication">OWASP Web Service Security
   Cheat Sheet</a> </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/522">MITRE, CWE-522</a> - Insufficiently Protected Credentials </li>
-  <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/522">CWE-522 - Insufficiently Protected Credentials</a> </li>
+  <li> STIG Viewer - <a href="https://stigviewer.com/stig/application_security_and_development/2023-06-08/finding/V-222533">Application Security and
+  Development: V-222533</a> - The application must authenticate all network connected endpoint devices before establishing any connection. </li>
 </ul>
 
