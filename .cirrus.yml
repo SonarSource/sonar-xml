@@ -35,7 +35,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     region: eu-central-1
     disk: 128
     type: c5.4xlarge
-    subnet_id: ${CIRRUS_AWS_SUBNET}
 
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
