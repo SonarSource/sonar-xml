@@ -15,4 +15,4 @@ License
 
 Copyright 2010-2024 SonarSource.
 
-Licensed under the [GNU Lesser General Public License, Version 3.0](http://www.gnu.org/licenses/lgpl.txt)
+Licensed under the [SONAR Source-Available License v1.0](https://www.sonarsource.com/license/ssal/)
