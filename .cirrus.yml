@@ -41,6 +41,9 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
 only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
+log_develocity_url_script: &log_develocity_url_script |
+  echo "Develocity URL: https://develocity.sonar.build/scans?search.publicHostnames=cirrus-ci-task-${CIRRUS_TASK_ID}"
+
 build_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
@@ -57,6 +60,7 @@ build_task:
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
+    - *log_develocity_url_script
     - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
@@ -76,6 +80,7 @@ ws_scan_task:
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   whitesource_script:
+    - *log_develocity_url_script
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - mvn clean install -DskipTests
@@ -89,6 +94,7 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   maven_cache: { folder: .m2/repository }
   build_script:
+    - *log_develocity_url_script
     - source cirrus-env CI
     - mvn test
   cleanup_before_cache_script: cleanup_maven_repository
@@ -108,6 +114,7 @@ plugin_qa_task:
   maven_cache:
     folder: $CIRRUS_WORKING_DIR/.m2/repository
   qa_script:
+    - *log_develocity_url_script
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/plugin
@@ -125,6 +132,7 @@ ruling_task:
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   ruling_script:
+    - *log_develocity_url_script
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
@@ -138,6 +146,7 @@ ruling_win_task:
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   build_script:
+    - *log_develocity_url_script
     - source cirrus-env QA
     - mvn verify -Pit-ruling -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
