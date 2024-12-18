@@ -1,5 +1,6 @@
 # Maven
 target/
+.mvn/.develocity/
 
 # IntelliJ IDEA
 *.iws
