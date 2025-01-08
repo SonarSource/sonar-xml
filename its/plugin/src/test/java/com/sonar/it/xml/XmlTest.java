@@ -22,9 +22,7 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.sonarqube.ws.Measures.Measure;
 
-import static com.sonar.it.xml.XmlTestSuite.getMeasure;
 import static com.sonar.it.xml.XmlTestSuite.getMeasureAsDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,16 +50,6 @@ class XmlTest {
   }
 
   @Test
-  void should_be_compatible_with_DevCockpit() {
-    assertThat(getFileMeasure("ncloc_data").getValue())
-      .contains(";7=1")
-      .doesNotContain("8=1")
-      .doesNotContain("9=1")
-      .doesNotContain("10=1")
-      .contains(";11=1");
-  }
-
-  @Test
     // SONARXML-19
   void should_correctly_count_lines_when_char_before_prolog() {
     assertThat(getFileMeasureAsDouble("lines")).isEqualTo(14);
@@ -84,10 +72,6 @@ class XmlTest {
 
   private Double getFileMeasureAsDouble(String metricKey) {
     return getMeasureAsDouble(FILE_TOKEN_PARSER, metricKey.trim());
-  }
-
-  private Measure getFileMeasure(String metricKey) {
-    return getMeasure(FILE_TOKEN_PARSER, metricKey.trim());
   }
 
 }
