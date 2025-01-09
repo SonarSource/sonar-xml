@@ -51,7 +51,7 @@ class XmlHighlightingTest {
   private XmlFile xmlFile;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     context = SensorContextTester.create(tmpFolder.getRoot());
     fileSystem = context.fileSystem();
   }
@@ -113,12 +113,12 @@ class XmlHighlightingTest {
 
   @Test
   void testHighlightMultilineTagWithAttributes() throws Exception {
-    highlight(
-      "<tag att1='value1' \n"
-        + " att2\n"
-        + " = 'value2' att3=\n"
-        + "'value3' att4='multiline \n"
-        + " \" attribute'> </tag>");
+    highlight("""
+      <tag att1='value1'\s
+       att2
+       = 'value2' att3=
+      'value3' att4='multiline\s
+       " attribute'> </tag>""");
     // <tag
     assertHighlighting(1, 0, 1, 4, TypeOfText.KEYWORD);
 
@@ -180,22 +180,18 @@ class XmlHighlightingTest {
 
   @Test
   void testCDATAMultiline() throws Exception {
-    highlight(
-      "<tag><![CDATA[foo\n"
-        + "bar\n"
-        + "]]></tag>");
+    highlight("""
+      <tag><![CDATA[foo
+      bar
+      ]]></tag>""");
     assertHighlighting(1, 5, 1, 14, TypeOfText.KEYWORD);
     assertHighlighting(3, 0, 3, 3, TypeOfText.KEYWORD);
   }
 
   @Test
   void testBigCDATA() throws Exception {
-    StringBuilder sb = new StringBuilder();
     int length = 100000;
-    for (int i = 0; i < length; i++) {
-      sb.append("a");
-    }
-    String cdataContent = sb.toString();
+    String cdataContent = "a".repeat(length);
     highlight("<tag><![CDATA[" + cdataContent + "]]></tag>");
     assertHighlighting(5, 14, TypeOfText.KEYWORD);
     int expectedCDataEndOffset = 14 + cdataContent.length();
@@ -251,12 +247,11 @@ class XmlHighlightingTest {
 
   @Test
   void testHighlightingTagWithNameSpaceMultipleLine() throws Exception {
-    highlight(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-        + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
-        // ...
-        + "</project>");
+    highlight("""
+      <?xml version="1.0" encoding="UTF-8"?>
+      <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+      </project>""");
     // xmlns:xsi
     assertHighlighting(2, 51, 2, 60, TypeOfText.CONSTANT);
     // "http://www.w3.org/2001/XMLSchema-instance"
@@ -287,11 +282,11 @@ class XmlHighlightingTest {
 
   @Test
   void testCharBeforeProlog() throws Exception {
-    highlightFromFile("char_before_prolog.xml",
-      "\n"
-        + "\n"
-        + "\n"
-        + "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> <tag/>");
+    highlightFromFile("char_before_prolog.xml", """
+
+
+
+      <?xml version="1.0" encoding="UTF-8" ?> <tag/>""");
     // <?xml
     assertHighlighting(4, 0, 4, 5, TypeOfText.KEYWORD);
     // ?>

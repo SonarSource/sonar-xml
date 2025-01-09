@@ -21,7 +21,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -84,7 +83,7 @@ public class XmlSensor implements Sensor {
     boolean isSonarLintContext = context.runtime().getProduct() == SonarProduct.SONARLINT;
 
     ProgressReport progressReport = new ProgressReport("Report about progress of XML Analyzer", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start(inputFiles.stream().map(InputFile::toString).collect(Collectors.toList()));
+    progressReport.start(inputFiles.stream().map(InputFile::toString).toList());
 
     boolean cancelled = false;
     try {

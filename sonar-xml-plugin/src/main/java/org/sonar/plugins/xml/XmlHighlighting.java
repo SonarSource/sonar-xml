@@ -61,8 +61,7 @@ public class XmlHighlighting {
         addHighlighting(XmlFile.startLocation((CDATASection) node), TypeOfText.KEYWORD);
         addHighlighting(XmlFile.endLocation((CDATASection) node), TypeOfText.KEYWORD);
         break;
-      case Node.COMMENT_NODE:
-      case Node.DOCUMENT_TYPE_NODE:
+      case Node.COMMENT_NODE, Node.DOCUMENT_TYPE_NODE:
         addHighlighting(XmlFile.nodeLocation(node), TypeOfText.STRUCTURED_COMMENT);
         break;
       default:
