@@ -86,8 +86,7 @@ public final class LineCounter {
       case Node.COMMENT_NODE:
         addNotEmptyLines(commentLines, node.getTextContent(), range);
         break;
-      case Node.TEXT_NODE:
-      case Node.CDATA_SECTION_NODE:
+      case Node.TEXT_NODE, Node.CDATA_SECTION_NODE:
         addNotEmptyLines(linesOfCode, node.getTextContent(), range);
         break;
       case Node.DOCUMENT_TYPE_NODE:

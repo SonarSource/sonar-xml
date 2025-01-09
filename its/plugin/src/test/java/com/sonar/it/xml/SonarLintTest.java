@@ -68,12 +68,13 @@ class SonarLintTest {
   @Test
   void simpleXml() throws Exception {
     // Rule S1778 is part of SonarWay (characters before prolog)
-    ClientInputFile inputFile = prepareInputFile("foo.xml",
-      "<!-- Ohlala, there is a comment before prolog! -->\n"
-        + "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        + "<foo>\n"
-        + "  <bar value='boom' />\n"
-        + "</foo>\n");
+    ClientInputFile inputFile = prepareInputFile("foo.xml", """
+      <!-- Ohlala, there is a comment before prolog! -->
+      <?xml version="1.0" encoding="UTF-8"?>
+      <foo>
+        <bar value='boom' />
+      </foo>
+      """);
 
     List<Issue> issues = new ArrayList<>();
     StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
