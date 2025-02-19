@@ -25,7 +25,7 @@ class ActionNumberCheckTest {
   private ActionNumberCheck check;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     check = new ActionNumberCheck();
   }
 

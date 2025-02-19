@@ -35,7 +35,7 @@ class XmlTest {
   private static final OrchestratorExtension ORCHESTRATOR = XmlTestSuite.ORCHESTRATOR;
 
   @BeforeAll
-  public static void inspect() {
+  static void inspect() {
     inspectProject(PROJECT);
   }
 

@@ -35,7 +35,7 @@ class DisallowedDependenciesCheckTest {
   private DisallowedDependenciesCheck check;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     check = new DisallowedDependenciesCheck();
   }
 
