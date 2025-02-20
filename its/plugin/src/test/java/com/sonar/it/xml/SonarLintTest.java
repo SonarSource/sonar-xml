@@ -141,7 +141,7 @@ class SonarLintTest {
   }
 
   @AfterAll
-  public static void stop() {
+  static void stop() {
     sonarlintEngine.stop();
   }
 
