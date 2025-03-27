@@ -23,6 +23,8 @@ import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Element;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S5322")
 public class AndroidReceivingIntentsCheck extends AbstractAndroidManifestCheck {
 
@@ -37,7 +39,7 @@ public class AndroidReceivingIntentsCheck extends AbstractAndroidManifestCheck {
       "and" +
       " (@n:exported='true' or intent-filter)" +
       "]")
-    .withNamespace("n", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override

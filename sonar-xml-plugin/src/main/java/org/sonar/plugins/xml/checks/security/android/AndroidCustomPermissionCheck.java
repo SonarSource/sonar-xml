@@ -21,12 +21,14 @@ import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S6359")
 public class AndroidCustomPermissionCheck extends AbstractAndroidManifestCheck {
 
   private static final String MESSAGE = "Use a different namespace for the \"%s\" permission.";
   private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/permission/@n1:name")
-    .withNamespace("n1", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n1", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override

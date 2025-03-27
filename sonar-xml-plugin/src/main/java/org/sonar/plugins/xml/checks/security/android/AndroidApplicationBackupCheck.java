@@ -25,6 +25,8 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S6358")
 public class AndroidApplicationBackupCheck extends AbstractAndroidManifestCheck {
 
@@ -44,12 +46,12 @@ public class AndroidApplicationBackupCheck extends AbstractAndroidManifestCheck 
 
   private static final XPathExpression X_PATH_APPLICATION_WITH_BACKUP = XPathBuilder
     .forExpression(APPLICATION_WITH_BACKUP_QUERY)
-    .withNamespace("n", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   private static final XPathExpression X_PATH_APPLICATION_BELOW_SDK_23 = XPathBuilder
     .forExpression(APPLICATION_BELOW_SDK_23_QUERY)
-    .withNamespace("n", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override

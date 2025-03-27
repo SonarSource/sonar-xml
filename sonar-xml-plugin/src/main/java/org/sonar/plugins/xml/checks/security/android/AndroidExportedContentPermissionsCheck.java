@@ -23,6 +23,8 @@ import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Element;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S5594")
 public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManifestCheck {
 
@@ -44,7 +46,7 @@ public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManif
       "                       or @n:name='android.intent.action.SENDTO'" +
       "                       or @n:name='android.intent.action.SEND_MULTIPLE'])" +
       "]")
-    .withNamespace("n", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override
