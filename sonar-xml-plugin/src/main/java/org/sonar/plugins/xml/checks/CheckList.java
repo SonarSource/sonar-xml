@@ -29,6 +29,7 @@ import org.sonar.plugins.xml.checks.maven.GroupIdNamingConventionCheck;
 import org.sonar.plugins.xml.checks.maven.PomElementOrderCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidApplicationBackupCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidComponentWithIntentFilterExportedCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidClearTextCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
@@ -62,6 +63,7 @@ public class CheckList {
       AndroidClearTextCheck.class,
       AndroidCustomPermissionCheck.class,
       AndroidApplicationBackupCheck.class,
+      AndroidComponentWithIntentFilterExportedCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       AndroidProviderPermissionCheck.class,

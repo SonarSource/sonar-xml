@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+  <application>
+    <!-- Compliant: not in AndroidManifest.xml -->
+    <activity android:name=".MissingExportedSingleIntentFilterActivity">
+      <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+  </application>
+</manifest>
