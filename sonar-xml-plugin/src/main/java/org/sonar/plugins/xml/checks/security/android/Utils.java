@@ -17,19 +17,16 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-import static org.sonar.plugins.xml.checks.security.android.Utils.isAndroidManifestFile;
-
-public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
-
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isAndroidManifestFile(file)) {
-      scanAndroidManifest(file);
-    }
+public class Utils {
+  private Utils() {
+    // utility class, forbidden constructor
   }
 
-  protected abstract void scanAndroidManifest(XmlFile file);
+  public static final String ANDROID_MANIFEST_XMLNS = "http://schemas.android.com/apk/res/android";
+  public static final String ANDROID_MANIFEST_FILENAME = "AndroidManifest.xml";
 
+  public static boolean isAndroidManifestFile(XmlFile file) {
+    return ANDROID_MANIFEST_FILENAME.equalsIgnoreCase(file.getInputFile().filename());
+  }
 }

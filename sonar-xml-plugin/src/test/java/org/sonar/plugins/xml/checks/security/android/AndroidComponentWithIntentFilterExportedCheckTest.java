@@ -16,20 +16,19 @@
  */
 package org.sonar.plugins.xml.checks.security.android;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.Test;
+import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
-import static org.sonar.plugins.xml.checks.security.android.Utils.isAndroidManifestFile;
+class AndroidComponentWithIntentFilterExportedCheckTest {
 
-public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
-
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isAndroidManifestFile(file)) {
-      scanAndroidManifest(file);
-    }
+  @Test
+  void manifest() {
+    SonarXmlCheckVerifier.verifyIssues("AndroidManifest.xml", new AndroidComponentWithIntentFilterExportedCheck());
   }
 
-  protected abstract void scanAndroidManifest(XmlFile file);
+  @Test
+  void not_manifest() {
+    SonarXmlCheckVerifier.verifyNoIssue("NotManifest.xml", new AndroidComponentWithIntentFilterExportedCheck());
+  }
 
 }

@@ -16,30 +16,37 @@
  */
 package org.sonar.plugins.xml.checks.security.android;
 
+import java.util.Collections;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.w3c.dom.Element;
 
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+import static org.sonar.plugins.xml.checks.security.android.Utils.isAndroidManifestFile;
 
-@Rule(key = "S6359")
-public class AndroidCustomPermissionCheck extends AbstractAndroidManifestCheck {
+@Rule(key = "S7207")
+public class AndroidComponentWithIntentFilterExportedCheck extends AbstractAndroidManifestCheck {
 
-  private static final String MESSAGE = "Use a different namespace for the \"%s\" permission.";
-  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/permission/@n1:name")
-    .withNamespace("n1", ANDROID_MANIFEST_XMLNS)
+  private static final String MESSAGE = "Mark this component as exported.";
+
+  private final XPathExpression xPathExpression = XPathBuilder
+    .forExpression("/manifest/application/*" +
+      "[" +
+      " (self::activity or self::activity-alias or self::provider or self::receiver or self::service)" +
+      "and" +
+      " (intent-filter)" +
+      "and" +
+      " (not(@n:exported))" +
+      "]")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override
-  protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument()).stream()
-      .filter(node -> node.getNodeValue().startsWith("android.permission"))
-      .forEach(node -> reportIssue(node, String.format(MESSAGE, simpleName(node.getNodeValue()))));
-  }
-
-  private static String simpleName(String fullyQualifiedName) {
-    return fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf('.') + 1);
+  protected void scanAndroidManifest(XmlFile file) {
+    evaluateAsList(xPathExpression, file.getDocument())
+      .forEach(node -> reportIssue(XmlFile.nameLocation((Element) node), MESSAGE, Collections.emptyList()));
   }
 
 }
