@@ -17,6 +17,7 @@
 package org.sonarsource.xml.it;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
@@ -52,6 +53,8 @@ class XmlRulingTest {
 
   @RegisterExtension
   static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
+    .setEdition(Edition.ENTERPRISE_LW)
+    .activateLicense()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(Optional.ofNullable(System.getProperty(SQ_VERSION_PROPERTY)).orElse(DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
