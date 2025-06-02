@@ -95,6 +95,7 @@ class XmlRulingTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", LANGUAGE, QUALITY_PROFILE_NAME);
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarScanner build = SonarScanner.create(FileLocation.of("../sources/projects").getFile())
+      .setProperty("sonar.scanner.skipJreProvisioning", "true")
       .setProjectKey("project")
       .setProjectName("project")
       .setProjectVersion("1")
