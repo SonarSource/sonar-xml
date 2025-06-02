@@ -57,6 +57,7 @@ public class XmlTestSuite {
 
   static SonarScanner createSonarScanner() {
     SonarScanner build = SonarScanner.create();
+    build.setProperty("sonar.scanner.skipJreProvisioning", "true");
     // xhtml has been removed from default file suffixes (SONARXML-5)
     build.setProperty("sonar.xml.file.suffixes", ".xml,.xhtml");
     return build;
