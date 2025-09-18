@@ -14,6 +14,7 @@ env:
   ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   DEVELOCITY_TOKEN: VAULT[development/kv/data/develocity data.token]
   DEVELOCITY_ACCESS_KEY: develocity.sonar.build=${DEVELOCITY_TOKEN}
+  SONAR_PROJECT_KEY: "org.sonarsource.xml:xml"
   # Use bash (instead of sh on linux or cmd.exe on windows)
   CIRRUS_SHELL: bash
 
@@ -63,6 +64,35 @@ build_task:
     - *log_develocity_url_script
     - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyze
+  cleanup_before_cache_script: cleanup_maven_repository
+
+sonar_shadow_scan_and_issue_replication_task:
+  depends_on:
+    - build
+  # Only run when triggered by the cirrus-ci cron job named "nightly"
+  only_if: $CIRRUS_CRON == "nightly"
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    cpu: 2
+    memory: 2G
+  env:
+    SHADOW_ORGANIZATION: "sonarsource"
+    SHADOW_PROJECT_KEY: "SonarSource_sonar-xml"
+    # to replicate issue states from next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    matrix:
+      - name: "sonarcloud.io"
+        SHADOW_SONAR_TOKEN: VAULT[development/kv/data/sonarcloud data.token]
+        SHADOW_SONAR_HOST_URL: "https://sonarcloud.io"
+      - name: "sonarqube.us"
+        SHADOW_SONAR_TOKEN: VAULT[development/kv/data/sonarqube-us data.token]
+        SHADOW_SONAR_HOST_URL: "https://sonarqube.us"
+  maven_cache:
+    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
+  build_script:
+    - *log_develocity_url_script
+    - ./shadow-scan-and-issue-replication.sh
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
@@ -159,6 +189,7 @@ ruling_win_task:
 promote_task:
   depends_on:
     - build
+    - sonar_shadow_scan_and_issue_replication
     - build_win
     - ruling
     - ruling_win
