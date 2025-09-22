@@ -9,17 +9,22 @@ IRIS_JAR_PATH="target/libs/iris.jar"
 function build_and_analyze_the_project() {
   echo
   echo "===== Build and analyze the project targeting a shadow SonarQube instance"
-  mvn \
-    -Pcoverage \
-    -Dmaven.test.redirectTestOutputToFile=false \
+  local BUILD_CMD
+  if [[ -e "gradlew" ]]; then
+    BUILD_CMD="./gradlew --info --stacktrace --console plain build sonar"
+  else
+    source set_maven_build_version "$BUILD_NUMBER"
+    BUILD_CMD="mvn -Pcoverage -Dmaven.test.redirectTestOutputToFile=false --batch-mode --errors --show-version verify sonar:sonar"
+  fi
+  ${BUILD_CMD} \
+    -DbuildNumber="${BUILD_NUMBER}" \
     -Dsonar.host.url="${SHADOW_SONAR_HOST_URL}" \
     -Dsonar.token="${SHADOW_SONAR_TOKEN}" \
     -Dsonar.organization="${SHADOW_ORGANIZATION}" \
     -Dsonar.projectKey="${SHADOW_PROJECT_KEY}" \
     -Dsonar.analysis.buildNumber="${BUILD_NUMBER}" \
     -Dsonar.analysis.repository="${GITHUB_REPO}" \
-    --batch-mode --errors --show-version \
-    verify sonar:sonar
+    "$@"
 }
 
 function download_iris() {
@@ -63,8 +68,6 @@ function run_iris_with_and_without_dry_run() {
   fi
 }
 
-source cirrus-env BUILD
-. set_maven_build_version "$BUILD_NUMBER"
-build_and_analyze_the_project
+build_and_analyze_the_project "$@"
 download_iris
 run_iris_with_and_without_dry_run
