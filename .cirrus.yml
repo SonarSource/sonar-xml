@@ -96,31 +96,6 @@ sonar_shadow_scan_and_issue_replication_task:
     - ./shadow-scan-and-issue-replication.sh
   cleanup_before_cache_script: cleanup_maven_repository
 
-ws_scan_task:
-  depends_on:
-    - build
-  <<: *ONLY_SONARSOURCE_QA
-  eks_container:
-    <<: *CONTAINER_DEFINITION
-    cpu: 2
-    memory: 2G
-  # run only on master, long-term branches and mend-related branches
-  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "mend-.*")
-  env:
-    WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
-  maven_cache:
-    folder: ${CIRRUS_WORKING_DIR}/.m2/repository
-  whitesource_script:
-    - *log_develocity_url_script
-    - source cirrus-env QA
-    - source set_maven_build_version $BUILD_NUMBER
-    - mvn clean install -DskipTests
-    - source ws_scan.sh
-  allow_failures: "true"
-  always:
-    ws_artifacts:
-      path: "whitesource/**/*"
-
 build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   maven_cache: { folder: .m2/repository }
