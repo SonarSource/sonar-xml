@@ -14,12 +14,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  get-build-number:
+    outputs:
+      build-number: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
+    runs-on: sonar-xs-public
+    name: Get build number
+    permissions:
+      id-token: write
+    steps:
+      - uses: SonarSource/ci-github-actions/get-build-number@master # dogfood
+        id: get-build-number
+
+  build-linux:
+    name: Build Linux
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
-    name: Build
+    needs: get-build-number
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
       - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
@@ -32,7 +46,7 @@ jobs:
           artifactory-deployer-role: qa-deployer     # Override for public repo with private access
 
   promote:
-    needs: [build]
+    needs: [build-linux]
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
     permissions:
