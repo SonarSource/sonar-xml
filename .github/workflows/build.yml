@@ -47,7 +47,7 @@ jobs:
 
   build-windows:
     name: Build Windows
-    runs-on: warp-custom-windows-2022-s
+    runs-on: github-windows-latest-s
     needs: get-build-number
     permissions:
       id-token: write  # Required for Vault OIDC authentication
