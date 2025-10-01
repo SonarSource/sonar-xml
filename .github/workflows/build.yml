@@ -17,12 +17,12 @@ jobs:
   get-build-number:
     outputs:
       build-number: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
-    runs-on: github-ubuntu-latest-s # sonar-xs-public is slow to start
+    runs-on: github-ubuntu-latest-s
     name: Get build number
     permissions:
       id-token: write
     steps:
-      - uses: SonarSource/ci-github-actions/get-build-number@master # dogfood
+      - uses: SonarSource/ci-github-actions/get-build-number@v1
         id: get-build-number
 
   build-linux:
