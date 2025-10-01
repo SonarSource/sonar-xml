@@ -17,7 +17,7 @@ jobs:
   get-build-number:
     outputs:
       build-number: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
-    runs-on: sonar-xs-public
+    runs-on: github-ubuntu-latest-s # sonar-xs-public is slow to start
     name: Get build number
     permissions:
       id-token: write
@@ -42,11 +42,33 @@ jobs:
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
           deploy-pull-request: true
-          artifactory-reader-role: private-reader    # Override for public repo with private access
-          artifactory-deployer-role: qa-deployer     # Override for public repo with private access
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+
+  build-windows:
+    name: Build Windows
+    runs-on: warp-custom-windows-2022-s
+    needs: get-build-number
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
 
   promote:
-    needs: [build-linux]
+    needs:
+      - build-linux
+      - build-windows
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
     permissions:
