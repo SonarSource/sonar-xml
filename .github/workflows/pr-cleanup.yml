@@ -1,0 +1,13 @@
+name: Cleanup PR Resources
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
+    name: Cleanup
+    permissions:
+      actions: write  # Required for cleaning up caches and artifacts
+    steps:
+      - uses: SonarSource/ci-github-actions/pr_cleanup@v1
