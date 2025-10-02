@@ -109,6 +109,9 @@ jobs:
   ruling-linux:
     runs-on: github-ubuntu-latest-s
     name: Ruling Tests
+    needs:
+      - get-build-number
+      - build-linux
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access
