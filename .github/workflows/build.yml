@@ -44,6 +44,7 @@ jobs:
           deploy-pull-request: true
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
+          use-develocity: true
 
   # build-windows:
   #   name: Build Windows
