@@ -128,6 +128,7 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | GITHUB_TOKEN;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - name: Configure Maven
         uses: SonarSource/ci-github-actions/config-maven@2582d0bfbdaa7584b6ca88d2ae95e9fa4b72f2aa # not yet released action
         with:
