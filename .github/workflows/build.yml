@@ -45,25 +45,25 @@ jobs:
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
 
-  build-windows:
-    name: Build Windows
-    runs-on: github-windows-latest-s
-    needs: get-build-number
-    permissions:
-      id-token: write  # Required for Vault OIDC authentication
-      contents: write  # Required for repository access and tagging
-    env:
-      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
-    steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
-        with:
-          version: 2025.7.12
-      - uses: SonarSource/ci-github-actions/build-maven@v1
-        with:
-          deploy-pull-request: true
-          artifactory-reader-role: private-reader
-          artifactory-deployer-role: qa-deployer
+  # build-windows:
+  #   name: Build Windows
+  #   runs-on: github-windows-latest-s
+  #   needs: get-build-number
+  #   permissions:
+  #     id-token: write  # Required for Vault OIDC authentication
+  #     contents: write  # Required for repository access and tagging
+  #   env:
+  #     BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+  #   steps:
+  #     - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+  #     - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+  #       with:
+  #         version: 2025.7.12
+  #     - uses: SonarSource/ci-github-actions/build-maven@v1
+  #       with:
+  #         deploy-pull-request: true
+  #         artifactory-reader-role: private-reader
+  #         artifactory-deployer-role: qa-deployer
 
   # plugin-qa:
   #   runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
@@ -145,7 +145,7 @@ jobs:
   promote:
     needs:
       - build-linux
-      - build-windows
+      # - build-windows
       # - plugin-qa
       - ruling-linux
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
