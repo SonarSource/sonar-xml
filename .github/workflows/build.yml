@@ -103,7 +103,8 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
           ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         run: |
-          cd its/plugin && mvn verify -Pit-plugin -Dsonar.runtimeVersion=${{ matrix.sq_version }} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+          cd its/plugin
+          mvn verify -Pit-plugin -Dsonar.runtimeVersion=${{ matrix.sq_version }} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
   promote:
     needs:
