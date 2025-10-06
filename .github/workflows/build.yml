@@ -6,8 +6,9 @@ on:
       - branch-*
       - dogfood-*
   pull_request:
-  merge_group:
   workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * *"  # Run daily at 01:30 AM UTC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
