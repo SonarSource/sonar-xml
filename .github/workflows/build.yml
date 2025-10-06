@@ -1,0 +1,86 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - branch-*
+      - dogfood-*
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * *"  # Run daily at 01:30 AM UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  get-build-number:
+    outputs:
+      build-number: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
+    runs-on: github-ubuntu-latest-s
+    name: Get build number
+    permissions:
+      id-token: write
+    steps:
+      - uses: SonarSource/ci-github-actions/get-build-number@v1
+        id: get-build-number
+
+  build-linux:
+    name: Build Linux
+    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
+    needs: get-build-number
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+
+  build-windows:
+    name: Build Windows
+    runs-on: github-windows-latest-s
+    needs: get-build-number
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        with:
+          deploy-pull-request: false
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+
+  promote:
+    needs:
+      - build-linux
+      - build-windows
+    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
+    name: Promote
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          cache_save: false
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/promote@v1
+        with:
+          promote-pull-request: true
