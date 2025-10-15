@@ -94,7 +94,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
           ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-        shell: bash # Set explicitely to have it on Windows too.
+        shell: bash # Set explicitly so Bash is used on Windows runners too.
         run: |
           cd "its/${SUITE}"
           mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
