@@ -26,9 +26,14 @@ jobs:
       - uses: SonarSource/ci-github-actions/get-build-number@v1
         id: get-build-number
 
-  build-linux:
-    name: Build Linux
-    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
+  build:
+    strategy:
+      matrix:
+        item:
+          - { runner: "github-ubuntu-latest-s", deploy: true}
+          - { runner: "github-windows-latest-s", deploy: false}
+    name: Build on ${{ matrix.item.runner }}
+    runs-on: ${{ matrix.item.runner }}
     needs: get-build-number
     permissions:
       id-token: write  # Required for Vault OIDC authentication
@@ -36,49 +41,35 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
         with:
           version: 2025.7.12
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
-          deploy-pull-request: true
+          deploy-pull-request: ${{ matrix.item.deploy }}
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
 
-  build-windows:
-    name: Build Windows
-    runs-on: github-windows-latest-s
-    needs: get-build-number
-    permissions:
-      id-token: write  # Required for Vault OIDC authentication
-      contents: write  # Required for repository access and tagging
-    env:
-      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
-    steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
-        with:
-          version: 2025.7.12
-      - uses: SonarSource/ci-github-actions/build-maven@v1
-        with:
-          deploy-pull-request: false
-          artifactory-reader-role: private-reader
-          artifactory-deployer-role: qa-deployer
-
-  plugin-qa:
-    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
-    name: Plugin QA (${{ matrix.sq_version }})
+  qa:
+    strategy:
+      matrix:
+        item:
+          - { suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s"}
+          - { suite: "plugin", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s"}
+          - { suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s"}
+          - { suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-windows-latest-s"}
+    runs-on: ${{ matrix.item.runner }}
+    name: QA Tests
     needs:
       - get-build-number
-      - build-linux
+      - build # We only need the build that deploys the artifacts to run ruling.
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access
-    strategy:
-      matrix:
-        sq_version: [LATEST_RELEASE, DEV]
     env:
+      SUITE: ${{ matrix.item.suite }}
+      SQ_VERSION: ${{ matrix.item.sq_version }}
       BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -103,15 +94,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
           ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        shell: bash # Set explicitly so Bash is used on Windows runners too.
         run: |
-          cd its/plugin
-          mvn verify -Pit-plugin -Dsonar.runtimeVersion=${{ matrix.sq_version }} -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+          cd "its/${SUITE}"
+          mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
   promote:
     needs:
-      - build-linux
-      - build-windows
-      - plugin-qa
+      - build
+      - qa
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
     permissions:
