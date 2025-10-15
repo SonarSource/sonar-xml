@@ -63,7 +63,7 @@ jobs:
     name: QA Tests
     needs:
       - get-build-number
-      - build
+      - build # We only need the build that deploys the artifacts to run ruling.
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access
