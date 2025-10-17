@@ -50,6 +50,7 @@ jobs:
           deploy-pull-request: ${{ matrix.item.deploy }}
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
+          use-develocity: false
 
   qa:
     strategy:
