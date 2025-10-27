@@ -75,4 +75,9 @@ class HardcodedCredentialsCheckTest {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "web.config").toString(), CHECK);
     SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "Machine.config").toString(), CHECK);
   }
+
+  @Test
+  void web_application_app_settings() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("app-settings", "web.config").toString(), CHECK);
+  }
 }
