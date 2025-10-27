@@ -47,6 +47,9 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
     .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
 
+  private static final XPathExpression WEB_CONFIG_APP_SETTINGS_ADD_PATH =
+    XPathBuilder.forExpression("//appSettings/add").build();
+
   private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{");
   private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
@@ -79,6 +82,9 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (Xml.isDotNetApplicationConfig(file.getInputFile())) {
       evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).stream()
         .filter(passwordAttrNode -> !isValidWebConfigCredential(passwordAttrNode.getNodeValue()))
+        .forEach(this::reportIssue);
+      evaluateAsList(WEB_CONFIG_APP_SETTINGS_ADD_PATH, file.getDocument()).stream()
+        .filter(HardcodedCredentialsCheck::isAddWithPassword)
         .forEach(this::reportIssue);
     } else {
       checkElements(file.getDocument());
@@ -150,6 +156,16 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static boolean isValidWebConfigCredential(String candidate) {
     return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
+  }
+
+  /** Detects nodes with 'key="password"' and 'value' attributes. */
+  private static boolean isAddWithPassword(Node node) {
+    NamedNodeMap attributes = node.getAttributes();
+    Optional<String> keyValueLowerCase =
+      Optional.ofNullable(attributes.getNamedItem("key"))
+          .map(Node::getNodeValue)
+          .map(String::toLowerCase);
+    return keyValueLowerCase.equals(Optional.of("password")) && attributes.getNamedItem("value") != null;
   }
 
   private void checkSpecialCases(XmlFile file) {
