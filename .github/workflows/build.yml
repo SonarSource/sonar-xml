@@ -15,31 +15,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  get-build-number:
-    outputs:
-      build-number: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
-    runs-on: github-ubuntu-latest-s
-    name: Get build number
-    permissions:
-      id-token: write
-    steps:
-      - uses: SonarSource/ci-github-actions/get-build-number@v1
-        id: get-build-number
-
   build:
-    strategy:
-      matrix:
-        item:
-          - { runner: "github-ubuntu-latest-s", deploy: true}
-          - { runner: "github-windows-latest-s", deploy: false}
-    name: Build on ${{ matrix.item.runner }}
-    runs-on: ${{ matrix.item.runner }}
-    needs: get-build-number
+    name: Build
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    outputs:
+      build-number: ${{ steps.build.outputs.BUILD_NUMBER }}
+      deployed: ${{ steps.build.outputs.deployed }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        id: build
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+
+  build-win:
+    name: Build Windows
+    needs:
+      - build
+    runs-on: github-windows-latest-s
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access and tagging
     env:
-      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
@@ -47,31 +53,28 @@ jobs:
           version: 2025.7.12
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
-          deploy: ${{ matrix.item.deploy }}
-          deploy-pull-request: ${{ matrix.item.deploy }}
+          deploy: false
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
 
   qa:
+    name: "QA - ${{ matrix.item.name }}"
+    if: ${{ needs.build.outputs.deployed }}
     strategy:
       matrix:
         item:
-          - { suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s"}
-          - { suite: "plugin", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s"}
-          - { suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s"}
-          - { suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-windows-latest-s"}
+          - { name: "Plugin [Linux] - SQ: DEV", suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s" }
+          - { name: "Plugin [Linux] - SQ: LATEST", suite: "plugin", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s" }
+          - { name: "Ruling [Linux] - SQ: LATEST", suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s" }
+          - { name: "Ruling [Windows] - SQ: LATEST", suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-windows-latest-s" }
     runs-on: ${{ matrix.item.runner }}
-    name: QA Tests
     needs:
-      - get-build-number
       - build # We only need the build that deploys the artifacts to run ruling.
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access
     env:
-      SUITE: ${{ matrix.item.suite }}
-      SQ_VERSION: ${{ matrix.item.sq_version }}
-      BUILD_NUMBER: ${{ needs.get-build-number.outputs.build-number }}
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: jdx/mise-action@5ac50f778e26fac95da98d50503682459e86d566 # v3.2.0
@@ -83,26 +86,24 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | GITHUB_TOKEN;
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - name: Configure Maven
         uses: SonarSource/ci-github-actions/config-maven@v1
         with:
           artifactory-reader-role: private-reader
-        env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
-          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
       - name: Plugin QA Tests
-        env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
-          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         shell: bash # Set explicitly so Bash is used on Windows runners too.
+        working-directory: "its/${{ matrix.item.suite }}"
+        env:
+          SUITE: ${{ matrix.item.suite }}
+          SQ_VERSION: ${{ matrix.item.sq_version }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
         run: |
-          cd "its/${SUITE}"
           mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
   promote:
     needs:
       - build
+      - build-win
       - qa
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
@@ -110,11 +111,6 @@ jobs:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access and tagging
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
-        with:
-          cache_save: false
-          version: 2025.7.12
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
           promote-pull-request: true
