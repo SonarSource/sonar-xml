@@ -105,11 +105,14 @@ jobs:
       - build
       - build-win
       - qa
+    if: ${{ needs.build.outputs.deployed }}
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
     permissions:
       id-token: write  # Required for Vault OIDC authentication
       contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
