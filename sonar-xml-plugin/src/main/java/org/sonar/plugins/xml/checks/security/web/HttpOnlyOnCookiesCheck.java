@@ -21,10 +21,12 @@ import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @Rule(key = "S3330")
-public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
+public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
   private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
     .forExpression("/n:web-app/n:session-config/n:cookie-config")
@@ -36,8 +38,34 @@ public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
     .build();
 
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     evaluateAsList(sessionConfigCookieConfigExpression, file.getDocument()).forEach(this::checkHttpOnly);
+  }
+
+  @Override
+  protected void scanWebConfig(XmlFile file) {
+    // Ensure that there is a global <httpCookies httpOnlyCookies="true" />.
+    XPathExpression httpCookiesExpression = XPathBuilder
+      .forExpression("/configuration/system.web/httpCookies[@httpOnlyCookies=\"true\"]")
+      .build();
+    Document document = file.getDocument();
+    NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
+
+    // null is returned on internal errors, and we don't want to raise a false positive in that case.
+    if (httpCookiesNodes != null  && httpCookiesNodes.getLength() == 0) {
+      // Attach the issue to the closest existing node.
+      XPathExpression reportNodeExpression = XPathBuilder
+        .forExpression(
+            "/configuration/system.web/httpCookies | " +
+            "/configuration/system.web[not(httpCookies)] | " +
+            "/configuration[not(system.web)]")
+        .build();
+      evaluateAsList(reportNodeExpression, document)
+        .stream()
+        .findFirst()
+        .ifPresent(target ->
+          reportIssue(target, "Global <httpCookies> tag is missing or 'httpOnlyCookies' attribute is not set to true."));
+    }
   }
 
   private void checkHttpOnly(Node cookieConfig) {
