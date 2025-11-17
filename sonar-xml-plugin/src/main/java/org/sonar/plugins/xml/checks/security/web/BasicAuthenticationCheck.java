@@ -23,7 +23,7 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Document;
 
 @Rule(key = "S2647")
-public class BasicAuthenticationCheck extends AbstractWebXmlCheck {
+public class BasicAuthenticationCheck extends BaseWebCheck {
 
   private XPathExpression authMethodBasicExpression = XPathBuilder
     .forExpression("/j:web-app/j:login-config/j:auth-method[.='BASIC']")
@@ -36,7 +36,7 @@ public class BasicAuthenticationCheck extends AbstractWebXmlCheck {
     .build();
 
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     Document webApp = file.getDocument();
     if (!evaluateAsList(httpsEnabledExpression, webApp).isEmpty()) {
       return;
