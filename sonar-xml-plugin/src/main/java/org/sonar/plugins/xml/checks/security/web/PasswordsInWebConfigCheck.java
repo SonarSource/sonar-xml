@@ -23,15 +23,15 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import javax.xml.xpath.XPathExpression;
 
 @Rule(key = "S5344")
-public class PasswordsInConfigCheck extends AbstractWebXmlCheck {
+public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
     private XPathExpression credentialsClearPassword = XPathBuilder
-            .forExpression("//credential[@passwordFormat='Clear']")
+            .forExpression("//credentials[@passwordFormat='Clear']")
             .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
             .build();
 
     @Override
-    void scanWebXml(XmlFile file) {
+    protected void scanWebConfig(XmlFile file) {
         evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> {
                     reportIssue(node, "Passwords should not be stored in plaintext or with a fast hashing algorithm");
                 }
