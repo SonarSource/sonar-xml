@@ -29,8 +29,8 @@ class PasswordsInWebConfigCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue("noPasswordInWebConfig/web.config", CHECK);
   }
 
-    @Test
-    void passwords_in_web_config() {
-        SonarXmlCheckVerifier.verifyIssues("passwordsInWebConfig/web.config", CHECK);
-    }
+  @Test
+  void passwords_in_web_config() {
+    SonarXmlCheckVerifier.verifyIssues("passwordsInWebConfig/web.config", CHECK);
+  }
 }

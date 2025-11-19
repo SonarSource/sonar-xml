@@ -25,17 +25,14 @@ import javax.xml.xpath.XPathExpression;
 @Rule(key = "S5344")
 public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
-    private XPathExpression credentialsClearPassword = XPathBuilder
-            .forExpression("//credentials[@passwordFormat='Clear']")
-            .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
-            .build();
+  private final XPathExpression credentialsClearPassword = XPathBuilder
+    .forExpression("//credentials[@passwordFormat='Clear']")
+    .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
+    .build();
 
-    @Override
-    protected void scanWebConfig(XmlFile file) {
-        evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> {
-                    reportIssue(node, "Passwords should not be stored in plaintext or with a fast hashing algorithm");
-                }
-        );
-    }
+  @Override
+  protected void scanWebConfig(XmlFile file) {
+    evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> reportIssue(node, "Passwords should not be stored in plaintext or with a fast hashing algorithm"));
+  }
 
 }

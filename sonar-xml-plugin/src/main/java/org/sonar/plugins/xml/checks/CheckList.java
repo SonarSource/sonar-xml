@@ -46,50 +46,49 @@ import org.sonar.plugins.xml.checks.struts.FormNameDuplicationCheck;
 
 public class CheckList {
 
-    private CheckList() {
-    }
+  private CheckList() {
+  }
 
-    public static List<Class<?>> getCheckClasses() {
-        return Arrays.asList(
-                ArtifactIdNamingConventionCheck.class,
-                DependencyWithSystemScopeCheck.class,
-                DeprecatedPomPropertiesCheck.class,
-                FormNameDuplicationCheck.class,
-                PomElementOrderCheck.class,
-                SingleConnectionFactoryCheck.class,
-                ActionNumberCheck.class,
-                AndroidClearTextCheck.class,
-                AndroidCustomPermissionCheck.class,
-                AndroidApplicationBackupCheck.class,
-                AndroidComponentWithIntentFilterExportedCheck.class,
-                AndroidExportedContentPermissionsCheck.class,
-                AndroidPermissionsCheck.class,
-                AndroidProviderPermissionCheck.class,
-                AndroidReceivingIntentsCheck.class,
-                CharBeforePrologCheck.class,
-                CrossOriginResourceSharingCheck.class,
-                DatabaseSchemaUpdateCheck.class,
-                DefaultInterceptorsLocationCheck.class,
-                DefaultMessageListenerContainerCheck.class,
-                DebugFeatureCheck.class,
-                GroupIdNamingConventionCheck.class,
-                TabCharacterCheck.class,
-                HardcodedCredentialsCheck.class,
-                InterceptorExclusionsCheck.class,
-                ParsingErrorCheck.class,
-                NewlineCheck.class,
-                IndentationCheck.class,
-                XPathCheck.class,
-                LineLengthCheck.class,
-                TodoCommentCheck.class,
-                HttpOnlyOnCookiesCheck.class,
-                BasicAuthenticationCheck.class,
-                FixmeCommentCheck.class,
-                ValidationFiltersCheck.class,
-                DisallowedDependenciesCheck.class,
-                CommentedOutCodeCheck.class,
-                PasswordsInWebConfigCheck.class
-        );
-    }
+  public static List<Class<?>> getCheckClasses() {
+    return Arrays.asList(
+      ArtifactIdNamingConventionCheck.class,
+      DependencyWithSystemScopeCheck.class,
+      DeprecatedPomPropertiesCheck.class,
+      FormNameDuplicationCheck.class,
+      PomElementOrderCheck.class,
+      SingleConnectionFactoryCheck.class,
+      ActionNumberCheck.class,
+      AndroidClearTextCheck.class,
+      AndroidCustomPermissionCheck.class,
+      AndroidApplicationBackupCheck.class,
+      AndroidComponentWithIntentFilterExportedCheck.class,
+      AndroidExportedContentPermissionsCheck.class,
+      AndroidPermissionsCheck.class,
+      AndroidProviderPermissionCheck.class,
+      AndroidReceivingIntentsCheck.class,
+      CharBeforePrologCheck.class,
+      CrossOriginResourceSharingCheck.class,
+      DatabaseSchemaUpdateCheck.class,
+      DefaultInterceptorsLocationCheck.class,
+      DefaultMessageListenerContainerCheck.class,
+      DebugFeatureCheck.class,
+      GroupIdNamingConventionCheck.class,
+      TabCharacterCheck.class,
+      HardcodedCredentialsCheck.class,
+      InterceptorExclusionsCheck.class,
+      ParsingErrorCheck.class,
+      NewlineCheck.class,
+      IndentationCheck.class,
+      XPathCheck.class,
+      LineLengthCheck.class,
+      TodoCommentCheck.class,
+      HttpOnlyOnCookiesCheck.class,
+      BasicAuthenticationCheck.class,
+      FixmeCommentCheck.class,
+      ValidationFiltersCheck.class,
+      DisallowedDependenciesCheck.class,
+      CommentedOutCodeCheck.class,
+      PasswordsInWebConfigCheck.class);
+  }
 
 }
