@@ -46,10 +46,7 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
   /// Closest existing node if the global `<httpCookies>` is missing or misconfigured.
   private final XPathExpression reportNodeExpression = XPathBuilder
-    .forExpression(
-      "/configuration/system.web/httpCookies | " +
-      "/configuration/system.web[not(httpCookies)] | " +
-      "/configuration[not(system.web)]")
+    .forExpression(getDeepestExistingNode("configuration", "system.web", "httpCookies"))
     .build();
 
   @Override
