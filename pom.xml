@@ -67,7 +67,7 @@
     <sonar.orchestrator.version>5.6.2.2625</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>8.17.0.70351</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>10.11.0.2468</sonar.pluginApi.version>
+    <sonar.pluginApi.version>12.0.0.2960</sonar.pluginApi.version>
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
