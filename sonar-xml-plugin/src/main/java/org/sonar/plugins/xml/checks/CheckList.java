@@ -88,7 +88,7 @@ public class CheckList {
                 ValidationFiltersCheck.class,
                 DisallowedDependenciesCheck.class,
                 CommentedOutCodeCheck.class,
-                PasswordsInConfigCheck.class
+                PasswordsInWebConfigCheck.class
         );
     }
 
