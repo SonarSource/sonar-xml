@@ -16,24 +16,13 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
-import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
-
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
-
-  @Override
-  public final void scanFile(XmlFile file) {
-    if (isWebXmlFile(file)) {
-      scanWebXml(file);
-    }
-  }
-
-  abstract void scanWebXml(XmlFile file);
-
-  private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+class BaseWebCheckTest {
+  @Test
+  void testGetDeepestExistingNode() {
+    String expression = new BaseWebCheck().getDeepestExistingNode("a", "b", "c");
+    assertThat(expression).isEqualTo("/a/b/c|/a/b[not(c)]|/a[not(b)]");
   }
 }
