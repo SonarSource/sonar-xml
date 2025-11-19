@@ -61,6 +61,7 @@ jobs:
     name: "QA - ${{ matrix.item.name }}"
     if: ${{ needs.build.outputs.deployed }}
     strategy:
+      fail-fast: false
       matrix:
         item:
           - { name: "Plugin [Linux] - SQ: DEV", suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s" }
