@@ -32,7 +32,7 @@ public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
   @Override
   protected void scanWebConfig(XmlFile file) {
-    evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> reportIssue(node, "Passwords should not be stored in plaintext or with a fast hashing algorithm"));
+    evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> reportIssue(node, "Passwords should not be stored in plaintext."));
   }
 
 }
