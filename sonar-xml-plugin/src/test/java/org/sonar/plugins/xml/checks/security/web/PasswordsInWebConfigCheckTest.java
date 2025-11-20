@@ -25,8 +25,13 @@ class PasswordsInWebConfigCheckTest {
   private static final SonarXmlCheck CHECK = new PasswordsInWebConfigCheck();
 
   @Test
-  void password_not_in_web_config() {
+  void no_password_in_web_config() {
     SonarXmlCheckVerifier.verifyNoIssue("noPasswordInWebConfig/web.config", CHECK);
+  }
+
+  @Test
+  void no_credentials_tag_in_web_config() {
+    SonarXmlCheckVerifier.verifyNoIssue("noCredentialsTagInWebConfig/web.config", CHECK);
   }
 
   @Test
