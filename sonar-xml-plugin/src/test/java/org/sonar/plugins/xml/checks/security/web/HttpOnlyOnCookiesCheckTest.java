@@ -47,4 +47,21 @@ class HttpOnlyOnCookiesCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new HttpOnlyOnCookiesCheck());
   }
 
+  @Test
+  void web_config_compliant() {
+    String path = Paths.get("webconfig-with-http-cookies-true", "web.config").toString();
+    SonarXmlCheckVerifier.verifyNoIssue(path, new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void web_config_without_http_cookies() {
+    String path = Paths.get("webconfig-without-http-cookies", "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
+  }
+
+  @Test
+  void web_config_noncompliant_http_cookies() {
+    String path = Paths.get("webconfig-with-noncompliant-http-cookies", "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
+  }
 }

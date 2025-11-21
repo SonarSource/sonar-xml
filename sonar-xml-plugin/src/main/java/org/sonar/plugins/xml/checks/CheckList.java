@@ -18,6 +18,7 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.sonar.plugins.xml.checks.ejb.DefaultInterceptorsLocationCheck;
 import org.sonar.plugins.xml.checks.ejb.InterceptorExclusionsCheck;
 import org.sonar.plugins.xml.checks.hibernate.DatabaseSchemaUpdateCheck;
@@ -40,6 +41,7 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.security.web.PasswordsInWebConfigCheck;
 import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 import org.sonar.plugins.xml.checks.spring.DefaultMessageListenerContainerCheck;
 import org.sonar.plugins.xml.checks.spring.SingleConnectionFactoryCheck;
@@ -89,8 +91,8 @@ public class CheckList {
       FixmeCommentCheck.class,
       ValidationFiltersCheck.class,
       DisallowedDependenciesCheck.class,
-      CommentedOutCodeCheck.class
-    );
+      CommentedOutCodeCheck.class,
+      PasswordsInWebConfigCheck.class);
   }
 
 }

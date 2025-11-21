@@ -16,24 +16,36 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
+import org.sonar.plugins.xml.Xml;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public abstract class AbstractWebXmlCheck extends SimpleXPathBasedCheck {
-
-  public static final String WEB_XML_ROOT = "web-app";
-  private static final String WEB_XML = "web.xml";
+/**
+ * Base class for checks targeting Java's web.xml and .NET web.config files.
+ */
+public class BaseWebCheck extends SimpleXPathBasedCheck {
+  protected static final String WEB_XML_ROOT = "web-app";
 
   @Override
   public final void scanFile(XmlFile file) {
     if (isWebXmlFile(file)) {
       scanWebXml(file);
+    } else if (Xml.isDotNetApplicationConfig(file.getInputFile())) {
+      scanWebConfig(file);
     }
   }
 
-  abstract void scanWebXml(XmlFile file);
+  /** Scan Java's web.xml. */
+  protected void scanWebXml(XmlFile file) {
+    // Ignored by default.
+  }
+
+  /** Scan .NET's web.config. */
+  protected void scanWebConfig(XmlFile file) {
+    // Ignored by default.
+  }
 
   private static boolean isWebXmlFile(XmlFile file) {
-    return WEB_XML.equalsIgnoreCase(file.getInputFile().filename());
+    return "web.xml".equalsIgnoreCase(file.getInputFile().filename());
   }
 }

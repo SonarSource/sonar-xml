@@ -1,6 +1,6 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource Sàrl
+ * Copyright (C) 2010-2025 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -16,31 +16,23 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
-import java.util.regex.Pattern;
-import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
-@Rule(key = "S5122")
-public class CrossOriginResourceSharingCheck extends BaseWebCheck {
+import javax.xml.xpath.XPathExpression;
 
-  private static final Pattern STAR_IN_COMMA_SEPARATED_LIST_REGEX = Pattern.compile("(^|,)\\*(,|$)");
+@Rule(key = "S5344")
+public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
-  private XPathExpression corsAllowedOrigins = XPathBuilder
-    .forExpression("/j:web-app" +
-      "/j:filter[j:filter-class='org.apache.catalina.filters.CorsFilter']" +
-      "/j:init-param[j:param-name='cors.allowed.origins']" +
-      "/j:param-value" +
-      "/text()")
+  private final XPathExpression credentialsClearPassword = XPathBuilder
+    .forExpression("//credentials[@passwordFormat='Clear']")
     .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
   @Override
-  protected void scanWebXml(XmlFile file) {
-    evaluateAsList(corsAllowedOrigins, file.getDocument()).stream()
-      .filter(node -> STAR_IN_COMMA_SEPARATED_LIST_REGEX.matcher(node.getNodeValue()).find())
-      .forEach(node -> reportIssue(node, "Make sure this permissive CORS policy is safe here."));
+  protected void scanWebConfig(XmlFile file) {
+    evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> reportIssue(node, "Passwords should not be stored in plaintext."));
   }
 
 }
