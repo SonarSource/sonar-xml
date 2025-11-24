@@ -52,7 +52,7 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
     NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
 
     // null is returned on internal errors, and we don't want to raise a false positive in that case.
-    if (httpCookiesNodes != null  && httpCookiesNodes.getLength() == 0) {
+    if (httpCookiesNodes != null && httpCookiesNodes.getLength() == 0) {
       // Attach the issue to the closest existing node.
       XPathExpression reportNodeExpression = XPathBuilder
         .forExpression(
