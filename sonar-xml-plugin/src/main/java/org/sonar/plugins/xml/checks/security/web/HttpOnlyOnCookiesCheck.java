@@ -28,13 +28,26 @@ import org.w3c.dom.NodeList;
 @Rule(key = "S3330")
 public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
-  private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
+  private final XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
     .forExpression("/n:web-app/n:session-config/n:cookie-config")
     .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
-  private XPathExpression httpOnlyExpression = XPathBuilder.forExpression("n:http-only")
+  private final XPathExpression httpOnlyExpression = XPathBuilder.forExpression("n:http-only")
     .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
+    .build();
+
+  /// Find the global `<httpCookies httpOnlyCookies="true" />` in .NET web.config.
+  private final XPathExpression httpCookiesExpression = XPathBuilder
+    .forExpression("/configuration/system.web/httpCookies[@httpOnlyCookies=\"true\"]")
+    .build();
+
+  /// Closest existing node if the global `<httpCookies>` is missing or misconfigured.
+  private final XPathExpression reportNodeExpression = XPathBuilder
+    .forExpression(
+      "/configuration/system.web/httpCookies | " +
+      "/configuration/system.web[not(httpCookies)] | " +
+      "/configuration[not(system.web)]")
     .build();
 
   @Override
@@ -44,22 +57,11 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
   @Override
   protected void scanWebConfig(XmlFile file) {
-    // Ensure that there is a global <httpCookies httpOnlyCookies="true" />.
-    XPathExpression httpCookiesExpression = XPathBuilder
-      .forExpression("/configuration/system.web/httpCookies[@httpOnlyCookies=\"true\"]")
-      .build();
     Document document = file.getDocument();
     NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
 
     // null is returned on internal errors, and we don't want to raise a false positive in that case.
-    if (httpCookiesNodes != null && httpCookiesNodes.getLength() == 0) {
-      // Attach the issue to the closest existing node.
-      XPathExpression reportNodeExpression = XPathBuilder
-        .forExpression(
-            "/configuration/system.web/httpCookies | " +
-            "/configuration/system.web[not(httpCookies)] | " +
-            "/configuration[not(system.web)]")
-        .build();
+    if (httpCookiesNodes != null  && httpCookiesNodes.getLength() == 0) {
       evaluateAsList(reportNodeExpression, document)
         .stream()
         .findFirst()
