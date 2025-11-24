@@ -61,7 +61,7 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
     NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
 
     // null is returned on internal errors, and we don't want to raise a false positive in that case.
-    if (httpCookiesNodes != null  && httpCookiesNodes.getLength() == 0) {
+    if (httpCookiesNodes != null && httpCookiesNodes.getLength() == 0) {
       evaluateAsList(reportNodeExpression, document)
         .stream()
         .findFirst()
