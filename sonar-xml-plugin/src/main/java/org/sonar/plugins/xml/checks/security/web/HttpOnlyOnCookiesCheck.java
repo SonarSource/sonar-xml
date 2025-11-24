@@ -64,7 +64,7 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
         .stream()
         .findFirst()
         .ifPresent(target ->
-          reportIssue(target, "Global <httpCookies> tag is missing or 'httpOnlyCookies' attribute is not set to true."));
+          reportIssue(target, "Global <httpCookies> tag is missing or its 'httpOnlyCookies' attribute is not set to true."));
     }
   }
 
