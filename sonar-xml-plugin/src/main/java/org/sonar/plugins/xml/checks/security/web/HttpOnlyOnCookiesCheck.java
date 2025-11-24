@@ -24,7 +24,7 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Node;
 
 @Rule(key = "S3330")
-public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
+public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
   private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
     .forExpression("/n:web-app/n:session-config/n:cookie-config")
@@ -36,7 +36,7 @@ public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
     .build();
 
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     evaluateAsList(sessionConfigCookieConfigExpression, file.getDocument()).forEach(this::checkHttpOnly);
   }
 
