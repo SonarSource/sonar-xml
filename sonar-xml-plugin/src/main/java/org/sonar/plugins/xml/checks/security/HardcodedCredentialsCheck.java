@@ -165,7 +165,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       Optional.ofNullable(attributes.getNamedItem("key"))
           .map(Node::getNodeValue)
           .map(String::toLowerCase);
-    return keyValueLowerCase.equals(Optional.of("password")) && attributes.getNamedItem("value") != null;
+    return keyValueLowerCase.equals(Optional.of("password")) && attributes.getNamedItem(VALUE) != null;
   }
 
   private void checkSpecialCases(XmlFile file) {
