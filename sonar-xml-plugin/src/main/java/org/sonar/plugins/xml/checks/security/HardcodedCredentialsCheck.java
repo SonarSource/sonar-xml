@@ -84,8 +84,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .filter(passwordAttrNode -> !isValidWebConfigCredential(passwordAttrNode.getNodeValue()))
         .forEach(this::reportIssue);
       evaluateAsList(WEB_CONFIG_APP_SETTINGS_ADD_PATH, file.getDocument()).stream()
-        .filter(HardcodedCredentialsCheck::isAddWithPassword)
-        .forEach(this::reportIssue);
+        .filter(this::isAddWithPassword)
+        .forEach(node -> reportIssue(node, "Review the hard-coded credential, which may be sensitive."));
     } else {
       checkElements(file.getDocument());
       checkSpecialCases(file);
@@ -158,14 +158,18 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
   }
 
-  /** Detects nodes with 'key="password"' and 'value' attributes. */
-  private static boolean isAddWithPassword(Node node) {
+  /**
+   * Detects nodes with 'key="password"' and 'value' attributes.
+   */
+  private boolean isAddWithPassword(Node node) {
     NamedNodeMap attributes = node.getAttributes();
     Optional<String> keyValueLowerCase =
       Optional.ofNullable(attributes.getNamedItem("key"))
-          .map(Node::getNodeValue)
-          .map(String::toLowerCase);
-    return keyValueLowerCase.equals(Optional.of("password")) && attributes.getNamedItem(VALUE) != null;
+        .map(Node::getNodeValue)
+        .map(String::toLowerCase);
+
+    boolean keyIsCredentialWord = keyValueLowerCase.map(credentialWordsSet()::contains).orElse(false);
+    return keyIsCredentialWord && attributes.getNamedItem(VALUE) != null;
   }
 
   private void checkSpecialCases(XmlFile file) {
