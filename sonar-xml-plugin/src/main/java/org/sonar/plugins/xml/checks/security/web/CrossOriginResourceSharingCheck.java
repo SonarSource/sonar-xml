@@ -23,7 +23,7 @@ import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 @Rule(key = "S5122")
-public class CrossOriginResourceSharingCheck extends AbstractWebXmlCheck {
+public class CrossOriginResourceSharingCheck extends BaseWebCheck {
 
   private static final Pattern STAR_IN_COMMA_SEPARATED_LIST_REGEX = Pattern.compile("(^|,)\\*(,|$)");
 
@@ -37,7 +37,7 @@ public class CrossOriginResourceSharingCheck extends AbstractWebXmlCheck {
     .build();
 
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     evaluateAsList(corsAllowedOrigins, file.getDocument()).stream()
       .filter(node -> STAR_IN_COMMA_SEPARATED_LIST_REGEX.matcher(node.getNodeValue()).find())
       .forEach(node -> reportIssue(node, "Make sure this permissive CORS policy is safe here."));

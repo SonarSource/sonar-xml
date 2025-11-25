@@ -16,28 +16,63 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
+import java.util.Collections;
 import java.util.List;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @Rule(key = "S3330")
-public class HttpOnlyOnCookiesCheck extends AbstractWebXmlCheck {
+public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
 
-  private XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
+  private final XPathExpression sessionConfigCookieConfigExpression = XPathBuilder
     .forExpression("/n:web-app/n:session-config/n:cookie-config")
     .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
-  private XPathExpression httpOnlyExpression = XPathBuilder.forExpression("n:http-only")
+  private final XPathExpression httpOnlyExpression = XPathBuilder.forExpression("n:http-only")
     .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
+  /// Find the global `<httpCookies httpOnlyCookies="true" />` in .NET web.config.
+  private final XPathExpression httpCookiesExpression = XPathBuilder
+    .forExpression("/configuration/system.web/httpCookies[@httpOnlyCookies=\"true\"]")
+    .build();
+
+  /// Closest existing node if the global `<httpCookies>` is missing or misconfigured.
+  private final XPathExpression reportNodeExpression = XPathBuilder
+    .forExpression(
+      "/configuration/system.web/httpCookies | " +
+      "/configuration/system.web[not(httpCookies)] | " +
+      "/configuration[not(system.web)]")
+    .build();
+
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     evaluateAsList(sessionConfigCookieConfigExpression, file.getDocument()).forEach(this::checkHttpOnly);
+  }
+
+  @Override
+  protected void scanWebConfig(XmlFile file) {
+    Document document = file.getDocument();
+    NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
+
+    // null is returned on internal errors, and we don't want to raise a false positive in that case.
+    if (httpCookiesNodes != null && httpCookiesNodes.getLength() == 0) {
+      evaluateAsList(reportNodeExpression, document)
+        .stream()
+        .findFirst()
+        .ifPresent(target ->
+          reportIssue(
+            XmlFile.nameLocation((Element) target),
+            "Global <httpCookies> tag is missing or its 'httpOnlyCookies' attribute is not set to true.",
+            Collections.emptyList()));
+    }
   }
 
   private void checkHttpOnly(Node cookieConfig) {
