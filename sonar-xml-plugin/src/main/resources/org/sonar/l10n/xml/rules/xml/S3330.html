@@ -15,7 +15,8 @@ vulnerability to steal session-cookies.</p>
   <li> By default the <code>HttpOnly</code> flag should be set to <em>true</em> for most of the cookies and it’s mandatory for session /
   sensitive-security cookies. </li>
 </ul>
-<h2>Sensitive Code Example</h2>
+<h2>Java Web Applications</h2>
+<h3>Sensitive Code Example</h3>
 <pre>
 &lt;session-config&gt;
  &lt;cookie-config&gt;
@@ -28,13 +29,32 @@ vulnerability to steal session-cookies.</p>
  &lt;/cookie-config&gt;
 &lt;/session-config&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h3>Compliant Solution</h3>
 <pre>
 &lt;session-config&gt;
  &lt;cookie-config&gt;
   &lt;http-only&gt;true&lt;/http-only&gt; &lt;!-- Compliant --&gt;
  &lt;/cookie-config&gt;
 &lt;/session-config&gt;
+</pre>
+<h2>ASP.NET</h2>
+<h3>Sensitive Code Example</h3>
+<pre>
+&lt;configuration&gt;
+  &lt;system.web&gt; &lt;!-- Sensitive: httpCookies element with httpOnlyCookies="true" is missing --&gt;
+    &lt;!-- ... --&gt;
+  &lt;/system.web&gt;
+  &lt;!-- ... --&gt;
+&lt;/configuration&gt;
+</pre>
+<h3>Compliant Solution</h3>
+<pre>
+&lt;configuration&gt;
+  &lt;system.web&gt;
+    &lt;httpCookies httpOnlyCookies="true" /&gt; &lt;!-- Compliant --&gt;
+  &lt;/system.web&gt;
+  &lt;!-- ... --&gt;
+&lt;/configuration&gt;
 </pre>
 <h2>See</h2>
 <ul>
