@@ -16,12 +16,14 @@
  */
 package org.sonar.plugins.xml.checks.security.web;
 
+import java.util.Collections;
 import java.util.List;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -66,7 +68,10 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
         .stream()
         .findFirst()
         .ifPresent(target ->
-          reportIssue(target, "Global <httpCookies> tag is missing or its 'httpOnlyCookies' attribute is not set to true."));
+          reportIssue(
+            XmlFile.nameLocation((Element) target),
+            "Global <httpCookies> tag is missing or its 'httpOnlyCookies' attribute is not set to true.",
+            Collections.emptyList()));
     }
   }
 
