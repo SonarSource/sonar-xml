@@ -18,7 +18,7 @@ package org.sonar.plugins.xml;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
 public final class XmlPlugin implements Plugin {
 
@@ -33,7 +33,7 @@ public final class XmlPlugin implements Plugin {
         .defaultValue(".xml,.xsd,.xsl,.config")
         .multiValues(true)
         .category("XML")
-        .onQualifiers(Qualifiers.PROJECT)
+        .onConfigScopes(ConfigScope.PROJECT)
         .build(),
       Xml.class,
       XmlRulesDefinition.class,
