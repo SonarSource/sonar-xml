@@ -158,9 +158,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
   }
 
-  /**
-   * Detects nodes with 'key="password"' and 'value' attributes.
-   */
+  /** Detects nodes with 'key="password"' and 'value' attributes. */
   private boolean isAddWithPassword(Node node) {
     NamedNodeMap attributes = node.getAttributes();
     Optional<String> keyValueLowerCase =
