@@ -19,19 +19,30 @@ package org.sonar.plugins.xml.checks.security.web;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathExpression;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Rule(key = "S5344")
 public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
   private final XPathExpression credentialsClearPassword = XPathBuilder
-    .forExpression("//credentials[translate(@passwordFormat, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'clear']")
+    .forExpression("//credentials")
     .build();
 
   @Override
   protected void scanWebConfig(XmlFile file) {
-    evaluateAsList(credentialsClearPassword, file.getDocument()).forEach(node -> reportIssue(node, "Passwords should not be stored in plaintext."));
+    evaluateAsList(credentialsClearPassword, file.getDocument()).stream()
+      .flatMap(PasswordsInWebConfigCheck::getSensitivePasswordFormat)
+      .forEach(node -> reportIssue(node, "Passwords should not be stored in plain text."));
   }
 
+  private static Stream<Node> getSensitivePasswordFormat(Node node) {
+    return Optional.ofNullable(node.getAttributes().getNamedItem("passwordFormat"))
+      .filter(attr -> attr.getNodeValue().equalsIgnoreCase("clear"))
+      .stream();
+  }
 }
