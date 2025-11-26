@@ -59,7 +59,7 @@ public class MimeNosniffCheck extends BaseWebCheck {
         .ifPresent(target ->
           reportIssue(
             XmlFile.nameLocation((Element) target),
-            "Global <httpCookies> tag is missing or its 'httpOnlyCookies' attribute is not set to true.",
+            "Set \"X-Content-Type-Options\" http header to \"nosniff\" to mitigate MIME Confusion Attacks.",
             Collections.emptyList()));
     }
   }

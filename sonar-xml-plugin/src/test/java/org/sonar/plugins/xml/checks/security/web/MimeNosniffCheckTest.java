@@ -40,4 +40,14 @@ class MimeNosniffCheckTest {
     String path = Paths.get(dirName, "web.config").toString();
     SonarXmlCheckVerifier.verifyIssues(path, new MimeNosniffCheck());
   }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-add-remove",
+    "webconfig-add-clear",
+  })
+  void false_negatives(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
+    SonarXmlCheckVerifier.verifyNoIssue(path, new MimeNosniffCheck());
+  }
 }
