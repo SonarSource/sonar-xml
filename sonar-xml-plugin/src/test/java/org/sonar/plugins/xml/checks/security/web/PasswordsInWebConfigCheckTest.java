@@ -35,6 +35,11 @@ class PasswordsInWebConfigCheckTest {
   }
 
   @Test
+  void no_password_format_attribute() {
+    SonarXmlCheckVerifier.verifyNoIssue("noPasswordFormatAttribute/web.config", CHECK);
+  }
+
+  @Test
   void passwords_in_web_config() {
     SonarXmlCheckVerifier.verifyIssues("passwordsInWebConfig/web.config", CHECK);
   }
