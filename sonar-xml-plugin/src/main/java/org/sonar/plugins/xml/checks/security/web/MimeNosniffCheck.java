@@ -59,7 +59,7 @@ public class MimeNosniffCheck extends BaseWebCheck {
         .ifPresent(target ->
           reportIssue(
             XmlFile.nameLocation((Element) target),
-            "Set \"X-Content-Type-Options\" http header to \"nosniff\" to mitigate MIME Confusion Attacks.",
+            "Set the \"X-Content-Type-Options\" HTTP header to \"nosniff\" to mitigate MIME Confusion Attacks.",
             Collections.emptyList()));
     }
   }
