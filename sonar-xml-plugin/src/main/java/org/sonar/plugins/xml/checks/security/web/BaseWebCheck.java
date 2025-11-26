@@ -48,4 +48,28 @@ public class BaseWebCheck extends SimpleXPathBasedCheck {
   private static boolean isWebXmlFile(XmlFile file) {
     return "web.xml".equalsIgnoreCase(file.getInputFile().filename());
   }
+
+  /**
+   * Builds an XPath expression that matches the deepest existing node.
+   *
+   * For example, for segments "a", "b", "c", the resulting expression is:
+   * <pre>
+   *   /a/b/c | /a/b[not(c)] | /a[not(b)]
+   * </pre>
+   */
+  protected String getDeepestExistingNode(String ... segments) {
+    StringBuilder expression = new StringBuilder();
+    for (int len = segments.length; len > 0; len--) {
+      for (int i = 0; i < len; i++) {
+        expression.append("/").append(segments[i]);
+      }
+      if (len < segments.length) {
+        expression.append("[not(").append(segments[len]).append(")]");
+      }
+      if (len > 1) {
+        expression.append("|");
+      }
+    }
+    return expression.toString();
+  }
 }
