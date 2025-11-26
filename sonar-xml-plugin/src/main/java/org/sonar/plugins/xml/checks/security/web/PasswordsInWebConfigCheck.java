@@ -19,7 +19,6 @@ package org.sonar.plugins.xml.checks.security.web;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathExpression;
@@ -29,13 +28,13 @@ import java.util.stream.Stream;
 @Rule(key = "S5344")
 public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
-  private final XPathExpression credentialsClearPassword = XPathBuilder
+  private final XPathExpression credentialsExpression = XPathBuilder
     .forExpression("//credentials")
     .build();
 
   @Override
   protected void scanWebConfig(XmlFile file) {
-    evaluateAsList(credentialsClearPassword, file.getDocument()).stream()
+    evaluateAsList(credentialsExpression, file.getDocument()).stream()
       .flatMap(PasswordsInWebConfigCheck::getSensitivePasswordFormat)
       .forEach(node -> reportIssue(node, "Passwords should not be stored in plain text."));
   }
