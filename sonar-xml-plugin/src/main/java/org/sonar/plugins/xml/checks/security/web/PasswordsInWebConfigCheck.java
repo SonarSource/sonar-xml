@@ -26,8 +26,7 @@ import javax.xml.xpath.XPathExpression;
 public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
   private final XPathExpression credentialsClearPassword = XPathBuilder
-    .forExpression("//credentials[@passwordFormat='Clear']")
-    .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
+    .forExpression("//credentials[translate(@passwordFormat, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'clear']")
     .build();
 
   @Override
