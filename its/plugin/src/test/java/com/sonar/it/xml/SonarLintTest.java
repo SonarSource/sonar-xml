@@ -16,6 +16,7 @@
  */
 package com.sonar.it.xml;
 
+import com.google.common.io.Files;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,8 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,7 +64,7 @@ class SonarLintTest {
   private static final LogOutput NOOP_LOG_OUTPUT = new LogOutput() {
 
     @Override
-    public void log(@Nullable String formattedMessage, Level level, @Nullable String stacktrace) {
+    public void log(@Nullable String formattedMessage, @NotNull Level level, @Nullable String stacktrace) {
       /* Don't pollute logs */
     }
   };
@@ -102,12 +103,7 @@ class SonarLintTest {
   @Test
   void simpleXml() throws Exception {
     // Prepare input file
-    ClientInputFile inputFile = prepareInputFile("foo.xml", """
-      <?xml version="1.0" encoding="UTF-8"?>
-      <foo>
-        <bar value='boom' />
-      </foo>
-      """);
+    ClientInputFile inputFile = prepareInputFile();
 
     final List<Issue> issues = new ArrayList<>();
 
@@ -117,7 +113,7 @@ class SonarLintTest {
     AnalysisConfiguration configuration = AnalysisConfiguration.builder()
       .setBaseDir(baseDir.toPath())
       .addInputFile(inputFile)
-      .addActiveRules(new ActiveRule("xml:S1778", SonarLanguage.XML.name()))
+      .addActiveRules(new ActiveRule("xml:S1778", SonarLanguage.XML.getPluginKey()))
       .build();
 
     // 5. Register Module (Required in new API)
@@ -131,25 +127,41 @@ class SonarLintTest {
     // 7. Assertions
     // Note: The new API 'Issue' object might treat severity differently (Impacts),
     // so we assert on RuleKey, Line, and Path as seen in the Java reference.
+    System.out.println(issues);
     assertThat(issues)
-      .extracting("ruleKey", "startLine", "inputFile.path", "overriddenImpacts")
+      .extracting("ruleKey", "startLine", "inputFile", "overriddenImpacts")
       .containsOnly(
-        tuple("xml:S1778", 2, inputFile.relativePath(), Map.of()));
+        tuple("xml:S1778", 2, inputFile, Map.of()));
   }
 
-  private ClientInputFile prepareInputFile(String relativePath, String content) throws IOException {
-    final File file = new File(baseDir, relativePath);
-    FileUtils.write(file, content, StandardCharsets.UTF_8);
+  private ClientInputFile prepareInputFile() throws IOException {
+    final File file = new File(baseDir, "foo.xml");
+    FileUtils.write(file, """
+      <!-- Ohlala, there is a comment before prolog! -->
+      <?xml version="1.0" encoding="UTF-8"?>
+      <foo>
+        <bar value='boom' />
+      </foo>
+      """, StandardCharsets.UTF_8);
     return createInputFile(file.toPath());
   }
 
-  private ClientInputFile createInputFile(Path path) {
-    // replace default implementation with only what we need
+  private ClientInputFile createInputFile(final Path path) {
     return new ClientInputFile() {
 
       @Override
       public String getPath() {
         return path.toString();
+      }
+
+      @Override
+      public String relativePath() {
+        return baseDir.toPath().relativize(path).toString();
+      }
+
+      @Override
+      public URI uri() {
+        return path.toUri();
       }
 
       @Override
@@ -174,17 +186,7 @@ class SonarLintTest {
 
       @Override
       public String contents() throws IOException {
-        return FileUtils.readFileToString(path.toFile(), StandardCharsets.UTF_8);
-      }
-
-      @Override
-      public String relativePath() {
-        return path.toString();
-      }
-
-      @Override
-      public URI uri() {
-        return path.toUri();
+        return Files.asCharSource(path.toFile(), StandardCharsets.UTF_8).read();
       }
     };
   }
@@ -203,9 +205,19 @@ class SonarLintTest {
     };
   }
 
-  @AfterAll
-  static void stop() {
-    sonarlintEngine.stop();
+  static class MyCancelException extends RuntimeException {
   }
 
+  static class CancellableProgressMonitor extends ProgressMonitor {
+    boolean isCanceled = false;
+
+    CancellableProgressMonitor() {
+      super(null);
+    }
+
+    @Override
+    public boolean isCanceled() {
+      return isCanceled;
+    }
+  }
 }
