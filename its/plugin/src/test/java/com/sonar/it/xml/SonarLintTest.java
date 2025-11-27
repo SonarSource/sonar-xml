@@ -194,7 +194,7 @@ class SonarLintTest {
   private static ClientModuleFileSystem getClientModuleFileSystem(ClientInputFile inputFile) {
     return new ClientModuleFileSystem() {
       @Override
-      public Stream<ClientInputFile> files(String s, InputFile.Type type) {
+      public Stream<ClientInputFile> files(@NotNull String s, @NotNull InputFile.Type type) {
         return Stream.of(inputFile);
       }
 
@@ -205,19 +205,4 @@ class SonarLintTest {
     };
   }
 
-  static class MyCancelException extends RuntimeException {
-  }
-
-  static class CancellableProgressMonitor extends ProgressMonitor {
-    boolean isCanceled = false;
-
-    CancellableProgressMonitor() {
-      super(null);
-    }
-
-    @Override
-    public boolean isCanceled() {
-      return isCanceled;
-    }
-  }
 }
