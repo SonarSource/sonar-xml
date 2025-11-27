@@ -41,7 +41,7 @@ public class PasswordsInWebConfigCheck extends BaseWebCheck {
 
   private static Stream<Node> getSensitivePasswordFormat(Node node) {
     return Optional.ofNullable(node.getAttributes().getNamedItem("passwordFormat"))
-      .filter(attr -> attr.getNodeValue().equalsIgnoreCase("clear"))
+      .filter(attr -> "clear".equalsIgnoreCase(attr.getNodeValue()))
       .stream();
   }
 }
