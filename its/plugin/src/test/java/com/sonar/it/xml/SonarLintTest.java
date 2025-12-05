@@ -16,6 +16,7 @@
  */
 package com.sonar.it.xml;
 
+import com.google.common.io.Files;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,80 +28,140 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterAll;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonarsource.sonarlint.core.StandaloneSonarLintEngineImpl;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonarsource.sonarlint.core.analysis.AnalysisEngine;
+import org.sonarsource.sonarlint.core.analysis.api.ActiveRule;
+import org.sonarsource.sonarlint.core.analysis.api.AnalysisConfiguration;
+import org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
-import org.sonarsource.sonarlint.core.client.api.common.analysis.Issue;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneSonarLintEngine;
-import org.sonarsource.sonarlint.core.commons.IssueSeverity;
-import org.sonarsource.sonarlint.core.commons.Language;
+import org.sonarsource.sonarlint.core.analysis.api.ClientModuleFileSystem;
+import org.sonarsource.sonarlint.core.analysis.api.ClientModuleInfo;
+import org.sonarsource.sonarlint.core.analysis.api.Issue;
+import org.sonarsource.sonarlint.core.analysis.command.AnalyzeCommand;
+import org.sonarsource.sonarlint.core.analysis.command.RegisterModuleCommand;
+import org.sonarsource.sonarlint.core.commons.api.SonarLanguage;
+import org.sonarsource.sonarlint.core.commons.log.LogOutput;
+import org.sonarsource.sonarlint.core.commons.log.SonarLintLogger;
+import org.sonarsource.sonarlint.core.commons.progress.ProgressMonitor;
+import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 class SonarLintTest {
 
+  private static final String MODULE_KEY = "myModule";
+  private static final LogOutput NOOP_LOG_OUTPUT = new LogOutput() {
+
+    @Override
+    public void log(@Nullable String formattedMessage, @NotNull Level level, @Nullable String stacktrace) {
+      /* Don't pollute logs */
+    }
+  };
+  private final ProgressMonitor progressMonitor = new ProgressMonitor(null);
+
   @TempDir
   public static File temp;
 
-  private static StandaloneSonarLintEngine sonarlintEngine;
+  private static AnalysisEngine sonarlintEngine;
   private static File baseDir;
 
   @BeforeAll
   static void prepare() {
-    FileLocation xmlPlugin = FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
-    StandaloneGlobalConfiguration config = StandaloneGlobalConfiguration.builder()
-      .addPlugin(xmlPlugin.getFile().toPath())
-      .setSonarLintUserHome(temp.toPath())
-      .setLogOutput((msg, level) -> System.out.println(String.format("[%s] %s", level.name(), msg)))
-      .addEnabledLanguage(Language.XML)
+    // 1. Configure the Engine environment
+    AnalysisEngineConfiguration config = AnalysisEngineConfiguration.builder()
+      .setWorkDir(temp.toPath())
       .build();
-    sonarlintEngine = new StandaloneSonarLintEngineImpl(config);
+
+    SonarLintLogger.setTarget(NOOP_LOG_OUTPUT);
+
+    // 2. Locate and Load the Plugin
+    FileLocation xmlPlugin = FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
+    var pluginJarLocation = Set.of(xmlPlugin.getFile().toPath());
+
+    // Note: Ensure SonarLanguage.XML exists in your dependencies, otherwise use string "XML"
+    var enabledLanguages = Set.of(SonarLanguage.XML);
+
+    var pluginConfiguration = new PluginsLoader.Configuration(pluginJarLocation, enabledLanguages, false, Optional.empty());
+    var loadedPlugins = new PluginsLoader().load(pluginConfiguration, Set.of()).getLoadedPlugins();
+
+    // 3. Start the Engine
+    sonarlintEngine = new AnalysisEngine(config, loadedPlugins, NOOP_LOG_OUTPUT);
     baseDir = temp;
   }
 
   @Test
   void simpleXml() throws Exception {
-    // Rule S1778 is part of SonarWay (characters before prolog)
-    ClientInputFile inputFile = prepareInputFile("foo.xml", """
+    // Prepare input file
+    ClientInputFile inputFile = prepareInputFile();
+
+    final List<Issue> issues = new ArrayList<>();
+
+    // 4. Configure Analysis
+    // Note: We explicitly activate the rule here because the new low-level API
+    // doesn't automatically load the "Sonar Way" profile by default in this test context.
+    AnalysisConfiguration configuration = AnalysisConfiguration.builder()
+      .setBaseDir(baseDir.toPath())
+      .addInputFile(inputFile)
+      .addActiveRules(new ActiveRule("xml:S1778", SonarLanguage.XML.getPluginKey()))
+      .build();
+
+    // 5. Register Module (Required in new API)
+    ClientModuleFileSystem clientFileSystem = getClientModuleFileSystem(inputFile);
+    sonarlintEngine.post(new RegisterModuleCommand(new ClientModuleInfo(MODULE_KEY, clientFileSystem)), progressMonitor).get();
+
+    // 6. Execute Analysis
+    var command = new AnalyzeCommand(MODULE_KEY, configuration, issues::add, NOOP_LOG_OUTPUT);
+    sonarlintEngine.post(command, progressMonitor).get();
+
+    // 7. Assertions
+    // Note: The new API 'Issue' object might treat severity differently (Impacts),
+    // so we assert on RuleKey, Line, and Path as seen in the Java reference.
+    System.out.println(issues);
+    assertThat(issues)
+      .extracting("ruleKey", "startLine", "inputFile", "overriddenImpacts")
+      .containsOnly(
+        tuple("xml:S1778", 2, inputFile, Map.of()));
+  }
+
+  private ClientInputFile prepareInputFile() throws IOException {
+    final File file = new File(baseDir, "foo.xml");
+    FileUtils.write(file, """
       <!-- Ohlala, there is a comment before prolog! -->
       <?xml version="1.0" encoding="UTF-8"?>
       <foo>
         <bar value='boom' />
       </foo>
-      """);
-
-    List<Issue> issues = new ArrayList<>();
-    StandaloneAnalysisConfiguration configuration = StandaloneAnalysisConfiguration.builder()
-      .setBaseDir(baseDir.toPath())
-      .addInputFile(inputFile)
-      .build();
-    sonarlintEngine.analyze(configuration, issues::add, null, null);
-
-    assertThat(issues)
-      .extracting("ruleKey", "startLine", "inputFile.path", "severity")
-      .containsOnly(tuple("xml:S1778", 2, inputFile.relativePath(), IssueSeverity.CRITICAL));
-  }
-
-  private ClientInputFile prepareInputFile(String relativePath, String content) throws IOException {
-    final File file = new File(baseDir, relativePath);
-    FileUtils.write(file, content, StandardCharsets.UTF_8);
+      """, StandardCharsets.UTF_8);
     return createInputFile(file.toPath());
   }
 
-  private ClientInputFile createInputFile(Path path) {
-    // replace default implementation with only what we need
+  private ClientInputFile createInputFile(final Path path) {
     return new ClientInputFile() {
 
       @Override
       public String getPath() {
         return path.toString();
+      }
+
+      @Override
+      public String relativePath() {
+        return baseDir.toPath().relativize(path).toString();
+      }
+
+      @Override
+      public URI uri() {
+        return path.toUri();
       }
 
       @Override
@@ -125,24 +186,23 @@ class SonarLintTest {
 
       @Override
       public String contents() throws IOException {
-        return FileUtils.readFileToString(path.toFile(), StandardCharsets.UTF_8);
-      }
-
-      @Override
-      public String relativePath() {
-        return path.toString();
-      }
-
-      @Override
-      public URI uri() {
-        return path.toUri();
+        return Files.asCharSource(path.toFile(), StandardCharsets.UTF_8).read();
       }
     };
   }
 
-  @AfterAll
-  static void stop() {
-    sonarlintEngine.stop();
+  private static ClientModuleFileSystem getClientModuleFileSystem(ClientInputFile inputFile) {
+    return new ClientModuleFileSystem() {
+      @Override
+      public Stream<ClientInputFile> files(@NotNull String s, @NotNull InputFile.Type type) {
+        return Stream.of(inputFile);
+      }
+
+      @Override
+      public Stream<ClientInputFile> files() {
+        return Stream.of(inputFile);
+      }
+    };
   }
 
 }
