@@ -32,9 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -64,7 +63,7 @@ class SonarLintTest {
   private static final LogOutput NOOP_LOG_OUTPUT = new LogOutput() {
 
     @Override
-    public void log(@Nullable String formattedMessage, @NotNull Level level, @Nullable String stacktrace) {
+    public void log(@Nullable String formattedMessage, Level level, @Nullable String stacktrace) {
       /* Don't pollute logs */
     }
   };
@@ -78,36 +77,34 @@ class SonarLintTest {
 
   @BeforeAll
   static void prepare() {
-    // 1. Configure the Engine environment
+    // Configure the Engine environment
     AnalysisEngineConfiguration config = AnalysisEngineConfiguration.builder()
       .setWorkDir(temp.toPath())
       .build();
 
     SonarLintLogger.setTarget(NOOP_LOG_OUTPUT);
 
-    // 2. Locate and Load the Plugin
+    // Locate and Load the Plugin
     FileLocation xmlPlugin = FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
     var pluginJarLocation = Set.of(xmlPlugin.getFile().toPath());
 
-    // Note: Ensure SonarLanguage.XML exists in your dependencies, otherwise use string "XML"
     var enabledLanguages = Set.of(SonarLanguage.XML);
 
     var pluginConfiguration = new PluginsLoader.Configuration(pluginJarLocation, enabledLanguages, false, Optional.empty());
     var loadedPlugins = new PluginsLoader().load(pluginConfiguration, Set.of()).getLoadedPlugins();
 
-    // 3. Start the Engine
+    // Start the Engine
     sonarlintEngine = new AnalysisEngine(config, loadedPlugins, NOOP_LOG_OUTPUT);
     baseDir = temp;
   }
 
   @Test
   void simpleXml() throws Exception {
-    // Prepare input file
     ClientInputFile inputFile = prepareInputFile();
 
     final List<Issue> issues = new ArrayList<>();
 
-    // 4. Configure Analysis
+    // Configure Analysis
     // Note: We explicitly activate the rule here because the new low-level API
     // doesn't automatically load the "Sonar Way" profile by default in this test context.
     AnalysisConfiguration configuration = AnalysisConfiguration.builder()
@@ -116,15 +113,15 @@ class SonarLintTest {
       .addActiveRules(new ActiveRule("xml:S1778", SonarLanguage.XML.getPluginKey()))
       .build();
 
-    // 5. Register Module (Required in new API)
-    ClientModuleFileSystem clientFileSystem = getClientModuleFileSystem(inputFile);
+    // Register Module (Required in new API)
+    ClientModuleFileSystem clientFileSystem = new TestClientModuleFileSystem(inputFile);
     sonarlintEngine.post(new RegisterModuleCommand(new ClientModuleInfo(MODULE_KEY, clientFileSystem)), progressMonitor).get();
 
-    // 6. Execute Analysis
+    // Execute Analysis
     var command = new AnalyzeCommand(MODULE_KEY, configuration, issues::add, NOOP_LOG_OUTPUT);
     sonarlintEngine.post(command, progressMonitor).get();
 
-    // 7. Assertions
+    // Assertions
     // Note: The new API 'Issue' object might treat severity differently (Impacts),
     // so we assert on RuleKey, Line, and Path as seen in the Java reference.
     System.out.println(issues);
@@ -143,66 +140,60 @@ class SonarLintTest {
         <bar value='boom' />
       </foo>
       """, StandardCharsets.UTF_8);
-    return createInputFile(file.toPath());
+    return new TestClientInputFile(file.toPath());
   }
 
-  private ClientInputFile createInputFile(final Path path) {
-    return new ClientInputFile() {
+  private record TestClientInputFile(Path path) implements ClientInputFile {
+    @Override
+    public String getPath() {
+      return path.toString();
+    }
 
-      @Override
-      public String getPath() {
-        return path.toString();
-      }
+    @Override
+    public String relativePath() {
+      return baseDir.toPath().relativize(path).toString();
+    }
 
-      @Override
-      public String relativePath() {
-        return baseDir.toPath().relativize(path).toString();
-      }
+    @Override
+    public URI uri() {
+      return path.toUri();
+    }
 
-      @Override
-      public URI uri() {
-        return path.toUri();
-      }
+    @Override
+    public boolean isTest() {
+      return false;
+    }
 
-      @Override
-      public boolean isTest() {
-        return false;
-      }
+    @Override
+    public Charset getCharset() {
+      return StandardCharsets.UTF_8;
+    }
 
-      @Override
-      public Charset getCharset() {
-        return StandardCharsets.UTF_8;
-      }
+    @Override
+    public <G> G getClientObject() {
+      return null;
+    }
 
-      @Override
-      public <G> G getClientObject() {
-        return null;
-      }
+    @Override
+    public InputStream inputStream() throws IOException {
+      return new FileInputStream(path.toFile());
+    }
 
-      @Override
-      public InputStream inputStream() throws IOException {
-        return new FileInputStream(path.toFile());
-      }
-
-      @Override
-      public String contents() throws IOException {
-        return Files.asCharSource(path.toFile(), StandardCharsets.UTF_8).read();
-      }
-    };
+    @Override
+    public String contents() throws IOException {
+      return Files.asCharSource(path.toFile(), StandardCharsets.UTF_8).read();
+    }
   }
 
-  private static ClientModuleFileSystem getClientModuleFileSystem(ClientInputFile inputFile) {
-    return new ClientModuleFileSystem() {
-      @Override
-      public Stream<ClientInputFile> files(@NotNull String s, @NotNull InputFile.Type type) {
-        return Stream.of(inputFile);
-      }
+  private record TestClientModuleFileSystem(ClientInputFile inputFile) implements ClientModuleFileSystem {
+    @Override
+    public Stream<ClientInputFile> files(String s, InputFile.Type type) {
+      return Stream.of(inputFile);
+    }
 
-      @Override
-      public Stream<ClientInputFile> files() {
-        return Stream.of(inputFile);
-      }
-    };
+    @Override
+    public Stream<ClientInputFile> files() {
+      return Stream.of(inputFile);
+    }
   }
-
 }
