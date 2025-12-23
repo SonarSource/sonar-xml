@@ -27,6 +27,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
@@ -167,7 +168,8 @@ public class IndentationCheck extends SonarXmlCheck {
       }
       int startIndent = startIndent(element.getPreviousSibling());
       int endIndent = startIndent(element.getLastChild());
-      if (startIndent != endIndent) {
+      boolean isTextContent = element.getChildNodes().getLength() == 1 && element.getFirstChild() instanceof Text;
+      if (startIndent != endIndent && !isTextContent) {
         reportIssue(endLocation, startIndent);
       }
     }
