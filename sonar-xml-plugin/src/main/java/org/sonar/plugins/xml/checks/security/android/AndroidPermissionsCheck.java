@@ -18,19 +18,22 @@ package org.sonar.plugins.xml.checks.security.android;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
+import org.w3c.dom.Node;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_TOOLS;
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
 
 @Rule(key = "S5604")
 public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
 
   private static final String MESSAGE = "Make sure the use of \"%s\" permission is necessary.";
-  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/uses-permission/@n1:name")
+  private final XPathExpression xPathExpression = XPathBuilder.forExpression("/manifest/uses-permission")
     .withNamespace("n1", ANDROID_MANIFEST_XMLNS)
     .build();
 
@@ -111,12 +114,26 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
   @Override
   protected final void scanAndroidManifest(XmlFile file) {
     evaluateAsList(xPathExpression, file.getDocument()).stream()
-      .filter(node -> DANGEROUS_PERMISSIONS.contains(node.getNodeValue()))
-      .forEach(node -> reportIssue(node, String.format(MESSAGE, simpleName(node.getNodeValue()))));
+      .filter(node -> !hasToolsNodeRemove(node))
+      .filter(node -> DANGEROUS_PERMISSIONS.contains(findPermissionValue(node)))
+      .forEach(node -> reportIssue(findPermissionNode(node), String.format(MESSAGE, simpleName(findPermissionValue(node)))));
   }
 
   private static String simpleName(String fullyQualifiedName) {
     return fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf('.') + 1);
+  }
+
+  private static Node findPermissionNode(Node node) {
+    return node.getAttributes().getNamedItemNS(ANDROID_MANIFEST_XMLNS, "name");
+  }
+
+  private static String findPermissionValue(Node node) {
+    return findPermissionNode(node).getNodeValue();
+  }
+
+  private static boolean hasToolsNodeRemove(Node node) {
+    Node toolsNodeAttribute = node.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
+    return Optional.ofNullable(toolsNodeAttribute).map(n -> "remove".equals(n.getNodeValue())).orElse(false);
   }
 
 }

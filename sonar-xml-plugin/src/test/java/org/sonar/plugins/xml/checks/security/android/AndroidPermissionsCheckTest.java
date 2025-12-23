@@ -32,4 +32,9 @@ class AndroidPermissionsCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(Paths.get("AnyFileName.xml").toString(), new AndroidPermissionsCheck());
   }
 
+  @Test
+  void tools_node_remove() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemove/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
 }
