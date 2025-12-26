@@ -168,8 +168,28 @@ public class IndentationCheck extends SonarXmlCheck {
       }
       int startIndent = startIndent(element.getPreviousSibling());
       int endIndent = startIndent(element.getLastChild());
+
+      // Special case: if element contains text that continues on the closing tag line, we do not report an issue
+      // Valid examples:
+      // <tag>Some text
+      // that continues on the next line</tag>
+      // <tag>
+      // Some text
+      // that continues on the next line</tag>
+      // However if the last line before the closing tag is empty or contains only whitespace, we keep reporting an issue
+      // Invalid example:
+      // <tag>
+      // --Some text
+      // --</tag>
       boolean isTextContent = element.getChildNodes().getLength() == 1 && element.getFirstChild() instanceof Text;
-      if (startIndent != endIndent && !isTextContent) {
+      boolean textContinuationException = false;
+      if (isTextContent) {
+        String text = element.getFirstChild().getNodeValue();
+        String lastLine = text.lines().reduce((first, second) -> second).orElse("");
+        textContinuationException = !lastLine.trim().isEmpty();
+      }
+
+      if (startIndent != endIndent && !textContinuationException) {
         reportIssue(endLocation, startIndent);
       }
     }
