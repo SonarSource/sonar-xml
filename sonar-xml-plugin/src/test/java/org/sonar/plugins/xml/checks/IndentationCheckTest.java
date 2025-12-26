@@ -40,6 +40,6 @@ class IndentationCheckTest {
     IndentationCheck check = new IndentationCheck();
     check.setIndentSize(4);
     check.setTabSize(4);
-    SonarXmlCheckVerifier.verifyNoIssue("LineContinuation.xml", check);
+    SonarXmlCheckVerifier.verifyIssues("LineContinuation.xml", check);
   }
 }

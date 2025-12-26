@@ -1572,14 +1572,6 @@
 3,
 17,
 ],
-'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/SurefireSensorTest/shouldHandleTestSuiteDetails/ExtensionsFinderTest-expected-result.xml':[
-36,
-68,
-],
-'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/SurefireSensorTest/shouldSaveErrorsAndFailuresInXML/expected-test-details.xml':[
-36,
-68,
-],
 'project:sonar-java/java-surefire/src/test/resources/org/sonar/plugins/surefire/api/SurefireParserTest/onlyTestSuiteReport/TESTS-AllTests.xml':[
 3,
 17,
@@ -2434,9 +2426,6 @@
 'project:spring-framework/spring-context/src/test/resources/org/springframework/jmx/export/assembler/interfaceAssemblerMapped.xml':[
 21,
 ],
-'project:spring-framework/spring-context/src/test/resources/org/springframework/jmx/export/assembler/methodNameAssemblerMapped.xml':[
-19,
-],
 'project:spring-framework/spring-context/src/test/resources/org/springframework/scripting/bsh/bsh-with-xsd.xml':[
 54,
 ],
@@ -2462,9 +2451,6 @@
 8,
 12,
 14,
-],
-'project:spring-framework/spring-context/src/test/resources/org/springframework/scripting/support/groovyReferences.xml':[
-25,
 ],
 'project:spring-framework/spring-core/src/test/resources/org/springframework/util/xml/testContentHandler.xml':[
 1,
