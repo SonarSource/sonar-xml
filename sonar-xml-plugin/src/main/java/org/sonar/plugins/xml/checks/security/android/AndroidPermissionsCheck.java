@@ -17,7 +17,9 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
@@ -36,6 +38,10 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
   private final XPathExpression xPathExpression = XPathBuilder
     .forExpression("/manifest/uses-permission")
     .build();
+
+  // finding if any child contains tools:node="removeAll" can be costly if there are many uses-permission nodes
+  // so we cache the result for each parent node
+  private final Map<Node, Boolean> removeAllPropertyCache = new HashMap<>();
 
   private static final Set<String> DANGEROUS_PERMISSIONS = new HashSet<>(Arrays.asList(
     // the below list is dangerous
@@ -140,13 +146,14 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
     return toolsNodeAttribute != null && "remove".equals(toolsNodeAttribute.getNodeValue());
   }
 
-  private static boolean hasParentToolsNodeRemoveAll(Node node) {
+  private boolean hasParentToolsNodeRemoveAll(Node node) {
     Node parent = node.getParentNode();
     if (parent == null) {
       return false;
     }
-    // todo : use caching here to avoid rechecking same parent nodes for each child (n^2 complexity reduced to n)
-    // check for all children if any is of type "use-permission" and contains tools:node="removeAll"
+    if (removeAllPropertyCache.containsKey(parent)) {
+      return removeAllPropertyCache.get(parent);
+    }
     NodeList nodeList = parent.getChildNodes();
     int nodeListLength = nodeList.getLength();
     for (int i = 0; i < nodeListLength; i++) {
@@ -156,9 +163,11 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
       }
       Node toolsNodeAttribute = childNode.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
       if (toolsNodeAttribute != null && "removeAll".equals(toolsNodeAttribute.getNodeValue())) {
+        removeAllPropertyCache.put(parent, true);
         return true;
       }
     }
+    removeAllPropertyCache.put(parent, false);
     return false;
   }
 }
