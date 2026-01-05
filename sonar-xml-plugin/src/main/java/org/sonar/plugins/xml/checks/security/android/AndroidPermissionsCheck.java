@@ -24,6 +24,7 @@ import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_TOOLS;
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
@@ -112,14 +113,16 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
 
   @Override
   protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument()).stream()
+    evaluateAsList(xPathExpression, file.getDocument())
       .forEach(this::checkAndReportPermissionIssue);
   }
 
   private void checkAndReportPermissionIssue(Node node) {
     Node permissionsAttribute = findPermissionAttribute(node);
     String permissionValue = permissionsAttribute.getNodeValue();
-    if (!hasToolsNodeRemove(node) && DANGEROUS_PERMISSIONS.contains(permissionValue)) {
+    if (!hasToolsNodeRemove(node)
+      && !hasParentToolsNodeRemoveAll(node)
+      && DANGEROUS_PERMISSIONS.contains(permissionValue)) {
       reportIssue(permissionsAttribute, String.format(MESSAGE, simpleName(permissionValue)));
     }
   }
@@ -135,5 +138,27 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
   private static boolean hasToolsNodeRemove(Node node) {
     Node toolsNodeAttribute = node.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
     return toolsNodeAttribute != null && "remove".equals(toolsNodeAttribute.getNodeValue());
+  }
+
+  private static boolean hasParentToolsNodeRemoveAll(Node node) {
+    Node parent = node.getParentNode();
+    if (parent == null) {
+      return false;
+    }
+    // todo : use caching here to avoid rechecking same parent nodes for each child (n^2 complexity reduced to n)
+    // check for all children if any is of type "use-permission" and contains tools:node="removeAll"
+    NodeList nodeList = parent.getChildNodes();
+    int nodeListLength = nodeList.getLength();
+    for (int i = 0; i < nodeListLength; i++) {
+      Node childNode = nodeList.item(i);
+      if (!"uses-permission".equals(childNode.getNodeName())) {
+        continue;
+      }
+      Node toolsNodeAttribute = childNode.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
+      if (toolsNodeAttribute != null && "removeAll".equals(toolsNodeAttribute.getNodeValue())) {
+        return true;
+      }
+    }
+    return false;
   }
 }

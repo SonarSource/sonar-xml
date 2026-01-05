@@ -37,4 +37,13 @@ class AndroidPermissionsCheckTest {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemove/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
   }
 
+  @Test
+  void should_not_raise_on_tools_node_remove_all_compliant() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("ToolsNodeRemoveAllCompliant/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void should_not_raise_on_tools_node_remove_all_non_compliant() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemoveAllNonCompliant/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
 }
