@@ -46,7 +46,7 @@ class XmlTest {
     assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(3.1);
     assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(9);
     assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4);
-    assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(11);
+    assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(13);
   }
 
   @Test
