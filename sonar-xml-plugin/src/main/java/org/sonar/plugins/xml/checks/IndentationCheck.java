@@ -18,6 +18,7 @@ package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -28,6 +29,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
@@ -91,7 +93,7 @@ public class IndentationCheck extends SonarXmlCheck {
 
     // Check indentation of closing tag
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      checkClosingTag((Element) node);
+      checkElement((Element) node);
     }
 
     return false;
@@ -160,10 +162,11 @@ public class IndentationCheck extends SonarXmlCheck {
     return indent;
   }
 
-  private void checkClosingTag(Element element) {
+  private void checkElement(Element element) {
     if (isSelfClosing(element)) {
       return;
     }
+
     XmlTextRange startLocation = XmlFile.startLocation(element);
     XmlTextRange endLocation = XmlFile.endLocation(element);
     if (startLocation.getEndLine() != endLocation.getStartLine()) {
@@ -201,8 +204,18 @@ public class IndentationCheck extends SonarXmlCheck {
     // </tag>
     //
     // @formatter:on
-    String stringVal = Optional.ofNullable(element.getFirstChild().getNodeValue()).orElse("");
+
+    // create element content as string :
+    NodeList childNodes = element.getChildNodes();
+    String stringVal = IntStream
+      .range(0, element.getChildNodes().getLength())
+      .boxed()
+      .map(childNodes::item)
+      .flatMap(node -> Optional.ofNullable(node.getNodeValue()).stream())
+      .reduce(String::concat)
+      .orElse("");
     String firstLine = firstLine(stringVal);
+
     boolean isLineContinuation = !firstLine.trim().isEmpty();
     if (isLineContinuation) {
       checkLineContinuation(element, stringVal);
