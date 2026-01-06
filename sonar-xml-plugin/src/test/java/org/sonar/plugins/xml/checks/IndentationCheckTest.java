@@ -17,6 +17,8 @@
 package org.sonar.plugins.xml.checks;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class IndentationCheckTest {
@@ -27,27 +29,16 @@ class IndentationCheckTest {
     SonarXmlCheckVerifier.verifyIssues("IndentationCheck.xml", check);
   }
 
-  @Test
-  void test_with_parameters() {
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "IndentationCheckCustom.xml",
+    "LineContinuation.xml",
+    "MultilineString.xml"
+  })
+  void test_with_custom_parameters(String fileName) {
     IndentationCheck check = new IndentationCheck();
     check.setIndentSize(4);
     check.setTabSize(4);
-    SonarXmlCheckVerifier.verifyIssues("IndentationCheckCustom.xml", check);
-  }
-
-  @Test
-  void line_continuation() {
-    IndentationCheck check = new IndentationCheck();
-    check.setIndentSize(4);
-    check.setTabSize(4);
-    SonarXmlCheckVerifier.verifyIssues("LineContinuation.xml", check);
-  }
-
-  @Test
-  void multiline_string() {
-    IndentationCheck check = new IndentationCheck();
-    check.setIndentSize(4);
-    check.setTabSize(4);
-    SonarXmlCheckVerifier.verifyIssues("MultilineString.xml", check);
+    SonarXmlCheckVerifier.verifyIssues(fileName, check);
   }
 }
