@@ -1,4 +1,21 @@
 <root>
+    <html>
+        <body>
+            xx<tag/> <!-- compliant - no indentation check when tag is inside text -->
+        </body>
+    </html>
+    <html>
+        <body>
+            xx
+            xx<tag>
+        content of tag
+            </tag>
+            xx<tag>
+                content of tag
+            </tag>
+            xx
+        </body>
+    </html>
     <string name="case1">
         Text starts on new line
         and continues here
