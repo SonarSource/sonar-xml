@@ -233,7 +233,8 @@ public class IndentationCheck extends SonarXmlCheck {
     int[] lineLoc = {XmlFile.startLocation(element).getStartLine()};
     stringVal
       .lines()
-      .skip(1) // skip opening tag line
+      // ↓ : skip opening tag line
+      .skip(1)
       .forEach(line -> {
         lineLoc[0]++;
         if (line.trim().isEmpty()) {
@@ -283,7 +284,8 @@ public class IndentationCheck extends SonarXmlCheck {
           line,
           actualIndent,
           line,
-          actualIndent + element.getTagName().length() + 3); // +3 for </ and >
+          // ↓ : +3 for </ and >
+          actualIndent + element.getTagName().length() + 3);
         reportIssue(location, depth(element) * indentSize);
       }
     }
