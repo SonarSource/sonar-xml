@@ -4,13 +4,13 @@
     <string name="case2">Line too long, continuation
         indented correctly
     </string>
-    <string name="case5">Line too long, continuation
+    <string name="case3">Line too long, continuation
     indented incorrectly</string> <!-- Noncompliant -->
 <!--^^^^^^^^^^^^^^^^^^^^-->
-    <string name="case6">Line too long, continuation
+    <string name="case4">Line too long, continuation
           indented incorrectly</string> <!-- Noncompliant -->
 <!--      ^^^^^^^^^^^^^^^^^^^^-->
-    <string name="case7">Line too long, continuation
+    <string name="case5">Line too long, continuation
         indented correctly, but : closing tag incorrectly
         indented
         </string> <!-- Noncompliant -->

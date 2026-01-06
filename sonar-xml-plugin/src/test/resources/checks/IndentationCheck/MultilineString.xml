@@ -1,25 +1,25 @@
 <root>
-    <string name="case3">
+    <string name="case1">
         Text starts on new line
         and continues here
     </string>
-    <string name="case7">
+    <string name="case2">
      Multiline string
       indented
 however you like
     </string>
-    <string name="case7">
+    <string name="case3">
      Multiline string
       indented however you like
 but closing tag not aligned
         </string> <!-- Noncompliant -->
-  <!--    ^^^^^^^^^-->
-  <string name="case7">
+  <!--  ^^^^^^^^^-->
+    <string name="case4">
      Multiline string
       indented however you like
     but text on closing tag line</string> <!-- Noncompliant -->
-  <!--^^^^^^^^^^^^^^^^^^^^^^^^^^^^-->
-  <string name="case4">
+<!--^^^^^^^^^^^^^^^^^^^^^^^^^^^^-->
+    <string name="case5">
     Text after tag
     continues here
     </string>
