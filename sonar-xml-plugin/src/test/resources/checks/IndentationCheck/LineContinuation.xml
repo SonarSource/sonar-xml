@@ -1,4 +1,5 @@
 <root>
+    <string name="case1">Short line</string> <!-- Compliant: just check that standard single-line strings are not broken -->
     <string name="case1">Line too long, continuation
         indented correctly</string> <!-- Compliant: continuation aligned with increased indent -->
     <string name="case2">Line too long, continuation

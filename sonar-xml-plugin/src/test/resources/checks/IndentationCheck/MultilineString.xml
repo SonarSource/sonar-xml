@@ -17,7 +17,7 @@ but closing tag not aligned
     <string name="case4">
      Multiline string
       indented however you like
-    but text on closing tag line</string> <!-- Noncompliant -->
+    but text on closing tag line</string> <!-- Noncompliant {{Multiline text content should not have text on the closing tag line.}} -->
 <!--^^^^^^^^^^^^^^^^^^^^^^^^^^^^-->
     <string name="case5">
     Text after tag
