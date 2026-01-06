@@ -17,10 +17,10 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
@@ -41,7 +41,6 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
 
   // finding if any child contains tools:node="removeAll" can be costly if there are many uses-permission nodes
   // so we cache the result for each parent node
-  private final Map<Node, Boolean> removeAllPropertyCache = new HashMap<>();
 
   private static final Set<String> DANGEROUS_PERMISSIONS = new HashSet<>(Arrays.asList(
     // the below list is dangerous
@@ -119,15 +118,16 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
 
   @Override
   protected final void scanAndroidManifest(XmlFile file) {
-    evaluateAsList(xPathExpression, file.getDocument())
-      .forEach(this::checkAndReportPermissionIssue);
+    if (noToolsNodeRemoveAll(file.getDocument().getFirstChild())) {
+      evaluateAsList(xPathExpression, file.getDocument())
+        .forEach(this::checkAndReportPermissionIssue);
+    }
   }
 
   private void checkAndReportPermissionIssue(Node node) {
     Node permissionsAttribute = findPermissionAttribute(node);
     String permissionValue = permissionsAttribute.getNodeValue();
-    if (!hasToolsNodeRemove(node)
-      && !hasParentToolsNodeRemoveAll(node)
+    if (!hasToolsNodeValue(node, "remove")
       && DANGEROUS_PERMISSIONS.contains(permissionValue)) {
       reportIssue(permissionsAttribute, String.format(MESSAGE, simpleName(permissionValue)));
     }
@@ -141,33 +141,21 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
     return node.getAttributes().getNamedItemNS(ANDROID_MANIFEST_XMLNS, "name");
   }
 
-  private static boolean hasToolsNodeRemove(Node node) {
+  private static boolean hasToolsNodeValue(Node node, String value) {
     Node toolsNodeAttribute = node.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
-    return toolsNodeAttribute != null && "remove".equals(toolsNodeAttribute.getNodeValue());
+    return toolsNodeAttribute != null && value.equals(toolsNodeAttribute.getNodeValue());
   }
 
-  private boolean hasParentToolsNodeRemoveAll(Node node) {
-    Node parent = node.getParentNode();
-    if (parent == null) {
-      return false;
+  private boolean noToolsNodeRemoveAll(@Nullable Node node) {
+    if (node == null) {
+      return true;
     }
-    if (removeAllPropertyCache.containsKey(parent)) {
-      return removeAllPropertyCache.get(parent);
-    }
-    NodeList nodeList = parent.getChildNodes();
-    int nodeListLength = nodeList.getLength();
-    for (int i = 0; i < nodeListLength; i++) {
-      Node childNode = nodeList.item(i);
-      if (!"uses-permission".equals(childNode.getNodeName())) {
-        continue;
-      }
-      Node toolsNodeAttribute = childNode.getAttributes().getNamedItemNS(ANDROID_MANIFEST_TOOLS, "node");
-      if (toolsNodeAttribute != null && "removeAll".equals(toolsNodeAttribute.getNodeValue())) {
-        removeAllPropertyCache.put(parent, true);
-        return true;
-      }
-    }
-    removeAllPropertyCache.put(parent, false);
-    return false;
+
+    NodeList nodeList = node.getChildNodes();
+    return IntStream.range(0, nodeList.getLength())
+      .boxed()
+      .map(nodeList::item)
+      .filter(childNode -> "uses-permission".equals(childNode.getNodeName()))
+      .noneMatch(childNode -> hasToolsNodeValue(childNode, "removeAll"));
   }
 }
