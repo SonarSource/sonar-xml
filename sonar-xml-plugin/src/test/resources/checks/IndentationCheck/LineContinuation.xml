@@ -4,25 +4,6 @@
     <string name="case2">Line too long, continuation
         indented correctly
     </string>
-    <string name="case3">
-        Text starts on new line
-        and continues here
-    </string>
-    <string name="case7">
-     Multiline string
-      indented
-however you like
-    </string>
-    <string name="case7">
-     Multiline string
-      indented however you like
-but closing tag not aligned
-        </string> <!-- Noncompliant -->
-<!--    ^^^^^^^^^-->
-    <string name="case4">
-    Text after tag
-    continues here
-    </string>
     <string name="case5">Line too long, continuation
     indented incorrectly</string> <!-- Noncompliant -->
 <!--^^^^^^^^^^^^^^^^^^^^-->

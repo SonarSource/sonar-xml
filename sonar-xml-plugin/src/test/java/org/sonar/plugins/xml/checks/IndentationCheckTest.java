@@ -42,4 +42,12 @@ class IndentationCheckTest {
     check.setTabSize(4);
     SonarXmlCheckVerifier.verifyIssues("LineContinuation.xml", check);
   }
+
+  @Test
+  void multiline_string() {
+    IndentationCheck check = new IndentationCheck();
+    check.setIndentSize(4);
+    check.setTabSize(4);
+    SonarXmlCheckVerifier.verifyIssues("MultilineString.xml", check);
+  }
 }
