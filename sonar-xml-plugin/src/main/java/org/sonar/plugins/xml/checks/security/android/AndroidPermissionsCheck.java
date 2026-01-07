@@ -18,15 +18,13 @@ package org.sonar.plugins.xml.checks.security.android;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
-import javax.annotation.Nullable;
 import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_TOOLS;
 import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
@@ -38,9 +36,6 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
   private final XPathExpression xPathExpression = XPathBuilder
     .forExpression("/manifest/uses-permission")
     .build();
-
-  // finding if any child contains tools:node="removeAll" can be costly if there are many uses-permission nodes
-  // so we cache the result for each parent node
 
   private static final Set<String> DANGEROUS_PERMISSIONS = new HashSet<>(Arrays.asList(
     // the below list is dangerous
@@ -118,9 +113,9 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
 
   @Override
   protected final void scanAndroidManifest(XmlFile file) {
-    if (noToolsNodeRemoveAll(file.getDocument().getFirstChild())) {
-      evaluateAsList(xPathExpression, file.getDocument())
-        .forEach(this::checkAndReportPermissionIssue);
+    List<Node> usesPermissionNodes = evaluateAsList(xPathExpression, file.getDocument());
+    if (!hasToolsNodeRemoveAll(usesPermissionNodes)) {
+      usesPermissionNodes.forEach(this::checkAndReportPermissionIssue);
     }
   }
 
@@ -146,16 +141,9 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
     return toolsNodeAttribute != null && value.equals(toolsNodeAttribute.getNodeValue());
   }
 
-  private boolean noToolsNodeRemoveAll(@Nullable Node node) {
-    if (node == null) {
-      return true;
-    }
-
-    NodeList nodeList = node.getChildNodes();
-    return IntStream.range(0, nodeList.getLength())
-      .boxed()
-      .map(nodeList::item)
-      .filter(childNode -> "uses-permission".equals(childNode.getNodeName()))
-      .noneMatch(childNode -> hasToolsNodeValue(childNode, "removeAll"));
+  private boolean hasToolsNodeRemoveAll(List<Node> permissionNodes) {
+    return permissionNodes
+      .stream()
+      .anyMatch(node -> hasToolsNodeValue(node, "removeAll"));
   }
 }
