@@ -34,8 +34,9 @@ jobs:
         with:
           deploy-pull-request: true
           artifactory-reader-role: private-reader
-          use-develocity: true
           artifactory-deployer-role: qa-deployer
+          use-develocity: true
+          develocity-url: https://develocity-public.sonar.build/
 
   build-win:
     name: Build Windows
