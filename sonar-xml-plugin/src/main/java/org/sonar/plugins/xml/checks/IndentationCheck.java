@@ -17,7 +17,6 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
@@ -146,6 +145,27 @@ public class IndentationCheck extends SonarXmlCheck {
     return indent;
   }
 
+  private int numberOfCharacterIndentation(String text) {
+    int indent = 0;
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
+      switch (c) {
+        case '\t':
+          // add tabsize
+          indent ++;
+          break;
+        case ' ':
+          // add one space
+          indent++;
+          break;
+        default:
+          // any other character, return current indent
+          return indent;
+      }
+    }
+    return indent;
+  }
+
   private int startIndent(Node node) {
     int indent = 0;
     for (Node sibling = node; sibling != null; sibling = sibling.getPreviousSibling()) {
@@ -211,7 +231,7 @@ public class IndentationCheck extends SonarXmlCheck {
       .range(0, element.getChildNodes().getLength())
       .boxed()
       .map(childNodes::item)
-      .flatMap(node -> Optional.ofNullable(node.getNodeValue()).stream())
+      .map(Node::getTextContent)
       .reduce(String::concat)
       .orElse("");
     String firstLine = firstLine(stringVal);
@@ -244,9 +264,9 @@ public class IndentationCheck extends SonarXmlCheck {
         if (actualIndent != expectedIndent) {
           XmlTextRange location = new XmlTextRange(
             lineLoc[0],
-            actualIndent,
+            numberOfCharacterIndentation(line),
             lineLoc[0],
-            actualIndent + line.trim().length());
+            numberOfCharacterIndentation(line) + line.trim().length());
           reportIssue(location, expectedIndent);
         }
       });
@@ -278,16 +298,14 @@ public class IndentationCheck extends SonarXmlCheck {
     // check closing tag indentation if on a new line
     boolean lastLineEmpty = lastLine(stringVal).trim().isEmpty();
     if (lastLineEmpty) {
-      int actualIndent = startIndent(element.getLastChild());
-      if (actualIndent != depth(element) * indentSize) {
-        XmlTextRange location = new XmlTextRange(
-          line,
-          actualIndent,
-          line,
-          // ↓ : +3 for </ and >
-          actualIndent + element.getTagName().length() + 3);
-        reportIssue(location, depth(element) * indentSize);
+      int startIndent = startIndent(element.getPreviousSibling());
+      int endIndent = startIndent(element.getLastChild());
+      // int actualIndent = startIndent(element.getLastChild());
+      if (startIndent != endIndent) {
+        XmlTextRange endLocation = XmlFile.endLocation(element);
+        reportIssue(endLocation, startIndent);
       }
+
     }
   }
 
@@ -325,7 +343,7 @@ public class IndentationCheck extends SonarXmlCheck {
   }
 
   private static String firstLine(String text) {
-    return text.lines().reduce((first, second) -> first).orElse("");
+    return text.lines().findFirst().orElse("");
   }
 
   private static String lastLine(String text) {
