@@ -141,7 +141,7 @@ public class AndroidPermissionsCheck extends AbstractAndroidManifestCheck {
     return toolsNodeAttribute != null && value.equals(toolsNodeAttribute.getNodeValue());
   }
 
-  private boolean hasToolsNodeRemoveAll(List<Node> permissionNodes) {
+  private static boolean hasToolsNodeRemoveAll(List<Node> permissionNodes) {
     return permissionNodes
       .stream()
       .anyMatch(node -> hasToolsNodeValue(node, "removeAll"));
