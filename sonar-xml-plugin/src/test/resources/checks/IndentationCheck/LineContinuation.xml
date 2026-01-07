@@ -1,37 +1,8 @@
 <root>
-    <bean id="calculator" class="org.springframework.scripting.groovy.GroovyScriptFactory">
-        <constructor-arg>
-            <value>inline:
-      package org.springframework.scripting.groovy;
-      import org.springframework.scripting.Calculator
-      class GroovyCalculator implements Calculator {
-        int add(int x, int y) {
-           return x + y;
-        }
-      }
-            </value>
-        </constructor-arg>
-    </bean>
-    <string name="case1">Short line</string> <!-- Compliant: just check that standard single-line strings are not broken -->
-    <string name="case1">Line too long, continuation
-        indented correctly</string> <!-- Compliant: continuation aligned with increased indent -->
-    <string name="case2">Line too long, continuation
-        indented correctly
-    </string>
-    <string name="case3">Line too long, continuation
-    indented incorrectly</string> <!-- Noncompliant -->
-<!--^^^^^^^^^^^^^^^^^^^^-->
-    <string name="case4">Line too long, continuation
-          indented incorrectly</string> <!-- Noncompliant -->
-<!--      ^^^^^^^^^^^^^^^^^^^^-->
-    <string name="case5">Line too long, continuation
-        indented correctly, but : closing tag incorrectly
-        indented
-        </string> <!-- Noncompliant -->
-<!--    ^^^^^^^^^-->
-    <p>Bold tag <b> on two
-        different </b> lines.</p> <!-- Compliant: despite the bold tag, the continuation is correctly indented -->
-    <p>Let's try self-closing tag in <br/>
-
-        line continuation</p> <!-- Compliant -->
+    <string name="lipsum">Lorem ipsum dolor, sit ame
+      conesctetur</string>
+    <string name="lipsum">Lorem ipsum dolor, sit ame
+      conesctetur
+      </string> <!-- Noncompliant -->
+<!--  ^^^^^^^^^ -->
 </root>

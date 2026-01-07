@@ -17,7 +17,6 @@
 package org.sonar.plugins.xml.checks;
 
 import java.util.Collections;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -28,7 +27,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
@@ -92,7 +91,7 @@ public class IndentationCheck extends SonarXmlCheck {
 
     // Check indentation of closing tag
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      checkElement((Element) node);
+      checkClosingTag((Element) node);
     }
 
     return false;
@@ -124,48 +123,6 @@ public class IndentationCheck extends SonarXmlCheck {
     return depth;
   }
 
-  private int lineIndentation(String text) {
-    int indent = 0;
-    for (int i = 0; i < text.length(); i++) {
-      char c = text.charAt(i);
-      switch (c) {
-        case '\t':
-          // add tabsize
-          indent += tabSize;
-          break;
-        case ' ':
-          // add one space
-          indent++;
-          break;
-        default:
-          // any other character, return current indent
-          return indent;
-      }
-    }
-    return indent;
-  }
-
-  private int numberOfCharacterIndentation(String text) {
-    int indent = 0;
-    for (int i = 0; i < text.length(); i++) {
-      char c = text.charAt(i);
-      switch (c) {
-        case '\t':
-          // add tabsize
-          indent ++;
-          break;
-        case ' ':
-          // add one space
-          indent++;
-          break;
-        default:
-          // any other character, return current indent
-          return indent;
-      }
-    }
-    return indent;
-  }
-
   private int startIndent(Node node) {
     int indent = 0;
     for (Node sibling = node; sibling != null; sibling = sibling.getPreviousSibling()) {
@@ -176,136 +133,65 @@ public class IndentationCheck extends SonarXmlCheck {
 
       } else if (nodeType == Node.TEXT_NODE) {
         String text = sibling.getTextContent();
-        return lineIndentation(lastLine(text));
+        for (int i = text.length() - 1; i >= 0; i--) {
+          char c = text.charAt(i);
+          switch (c) {
+            case '\n':
+              // newline found, we are done
+              return indent;
+            case '\t':
+              // add tabsize
+              indent += tabSize;
+              break;
+            case ' ':
+              // add one space
+              indent++;
+              break;
+            default:
+              return indent;
+          }
+        }
       }
     }
     return indent;
   }
 
-  private void checkElement(Element element) {
+  private void checkClosingTag(Element element) {
     if (isSelfClosing(element)) {
       return;
     }
-
     XmlTextRange startLocation = XmlFile.startLocation(element);
     XmlTextRange endLocation = XmlFile.endLocation(element);
     if (startLocation.getEndLine() != endLocation.getStartLine()) {
       if (!needToCheckIndentation(element)) {
         return;
       }
-
-      if (isNonEmptyTextNode(element.getFirstChild())) {
-        checkTextContent(element);
-        return;
-      }
-
       int startIndent = startIndent(element.getPreviousSibling());
       int endIndent = startIndent(element.getLastChild());
-      if (startIndent != endIndent) {
-        reportIssue(endLocation, startIndent);
-      }
-    }
-  }
 
-  private void checkTextContent(Element element) {
-    // @formatter:off
-    //
-    // if element contains text that start on the opening tag line, it is a text continuation
-    // Example:
-    // <tag>Some text
-    // that continues on the next line</tag>4
-    //
-    // if element contains text that start on the next line after the opening tag, it is multiline text
-    // Example :
-    // <tag>
-    // a
-    // multiline
-    // text
-    // </tag>
-    //
-    // @formatter:on
-
-    // create element content as string :
-    NodeList childNodes = element.getChildNodes();
-    String stringVal = IntStream
-      .range(0, element.getChildNodes().getLength())
-      .boxed()
-      .map(childNodes::item)
-      .map(Node::getTextContent)
-      .reduce(String::concat)
-      .orElse("");
-    String firstLine = firstLine(stringVal);
-
-    boolean isLineContinuation = !firstLine.trim().isEmpty();
-    if (isLineContinuation) {
-      checkLineContinuation(element, stringVal);
-    } else {
-      checkMultilineText(element, stringVal);
-    }
-  }
-
-  private void checkLineContinuation(Element element, String stringVal) {
-    // verify that each line is indented correctly
-    // it means 1 indent level more than the parent element
-    int expectedIndent = (depth(element) + 1) * indentSize;
-
-    // use array as container to allow modifying inside the lambda
-    int[] lineLoc = {XmlFile.startLocation(element).getStartLine()};
-    stringVal
-      .lines()
-      // ↓ : skip opening tag line
-      .skip(1)
-      .forEach(line -> {
-        lineLoc[0]++;
-        if (line.trim().isEmpty()) {
-          return;
-        }
-        int actualIndent = lineIndentation(line);
-        if (actualIndent != expectedIndent) {
-          XmlTextRange location = new XmlTextRange(
-            lineLoc[0],
-            numberOfCharacterIndentation(line),
-            lineLoc[0],
-            numberOfCharacterIndentation(line) + line.trim().length());
-          reportIssue(location, expectedIndent);
-        }
-      });
-    checkTextContentClosingTag(element, stringVal, lineLoc[0]);
-  }
-
-  private void checkMultilineText(Element element, String stringVal) {
-    // only check that last line is empty
-    int linesCount = (int) stringVal.lines().count();
-    String lastLine = lastLine(stringVal);
-    int lastLineNumber = XmlFile.startLocation(element).getStartLine() + linesCount - 1;
-    if (!lastLine.trim().isEmpty()) {
-      int actualIndent = lineIndentation(lastLine);
-      XmlTextRange location = new XmlTextRange(
-        lastLineNumber,
-        actualIndent,
-        lastLineNumber,
-        actualIndent + lastLine.trim().length());
-      reportIssue(
-        location,
-        "Multiline text content should not have text on the closing tag line.",
-        Collections.emptyList());
-    } else {
-      checkTextContentClosingTag(element, stringVal, lastLineNumber);
-    }
-  }
-
-  private void checkTextContentClosingTag(Element element, String stringVal, int line) {
-    // check closing tag indentation if on a new line
-    boolean lastLineEmpty = lastLine(stringVal).trim().isEmpty();
-    if (lastLineEmpty) {
-      int startIndent = startIndent(element.getPreviousSibling());
-      int endIndent = startIndent(element.getLastChild());
-      // int actualIndent = startIndent(element.getLastChild());
-      if (startIndent != endIndent) {
-        XmlTextRange endLocation = XmlFile.endLocation(element);
-        reportIssue(endLocation, startIndent);
+      // Special case: if element contains text that continues on the closing tag line, we do not report an issue
+      // Valid examples:
+      // <tag>Some text
+      // that continues on the next line</tag>
+      // <tag>
+      // Some text
+      // that continues on the next line</tag>
+      // However if the last line before the closing tag is empty or contains only whitespace, we keep reporting an issue
+      // Invalid example:
+      // <tag>
+      // --Some text
+      // --</tag>
+      boolean isTextContent = element.getChildNodes().getLength() == 1 && element.getFirstChild() instanceof Text;
+      boolean textContinuationException = false;
+      if (isTextContent) {
+        String text = element.getFirstChild().getNodeValue();
+        String lastLine = text.lines().reduce((first, second) -> second).orElse("");
+        textContinuationException = !lastLine.trim().isEmpty();
       }
 
+      if (startIndent != endIndent && !textContinuationException) {
+        reportIssue(endLocation, startIndent);
+      }
     }
   }
 
@@ -340,14 +226,6 @@ public class IndentationCheck extends SonarXmlCheck {
     return node != null
       && node.getNodeType() == Node.TEXT_NODE
       && !node.getTextContent().trim().isEmpty();
-  }
-
-  private static String firstLine(String text) {
-    return text.lines().findFirst().orElse("");
-  }
-
-  private static String lastLine(String text) {
-    return text.lines().reduce((first, second) -> second).orElse("");
   }
 
 }
