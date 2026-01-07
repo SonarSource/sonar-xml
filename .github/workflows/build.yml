@@ -95,6 +95,8 @@ jobs:
         uses: SonarSource/ci-github-actions/config-maven@v1
         with:
           artifactory-reader-role: private-reader
+          use-develocity: true
+          develocity-url: https://develocity-public.sonar.build/
       - name: Plugin QA Tests
         shell: bash # Set explicitly so Bash is used on Windows runners too.
         working-directory: "its/${{ matrix.item.suite }}"
