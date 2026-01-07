@@ -40,4 +40,48 @@ but closing tag not aligned
     Text after tag
     continues here
     </string>
+
+    <sect5>
+      Accessing org.hibernate.Session and org.hibernate.Query from EntityManager:
+        <para>
+         You can get access to the current underlying Hibernate Session by calling the <literal>getDelegate</literal> method on the
+         EntityManager :
+      	    <programlisting>
+      		<![CDATA[
+@Stateless
+@Remote(CustomerRemote.class)
+@RemoteBinding (jndiBinding="AnotherCustBean")
+public class AnotherCustomerBean implements CustomerRemote
+{
+
+   @PersistenceContext
+   private EntityManager em;
+
+   public Customer getCustomer(long id)
+   {
+      org.hibernate.Session session = (Session) em.getDelegate();
+      return (Customer) session.get(Customer.class, id);
+   }
+...
+			]]>
+      	    </programlisting>
+      	Take a look at <literal>org.jboss.tutorial.hibernate.bean.AnotherCustomerBean</literal> for more details.
+        </para>
+
+        <para>
+         You can get access to the current underlying Hibernate Query by typecasting your reference to a <code>org.hibernate.ejb.QueryImpl</code>.
+
+		<programlisting>
+      		<![CDATA[
+public List<Customer> getCustomers(String fname)
+{
+   org.hibernate.ejb.QueryImpl queryImpl = (QueryImpl) em.createQuery("from Customer where fname ='" + fname + "'");
+   org.hibernate.Query query = queryImpl.getHibernateQuery();
+   return query.list();
+}
+
+			]]>
+      </programlisting>
+	      </para>
+   </sect5><!-- Noncompliant -->
 </root>
