@@ -24,6 +24,7 @@ public class Utils {
   }
 
   public static final String ANDROID_MANIFEST_XMLNS = "http://schemas.android.com/apk/res/android";
+  public static final String ANDROID_MANIFEST_TOOLS = "http://schemas.android.com/tools";
   public static final String ANDROID_MANIFEST_FILENAME = "AndroidManifest.xml";
 
   public static boolean isAndroidManifestFile(XmlFile file) {

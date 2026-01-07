@@ -32,4 +32,18 @@ class AndroidPermissionsCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(Paths.get("AnyFileName.xml").toString(), new AndroidPermissionsCheck());
   }
 
+  @Test
+  void should_not_raise_on_tools_node_remove() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemove/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void should_not_raise_on_tools_node_remove_all() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("ToolsNodeRemoveAll/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void should_raise_on_tools_node_remove_all_with_wrong_tag() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemoveAllWrongTag/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
 }
