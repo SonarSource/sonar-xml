@@ -99,7 +99,7 @@ class XmlRulesDefinitionTest {
 
     RulesDefinition.Rule rule = repository.rule("S3281");
 
-    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "owaspTop10-2021:a5");
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "owaspTop10-2021:a5", "cwe:16", "cwe:693");
   }
 
   @Test
@@ -111,7 +111,7 @@ class XmlRulesDefinitionTest {
 
     RulesDefinition.Rule rule = repository.rule("S3281");
 
-    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6");
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "cwe:16", "cwe:693");
   }
 
 }
