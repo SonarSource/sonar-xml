@@ -36,7 +36,7 @@ class IndentationCheckTest {
   }
 
   @Test
-  void line_continuation() {
+  void line_continuations_are_ignored () {
     IndentationCheck check = new IndentationCheck();
     check.setIndentSize(4);
     check.setTabSize(4);
