@@ -27,6 +27,7 @@ import org.sonarsource.analyzer.commons.xml.XmlTextRange;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 import static org.sonar.plugins.xml.Utils.isSelfClosing;
 
@@ -167,7 +168,37 @@ public class IndentationCheck extends SonarXmlCheck {
       }
       int startIndent = startIndent(element.getPreviousSibling());
       int endIndent = startIndent(element.getLastChild());
-      if (startIndent != endIndent) {
+
+      if (startIndent == endIndent) {
+        return;
+      }
+
+      // @formatter:off
+      // Special case: if element contains text that continues on the closing tag line, we do not report an issue
+      // Valid examples:
+      // <tag>Some text
+      //   that continues on the next line</tag>
+      // <tag>
+      //   Some text
+      //   that continues on the next line</tag>
+      // However if the last line before the closing tag is empty or contains only whitespace, we keep reporting an issue
+      // Invalid example:
+      // <tag>
+      //   Some text
+      //   </tag>
+      // @formatter:on
+      boolean isTextContent = element.getChildNodes().getLength() == 1 && element.getFirstChild() instanceof Text;
+      boolean isTextContinuingOnClosingTagLine = isTextContent &&
+      // check if last line is not blank
+        !
+        // retrieve text
+        element.getFirstChild().getNodeValue()
+          // retrieve last line
+          .lines().reduce((first, second) -> second).orElse("")
+          // check if last line is blank
+          .trim().isBlank();
+
+      if (!isTextContinuingOnClosingTagLine) {
         reportIssue(endLocation, startIndent);
       }
     }
