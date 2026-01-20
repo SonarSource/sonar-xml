@@ -188,12 +188,15 @@ public class IndentationCheck extends SonarXmlCheck {
       //   </tag>
       // @formatter:on
       boolean isTextContent = element.getChildNodes().getLength() == 1 && element.getFirstChild() instanceof Text;
-      boolean isTextContinuingOnClosingTagLine = false;
-      if (isTextContent) {
-        String text = element.getFirstChild().getNodeValue();
-        String lastLine = text.lines().reduce((first, second) -> second).orElse("");
-        isTextContinuingOnClosingTagLine = !lastLine.trim().isEmpty();
-      }
+      boolean isTextContinuingOnClosingTagLine = isTextContent &&
+      // check if last line is not blank
+        !
+        // retrieve text
+        element.getFirstChild().getNodeValue()
+          // retrieve last line
+          .lines().reduce((first, second) -> second).orElse("")
+          // check if last line is blank
+          .trim().isBlank();
 
       if (!isTextContinuingOnClosingTagLine) {
         reportIssue(endLocation, startIndent);
