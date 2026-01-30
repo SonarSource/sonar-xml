@@ -1,0 +1,36 @@
+name: Automated Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - tt/*
+
+env:
+  JIRA_PROJECT_KEY: "SONARXML"
+
+jobs:
+  release:
+    name: Release
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write
+    steps:
+      - name: Get Release Version
+        id: get-release-version
+        uses: SonarSource/release-github-actions/get-release-version@v1
+        with:
+          branch: master
+      
+      - name: Get Jira Version
+        id: get-jira-version
+        uses: SonarSource/release-github-actions/get-jira-version@v1
+      
+      - name: Get Jira Release Notes
+        id: get-jira-release-notes
+        if: inputs.release-notes == ''
+        uses: SonarSource/release-github-actions/get-jira-release-notes@v1
+        with:
+          issue-types: "New Feature,False Positive,False Negative,Bug,Improvement,Task"
+
