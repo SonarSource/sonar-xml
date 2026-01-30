@@ -1,0 +1,47 @@
+name: Automated Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+#  push:
+#    branches:
+#      - tt/*
+
+
+jobs:
+  automated-release:
+    name: Automated Release
+    uses: SonarSource/release-github-actions/.github/workflows/automated-release.yml@aea99b205bcbe54ebe06a8d5d5a1cf062fa606fb
+    permissions:
+      id-token: write
+      contents: write
+      actions: write
+      statuses: read
+    with:
+      jira-project-key: "SONARXML"
+      project-name: "SonarXML"
+      plugin-name: "xml"
+      plugin-artifacts-sqs: "java" # check it
+      plugin-artifacts-sqc: "java" # check it
+      use-jira-sandbox: true # For testing
+      is-draft-release: true # For testing
+      pm-email: "tomasz.tylenda@sonarsource.com" # Final value "jean.jimbo@sonarsource.com"
+      # release-automation-secret-name
+      short-description: "Testing automated release" # final value -- use parameter
+      rule-props-changed: false # Final value -- use parameter ??
+      branch: "master" # Final value -- use parameter.
+      # release-notes - blank to use Jira
+      sq-ide-short-description: "Testing automated release - sq ide short desc" # final value -- use parameter
+      new-version: "2.14" # Final value -- use parameter.
+      create-slvs-ticket: false
+      create-slvscode-ticket: false
+      create-sle-ticket: false
+      create-sli-ticket: false
+      sqs-integration: false
+      sqc-integration: false
+      runner-environment: "github-ubuntu-latest-s"
+      release-process: "https://xtranet-sonarsource.atlassian.net/wiki/spaces/CodeQualit/pages/2580152361/Release+sonar-xml"
+      verbose: true
+      freeze-branch: true # Final value true
+      slack-channel: "squad-jvm-notifs"
+      # issue-categories
