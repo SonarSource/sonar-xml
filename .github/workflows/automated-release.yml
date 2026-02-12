@@ -51,6 +51,7 @@ jobs:
       project-name: "SonarXML"
       plugin-name: "xml"
       jira-project-key: "SONARXML"
+      runner-environment: "github-ubuntu-latest-s"
       rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
       short-description: ${{ github.event.inputs.short-description }}
       new-version: ${{ github.event.inputs.new-version }}
