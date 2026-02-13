@@ -27,7 +27,7 @@ jobs:
         with:
           primary_project_key: org.sonarsource.xml:xml
           primary_platform: "Next"
-          shadow1_project_key: "SonarSource_sonar-xml"
+          shadow1_project_key: org.sonarsource.xml:xml
           shadow1_platform: "SQC-EU"
-          shadow2_project_key: "SonarSource_sonar-xml"
+          shadow2_project_key: org.sonarsource.xml:xml
           shadow2_platform: "SQC-US"
