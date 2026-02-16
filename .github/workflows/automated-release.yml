@@ -35,7 +35,7 @@ on:
       dry-run:
         description: "Test mode: uses Jira sandbox and creates draft GitHub release"
         type: boolean
-        default: false
+        default: true
 
 jobs:
   release:
@@ -55,14 +55,14 @@ jobs:
       rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
       short-description: ${{ github.event.inputs.short-description }}
       new-version: ${{ github.event.inputs.new-version }}
-      sqc-integration: false # ${{ github.event.inputs.sqc-integration == 'true' }}
-      sqs-integration: false #${{ github.event.inputs.sqs-integration == 'true' }}
+      sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
+      sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
       branch: ${{ github.event.inputs.branch }}
       pm-email: "jean.jimbo@sonarsource.com"
       slack-channel: "squad-jvm-notifs"
       verbose: ${{ github.event.inputs.verbose == 'true' }}
-      use-jira-sandbox: true # ${{ github.event.inputs.dry-run == 'true' }}
-      is-draft-release: true # ${{ github.event.inputs.dry-run == 'true' }}
+      use-jira-sandbox: ${{ github.event.inputs.dry-run == 'true' }}
+      is-draft-release: ${{ github.event.inputs.dry-run == 'true' }}
 
   bump_versions:
     name: Bump versions
