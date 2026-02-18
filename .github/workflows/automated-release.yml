@@ -28,6 +28,18 @@ on:
         description: "Test mode: uses Jira sandbox and creates draft GitHub release"
         type: boolean
         default: true
+      ide-integration:
+        description: "Integrate into IDE"
+        type: boolean
+        default: true
+      sqc-integration:
+        description: "Integrate into SQC"
+        type: boolean
+        default: true
+      sqs-integration:
+        description: "Integrate into SQS"
+        type: boolean
+        default: true
 
 jobs:
   release:
@@ -47,11 +59,11 @@ jobs:
       rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
       short-description: ${{ github.event.inputs.short-description }}
       new-version: ${{ github.event.inputs.new-version }}
-      sqc-integration: true
-      sqs-integration: true
-      create-sle-ticket: true
-      create-sli-ticket: true
-      create-slvscode-ticket: true
+      sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
+      sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
+      create-sle-ticket: ${{ github.event.inputs.ide-integration == 'true' }}
+      create-sli-ticket: ${{ github.event.inputs.ide-integration == 'true' }}
+      create-slvscode-ticket: ${{ github.event.inputs.ide-integration == 'true' }}
       branch: ${{ github.event.inputs.branch }}
       pm-email: "jean.jimbo@sonarsource.com"
       slack-channel: "squad-jvm-notifs"
