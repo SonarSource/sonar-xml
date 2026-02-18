@@ -6,14 +6,6 @@ on:
         description: "Short description for the REL ticket"
         required: true
         type: string
-      sqc-integration:
-        description: "Integrate into SQC"
-        type: boolean
-        default: true
-      sqs-integration:
-        description: "Integrate into SQS"
-        type: boolean
-        default: true
       branch:
         description: "Branch from which to do the release"
         required: true
@@ -55,8 +47,11 @@ jobs:
       rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
       short-description: ${{ github.event.inputs.short-description }}
       new-version: ${{ github.event.inputs.new-version }}
-      sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
-      sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
+      sqc-integration: true
+      sqs-integration: true
+      create-sle-ticket: true
+      create-sli-ticket: true
+      create-slvscode-ticket: true
       branch: ${{ github.event.inputs.branch }}
       pm-email: "jean.jimbo@sonarsource.com"
       slack-channel: "squad-jvm-notifs"
