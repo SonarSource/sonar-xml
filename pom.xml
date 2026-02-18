@@ -70,6 +70,7 @@
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>10.13.0.79996</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>12.0.0.2960</sonar.pluginApi.version>
+    <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
