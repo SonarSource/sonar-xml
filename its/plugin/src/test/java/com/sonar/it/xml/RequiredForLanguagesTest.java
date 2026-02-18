@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequiredForLanguagesTest {
 
-  private static final Locators ORCHESTRATOR_LOCATORS = Configuration.createEnv().locators();
+  private static final Locators ORCHESTRATOR_LOCATORS = new Locators(Configuration.createEnv());
   private static final Location PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
 
