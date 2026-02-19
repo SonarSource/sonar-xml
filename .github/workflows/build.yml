@@ -56,6 +56,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/build-maven@v1
         with:
           deploy: false
+          sonar-platform: 'none'
           artifactory-reader-role: private-reader
           artifactory-deployer-role: qa-deployer
           use-develocity: true
