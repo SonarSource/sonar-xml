@@ -59,7 +59,7 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <jdk.min.version>17</jdk.min.version>
-    <sonar.version>10.7.0.96327</sonar.version>
+    <sonar.version>25.10.0.114319</sonar.version>
     <!-- Required by shadow scans -->
     <sonar.organization>sonarsource</sonar.organization>
     <!-- Minimum version of the plugin API in SQ -->
@@ -69,7 +69,7 @@
     <sonar.orchestrator.version>6.1.0.3962</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>10.13.0.79996</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>12.0.0.2960</sonar.pluginApi.version>
+    <sonar.pluginApi.version>13.2.0.3137</sonar.pluginApi.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.2.0</kotlin.version>
