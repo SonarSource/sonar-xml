@@ -1,0 +1,102 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>SonarSource/renovate-config:languages-team",
+    ":timezone(CET)",
+    ":semanticCommitsDisabled"
+  ],
+  "schedule": [
+    "before 3am on Monday"
+  ],
+  "enabledManagers": [
+    "maven",
+    "github-actions",
+    "regex"
+  ],
+  "ignorePaths": [
+    "its/sources/**",
+    "sonar-xml-plugin/src/test/resources/**"
+  ],
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["^org.sonarsource.xml:"],
+      "enabled": false
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "SonarSource/*"
+      ],
+      "pinDigests": false,
+      "labels": ["dependencies", "github-actions"],
+      "groupName": "all Sonar GitHub Actions",
+      "groupSlug": "all-sonar-github-actions"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "!SonarSource/*"
+      ],
+      "pinDigests": true,
+      "labels": ["dependencies", "github-actions"],
+      "groupName": "all third-party GitHub Actions",
+      "groupSlug": "all-3rd-party-github-actions"
+    },
+    {
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": ["major"],
+      "stabilityDays": 3,
+      "automerge": false,
+      "labels": ["dependencies", "maven", "major-update"]
+    },
+    {
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "labels": ["dependencies", "maven"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": [
+        "org.sonarsource.sonarqube.*",
+        "org.sonarsource.api.plugin:sonar-plugin-api*"
+      ],
+      "groupName": "sonarqube",
+      "groupSlug": "sq",
+      "prHeader": "**Before updating the plugin-api version, make sure to check the [compatibility matrix](https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility) and stick to the lowest denominator.**"
+    },
+    {
+      "matchPackageNames": [
+        "org.sonarsource.parent:parent",
+        "com.sonarsource.parent:parent"
+      ],
+      "groupName": "parent"
+    },
+    {
+      "matchPackageNames": [
+        "org.sonarsource.sonarlint.core.*"
+      ],
+      "groupName": "SL core"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "vulnerability-alert"
+    ]
+  },
+  "reviewers": [
+    "team:quality-jvm-squad"
+  ]
+}
