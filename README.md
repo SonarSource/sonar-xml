@@ -9,6 +9,12 @@ https://redirect.sonarsource.com/plugins/xml.html
 Issue tracking:
 https://jira.sonarsource.com/browse/SONARXML/
 
+### Updating licenses:
+When dependencies change, update the committed license files using the `updateLicenses` profile:
+```sh
+mvn clean package -PupdateLicenses
+```
+This regenerates licenses in `src/main/resources/licenses/` based on current project dependencies.
 
 License
 --------
