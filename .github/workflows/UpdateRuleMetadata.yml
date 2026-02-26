@@ -16,7 +16,3 @@ jobs:
         with:
           labels: ''
           rspec-token-suffix: 'rspec'
-          post-update:
-            java -jar rule-api.jar generate -rule XPathCheck
-            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.html sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.html
-            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.json sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.json
