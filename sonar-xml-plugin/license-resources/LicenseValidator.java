@@ -108,10 +108,9 @@ public final class LicenseValidator {
     // Find files with different content
     for (var relativePath : tempFiles.keySet()) {
       if (committedFiles.containsKey(relativePath)) {
-        var tempContent = Files.readString(tempFiles.get(relativePath)).replace("\r\n", "\n");
-        var committedContent = Files.readString(committedFiles.get(relativePath)).replace("\r\n", "\n");
-
-        if (!tempContent.equals(committedContent)) {
+        var tempFile = tempFiles.get(relativePath);
+        var committedFile = committedFiles.get(relativePath);
+        if (Files.mismatch(tempFile, committedFile) != -1L) {
           differentFiles.add(relativePath);
         }
       }
