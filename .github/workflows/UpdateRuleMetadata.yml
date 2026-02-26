@@ -3,7 +3,7 @@ name: Update Rule Metadata
 on: workflow_dispatch
 
 jobs:
-  rule-metadata-update:
+  update-rule-metadata:
     runs-on: github-ubuntu-latest-s
     permissions:
       id-token: write
@@ -16,7 +16,7 @@ jobs:
         with:
           labels: ''
           rspec-token-suffix: 'rspec'
-        post-update:
-          java -jar rule-api.jar generate -rule XPathCheck
-          cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.html sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.html
-          cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.json sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.json
+          post-update:
+            java -jar rule-api.jar generate -rule XPathCheck
+            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.html sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.html
+            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.json sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.json
