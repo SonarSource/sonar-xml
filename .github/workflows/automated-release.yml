@@ -15,11 +15,6 @@ on:
         description: "New version to release (without -SNAPSHOT; if left empty, the current minor version will be auto-incremented)"
         required: false
         type: string
-      rule-props-changed:
-        description: >
-          "@RuleProperty" changed? See SC-4654
-        type: boolean
-        default: false
       verbose:
         description: "Enable verbose logging"
         type: boolean
@@ -40,6 +35,10 @@ on:
         description: "Integrate into SQS"
         type: boolean
         default: true
+      bump-version:
+        description: "Create PR bumping up the next iteration"
+        type: boolean
+        default: true
 
 jobs:
   release:
@@ -56,7 +55,7 @@ jobs:
       plugin-name: "xml"
       jira-project-key: "SONARXML"
       runner-environment: "github-ubuntu-latest-s"
-      rule-props-changed: ${{ github.event.inputs.rule-props-changed }}
+      rule-props-changed: false
       short-description: ${{ github.event.inputs.short-description }}
       new-version: ${{ github.event.inputs.new-version }}
       sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
@@ -66,14 +65,16 @@ jobs:
       create-slvscode-ticket: ${{ github.event.inputs.ide-integration == 'true' }}
       branch: ${{ github.event.inputs.branch }}
       pm-email: "jean.jimbo@sonarsource.com"
-      slack-channel: "squad-jvm-notifs"
+      slack-channel: "squad-jvm-releases"
       verbose: ${{ github.event.inputs.verbose == 'true' }}
       use-jira-sandbox: ${{ github.event.inputs.dry-run == 'true' }}
       is-draft-release: ${{ github.event.inputs.dry-run == 'true' }}
+      issue-categories: "Feature,False Positive,False Negative,Bug,Security,Maintenance"
 
   bump_versions:
     name: Bump versions
     needs: release
+    if: ${{ github.event.inputs.bump-version == 'true' }}
     uses: ./.github/workflows/PrepareNextIteration.yml
     permissions:
       contents: write
