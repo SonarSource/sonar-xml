@@ -34,8 +34,7 @@ import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -74,11 +73,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
 class XmlSensorTest {
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public Path temporaryFolder;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -355,7 +353,8 @@ class XmlSensorTest {
     context = SensorContextTester.create(moduleBaseDir);
 
     fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder().toPath());
+    Path folder = Files.createTempDirectory(temporaryFolder, "");
+    fs.setWorkDir(folder);
 
     ActiveRulesBuilder activeRuleBuilder = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder().setRuleKey(NEW_LINE_RULE_KEY).build())
@@ -378,7 +377,7 @@ class XmlSensorTest {
     Charset fileSystemCharset = StandardCharsets.UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
-    Path moduleBaseDir = temporaryFolder.newFolder().toPath();
+    Path moduleBaseDir = Files.createTempDirectory(temporaryFolder, "");
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
 
     DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
@@ -420,7 +419,7 @@ class XmlSensorTest {
 
   private File createXmlFile(int numberOfTags, String fileName) {
     try {
-      File file = temporaryFolder.newFile(fileName);
+      File file = Files.createFile(temporaryFolder.resolve(fileName)).toFile();
       StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
       IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
       str.append("</root>");

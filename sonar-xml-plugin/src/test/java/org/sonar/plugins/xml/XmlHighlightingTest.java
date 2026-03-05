@@ -24,11 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -40,11 +38,10 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableRuleMigrationSupport
 class XmlHighlightingTest {
 
-  @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  @TempDir
+  public Path tmpFolder;
 
   private DefaultFileSystem fileSystem;
   private SensorContextTester context;
@@ -328,7 +325,7 @@ class XmlHighlightingTest {
     Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
-    Path moduleBaseDir = tmpFolder.newFolder().toPath();
+    Path moduleBaseDir = Files.createTempDirectory(tmpFolder, "");
     context = SensorContextTester.create(moduleBaseDir);
 
     fileSystem = new DefaultFileSystem(moduleBaseDir);
@@ -362,7 +359,8 @@ class XmlHighlightingTest {
   }
 
   private void highlightFromFile(String filename, String content) throws Exception {
-    File file = tmpFolder.newFile(filename);
+    File file = tmpFolder.resolve(filename).toFile();
+    Files.createFile(file.toPath());
     FileUtils.write(file, content, UTF_8);
     highlight(file, filename);
   }
