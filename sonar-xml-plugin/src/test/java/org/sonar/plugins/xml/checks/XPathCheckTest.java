@@ -18,7 +18,6 @@ package org.sonar.plugins.xml.checks;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
@@ -26,7 +25,6 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@EnableRuleMigrationSupport
 class XPathCheckTest {
 
   @RegisterExtension

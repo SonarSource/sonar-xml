@@ -17,18 +17,14 @@
 package org.sonar.plugins.xml;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -40,11 +36,10 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableRuleMigrationSupport
 class XmlHighlightingTest {
 
-  @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  @TempDir
+  public Path tmpFolder;
 
   private DefaultFileSystem fileSystem;
   private SensorContextTester context;
@@ -328,7 +323,7 @@ class XmlHighlightingTest {
     Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
-    Path moduleBaseDir = tmpFolder.newFolder().toPath();
+    Path moduleBaseDir = Files.createTempDirectory(tmpFolder, "");
     context = SensorContextTester.create(moduleBaseDir);
 
     fileSystem = new DefaultFileSystem(moduleBaseDir);
@@ -362,20 +357,21 @@ class XmlHighlightingTest {
   }
 
   private void highlightFromFile(String filename, String content) throws Exception {
-    File file = tmpFolder.newFile(filename);
-    FileUtils.write(file, content, UTF_8);
+    Path file = tmpFolder.resolve(filename);
+    Files.createFile(file);
+    Files.write(file, content.getBytes(UTF_8));
     highlight(file, filename);
   }
 
   private void highlightFromFile(String filename) throws Exception {
-    File file = new File("src/test/resources/highlighting/" + filename);
+    Path file = Path.of("src", "test", "resources", "highlighting", filename);
     highlight(file, filename);
   }
 
-  private void highlight(File file, String filename) throws Exception {
+  private void highlight(Path file, String filename) throws Exception {
     DefaultInputFile inputFile = TestInputFileBuilder.create("module", filename)
-      .setModuleBaseDir(file.getParentFile().toPath())
-      .initMetadata(Files.lines(file.toPath()).collect(Collectors.joining("\n")))
+      .setModuleBaseDir(file.getParent())
+      .initMetadata(Files.lines(file).collect(Collectors.joining("\n")))
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(UTF_8)
