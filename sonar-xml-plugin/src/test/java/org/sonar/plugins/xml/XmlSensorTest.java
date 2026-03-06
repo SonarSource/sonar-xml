@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -56,7 +55,6 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -95,13 +93,13 @@ class XmlSensorTest {
   @Timeout(value = 12000, unit = TimeUnit.MILLISECONDS)
   void testPerformance() throws Exception {
     init();
-    File smallXmlFile = createXmlFile(20000, "smallFile.xml");
-    fs.add(createInputFile(Paths.get(smallXmlFile.getParent()), smallXmlFile.getName(), StandardCharsets.UTF_8));
+    Path smallXmlFile = createXmlFile(20000, "smallFile.xml");
+    fs.add(createInputFile(smallXmlFile.getParent(), smallXmlFile.getFileName().toString(), StandardCharsets.UTF_8));
     long timeSmallFile = measureTimeToAnalyzeFile();
 
     init();
-    File bigXmlFile = createXmlFile(40000, "bigFile.xml");
-    fs.add(createInputFile(Paths.get(bigXmlFile.getParent()), bigXmlFile.getName(), StandardCharsets.UTF_8));
+    Path bigXmlFile = createXmlFile(40000, "bigFile.xml");
+    fs.add(createInputFile(bigXmlFile.getParent(), bigXmlFile.getFileName().toString(), StandardCharsets.UTF_8));
     long timeBigFile = measureTimeToAnalyzeFile();
 
     assertThat(timeBigFile).isLessThan((long) Math.floor(2.5 * timeSmallFile));
@@ -417,13 +415,13 @@ class XmlSensorTest {
     }
   }
 
-  private File createXmlFile(int numberOfTags, String fileName) {
+  private Path createXmlFile(int numberOfTags, String fileName) {
     try {
-      File file = Files.createFile(temporaryFolder.resolve(fileName)).toFile();
+      Path file = Files.createFile(temporaryFolder.resolve(fileName));
       StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
       IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
       str.append("</root>");
-      FileUtils.write(file, str.toString(), StandardCharsets.UTF_8);
+      Files.write(file, str.toString().getBytes(StandardCharsets.UTF_8));
       return file;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to create " + fileName);
