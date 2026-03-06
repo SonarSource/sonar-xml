@@ -3,36 +3,34 @@ application can be exported to Google Cloud or to an external device via <code>a
 disclosure of sensitive data. It can also lead to corruption of local data when restoration is performed from an untrusted source.</p>
 <p>By default application backup is enabled and it includes:</p>
 <ul>
-  <li> Shared preferences files </li>
-  <li> Files saved in one of the paths returned by
+  <li>Shared preferences files</li>
+  <li>Files saved in one of the paths returned by
     <ul>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getDatabasePath(java.lang.String)">getDatabasePath(String)</a>
-      </li>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getFilesDir()">getFilesDir()</a> </li>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getDir(java.lang.String,%20int)">getDir(String, int)</a> </li>
-      <li> <a
-      href="https://developer.android.com/reference/android/content/Context#getExternalFilesDir(java.lang.String)">getExternalFilesDir(String)</a>
-      </li>
-    </ul>  </li>
+      <li><a href="https://developer.android.com/reference/android/content/Context#getDatabasePath(java.lang.String)">getDatabasePath(String)</a></li>
+      <li><a href="https://developer.android.com/reference/android/content/Context#getFilesDir()">getFilesDir()</a></li>
+      <li><a href="https://developer.android.com/reference/android/content/Context#getDir(java.lang.String,%20int)">getDir(String, int)</a></li>
+      <li><a
+      href="https://developer.android.com/reference/android/content/Context#getExternalFilesDir(java.lang.String)">getExternalFilesDir(String)</a></li>
+    </ul></li>
 </ul>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> Application backup is enabled and sensitive data is stored in local files, local databases, or shared preferences. </li>
-  <li> Your application never validates data from files that are included in backups. </li>
+  <li>Application backup is enabled and sensitive data is stored in local files, local databases, or shared preferences.</li>
+  <li>Your application never validates data from files that are included in backups.</li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Disable application backup unless it is required for your application to work properly. </li>
-  <li> Narrow the scope of backed-up files by using either
+  <li>Disable application backup unless it is required for your application to work properly.</li>
+  <li>Narrow the scope of backed-up files by using either
     <ul>
-      <li> backup rules (see <code>android:fullBackupContent</code> attribute). </li>
-      <li> a custom <code>BackupAgent</code>. </li>
-      <li> the dedicated <code>no_backup</code> folder (see <code>android.content.Context#getNoBackupFilesDir()</code>). </li>
-    </ul>  </li>
-  <li> Do not back up local data containing sensitive information unless they are properly encrypted. </li>
-  <li> Make sure that the keys used to encrypt backup data are not included in the backup. </li>
-  <li> Validate data from backed-up files. They should be considered untrusted as they could have been restored from an untrusted source. </li>
+      <li>backup rules (see <code>android:fullBackupContent</code> attribute).</li>
+      <li>a custom <code>BackupAgent</code>.</li>
+      <li>the dedicated <code>no_backup</code> folder (see <code>android.content.Context#getNoBackupFilesDir()</code>).</li>
+    </ul></li>
+  <li>Do not back up local data containing sensitive information unless they are properly encrypted.</li>
+  <li>Make sure that the keys used to encrypt backup data are not included in the backup.</li>
+  <li>Validate data from backed-up files. They should be considered untrusted as they could have been restored from an untrusted source.</li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
@@ -56,20 +54,20 @@ disclosure of sensitive data. It can also lead to corruption of local data when 
 </pre>
 <h2>See</h2>
 <ul>
-  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
-  Exposure</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
-  Misconfiguration</a> </li>
-  <li> OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a> </li>
-  <li> OWASP - <a href="https://mas.owasp.org/checklists/MASVS-STORAGE/">Mobile AppSec Verification Standard - Data Storage and Privacy
-  Requirements</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
-  platform usage</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">Mobile Top 10 2016 Category M2 - Insecure
-  Data Storage</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2023-risks/m9-insecure-data-storage">Mobile Top 10 2024 Category M9 - Insecure
-  Data Storage</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/312">CWE-922 - Insecure Storage of Sensitive Information</a> </li>
-  <li> <a href="https://developer.android.com/guide/topics/data/autobackup">Back up user data with Auto Backup</a> </li>
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a></li>
+  <li>OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a></li>
+  <li>OWASP - <a href="https://mas.owasp.org/checklists/MASVS-STORAGE/">Mobile AppSec Verification Standard - Data Storage and Privacy
+  Requirements</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
+  platform usage</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">Mobile Top 10 2016 Category M2 - Insecure Data
+  Storage</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2023-risks/m9-insecure-data-storage">Mobile Top 10 2024 Category M9 - Insecure Data
+  Storage</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/312">CWE-922 - Insecure Storage of Sensitive Information</a></li>
+  <li><a href="https://developer.android.com/guide/topics/data/autobackup">Back up user data with Auto Backup</a></li>
 </ul>
 
