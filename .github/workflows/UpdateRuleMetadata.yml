@@ -40,7 +40,7 @@ jobs:
 
       - name: Getting Vault Secrets
         id: secrets
-        uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # v3.1.0
+        uses: SonarSource/vault-action-wrapper@545e7cfbb5528e7009a1edcc83e073898d292627 # 3.2.0
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | GITHUB_TOKEN_RSPEC;
