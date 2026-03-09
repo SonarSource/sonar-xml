@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Update Rule Metadata
         id: update-rule-metadata
-        uses: SonarSource/release-github-actions/update-rule-metadata@master
+        uses: SonarSource/release-github-actions/update-rule-metadata@v1
         with:
           labels: ''
           rspec-token-suffix: 'rspec'
