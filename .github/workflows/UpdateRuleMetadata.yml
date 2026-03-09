@@ -15,6 +15,7 @@ jobs:
         uses: SonarSource/release-github-actions/update-rule-metadata@v1
         with:
           labels: ''
+          # The default suffix is `rspec-read`, but JVM Squad uses just `rspec`.
           rspec-token-suffix: 'rspec'
           post-update: |
             java -jar rule-api.jar generate -rule XPathCheck
