@@ -20,7 +20,7 @@
   "dependencyDashboard": true,
   "packageRules": [
     {
-      "matchPackagePatterns": ["^org.sonarsource.xml:"],
+      "matchPackagePatterns": ["^org.sonarsource.xml:", "^org.sonarsource.sonarqube:"],
       "enabled": false
     },
     {
