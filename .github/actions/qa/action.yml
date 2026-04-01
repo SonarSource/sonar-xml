@@ -1,0 +1,52 @@
+name: QA
+description: Run QA tests.
+
+inputs:
+  name:
+    required: true
+  suite:
+    required: true
+  sq_version:
+    required: true
+  volatile:
+    description: Whether dependencies change frequently and should not be cached.
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+      with:
+        version: 2026.3.17
+    - name: Vault
+      id: secrets
+      uses: SonarSource/vault-action-wrapper@v3
+      with:
+        secrets: |
+          development/github/token/licenses-ro token | GITHUB_TOKEN;
+    - name: Configure Maven
+      uses: SonarSource/ci-github-actions/config-maven@v1
+      with:
+        artifactory-reader-role: private-reader
+        use-develocity: true
+        develocity-url: https://develocity-public.sonar.build/
+    - name: Orchestrator Cache
+      # Do not cache dependencies that change frequently.
+      if: ${{ !inputs.volatile }}
+      uses: ./.github/actions/orchestrator-cache
+    - name: Inspect Cache Contents
+      if: ${{ !inputs.volatile }}
+      shell: bash
+      run: |
+        ls -lRh "$ORCHESTRATOR_HOME"
+    - name: Plugin QA Tests
+      shell: bash # Set explicitly so Bash is used on Windows runners too.
+      working-directory: "its/${{ inputs.suite }}"
+      env:
+        SUITE: ${{ inputs.suite }}
+        SQ_VERSION: ${{ inputs.sq_version }}
+        GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+      run: |
+        mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
