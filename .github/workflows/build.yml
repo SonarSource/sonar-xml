@@ -84,13 +84,14 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: ./.github/actions/qa
         if: matrix.item.sq_version != 'DEV' || github.event_name == 'schedule'
         with:
           name: ${{ matrix.item.name }}
           suite: ${{ matrix.item.suite }}
           sq_version: ${{ matrix.item.sq_version }}
-          volatile: ${{ matrix.item.volatile || false }}
+          volatile: ${{ matrix.item.volatile }}
 
   promote:
     needs:
