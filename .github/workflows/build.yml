@@ -71,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         item:
-          - { name: "Plugin [Linux] - SQ: DEV", suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s" }
+          - { name: "Plugin [Linux] - SQ: DEV", suite: "plugin", sq_version: "DEV", runner: "github-ubuntu-latest-s", volatile: true }
           - { name: "Plugin [Linux] - SQ: LATEST", suite: "plugin", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s" }
           - { name: "Ruling [Linux] - SQ: LATEST", suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-ubuntu-latest-s" }
           - { name: "Ruling [Windows] - SQ: LATEST", suite: "ruling", sq_version: "LATEST_RELEASE", runner: "github-windows-latest-s" }
@@ -101,8 +101,11 @@ jobs:
           use-develocity: true
           develocity-url: https://develocity-public.sonar.build/
       - name: Orchestrator Cache
+         # Do not cache dependencies that change frequently.
+        if: ${{ !matrix.item.volatile }}
         uses: ./.github/actions/orchestrator-cache
       - name: Inspect Cache Contents
+        if: ${{ !matrix.item.volatile }}
         shell: bash
         run: |
           ls -lRh "$ORCHESTRATOR_HOME"
