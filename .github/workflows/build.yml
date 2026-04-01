@@ -90,7 +90,7 @@ jobs:
           name: ${{ matrix.item.name }}
           suite: ${{ matrix.item.suite }}
           sq_version: ${{ matrix.item.sq_version }}
-          volatile: ${{ matrix.item.volatile }}
+          volatile: ${{ matrix.item.volatile || false }}
 
   promote:
     needs:

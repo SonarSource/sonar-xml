@@ -10,8 +10,7 @@ inputs:
     required: true
   volatile:
     description: Whether dependencies change frequently and should not be cached.
-    required: false
-    default: false
+    required: true
 
 runs:
   using: "composite"
@@ -41,8 +40,9 @@ runs:
       shell: bash
       run: |
         ls -lRh "$ORCHESTRATOR_HOME"
-    - name: Plugin QA Tests
-      shell: bash # Set explicitly so Bash is used on Windows runners too.
+    - name: QA Tests
+      # Set shell explicitly so Bash is used on Windows runners too.
+      shell: bash
       working-directory: "its/${{ inputs.suite }}"
       env:
         SUITE: ${{ inputs.suite }}
