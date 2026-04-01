@@ -84,7 +84,7 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
-      - uses: ./github/actions/qa
+      - uses: ./.github/actions/qa
         if: matrix.item.sq_version != 'DEV' || github.event_name == 'schedule'
         with:
           name: ${{ matrix.item.name }}
