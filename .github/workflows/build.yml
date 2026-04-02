@@ -101,8 +101,11 @@ jobs:
           use-develocity: true
           develocity-url: https://develocity-public.sonar.build/
       - name: Orchestrator Cache
+         # Do not cache dependencies that change frequently.
+        if: ${{ matrix.item.sq_version != 'DEV' }}
         uses: ./.github/actions/orchestrator-cache
       - name: Inspect Cache Contents
+        if: ${{ matrix.item.sq_version != 'DEV' }}
         shell: bash
         run: |
           ls -lRh "$ORCHESTRATOR_HOME"
