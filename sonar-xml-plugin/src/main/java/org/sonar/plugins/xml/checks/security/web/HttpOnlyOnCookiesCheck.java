@@ -39,14 +39,28 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
     .withNamespace("n", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
-  /// Find the global `<httpCookies httpOnlyCookies="true" />` in .NET web.config.
+  // Find the global <httpCookies httpOnlyCookies="true" /> in .NET web.config.
   private final XPathExpression httpCookiesExpression = XPathBuilder
     .forExpression("/configuration/system.web/httpCookies[@httpOnlyCookies=\"true\"]")
     .build();
 
-  /// Closest existing node if the global `<httpCookies>` is missing or misconfigured.
+  // Closest existing node if the global <httpCookies> is missing or misconfigured.
   private final XPathExpression reportNodeExpression = XPathBuilder
     .forExpression(getDeepestExistingNode("configuration", "system.web", "httpCookies"))
+    .build();
+
+  // Detects a .NET Framework web.config by the presence of any known <system.web> child element.
+  // See https://learn.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/dayb112d(v=vs.100)
+  private final XPathExpression dotNetFrameworkSystemWebExpression = XPathBuilder
+    .forExpression("/configuration/system.web[" +
+      "anonymousIdentification or authentication or authorization or browserCaps or " +
+      "caching or clientTarget or compilation or customErrors or deployment or " +
+      "deviceFilters or globalization or healthMonitoring or hostingEnvironment or " +
+      "httpCookies or httpHandlers or httpModules or httpRuntime or identity or " +
+      "machineKey or membership or mobileControls or pages or processModel or " +
+      "profile or roleManager or securityPolicy or sessionPageState or sessionState or " +
+      "siteMap or trace or trust or urlMappings or webControls or webParts or " +
+      "webServices or xhtmlConformance]")
     .build();
 
   @Override
@@ -57,6 +71,14 @@ public class HttpOnlyOnCookiesCheck extends BaseWebCheck {
   @Override
   protected void scanWebConfig(XmlFile file) {
     Document document = file.getDocument();
+
+    // Only flag .NET Framework web.config files. ASP.NET Core web.config files do not use
+    // <system.web>/<httpCookies> and should not be checked.
+    NodeList systemWebNodes = evaluate(dotNetFrameworkSystemWebExpression, document);
+    if (systemWebNodes == null || systemWebNodes.getLength() == 0) {
+      return;
+    }
+
     NodeList httpCookiesNodes = evaluate(httpCookiesExpression, document);
 
     // null is returned on internal errors, and we don't want to raise a false positive in that case.

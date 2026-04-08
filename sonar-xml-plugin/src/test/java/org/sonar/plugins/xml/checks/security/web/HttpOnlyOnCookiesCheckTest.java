@@ -18,6 +18,8 @@ package org.sonar.plugins.xml.checks.security.web;
 
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class HttpOnlyOnCookiesCheckTest {
@@ -47,21 +49,25 @@ class HttpOnlyOnCookiesCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new HttpOnlyOnCookiesCheck());
   }
 
-  @Test
-  void web_config_compliant() {
-    String path = Paths.get("webconfig-with-http-cookies-true", "web.config").toString();
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-without-http-cookies",
+    "webconfig-with-noncompliant-http-cookies",
+    "webconfig-dotnet-framework-compilation",
+  })
+  void web_config_noncompliant(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-with-http-cookies-true",
+    // ASP.NET Core web.config files do not use <system.web>/<httpCookies> — no issue expected.
+    "webconfig-aspnetcore",
+  })
+  void web_config_compliant(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
     SonarXmlCheckVerifier.verifyNoIssue(path, new HttpOnlyOnCookiesCheck());
-  }
-
-  @Test
-  void web_config_without_http_cookies() {
-    String path = Paths.get("webconfig-without-http-cookies", "web.config").toString();
-    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
-  }
-
-  @Test
-  void web_config_noncompliant_http_cookies() {
-    String path = Paths.get("webconfig-with-noncompliant-http-cookies", "web.config").toString();
-    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
   }
 }
