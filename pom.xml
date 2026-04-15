@@ -73,11 +73,10 @@
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.2.0</kotlin.version>
+    <slf4j.version>1.7.36</slf4j.version>
     <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-
-    <slf4j.version>1.7.36</slf4j.version>
 
     <!-- Release: enable publication to Bintray -->
     <artifactsToPublish>${project.groupId}:sonar-xml-plugin:jar</artifactsToPublish>
