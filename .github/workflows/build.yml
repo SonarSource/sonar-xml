@@ -92,7 +92,7 @@ jobs:
           # DEV is tested only in nightly to reduce Repox usage
           - item:
               sq_version: "DEV"
-              is_nightly: false
+              is_nightly: true
     runs-on: ${{ matrix.item.runner }}
     needs:
       - build # We only need the build that deploys the artifacts to run ruling.
