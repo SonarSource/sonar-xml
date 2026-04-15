@@ -91,7 +91,6 @@ jobs:
         exclude:
           # DEV is tested only in nightly to reduce Repox usage
           - item:
-              suite: "plugin"
               sq_version: "DEV"
               is_nightly: false
     runs-on: ${{ matrix.item.runner }}
