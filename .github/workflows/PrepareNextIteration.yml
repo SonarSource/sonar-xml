@@ -38,7 +38,7 @@ jobs:
           mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${{ steps.version.outputs.full-version }}"
 
       - name: Create Pull Request
-        uses: SonarSource/release-github-actions/create-pull-request@v1
+        uses: SonarSource/release-github-actions/create-pull-request@1.5.4
         id: create-pr
         with:
           commit-message: "Prepare next development iteration ${{ steps.version.outputs.full-version }}"

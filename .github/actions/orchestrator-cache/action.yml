@@ -12,7 +12,7 @@ runs:
         echo "ORCHESTRATOR_HOME=${{ github.workspace }}/orchestrator" >> $GITHUB_ENV
 
     - name: Cache Orchestrator
-      uses: SonarSource/gh-action_cache@v1
+      uses: SonarSource/gh-action_cache@v1.4.4
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: orchestrator-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
