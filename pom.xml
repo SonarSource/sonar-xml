@@ -68,12 +68,15 @@
     <sonar.analyzerCommons.version>2.20.0.4607</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.1.0.3962</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
-    <sonar.sonarlint-core.version>10.13.0.79996</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>11.2.2.85453</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>13.2.0.3137</sonar.pluginApi.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.2.0</kotlin.version>
-    <slf4j.version>1.7.36</slf4j.version>
+    <!-- The product must work with the SLF4J provided in the Plugin API. -->
+    <slf4j.prod.version>1.7.36</slf4j.prod.version>
+    <!-- SonarLint Core, used in plugin ITs, requires new SLF4J. -->
+    <slf4j.test.version>2.0.17</slf4j.test.version>
     <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -104,7 +107,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
+        <version>${slf4j.prod.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>

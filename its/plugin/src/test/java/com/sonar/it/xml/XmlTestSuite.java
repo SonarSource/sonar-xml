@@ -41,7 +41,7 @@ import static java.util.Collections.singletonList;
   RequiredForLanguagesTest.class,
   ByteOrderMarkTest.class,
   XmlTest.class,
-  SonarLintTest.class})
+  SonarLintIntegrationTest.class})
 public class XmlTestSuite {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
