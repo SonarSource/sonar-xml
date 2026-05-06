@@ -17,7 +17,8 @@
     "error-handling",
     "debug",
     "android",
-    "user-experience"
+    "user-experience",
+    "former-hotspot"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4507",

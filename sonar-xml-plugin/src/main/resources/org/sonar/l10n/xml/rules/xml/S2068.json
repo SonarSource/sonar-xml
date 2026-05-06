@@ -1,9 +1,9 @@
 {
-  "title": "Hard-coded credentials are security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Credentials should not be hard-coded",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
-      "SECURITY": "BLOCKER"
+      "SECURITY": "MEDIUM"
     },
     "attribute": "TRUSTWORTHY"
   },
@@ -12,10 +12,12 @@
     "func": "Constant\/Issue",
     "constantCost": "30min"
   },
+  "quickfix": "infeasible",
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
-  "defaultSeverity": "Blocker",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2068",
   "sqKey": "S2068",
   "scope": "Main",
@@ -41,6 +43,5 @@
       "3.5.2",
       "6.4.1"
     ]
-  },
-  "quickfix": "unknown"
+  }
 }
