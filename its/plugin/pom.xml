@@ -34,6 +34,12 @@
       <artifactId>sonarlint-core</artifactId>
       <scope>test</scope>
     </dependency>
+  <dependency>
+    <groupId>org.sonarsource.sonarlint.core</groupId>
+    <artifactId>sonarlint-core-test-utils</artifactId>
+    <version>${sonar.sonarlint-core.version}</version>
+    <scope>test</scope>
+  </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -70,11 +76,24 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- sonarlint-core requires slf4j 2.x at runtime; override the parent's 1.7 management for this module. -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.test.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <!-- Fixes "Defaulting to no-operation (NOP) logger", which results in missing logs from the orchestrator. -->
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
+      <version>${slf4j.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.3.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
