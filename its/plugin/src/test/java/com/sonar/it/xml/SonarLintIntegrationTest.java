@@ -72,7 +72,7 @@ public class SonarLintIntegrationTest {
         RaisedIssueDto::getRuleKey,
         RaisedIssueDto::getTextRange)
       .usingRecursiveFieldByFieldElementComparator()
-      .containsOnly(tuple("xml:S666", new TextRangeDto(2, 0, 2, 5)));
+      .containsOnly(tuple("xml:S1778", new TextRangeDto(2, 0, 2, 5)));
   }
 
   private List<RaisedIssueDto> analyzeFileAndGetIssues(URI fileUri) {
