@@ -1,75 +1,83 @@
-<p>Android has a built-in backup mechanism that can save and restore application data. When application backup is enabled, local data from your
-application can be exported to Google Cloud or to an external device via <code>adb backup</code>. Enabling Android backup exposes your application to
-disclosure of sensitive data. It can also lead to corruption of local data when restoration is performed from an untrusted source.</p>
-<p>By default application backup is enabled and it includes:</p>
-<ul>
-  <li> Shared preferences files </li>
-  <li> Files saved in one of the paths returned by
-    <ul>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getDatabasePath(java.lang.String)">getDatabasePath(String)</a>
-      </li>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getFilesDir()">getFilesDir()</a> </li>
-      <li> <a href="https://developer.android.com/reference/android/content/Context#getDir(java.lang.String,%20int)">getDir(String, int)</a> </li>
-      <li> <a
-      href="https://developer.android.com/reference/android/content/Context#getExternalFilesDir(java.lang.String)">getExternalFilesDir(String)</a>
-      </li>
-    </ul>  </li>
-</ul>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li> Application backup is enabled and sensitive data is stored in local files, local databases, or shared preferences. </li>
-  <li> Your application never validates data from files that are included in backups. </li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<ul>
-  <li> Disable application backup unless it is required for your application to work properly. </li>
-  <li> Narrow the scope of backed-up files by using either
-    <ul>
-      <li> backup rules (see <code>android:fullBackupContent</code> attribute). </li>
-      <li> a custom <code>BackupAgent</code>. </li>
-      <li> the dedicated <code>no_backup</code> folder (see <code>android.content.Context#getNoBackupFilesDir()</code>). </li>
-    </ul>  </li>
-  <li> Do not back up local data containing sensitive information unless they are properly encrypted. </li>
-  <li> Make sure that the keys used to encrypt backup data are not included in the backup. </li>
-  <li> Validate data from backed-up files. They should be considered untrusted as they could have been restored from an untrusted source. </li>
-</ul>
-<h2>Sensitive Code Example</h2>
-<pre>
+<p>Android has a built-in backup mechanism that can save and restore application data.</p>
+<h2>Why is this an issue?</h2>
+<p>When application backup is enabled, local data can be exported to Google Cloud or to an external device via <code>adb backup</code>. This rule
+flags the <code>android:allowBackup</code> attribute set to <code>true</code> in the Android manifest without a backup restriction such as
+<code>android:fullBackupContent</code> (API level 23-30) or <code>android:dataExtractionRules</code> (API level 31+). By default, backup is enabled
+and includes shared preferences files and files under paths returned by <a
+href="https://developer.android.com/reference/android/content/Context#getDatabasePath(java.lang.String)">getDatabasePath(String)</a>, <a
+href="https://developer.android.com/reference/android/content/Context#getFilesDir()">getFilesDir()</a>, <a
+href="https://developer.android.com/reference/android/content/Context#getDir(java.lang.String,%20int)">getDir(String, int)</a>, and <a
+href="https://developer.android.com/reference/android/content/Context#getExternalFilesDir(java.lang.String)">getExternalFilesDir(String)</a>.</p>
+<h3>What is the potential impact?</h3>
+<p>When application backup is enabled without restriction, sensitive data stored in local files, databases, or shared preferences may be exposed to
+unauthorized parties through backup storage. Restoring from an untrusted backup source can also corrupt application state or inject malicious
+data.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;application
-    android:allowBackup="true"&gt; &lt;!-- Sensitive --&gt;
+    android:allowBackup="true"&gt; &lt;!-- Noncompliant --&gt;
 &lt;/application&gt;
 </pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <p>Disable application backup.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 &lt;application
     android:allowBackup="false"&gt;
 &lt;/application&gt;
 </pre>
-<p>If targeting Android 6.0 or above (API level 23), define files to include/exclude from the application backup.</p>
-<pre>
+<p>When targeting Android 12 (API level 31) or above, use <code>android:dataExtractionRules</code> to define which files are included or excluded from
+backups. For apps targeting Android 6.0 to 11 (API level 23 to 30), use <code>android:fullBackupContent</code> instead.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+&lt;!-- Targeting API 31+ (Android 12 or higher) --&gt;
 &lt;application
-    android:allowBackup="true"
-    android:fullBackupContent="@xml/backup.xml"&gt;
+    android:allowBackup="true"&gt; &lt;!-- Noncompliant --&gt;
 &lt;/application&gt;
 </pre>
-<h2>See</h2>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+&lt;application
+    android:allowBackup="true"
+    android:dataExtractionRules="@xml/extraction_rules"&gt;
+&lt;/application&gt;
+</pre>
+<p>Other approaches to control which data is backed up include:</p>
 <ul>
-  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
-  Exposure</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
-  Misconfiguration</a> </li>
-  <li> OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a> </li>
-  <li> OWASP - <a href="https://mas.owasp.org/checklists/MASVS-STORAGE/">Mobile AppSec Verification Standard - Data Storage and Privacy
-  Requirements</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
-  platform usage</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">Mobile Top 10 2016 Category M2 - Insecure
-  Data Storage</a> </li>
-  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2023-risks/m9-insecure-data-storage">Mobile Top 10 2024 Category M9 - Insecure
-  Data Storage</a> </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/312">CWE-922 - Insecure Storage of Sensitive Information</a> </li>
-  <li> <a href="https://developer.android.com/guide/topics/data/autobackup">Back up user data with Auto Backup</a> </li>
+  <li>Using a custom <a href="https://developer.android.com/reference/android/app/backup/BackupAgent">BackupAgent</a> to programmatically control what
+  is backed up and restored.</li>
+  <li>Placing sensitive files in the <a href="https://developer.android.com/reference/android/content/Context#getNoBackupFilesDir()">no_backup
+  folder</a> (<code>android.content.Context#getNoBackupFilesDir()</code>), which is excluded from all backups.</li>
+</ul>
+<h3>Going the extra mile</h3>
+<p>Even when backup scope is properly restricted, additional hardening measures are recommended:</p>
+<ul>
+  <li>Do not back up data containing sensitive information unless it is properly encrypted, and ensure that encryption keys are not stored in the same
+  backup.</li>
+  <li>Validate all data read from backed-up files before use. Backup content should be treated as untrusted input, as it may have been restored from a
+  tampered or compromised source.</li>
+</ul>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://developer.android.com/guide/topics/data/autobackup">Android - Back up user data with Auto Backup</a></li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/922">CWE-922 - Insecure Storage of Sensitive Information</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a></li>
+  <li>OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a></li>
+  <li>OWASP - <a href="https://mas.owasp.org/checklists/MASVS-STORAGE/">Mobile AppSec Verification Standard - Data Storage and Privacy
+  Requirements</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m1-improper-platform-usage">Mobile Top 10 2016 Category M1 - Improper
+  platform usage</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m2-insecure-data-storage">Mobile Top 10 2016 Category M2 - Insecure Data
+  Storage</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2023-risks/m9-insecure-data-storage">Mobile Top 10 2024 Category M9 - Insecure Data
+  Storage</a></li>
 </ul>
 

@@ -1,6 +1,6 @@
 {
-  "title": "Allowing application backups is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Android application backup should be disabled or restricted",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "android"
+    "android",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6358",
@@ -51,5 +52,6 @@
       "8.2.2",
       "8.2.3"
     ]
-  }
+  },
+  "quickfix": "unknown"
 }
