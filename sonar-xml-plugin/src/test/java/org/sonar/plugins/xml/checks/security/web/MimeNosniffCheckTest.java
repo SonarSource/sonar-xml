@@ -36,6 +36,12 @@ class MimeNosniffCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(path, new MimeNosniffCheck());
   }
 
+  @Test
+  void uploadConfigWithoutHeaderRaisesIssue() {
+    String path = Paths.get("webconfig-missing-nosniff", "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new MimeNosniffCheck());
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "webconfig-no-custom-headers",

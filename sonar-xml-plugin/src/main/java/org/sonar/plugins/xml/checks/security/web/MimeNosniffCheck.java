@@ -39,9 +39,9 @@ public class MimeNosniffCheck extends BaseWebCheck {
    */
   private final XPathExpression uploadConfigurationExpression = XPathBuilder
     .forExpression(
-      "/configuration//httpRuntime[@maxRequestLength]"
-        + " | /configuration//httpRuntime[@requestLengthDiskThreshold]"
-        + " | /configuration//requestLimits[@maxAllowedContentLength]")
+      "/configuration//httpRuntime[@maxRequestLength > 0]"
+        + " | /configuration//httpRuntime[@requestLengthDiskThreshold > 0]"
+        + " | /configuration//requestLimits[@maxAllowedContentLength > 0]")
     .build();
 
   private final XPathExpression httpCookiesExpression = XPathBuilder
@@ -74,7 +74,8 @@ public class MimeNosniffCheck extends BaseWebCheck {
         .ifPresent(target ->
           reportIssue(
             XmlFile.nameLocation((Element) target),
-            "MIME sniffing is a risk when large HTTP request bodies are allowed. Set the \"X-Content-Type-Options\" response header to \"nosniff\" under httpProtocol/customHeaders.",
+            "MIME sniffing is a risk when large HTTP request bodies are allowed. "
+              + "Set the \"X-Content-Type-Options\" response header to \"nosniff\" under httpProtocol/customHeaders.",
             Collections.emptyList()));
     }
   }
