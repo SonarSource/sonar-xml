@@ -28,10 +28,22 @@ import java.util.Collections;
 
 /**
  * Ensure that the X-Content-Type-Options header is set to "nosniff" to prevent MIME type sniffing.
- * The check applies to .NET web.config files.
+ * The check applies to .NET web.config files when large-request / upload-related settings are present;
+ * otherwise no issue is raised (static-only configuration is out of scope).
  */
 @Rule(key = "S5734")
 public class MimeNosniffCheck extends BaseWebCheck {
+  /**
+   * Heuristic for configurations that accept large POST bodies (typical upload or large-payload APIs).
+   * Descendant axis covers {@code location} overrides.
+   */
+  private final XPathExpression uploadConfigurationExpression = XPathBuilder
+    .forExpression(
+      "/configuration//httpRuntime[@maxRequestLength]"
+        + " | /configuration//httpRuntime[@requestLengthDiskThreshold]"
+        + " | /configuration//requestLimits[@maxAllowedContentLength]")
+    .build();
+
   private final XPathExpression httpCookiesExpression = XPathBuilder
     .forExpression(
       "/configuration"
@@ -49,6 +61,9 @@ public class MimeNosniffCheck extends BaseWebCheck {
   @Override
   protected void scanWebConfig(XmlFile file) {
     Document document = file.getDocument();
+    if (!hasUploadRelatedConfiguration(document)) {
+      return;
+    }
     NodeList expectedNodes = evaluate(httpCookiesExpression, document);
 
     // null is returned on internal errors, and we don't want to raise a false positive in that case.
@@ -59,8 +74,13 @@ public class MimeNosniffCheck extends BaseWebCheck {
         .ifPresent(target ->
           reportIssue(
             XmlFile.nameLocation((Element) target),
-            "Set the \"X-Content-Type-Options\" HTTP header to \"nosniff\" to mitigate MIME Confusion Attacks.",
+            "MIME sniffing is a risk when large HTTP request bodies are allowed. Set the \"X-Content-Type-Options\" response header to \"nosniff\" under httpProtocol/customHeaders.",
             Collections.emptyList()));
     }
+  }
+
+  private boolean hasUploadRelatedConfiguration(Document document) {
+    NodeList nodes = evaluate(uploadConfigurationExpression, document);
+    return nodes != null && nodes.getLength() > 0;
   }
 }

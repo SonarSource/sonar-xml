@@ -30,6 +30,12 @@ class MimeNosniffCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(path, new MimeNosniffCheck());
   }
 
+  @Test
+  void noUploadConfigurationDoesNotRaise() {
+    String path = Paths.get("webconfig-no-upload", "web.config").toString();
+    SonarXmlCheckVerifier.verifyNoIssue(path, new MimeNosniffCheck());
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "webconfig-no-custom-headers",
