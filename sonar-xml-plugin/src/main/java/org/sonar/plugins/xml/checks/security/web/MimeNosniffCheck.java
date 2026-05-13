@@ -36,6 +36,10 @@ public class MimeNosniffCheck extends BaseWebCheck {
   /**
    * Heuristic for configurations that accept large POST bodies (typical upload or large-payload APIs).
    * Descendant axis covers {@code location} overrides.
+   *
+   * Scope is intentionally opt-in: only files that carry an explicit non-zero upload limit are checked.
+   * Files relying purely on ASP.NET/IIS defaults (4 MB / 30 MB) are out of scope to avoid false
+   * positives on configs that have no deliberate upload surface. This is an accepted trade-off.
    */
   private final XPathExpression uploadConfigurationExpression = XPathBuilder
     .forExpression(
