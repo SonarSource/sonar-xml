@@ -42,6 +42,12 @@ class MimeNosniffCheckTest {
     SonarXmlCheckVerifier.verifyIssues(path, new MimeNosniffCheck());
   }
 
+  @Test
+  void iisNativeMaxContentLengthRaisesIssue() {
+    String path = Paths.get("webconfig-iis-max-content-length", "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new MimeNosniffCheck());
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "webconfig-no-custom-headers",
