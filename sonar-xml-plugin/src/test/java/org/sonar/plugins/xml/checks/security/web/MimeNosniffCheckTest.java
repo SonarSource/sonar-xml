@@ -24,9 +24,14 @@ import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class MimeNosniffCheckTest {
 
-  @Test
-  void compliant() {
-    String path = Paths.get("webconfig-compliant", "web.config").toString();
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-compliant",
+    "webconfig-location-block",
+    "webconfig-nosniff-whitespace",
+  })
+  void compliant(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
     SonarXmlCheckVerifier.verifyNoIssue(path, new MimeNosniffCheck());
   }
 

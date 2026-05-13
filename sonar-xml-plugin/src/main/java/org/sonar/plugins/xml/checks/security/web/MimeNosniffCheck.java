@@ -51,10 +51,9 @@ public class MimeNosniffCheck extends BaseWebCheck {
   private final XPathExpression httpCookiesExpression = XPathBuilder
     .forExpression(
       "/configuration"
-      + "/system.webServer"
-      + "/httpProtocol"
+      + "//httpProtocol"
       + "/customHeaders"
-      + "/add[@name=\"X-Content-Type-Options\" and @value=\"nosniff\"]")
+      + "/add[normalize-space(@name)=\"X-Content-Type-Options\" and normalize-space(@value)=\"nosniff\"]")
     .build();
 
   /** Attach the issue to the closest existing node. */
