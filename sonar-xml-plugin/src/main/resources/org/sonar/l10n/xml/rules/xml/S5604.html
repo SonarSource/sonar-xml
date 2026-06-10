@@ -1,30 +1,42 @@
-<p>Permissions that can have a large impact on user privacy, marked as <a
-href="https://developer.android.com/reference/android/Manifest.permission">dangerous or "not for use by third-party applications" by Android</a>,
-should be requested only if they are really necessary to implement critical features of an application.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>It is not sure that <code>dangerous</code> permissions requested by the application are <a
-  href="https://developer.android.com/training/permissions/usage-notes#avoid_requesting_unnecessary_permissions">really necessary</a>.</li>
-  <li>The users are not <a href="https://developer.android.com/training/permissions/usage-notes#be_transparent">clearly informed</a> why and when
-  dangerous permissions are requested by the application.</li>
-</ul>
-<p>You are at risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>It is recommended to carefully review all the permissions and to use <code>dangerous</code> ones only if they are really necessary.</p>
-<h2>Sensitive Code Example</h2>
+<p>Requesting permissions that grant access to sensitive device capabilities or personal data beyond what an application strictly needs exposes users
+to unnecessary privacy risks.</p>
+<h2>Why is this an issue?</h2>
+<p>Some permissions grant access to device capabilities and personal data that have a significant impact on user privacy, such as precise location,
+camera, microphone, and file storage. When an application requests these permissions beyond what its functionality strictly requires, it collects or
+gains access to personal information unnecessarily.</p>
+<p>Permissions classified as <code>dangerous</code> by Android must be requested at runtime and require explicit user consent. The <a
+href="https://developer.android.com/reference/android/Manifest.permission">Android permission system</a> defines which permissions are dangerous,
+including <code>ACCESS_FINE_LOCATION</code>, <code>ACCESS_MEDIA_LOCATION</code>, and others that grant access to sensitive user data.</p>
+<h3>What is the potential impact?</h3>
+<h4>Privacy violation</h4>
+<p>When an application holds unnecessary permissions, it has access to personal data or device capabilities beyond what it needs to function. This
+excess access increases the risk of privacy violations: if the application behaves maliciously or is compromised, the additional permissions can be
+exploited to track users, capture sensitive media, or access private files.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
 <p>In AndroidManifest.xml:</p>
-<pre>
-&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt; &lt;!-- Sensitive --&gt;
-&lt;uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" /&gt; &lt;!-- Sensitive --&gt;
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt; &lt;!-- Noncompliant --&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" /&gt; &lt;!-- Noncompliant --&gt;
 </pre>
-<h2>Compliant Solution</h2>
-<pre>
-&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt; &lt;!-- Compliant --&gt;
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
 </pre>
-<h2>See</h2>
+<h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
+  <li><a href="https://developer.android.com/training/permissions/usage-notes">developer.android.com</a> - App permissions best practices</li>
+  <li><a href="https://play.google.com/about/privacy-security-deception/permissions/">Google Play</a> - Privacy, Security, and Deception -
+  Permissions</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/250">CWE-250 - Execution with Unnecessary Privileges</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/359">CWE-359 - Exposure of Private Information</a></li>
   <li>OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a></li>
-  <li>OWASP - <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
   Exposure</a></li>
   <li>OWASP - <a href="https://mas.owasp.org/checklists/MASVS-PLATFORM/">Mobile AppSec Verification Standard - Platform Interaction
   Requirements</a></li>
@@ -34,9 +46,5 @@ should be requested only if they are really necessary to implement critical feat
   Inadequate Privacy Controls</a></li>
   <li>OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2023-risks/m8-security-misconfiguration">Mobile Top 10 2024 Category M8 - Security
   Misconfiguration</a></li>
-  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/250">CWE-250 - Execution with Unnecessary Privileges</a></li>
-  <li><a href="https://developer.android.com/training/permissions/usage-notes">developer.android.com</a> - App permissions best practices</li>
-  <li><a href="https://play.google.com/about/privacy-security-deception/permissions/">Google Play</a> - Privacy, Security, and Deception -
-  Permissions</li>
 </ul>
 

@@ -1,25 +1,29 @@
-<p>Development tools and frameworks usually have options to make debugging easier for developers. Although these features are useful during
-development, they should never be enabled for applications deployed in production.</p>
-<p>Activating a development feature in production can have an important range of consequences depending on its use:</p>
+<p>Development tools and frameworks usually have options to make debugging easier for developers, but these features should never be enabled for
+applications deployed in production.</p>
+<h2>Why is this an issue?</h2>
+<p>Debug instructions or error messages can leak detailed information about the system, such as the application’s path, file names, or stack traces.
+The rule flags configurations and API calls that enable debug features, including stack trace printing, verbose logging, debug mode flags, and remote
+debugging endpoints.</p>
+<p>Activating a development feature in a mobile application can have an important range of consequences depending on its use:</p>
 <ul>
   <li>Technical information leak; generally by disclosing verbose logging information to the application’s user.</li>
   <li>Arbitrary code execution; generally with a parameter that will allow the remote debugging or profiling of the application.</li>
 </ul>
 <p>In all cases, the attack surface of an affected application is increased. In some cases, such features can also make the exploitation of other
 unrelated vulnerabilities easier.</p>
-<h2>Ask Yourself Whether</h2>
-<ul>
-  <li>The development of the app is completed and the development feature is activated.</li>
-  <li>The app is distributed to end users with the development feature activated</li>
-</ul>
-<p>There is a risk if you answered yes to any of those questions.</p>
-<h2>Recommended Secure Coding Practices</h2>
-<p>Applications should be released without any development feature activated. When such features are required when in the development process of the
-application, they should only apply to a build variant that is dedicated to development environments. That variant should not be set as the default
-build configuration to prevent any unattended development feature exposition.</p>
-<h2>Sensitive Code Example</h2>
+<h3>What is the potential impact?</h3>
+<h4>Information disclosure</h4>
+<p>Attackers can exploit debug output to learn internal application details, file paths, stack traces, and configuration data that can be leveraged to
+craft further attacks.</p>
+<h4>Increased attack surface</h4>
+<p>Debug features may expose remote debugging endpoints, profiling APIs, or detailed error pages that significantly increase the attack surface of the
+application.</p>
+<h2>How to fix it in Android</h2>
+<h3>Code examples</h3>
+<p>Debug features should be disabled or guarded by environment checks before deploying to production.</p>
 <p>In <code>AndroidManifest.xml</code> the android debuggable property is set to <code>true</code>. The application will therefore be debuggable.</p>
-<pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;application
   android:icon="@mipmap/ic_launcher"
   android:label="@string/app_name"
@@ -27,20 +31,11 @@ build configuration to prevent any unattended development feature exposition.</p
   android:supportsRtl="true"
   android:debuggable="true"
   android:theme="@style/AppTheme"&gt;
-&lt;/application&gt;  &lt;!-- Sensitive --&gt;
+&lt;/application&gt;  &lt;!-- Noncompliant --&gt;
 </pre>
-<p>In a <code>web.config</code> file, the <code>customErrors</code> element’s <code>mode</code> attribute is set to <code>Off</code>. The application
-will disclose unnecessarily verbose information to its users upon error.</p>
-<pre>
-&lt;configuration&gt;
-  &lt;system.web&gt;
-    &lt;customErrors mode="Off" /&gt; &lt;!-- Sensitive --&gt;
-  &lt;/system.web&gt;
-&lt;/configuration&gt;
-</pre>
-<h2>Compliant Solution</h2>
+<h4>Compliant solution</h4>
 <p>In <code>AndroidManifest.xml</code> the android debuggable property is set to <code>false</code>:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 &lt;application
   android:icon="@mipmap/ic_launcher"
   android:label="@string/app_name"
@@ -48,20 +43,41 @@ will disclose unnecessarily verbose information to its users upon error.</p>
   android:supportsRtl="true"
   android:debuggable="false"
   android:theme="@style/AppTheme"&gt;
-&lt;/application&gt; &lt;!-- Compliant --&gt;
+&lt;/application&gt;
 </pre>
-<p>In a <code>web.config</code> file, the <code>customErrors</code> element’s <code>mode</code> attribute is set to <code>On</code>:</p>
-<pre>
+<h2>How to fix it in ASP.NET</h2>
+<h3>Code examples</h3>
+<p>Debug features should be disabled or guarded by environment checks before deploying to production.</p>
+<p>In a <code>web.config</code> file, the <code>customErrors</code> element’s <code>mode</code> attribute is set to <code>Off</code>. The application
+will disclose unnecessarily verbose information to its users upon error.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 &lt;configuration&gt;
   &lt;system.web&gt;
-    &lt;customErrors mode="On" /&gt; &lt;!-- Compliant --&gt;
+    &lt;customErrors mode="Off" /&gt; &lt;!-- Noncompliant --&gt;
   &lt;/system.web&gt;
 &lt;/configuration&gt;
 </pre>
-<h2>See</h2>
+<h4>Compliant solution</h4>
+<p>In a <code>web.config</code> file, the <code>customErrors</code> element’s <code>mode</code> attribute is set to <code>On</code>:</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+&lt;configuration&gt;
+  &lt;system.web&gt;
+    &lt;customErrors mode="On" /&gt;
+  &lt;/system.web&gt;
+&lt;/configuration&gt;
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://developer.android.com/studio/publish/preparing">developer.android.com</a> - Prepare for release</li>
+  <li><a
+  href="https://learn.microsoft.com/en-us/aspnet/web-forms/overview/getting-started/getting-started-with-aspnet-45-web-forms/aspnet-error-handling">learn.microsoft.com</a> - ASP.NET Error Handling</li>
+</ul>
+<h3>Standards</h3>
 <ul>
   <li>OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a></li>
-  <li>OWASP - <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
   Exposure</a></li>
   <li>OWASP - <a href="https://mas.owasp.org/checklists/MASVS-CODE/">Mobile AppSec Verification Standard - Code Quality and Build Setting
   Requirements</a></li>
@@ -69,8 +85,5 @@ will disclose unnecessarily verbose information to its users upon error.</p>
   Extraneous Functionality</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/489">CWE-489 - Active Debug Code</a></li>
   <li>CWE - <a href="https://cwe.mitre.org/data/definitions/215">CWE-215 - Information Exposure Through Debug Information</a></li>
-  <li><a href="https://developer.android.com/studio/publish/preparing">developer.android.com</a> - Prepare for release</li>
-  <li><a
-  href="https://learn.microsoft.com/en-us/aspnet/web-forms/overview/getting-started/getting-started-with-aspnet-45-web-forms/aspnet-error-handling">learn.microsoft.com</a> - ASP.NET Error Handling</li>
 </ul>
 
