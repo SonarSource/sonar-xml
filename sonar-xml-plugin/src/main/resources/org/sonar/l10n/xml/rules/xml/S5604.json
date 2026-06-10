@@ -1,13 +1,14 @@
 {
-  "title": "Requesting dangerous Android permissions is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Sensitive permissions should not be requested unnecessarily",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
     },
     "attribute": "COMPLETE"
   },
-  "status": "ready",
+  "status": "deprecated",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
@@ -15,7 +16,8 @@
   "tags": [
     "cwe",
     "android",
-    "privacy"
+    "privacy",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5604",
@@ -23,7 +25,8 @@
   "scope": "All",
   "securityStandards": {
     "CWE": [
-      250
+      250,
+      359
     ],
     "OWASP Mobile": [
       "M1"
