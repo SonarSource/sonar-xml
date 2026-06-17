@@ -65,18 +65,18 @@
     <!-- Minimum version of the plugin API in SQ -->
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
-    <sonar.analyzerCommons.version>2.20.0.4607</sonar.analyzerCommons.version>
-    <sonar.orchestrator.version>6.1.0.3962</sonar.orchestrator.version>
+    <sonar.analyzerCommons.version>2.24.0.4903</sonar.analyzerCommons.version>
+    <sonar.orchestrator.version>6.2.0.4392</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
-    <sonar.sonarlint-core.version>11.3.0.85510</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>11.4.0.85676</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>13.2.0.3137</sonar.pluginApi.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
-    <kotlin.version>2.2.0</kotlin.version>
+    <kotlin.version>2.4.0</kotlin.version>
     <!-- The product must work with the SLF4J provided in the Plugin API. -->
     <slf4j.prod.version>1.7.36</slf4j.prod.version>
     <!-- SonarLint Core, used in plugin ITs, requires new SLF4J. -->
-    <slf4j.test.version>2.0.17</slf4j.test.version>
+    <slf4j.test.version>2.0.18</slf4j.test.version>
     <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -164,7 +164,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.18.0</version>
+        <version>2.22.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -176,20 +176,20 @@
      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>6.0.3</version>
+        <version>6.1.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>5.15.2</version>
+        <version>5.23.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
-        <version>2.12.1</version>
+        <version>2.14.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
