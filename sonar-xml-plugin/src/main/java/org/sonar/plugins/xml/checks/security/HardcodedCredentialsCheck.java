@@ -167,7 +167,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .map(String::toLowerCase);
 
     boolean keyIsCredentialWord = keyValueLowerCase.map(credentialWordsSet()::contains).orElse(false);
-    return keyIsCredentialWord && attributes.getNamedItem(VALUE) != null;
+    Node valueNode = attributes.getNamedItem(VALUE);
+    return keyIsCredentialWord && valueNode != null && !isValidCredential(valueNode.getNodeValue());
   }
 
   private void checkSpecialCases(XmlFile file) {
