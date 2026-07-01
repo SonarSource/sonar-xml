@@ -1,13 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>SonarSource/renovate-config:languages-team",
+    "local>SonarSource/core-languages-tooling-public:renovate-config",
     ":timezone(CET)",
     ":semanticCommitsDisabled"
+  ],
+  "addLabels": [
+    "dependencies"
   ],
   "schedule": [
     "before 3am on Monday"
   ],
+  "rebaseWhen": "conflicted",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
   "enabledManagers": [
     "maven",
     "github-actions",
@@ -19,6 +24,20 @@
   ],
   "dependencyDashboard": true,
   "packageRules": [
+    {
+      "matchManagers": [
+        "regex"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+).(?<build>\\d+)?$"
+    },
+    {
+      "description": "Group Maven updates",
+      "matchManagers": [
+        "maven"
+      ],
+      "groupName": "Maven dependencies",
+      "groupSlug": "maven-dependencies"
+    },
     {
       "matchPackagePatterns": ["^org.sonarsource.xml:", "^org.sonarsource.sonarqube:"],
       "enabled": false
@@ -88,6 +107,16 @@
         "org.sonarsource.sonarlint.core.*"
       ],
       "groupName": "SL core"
+    }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "^snapshot-generation.sh$"
+      ],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\sexport .*?_VERSION=(?<currentValue>.*)\\s"
+      ]
     }
   ],
   "vulnerabilityAlerts": {
