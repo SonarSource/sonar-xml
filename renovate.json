@@ -1,18 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>SonarSource/core-languages-tooling-public:renovate-config",
-    ":timezone(CET)",
-    ":semanticCommitsDisabled"
+    "local>SonarSource/core-languages-tooling-public:sonar-xml"
   ],
-  "addLabels": [
-    "dependencies"
-  ],
-  "schedule": [
-    "before 3am on Monday"
-  ],
-  "rebaseWhen": "conflicted",
-  "minimumReleaseAgeBehaviour": "timestamp-required",
   "enabledManagers": [
     "maven",
     "github-actions",
@@ -22,24 +12,12 @@
     "its/sources/**",
     "sonar-xml-plugin/src/test/resources/**"
   ],
-  "dependencyDashboard": true,
   "packageRules": [
     {
-      "matchManagers": [
-        "regex"
+      "matchPackagePatterns": [
+        "^org.sonarsource.xml:",
+        "^org.sonarsource.sonarqube:"
       ],
-      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+).(?<build>\\d+)?$"
-    },
-    {
-      "description": "Group Maven updates",
-      "matchManagers": [
-        "maven"
-      ],
-      "groupName": "Maven dependencies",
-      "groupSlug": "maven-dependencies"
-    },
-    {
-      "matchPackagePatterns": ["^org.sonarsource.xml:", "^org.sonarsource.sonarqube:"],
       "enabled": false
     },
     {
@@ -50,7 +28,10 @@
         "SonarSource/*"
       ],
       "pinDigests": false,
-      "labels": ["dependencies", "github-actions"],
+      "labels": [
+        "dependencies",
+        "github-actions"
+      ],
       "groupName": "all Sonar GitHub Actions",
       "groupSlug": "all-sonar-github-actions"
     },
@@ -62,7 +43,10 @@
         "!SonarSource/*"
       ],
       "pinDigests": true,
-      "labels": ["dependencies", "github-actions"],
+      "labels": [
+        "dependencies",
+        "github-actions"
+      ],
       "groupName": "all third-party GitHub Actions",
       "groupSlug": "all-3rd-party-github-actions"
     },
@@ -70,19 +54,31 @@
       "matchManagers": [
         "maven"
       ],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "stabilityDays": 3,
       "automerge": false,
-      "labels": ["dependencies", "maven", "major-update"]
+      "labels": [
+        "dependencies",
+        "maven",
+        "major-update"
+      ]
     },
     {
       "matchManagers": [
         "maven"
       ],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "dependencyDashboardApproval": true,
       "automerge": false,
-      "labels": ["dependencies", "maven"],
+      "labels": [
+        "dependencies",
+        "maven"
+      ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
     },
@@ -108,24 +104,5 @@
       ],
       "groupName": "SL core"
     }
-  ],
-  "regexManagers": [
-    {
-      "fileMatch": [
-        "^snapshot-generation.sh$"
-      ],
-      "matchStrings": [
-        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\sexport .*?_VERSION=(?<currentValue>.*)\\s"
-      ]
-    }
-  ],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": [
-      "vulnerability-alert"
-    ]
-  },
-  "reviewers": [
-    "team:quality-jvm-squad"
   ]
 }
