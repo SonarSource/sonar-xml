@@ -66,9 +66,9 @@
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
     <sonar.analyzerCommons.version>2.24.0.4903</sonar.analyzerCommons.version>
-    <sonar.orchestrator.version>6.2.0.4392</sonar.orchestrator.version>
+    <sonar.orchestrator.version>6.3.0.4464</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
-    <sonar.sonarlint-core.version>11.4.0.85676</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>11.5.0.85871</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>13.2.0.3137</sonar.pluginApi.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
