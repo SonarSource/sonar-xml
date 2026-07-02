@@ -51,7 +51,6 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private static final XPathExpression WEB_CONFIG_APP_SETTINGS_ADD_PATH =
     XPathBuilder.forExpression("//appSettings/add").build();
 
-  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{");
   private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
@@ -153,7 +152,6 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static boolean isValidCredential(String candidate) {
     return candidate.trim().isEmpty()
-      || VALID_CREDENTIAL_VALUES.matcher(candidate).find()
       || SecretClassifier.isKnownNonSecret(candidate);
   }
 
