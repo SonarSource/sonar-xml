@@ -18,6 +18,11 @@
       <password>${value}</password>
       <password>#{value}</password>
       <password>{{value}}</password>
+      <!-- Compliant: values recognized as non-secrets by the shared SecretClassifier (SONARXML-374) -->
+      <password>changeme</password>
+      <password>example_secret</password>
+      <password>$(cat /run/secrets/db)</password>
+      <password>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/db-AbCdEf</password>
       <password><nonText /></password>
       <password encryption="SSH" />
       <password>
