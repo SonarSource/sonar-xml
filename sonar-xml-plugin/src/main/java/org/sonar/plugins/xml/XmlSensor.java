@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ public class XmlSensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(XmlSensor.class);
 
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, ParsingErrorCheck.RULE_KEY);
+
+  // Rules skipped on test files, where hard-coded credentials are typically placeholders.
+  private static final Set<String> RULES_SKIPPED_ON_TEST_FILES = Set.of("S2068");
 
   private final Checks<Object> checks;
   private final boolean parsingErrorCheckEnabled;
@@ -82,6 +86,9 @@ public class XmlSensor implements Sensor {
 
     boolean isSonarLintContext = context.runtime().getProduct() == SonarProduct.SONARLINT;
 
+    // No globs: XML has no filename test convention, so the generic test-directory fallback is used.
+    TestFileClassifier testFiles = TestFileClassifier.of(context.config());
+
     ProgressReport progressReport = new ProgressReport("Report about progress of XML Analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(inputFiles.stream().map(InputFile::toString).toList());
 
@@ -92,7 +99,7 @@ public class XmlSensor implements Sensor {
           cancelled = true;
           break;
         }
-        scanFile(context, inputFile, isSonarLintContext);
+        scanFile(context, inputFile, isSonarLintContext, testFiles.looksLikeTestFile(inputFile));
         progressReport.nextFile();
       }
     } finally {
@@ -104,14 +111,14 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void scanFile(SensorContext context, InputFile inputFile, boolean isSonarLintContext) {
+  private void scanFile(SensorContext context, InputFile inputFile, boolean isSonarLintContext, boolean isTestFile) {
     try {
       XmlFile xmlFile = XmlFile.create(inputFile);
       if (!isSonarLintContext) {
         LineCounter.analyse(context, fileLinesContextFactory, xmlFile);
         XmlHighlighting.highlight(context, xmlFile);
       }
-      runChecks(context, xmlFile);
+      runChecks(context, xmlFile, isTestFile);
     } catch (Exception e) {
       if (e instanceof ParseException && Xml.isConfigFile(inputFile)) {
         // it's not mandatory for a "*.config" file to have an XML format.
@@ -121,11 +128,17 @@ public class XmlSensor implements Sensor {
     }
   }
 
-  private void runChecks(SensorContext context, XmlFile newXmlFile) {
+  private void runChecks(SensorContext context, XmlFile newXmlFile, boolean isTestFile) {
     checks.all().stream()
       .map(SonarXmlCheck.class::cast)
-      // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
-      .forEach(check -> runCheck(context, check, checks.ruleKey(check), newXmlFile));
+      .forEach(check -> {
+        // checks.ruleKey(check) is never null because "check" is part of "checks.all()"
+        RuleKey ruleKey = checks.ruleKey(check);
+        if (isTestFile && RULES_SKIPPED_ON_TEST_FILES.contains(ruleKey.rule())) {
+          return;
+        }
+        runCheck(context, check, ruleKey, newXmlFile);
+      });
   }
 
   // Visible for testing
