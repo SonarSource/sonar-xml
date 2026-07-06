@@ -65,7 +65,7 @@
     <!-- Minimum version of the plugin API in SQ -->
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
-    <sonar.analyzerCommons.version>2.26.0.4969</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.27.0-SNAPSHOT</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.3.0.4464</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>11.5.0.85871</sonar.sonarlint-core.version>

@@ -42,6 +42,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 import org.sonar.plugins.xml.checks.ParsingErrorCheck;
 import org.sonarsource.analyzer.commons.ProgressReport;
+import org.sonarsource.analyzer.commons.appsec.TestFileClassifier;
 import org.sonarsource.analyzer.commons.xml.ParseException;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
