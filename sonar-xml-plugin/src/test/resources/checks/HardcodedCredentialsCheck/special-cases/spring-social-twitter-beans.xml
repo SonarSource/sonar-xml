@@ -8,7 +8,7 @@
           <list>
               <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
                   <constructor-arg value="blablala-user" />
-                  <constructor-arg value="blablala-password" /> <!-- Noncompliant -->
+                  <constructor-arg value="blablala-Xk29Vz73" /> <!-- Noncompliant -->
              <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
               </bean>
               <bean class="org.springframework.social.twitter.connect.TwitterConnectionFactory">
