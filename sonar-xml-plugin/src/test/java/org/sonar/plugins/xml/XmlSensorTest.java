@@ -87,6 +87,7 @@ class XmlSensorTest {
   private static final String PARSING_ERROR_CHECK_KEY = "S2260";
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
+  private static final RuleKey HARDCODED_CREDENTIALS_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "S2068");
   public static final SonarRuntime SQ_LTS_RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
 
   @Test
@@ -342,8 +343,48 @@ class XmlSensorTest {
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
+  @Test
+  void s2068_is_suppressed_when_file_is_in_test_directory() throws Exception {
+    initWithS2068();
+    fs.add(createInputFile("test/hardcoded.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void s2068_is_raised_when_sonar_tests_is_configured() throws Exception {
+    initWithS2068();
+    context.settings().setProperty("sonar.tests", "test");
+    fs.add(createInputFile("test/hardcoded.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(HARDCODED_CREDENTIALS_RULE_KEY);
+  }
+
   private void init() throws Exception {
     init(SQ_LTS_RUNTIME, false);
+  }
+
+  private void initWithS2068() throws Exception {
+    File moduleBaseDir = new File("src/test/resources");
+    context = SensorContextTester.create(moduleBaseDir);
+
+    fs = new DefaultFileSystem(moduleBaseDir);
+    Path folder = Files.createTempDirectory(temporaryFolder, "");
+    fs.setWorkDir(folder);
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder().setRuleKey(HARDCODED_CREDENTIALS_RULE_KEY).build())
+      .build();
+    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+
+    sensor = new XmlSensor(SQ_LTS_RUNTIME, fs, checkFactory, fileLinesContextFactory);
   }
 
   private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck) throws Exception {
