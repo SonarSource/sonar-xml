@@ -17,36 +17,6 @@
     },
     {
       "matchManagers": [
-        "github-actions"
-      ],
-      "matchPackageNames": [
-        "SonarSource/*"
-      ],
-      "pinDigests": false,
-      "labels": [
-        "dependencies",
-        "github-actions"
-      ],
-      "groupName": "all Sonar GitHub Actions",
-      "groupSlug": "all-sonar-github-actions"
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchPackageNames": [
-        "!SonarSource/*"
-      ],
-      "pinDigests": true,
-      "labels": [
-        "dependencies",
-        "github-actions"
-      ],
-      "groupName": "all third-party GitHub Actions",
-      "groupSlug": "all-3rd-party-github-actions"
-    },
-    {
-      "matchManagers": [
         "maven"
       ],
       "matchUpdateTypes": [
