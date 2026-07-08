@@ -1,12 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>SonarSource/core-languages-tooling-public:renovate-config"
-  ],
-  "enabledManagers": [
-    "maven",
-    "github-actions",
-    "regex"
+    "github>SonarSource/renovate-config:quality-corelang-squad"
   ],
   "ignorePaths": [
     "its/sources/**",
@@ -22,62 +17,11 @@
     },
     {
       "matchManagers": [
-        "github-actions"
-      ],
-      "matchPackageNames": [
-        "SonarSource/*"
-      ],
-      "pinDigests": false,
-      "labels": [
-        "dependencies",
-        "github-actions"
-      ],
-      "groupName": "all Sonar GitHub Actions",
-      "groupSlug": "all-sonar-github-actions"
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchPackageNames": [
-        "!SonarSource/*"
-      ],
-      "pinDigests": true,
-      "labels": [
-        "dependencies",
-        "github-actions"
-      ],
-      "groupName": "all third-party GitHub Actions",
-      "groupSlug": "all-3rd-party-github-actions"
-    },
-    {
-      "matchManagers": [
-        "maven"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "stabilityDays": 3,
-      "automerge": false,
-      "labels": [
-        "dependencies",
-        "maven",
-        "major-update"
-      ]
-    },
-    {
-      "matchManagers": [
         "maven"
       ],
       "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "dependencyDashboardApproval": true,
-      "automerge": false,
-      "labels": [
-        "dependencies",
-        "maven"
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
