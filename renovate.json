@@ -20,29 +20,8 @@
         "maven"
       ],
       "matchUpdateTypes": [
-        "major"
-      ],
-      "stabilityDays": 3,
-      "automerge": false,
-      "labels": [
-        "dependencies",
-        "maven",
-        "major-update"
-      ]
-    },
-    {
-      "matchManagers": [
-        "maven"
-      ],
-      "matchUpdateTypes": [
         "minor",
         "patch"
-      ],
-      "dependencyDashboardApproval": true,
-      "automerge": false,
-      "labels": [
-        "dependencies",
-        "maven"
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
