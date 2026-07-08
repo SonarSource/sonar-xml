@@ -3,11 +3,6 @@
   "extends": [
     "local>SonarSource/core-languages-tooling-public:renovate-config"
   ],
-  "enabledManagers": [
-    "maven",
-    "github-actions",
-    "regex"
-  ],
   "ignorePaths": [
     "its/sources/**",
     "sonar-xml-plugin/src/test/resources/**"
