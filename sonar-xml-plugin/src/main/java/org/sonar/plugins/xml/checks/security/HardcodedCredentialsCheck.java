@@ -71,6 +71,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (cleanedCredentialWords == null) {
       cleanedCredentialWords = Stream.of(credentialWords.split(","))
         .map(String::trim)
+        .filter(word -> !word.isEmpty())
         .map(word -> word.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
     }
@@ -105,7 +106,12 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private void checkNode(Node node) {
     NodeList childNodes = node.getChildNodes();
     if (childNodes.getLength() == 0) {
-      checkAttributes(node, VALUE_ATTRIBUTE, false);
+      if (node.hasAttributes()) {
+        Node valueAttr = node.getAttributes().getNamedItem(VALUE);
+        if (valueAttr != null) {
+          checkCredential(node, valueAttr.getTextContent());
+        }
+      }
       return;
     }
     if (childNodes.getLength() != 1) {
@@ -137,7 +143,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (localName == null) {
       return false;
     }
-    return credentialWords.contains(localName.toLowerCase(Locale.ROOT)) &&
+    String lowerName = localName.toLowerCase(Locale.ROOT);
+    return credentialWords.stream().anyMatch(lowerName::contains) &&
       !"android:password".equalsIgnoreCase(node.getNodeName());
   }
 
@@ -167,7 +174,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .map(Node::getNodeValue)
         .map(String::toLowerCase);
 
-    boolean keyIsCredentialWord = keyValueLowerCase.map(credentialWordsSet()::contains).orElse(false);
+    boolean keyIsCredentialWord = keyValueLowerCase.map(key -> credentialWordsSet().stream().anyMatch(key::contains)).orElse(false);
     Node valueNode = attributes.getNamedItem(VALUE);
     return keyIsCredentialWord && valueNode != null && !isValidCredential(valueNode.getNodeValue());
   }
@@ -185,13 +192,6 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     new SpecialCase(
       "/FileZilla3/Servers/Server/Pass"
         + "|/FileZilla3/RecentServers/Server/Pass",
-      HardcodedCredentialsCheck::getTextValueSafe,
-      false),
-    // Jenkins
-    new SpecialCase(
-      "/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/secretPassword"
-        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/commonConfig/secretPassphrase"
-        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/keyInfo/secretPassphrase",
       HardcodedCredentialsCheck::getTextValueSafe,
       false),
     // SonarQube

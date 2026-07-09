@@ -43,6 +43,13 @@ class HardcodedCredentialsCheckTest {
     SonarXmlCheckVerifier.verifyIssues("customized.xml", check);
   }
 
+  @Test
+  void empty_credential_word_tokens_are_ignored() {
+    HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
+    check.credentialWords = "password,,pwd";
+    SonarXmlCheckVerifier.verifyNoIssue("empty_credential_word.xml", check);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "dbeaver-data-sources.xml",

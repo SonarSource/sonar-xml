@@ -9,6 +9,10 @@
         <!-- ^^^^^^^^^^^^^^^ -->
       <x:PASSWORD value="Kd83Vm719" /> <!-- Noncompliant {{"PASSWORD" detected here, make sure this is not a hard-coded credential.}} -->
  <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <dbPassword>Kd83Vm719</dbPassword> <!-- Noncompliant {{"dbPassword" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <myTag dbPassword="Kd83Vm719"> </myTag> <!-- Noncompliant {{"dbPassword" detected here, make sure this is not a hard-coded credential.}} -->
+        <!-- ^^^^^^^^^^^^^^^^^^^^^^ -->
     </noncompliant>
 
     <compliant>
@@ -25,6 +29,8 @@
       <password>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/db-AbCdEf</password>
       <password><nonText /></password>
       <password encryption="SSH" />
+      <!-- Compliant: 'defaultvalue' contains 'value' as substring but should not be matched as credential attribute -->
+      <password defaultvalue="Kd83Vm719" />
       <password>
         <child1></child1>
         <child2></child2>
