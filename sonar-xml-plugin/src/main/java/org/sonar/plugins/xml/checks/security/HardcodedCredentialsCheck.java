@@ -17,7 +17,6 @@
 package org.sonar.plugins.xml.checks.security;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
