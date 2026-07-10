@@ -17,7 +17,6 @@
 package org.sonar.plugins.xml.checks.security;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -43,7 +42,6 @@ import org.w3c.dom.NodeList;
 public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static final String VALUE = "value";
-  private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
 
   private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
     .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
