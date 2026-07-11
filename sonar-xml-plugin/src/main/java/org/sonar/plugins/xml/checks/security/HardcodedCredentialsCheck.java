@@ -41,8 +41,6 @@ import org.w3c.dom.NodeList;
 @Rule(key = "S2068")
 public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
-  private static final String VALUE = "value";
-
   private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
     .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
 
@@ -104,12 +102,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private void checkNode(Node node) {
     NodeList childNodes = node.getChildNodes();
     if (childNodes.getLength() == 0) {
-      if (node.hasAttributes()) {
-        Node valueAttr = node.getAttributes().getNamedItem(VALUE);
-        if (valueAttr != null) {
-          checkCredential(node, valueAttr.getTextContent());
-        }
-      }
+      getValueAttributeSafe(node).ifPresent(valueAttr -> checkCredential(node, valueAttr.getTextContent()));
       return;
     }
     if (childNodes.getLength() != 1) {
@@ -173,7 +166,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         .map(String::toLowerCase);
 
     boolean keyIsCredentialWord = keyValueLowerCase.map(key -> credentialWordsSet().stream().anyMatch(key::contains)).orElse(false);
-    Node valueNode = attributes.getNamedItem(VALUE);
+    Node valueNode = attributes.getNamedItem("value");
     return keyIsCredentialWord && valueNode != null && !isValidCredential(valueNode.getNodeValue());
   }
 
@@ -207,7 +200,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + " or @class='org.springframework.social.linkedin.connect.LinkedinConnectionFactory'"
         + " or @class='org.springframework.social.twitter.connect.TwitterConnectionFactory'"
         + "]/constructor-arg[2]",
-      node -> getAttributeSafe(node, VALUE),
+      HardcodedCredentialsCheck::getValueAttributeSafe,
       false),
     new SpecialCase(
       XPathBuilder.forExpression("/b:beans/f:config"
@@ -232,7 +225,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
         + "or @name='access-key'"
         + "or @name='access-secret'"
         + "]",
-      node -> getAttributeSafe(node, VALUE),
+      HardcodedCredentialsCheck::getValueAttributeSafe,
       false));
 
   private static Optional<Node> getTextValueSafe(Node node) {
@@ -241,6 +234,10 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static Optional<Node> getAttributeSafe(Node node, String attributeName) {
     return node.hasAttributes() ? Optional.ofNullable(node.getAttributes().getNamedItem(attributeName)) : Optional.empty();
+  }
+
+  private static Optional<Node> getValueAttributeSafe(Node node) {
+    return getAttributeSafe(node, "value");
   }
 
   private class SpecialCase implements Consumer<XmlFile> {
