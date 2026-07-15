@@ -6,47 +6,5 @@
   "ignorePaths": [
     "its/sources/**",
     "sonar-xml-plugin/src/test/resources/**"
-  ],
-  "packageRules": [
-    {
-      "matchPackagePatterns": [
-        "^org.sonarsource.xml:",
-        "^org.sonarsource.sonarqube:"
-      ],
-      "enabled": false
-    },
-    {
-      "matchManagers": [
-        "maven"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
-    },
-    {
-      "matchPackageNames": [
-        "org.sonarsource.sonarqube.*",
-        "org.sonarsource.api.plugin:sonar-plugin-api*"
-      ],
-      "groupName": "sonarqube",
-      "groupSlug": "sq",
-      "prHeader": "**Before updating the plugin-api version, make sure to check the [compatibility matrix](https://github.com/SonarSource/sonar-plugin-api?tab=readme-ov-file#compatibility) and stick to the lowest denominator.**"
-    },
-    {
-      "matchPackageNames": [
-        "org.sonarsource.parent:parent",
-        "com.sonarsource.parent:parent"
-      ],
-      "groupName": "parent"
-    },
-    {
-      "matchPackageNames": [
-        "org.sonarsource.sonarlint.core.*"
-      ],
-      "groupName": "SL core"
-    }
   ]
 }
