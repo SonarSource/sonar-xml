@@ -70,6 +70,7 @@
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>11.6.0.85952</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>13.8.0.4399</sonar.pluginApi.version>
+    <sonar.scanner.version>13.4.0.3968</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.4.0</kotlin.version>
@@ -133,9 +134,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api-impl</artifactId>
-        <version>${sonar.version}</version>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>sensor-test-fixtures</artifactId>
+        <version>${sonar.scanner.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
