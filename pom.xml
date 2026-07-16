@@ -59,7 +59,7 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <jdk.min.version>17</jdk.min.version>
-    <sonar.version>25.10.0.114319</sonar.version>
+    <sonar.version>26.7.0.124771</sonar.version>
     <!-- Required by shadow scans -->
     <sonar.organization>sonarsource</sonar.organization>
     <!-- Minimum version of the plugin API in SQ -->
@@ -75,7 +75,7 @@
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.4.10</kotlin.version>
     <!-- The product must work with the SLF4J provided in the Plugin API. -->
-    <slf4j.prod.version>1.7.36</slf4j.prod.version>
+    <slf4j.prod.version>2.0.18</slf4j.prod.version>
     <!-- SonarLint Core, used in plugin ITs, requires new SLF4J. -->
     <slf4j.test.version>2.0.18</slf4j.test.version>
     <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
