@@ -10,7 +10,6 @@
   </parent>
 
   <artifactId>it-xml-plugin</artifactId>
-
   <name>SonarSource XML Analyzer :: IT Plugin</name>
   <inceptionYear>2013</inceptionYear>
 

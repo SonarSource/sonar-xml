@@ -41,11 +41,12 @@ import static java.util.Collections.singletonList;
   RequiredForLanguagesTest.class,
   ByteOrderMarkTest.class,
   XmlTest.class,
-  SonarLintIntegrationTest.class})
+  SonarLintIntegrationTest.class,
+  ProfileRegistrarTest.class})
 public class XmlTestSuite {
 
-  private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  protected static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
+  protected static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
 
   @RegisterExtension
   static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
