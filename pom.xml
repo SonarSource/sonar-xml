@@ -232,6 +232,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>alphabetical</runOrder>
+          <systemPropertyVariables>
+            <projectVersion>${project.version}</projectVersion>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>

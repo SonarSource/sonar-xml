@@ -16,15 +16,33 @@
  */
 package org.sonar.plugins.xml;
 
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.plugins.xml.api.XmlProfileRegistrar;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class XmlSonarWayProfile implements BuiltInQualityProfilesDefinition {
+
+  private final List<RuleKey> additionalRules = new ArrayList<>();
+
+  public XmlSonarWayProfile() {
+    this(new XmlProfileRegistrar[] {});
+  }
+
+  public XmlSonarWayProfile(XmlProfileRegistrar[] xmlProfileRegistrars) {
+    for (XmlProfileRegistrar xmlProfileRegistrar : xmlProfileRegistrars) {
+      xmlProfileRegistrar.register(additionalRules::addAll);
+    }
+  }
 
   @Override
   public void define(Context context) {
     NewBuiltInQualityProfile sonarWay = context.createBuiltInQualityProfile(Xml.SONAR_WAY_PROFILE_NAME, Xml.KEY);
     BuiltInQualityProfileJsonLoader.load(sonarWay, Xml.REPOSITORY_KEY, Xml.SONAR_WAY_PATH);
+    additionalRules.forEach(ruleKey -> sonarWay.activateRule(ruleKey.repository(), ruleKey.rule()));
     sonarWay.done();
   }
 
