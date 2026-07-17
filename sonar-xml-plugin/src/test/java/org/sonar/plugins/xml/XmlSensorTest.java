@@ -381,8 +381,7 @@ class XmlSensorTest {
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);
 
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
 
     sensor = new XmlSensor(SQ_LTS_RUNTIME, fs, checkFactory, fileLinesContextFactory);
   }
@@ -405,8 +404,7 @@ class XmlSensorTest {
 
     CheckFactory checkFactory = new CheckFactory(activeRuleBuilder.build());
 
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
 
     sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory);
   }
@@ -435,13 +433,19 @@ class XmlSensorTest {
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);
 
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
     sensor = new XmlSensor(SQ_LTS_RUNTIME, fileSystem, checkFactory, fileLinesContextFactory);
     sensor.execute(context);
 
     String componentKey = "modulekey:" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(2);
+  }
+
+  private static FileLinesContextFactory mockFileLinesContextFactory() {
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+    return fileLinesContextFactory;
   }
 
   private void assertLog(String expected, boolean isRegexp) {
