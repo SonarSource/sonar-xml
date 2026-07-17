@@ -16,16 +16,16 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 
@@ -58,7 +58,7 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 6)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
@@ -92,7 +92,7 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test_security_standards() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 6)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
@@ -104,7 +104,7 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test_security_standards_before_sq_9_3() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 2)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 2)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");

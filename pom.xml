@@ -65,7 +65,7 @@
     <!-- Minimum version of the plugin API in SQ -->
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
-    <sonar.analyzerCommons.version>2.27.0.5007</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.28.0.5070</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.3.0.4464</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>11.6.0.85952</sonar.sonarlint-core.version>
@@ -131,6 +131,12 @@
         <groupId>org.sonarsource.sonarlint.core</groupId>
         <artifactId>sonarlint-core</artifactId>
         <version>${sonar.sonarlint-core.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>plugin-api-scanner-impl</artifactId>
+        <version>${sonar.scanner.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

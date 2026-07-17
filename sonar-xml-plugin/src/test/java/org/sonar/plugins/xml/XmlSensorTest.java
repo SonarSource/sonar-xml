@@ -16,6 +16,9 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,23 +41,13 @@ import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.fs.internal.Metadata;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -62,6 +55,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.TabCharacterCheck;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.fs.FileMetadata;
+import org.sonar.scanner.plugin.api.impl.fs.Metadata;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
@@ -88,7 +88,7 @@ class XmlSensorTest {
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
   private static final RuleKey HARDCODED_CREDENTIALS_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "S2068");
-  public static final SonarRuntime SQ_LTS_RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
+  public static final SonarRuntime SQ_LTS_RUNTIME = TestSonarRuntime.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
 
   @Test
   @Timeout(value = 12000, unit = TimeUnit.MILLISECONDS)
@@ -148,7 +148,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarlint() throws Exception {
-    init(SonarRuntimeImpl.forSonarLint(Version.create(6, 5)), false);
+    init(TestSonarRuntime.forSonarLint(Version.create(6, 5)), false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
@@ -157,7 +157,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_3() throws Exception {
-    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    init(TestSonarRuntime.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
     final boolean[] called = {false};
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
@@ -174,7 +174,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
-    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    init(TestSonarRuntime.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
       public SensorDescriptor processesFilesIndependently() {
@@ -235,7 +235,7 @@ class XmlSensorTest {
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 1)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(4, 1)));
     sensor.execute(context);
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);

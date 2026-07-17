@@ -17,7 +17,7 @@
 package org.sonar.plugins.xml.checks.security.android;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class AndroidClearTextCheckTest {
