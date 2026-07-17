@@ -17,6 +17,8 @@
 package org.sonar.plugins.xml;
 
 import com.google.gson.Gson;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +26,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonarsource.analyzer.commons.xml.ParseException;
 import org.sonarsource.analyzer.commons.xml.XmlFile;

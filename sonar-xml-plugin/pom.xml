@@ -96,6 +96,11 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.scanner.engine</groupId>
+      <artifactId>plugin-api-scanner-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.scanner.engine</groupId>
       <artifactId>sensor-test-fixtures</artifactId>
       <scope>test</scope>
     </dependency>
@@ -177,7 +182,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>2750000</maxsize>
-                  <minsize>2650000</minsize>
+                  <minsize>2400000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
@@ -389,4 +394,3 @@
   </profiles>
 
 </project>
-

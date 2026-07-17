@@ -16,6 +16,9 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestFileSystem;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.BufferedWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -26,11 +29,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -41,7 +42,7 @@ class XmlHighlightingTest {
   @TempDir
   public Path tmpFolder;
 
-  private DefaultFileSystem fileSystem;
+  private TestFileSystem fileSystem;
   private SensorContextTester context;
   private XmlFile xmlFile;
 
@@ -326,9 +327,8 @@ class XmlHighlightingTest {
     Path moduleBaseDir = Files.createTempDirectory(tmpFolder, "");
     context = SensorContextTester.create(moduleBaseDir);
 
-    fileSystem = new DefaultFileSystem(moduleBaseDir);
-    fileSystem.setEncoding(fileSystemCharset);
-    context.setFileSystem(fileSystem);
+    context.setFileSystem(new DefaultFileSystem(moduleBaseDir));
+    fileSystem = context.fileSystem().setEncoding(fileSystemCharset);
 
     String filename = "utf16.xml";
     Path file = moduleBaseDir.resolve(filename);
