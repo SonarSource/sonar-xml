@@ -77,7 +77,7 @@ public class CommentedOutCodeCheck extends SimpleXPathBasedCheck {
   private List<Node> getComments(XmlFile file) {
     return evaluateAsList(commentsExpression, file.getDocument()).stream()
       .filter(comment -> comment.getTextContent().trim().startsWith("<"))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<Node> getNextCommentSiblings(Node comment) {
