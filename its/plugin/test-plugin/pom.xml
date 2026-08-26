@@ -42,6 +42,7 @@
            <skipDependenciesPackaging>true</skipDependenciesPackaging>
            <sonarLintSupported>true</sonarLintSupported>
            <pluginApiMinVersion>${sonar.pluginApi.minVersion}</pluginApiMinVersion>
+           <jreMinVersion>${jdk.min.version}</jreMinVersion>
            <requiredForLanguages>xml</requiredForLanguages>
          </configuration>
         </plugin>
