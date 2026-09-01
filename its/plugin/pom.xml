@@ -76,13 +76,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <!-- Fixes "Defaulting to no-operation (NOP) logger", which results in missing logs from the orchestrator. -->
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <version>4.3.0</version>
