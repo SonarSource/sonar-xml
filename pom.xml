@@ -76,7 +76,6 @@
     <kotlin.version>2.4.10</kotlin.version>
     <!-- The product must work with the SLF4J provided in the Plugin API. -->
     <slf4j.version>2.0.18</slf4j.version>
-    <logback.version>1.6.3</logback.version>
     <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
     <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -108,16 +107,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
