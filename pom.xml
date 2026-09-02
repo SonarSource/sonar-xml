@@ -59,7 +59,7 @@
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
     <jdk.min.version>21</jdk.min.version>
-    <sonar.version>26.8.0.126808</sonar.version>
+    <sonar.version>26.9.0.129388</sonar.version>
     <!-- Required by shadow scans -->
     <sonar.organization>sonarsource</sonar.organization>
     <!-- Minimum version of the plugin API in SQ -->
