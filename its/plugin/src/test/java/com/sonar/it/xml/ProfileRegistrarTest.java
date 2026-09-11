@@ -41,6 +41,7 @@ class ProfileRegistrarTest {
   static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setEdition(Edition.ENTERPRISE_LW)
+    .activateLicense()
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar"))
     .addPlugin(getTestPlugin())
