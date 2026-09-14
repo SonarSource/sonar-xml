@@ -64,36 +64,38 @@ class ProfileRegistrarTest {
   void testPluginRegistersRuleInDefaultXmlProfile() {
     var wsClient = newWsClient();
 
-    // First, query the quality profiles to find the profile key for Xml's "Sonar way core" profile
+    // First, query the quality profiles to find the profile key(s) for Xml's "Sonar way" profile(s)
     var profileSearchRequest = new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
       .setLanguage("xml");
 
     var profileResponse = wsClient.qualityprofiles().search(profileSearchRequest);
 
-    var xmlProfile = profileResponse.getProfilesList().stream()
-      .filter(profile -> "Sonar way core".equals(profile.getName()) && profile.getIsBuiltIn())
-      .findFirst()
-      .orElseThrow(() -> new AssertionError("Built-in 'Sonar way core' profile not found for xml language"));
+    // Query the quality profiles to find the built-in xml "Sonar way" profile
+    // (recent SonarQube versions may split it into tiers, e.g. "Sonar way core")
+    var xmlProfiles = profileResponse.getProfilesList().stream()
+      .filter(profile -> profile.getIsBuiltIn() && profile.getName().startsWith("Sonar way"))
+      .toList();
 
-    var profileKey = xmlProfile.getKey();
+    assertThat(xmlProfiles)
+      .as("At least one built-in 'Sonar way' profile should exist for xml language")
+      .isNotEmpty();
 
-    // Query the active rules in the built-in "Sonar way core" profile for xml language using the profile key
-    var rulesSearchRequest = new org.sonarqube.ws.client.rules.SearchRequest()
-      .setLanguages(List.of("xml"))
-      .setQprofile(profileKey)
-      .setActivation("true");
-
-    var rulesResponse = wsClient.rules().search(rulesSearchRequest);
-
-    // Verify that the profile contains the TEST001 rule from xml-test repository
+    // Verify that the TEST001 rule from xml-test repository is active in at least one of the profiles
     // This rule is registered by the TestProfileRegistrar in the test-plugin
-    var testRules = rulesResponse.getRulesList().stream()
+    var testRules = xmlProfiles.stream()
+      .flatMap(profile -> {
+        var rulesSearchRequest = new org.sonarqube.ws.client.rules.SearchRequest()
+          .setLanguages(List.of("xml"))
+          .setQprofile(profile.getKey())
+          .setActivation("true");
+        return wsClient.rules().search(rulesSearchRequest).getRulesList().stream();
+      })
       .filter(rule -> "xml-test:TEST001".equals(rule.getKey()))
       .toList();
 
     assertThat(testRules)
       .as("Rule xml-test:TEST001 should be registered in the default xml profile by TestProfileRegistrar")
-      .hasSize(1);
+      .isNotEmpty();
 
     var testRule = testRules.get(0);
     assertThat(testRule.getKey()).isEqualTo("xml-test:TEST001");
