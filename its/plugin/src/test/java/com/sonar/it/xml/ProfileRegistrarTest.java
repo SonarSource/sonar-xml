@@ -64,20 +64,20 @@ class ProfileRegistrarTest {
   void testPluginRegistersRuleInDefaultXmlProfile() {
     var wsClient = newWsClient();
 
-    // First, query the quality profiles to find the profile key for Xml's "Sonar way" profile
+    // First, query the quality profiles to find the profile key for Xml's "Sonar way core" profile
     var profileSearchRequest = new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
       .setLanguage("xml");
 
     var profileResponse = wsClient.qualityprofiles().search(profileSearchRequest);
 
     var xmlProfile = profileResponse.getProfilesList().stream()
-      .filter(profile -> "Sonar way".equals(profile.getName()) && profile.getIsBuiltIn())
+      .filter(profile -> "Sonar way core".equals(profile.getName()) && profile.getIsBuiltIn())
       .findFirst()
-      .orElseThrow(() -> new AssertionError("Built-in 'Sonar way' profile not found for xml language"));
+      .orElseThrow(() -> new AssertionError("Built-in 'Sonar way core' profile not found for xml language"));
 
     var profileKey = xmlProfile.getKey();
 
-    // Query the active rules in the built-in "Sonar way" profile for xml language using the profile key
+    // Query the active rules in the built-in "Sonar way core" profile for xml language using the profile key
     var rulesSearchRequest = new org.sonarqube.ws.client.rules.SearchRequest()
       .setLanguages(List.of("xml"))
       .setQprofile(profileKey)
