@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,11 +28,12 @@ import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S6361")
 public class AndroidProviderPermissionCheck extends AbstractAndroidManifestCheck {
 
   private static final String MESSAGE = "Make sure using a single permission for read and write is safe here.";
-  private static final String ANDROID_NS = "http://schemas.android.com/apk/res/android";
   private final XPathExpression xPathExpression = XPathBuilder
     .forExpression("/manifest/application/provider" +
       "[" +
@@ -44,7 +45,7 @@ public class AndroidProviderPermissionCheck extends AbstractAndroidManifestCheck
       "or" +
       " (@n:readPermission and @n:writePermission and @n:readPermission = @n:writePermission)" +
       "]")
-    .withNamespace("n", ANDROID_NS)
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override
@@ -55,7 +56,7 @@ public class AndroidProviderPermissionCheck extends AbstractAndroidManifestCheck
         // readPermission and writePermission have priority over permission
         // order matters to handle the case where the 3 are defined and readPermission and writePermission are equal
         final List<Node> nodes = Stream.of("readPermission", "writePermission", "permission")
-          .map(s -> attributes.getNamedItemNS(ANDROID_NS, s))
+          .map(s -> attributes.getNamedItemNS(ANDROID_MANIFEST_XMLNS, s))
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
         reportIssue(

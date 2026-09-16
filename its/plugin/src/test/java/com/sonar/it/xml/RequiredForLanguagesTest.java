@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2013-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequiredForLanguagesTest {
 
-  private static final Locators ORCHESTRATOR_LOCATORS = Configuration.createEnv().locators();
+  private static final Locators ORCHESTRATOR_LOCATORS = new Locators(Configuration.createEnv());
   private static final Location PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../sonar-xml-plugin/target"), "sonar-xml-plugin-*.jar");
 

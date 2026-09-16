@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -77,7 +77,7 @@ public class CommentedOutCodeCheck extends SimpleXPathBasedCheck {
   private List<Node> getComments(XmlFile file) {
     return evaluateAsList(commentsExpression, file.getDocument()).stream()
       .filter(comment -> comment.getTextContent().trim().startsWith("<"))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<Node> getNextCommentSiblings(Node comment) {

@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,7 +17,6 @@
 package org.sonar.plugins.xml.checks.security;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import javax.xml.xpath.XPathExpression;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.xml.Xml;
+import org.sonarsource.analyzer.commons.appsec.SecretClassifier;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
@@ -42,12 +42,13 @@ import org.w3c.dom.NodeList;
 public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static final String VALUE = "value";
-  private static final Set<String> VALUE_ATTRIBUTE = Collections.singleton(VALUE);
 
   private static final XPathExpression WEB_CONFIG_CREDENTIALS_PATH = XPathBuilder
     .forExpression("/configuration/system.web/authentication[@mode=\"Forms\"]/forms/credentials[@passwordFormat=\"Clear\"]/user/@password[string-length(.) > 0]").build();
 
-  private static final Pattern VALID_CREDENTIAL_VALUES = Pattern.compile("[\\{$#]\\{");
+  private static final XPathExpression WEB_CONFIG_APP_SETTINGS_ADD_PATH =
+    XPathBuilder.forExpression("//appSettings/add").build();
+
   private static final Pattern VALID_WEB_CONFIG_CREDENTIAL_VALUES = Pattern.compile("^__.*__$");
 
   private static final String DEFAULT_CREDENTIAL_WORDS = "password,passwd,pwd,passphrase";
@@ -68,6 +69,7 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (cleanedCredentialWords == null) {
       cleanedCredentialWords = Stream.of(credentialWords.split(","))
         .map(String::trim)
+        .filter(word -> !word.isEmpty())
         .map(word -> word.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
     }
@@ -80,6 +82,9 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
       evaluateAsList(WEB_CONFIG_CREDENTIALS_PATH, file.getDocument()).stream()
         .filter(passwordAttrNode -> !isValidWebConfigCredential(passwordAttrNode.getNodeValue()))
         .forEach(this::reportIssue);
+      evaluateAsList(WEB_CONFIG_APP_SETTINGS_ADD_PATH, file.getDocument()).stream()
+        .filter(this::isAddWithPassword)
+        .forEach(node -> reportIssue(node, "Review the hard-coded credential, which may be sensitive."));
     } else {
       checkElements(file.getDocument());
       checkSpecialCases(file);
@@ -99,7 +104,12 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   private void checkNode(Node node) {
     NodeList childNodes = node.getChildNodes();
     if (childNodes.getLength() == 0) {
-      checkAttributes(node, VALUE_ATTRIBUTE, false);
+      if (node.hasAttributes()) {
+        Node valueAttr = node.getAttributes().getNamedItem(VALUE);
+        if (valueAttr != null) {
+          checkCredential(node, valueAttr.getTextContent());
+        }
+      }
       return;
     }
     if (childNodes.getLength() != 1) {
@@ -131,7 +141,8 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     if (localName == null) {
       return false;
     }
-    return credentialWords.contains(localName.toLowerCase(Locale.ROOT)) &&
+    String lowerName = localName.toLowerCase(Locale.ROOT);
+    return credentialWords.stream().anyMatch(lowerName::contains) &&
       !"android:password".equalsIgnoreCase(node.getNodeName());
   }
 
@@ -145,11 +156,25 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
   }
 
   private static boolean isValidCredential(String candidate) {
-    return candidate.trim().isEmpty() || VALID_CREDENTIAL_VALUES.matcher(candidate).find();
+    return candidate.trim().isEmpty()
+      || SecretClassifier.isKnownNonSecret(candidate);
   }
 
   private static boolean isValidWebConfigCredential(String candidate) {
     return isValidCredential(candidate) || VALID_WEB_CONFIG_CREDENTIAL_VALUES.matcher(candidate).matches();
+  }
+
+  /** Detects nodes with 'key="password"' and 'value' attributes. */
+  private boolean isAddWithPassword(Node node) {
+    NamedNodeMap attributes = node.getAttributes();
+    Optional<String> keyValueLowerCase =
+      Optional.ofNullable(attributes.getNamedItem("key"))
+        .map(Node::getNodeValue)
+        .map(String::toLowerCase);
+
+    boolean keyIsCredentialWord = keyValueLowerCase.map(key -> credentialWordsSet().stream().anyMatch(key::contains)).orElse(false);
+    Node valueNode = attributes.getNamedItem(VALUE);
+    return keyIsCredentialWord && valueNode != null && !isValidCredential(valueNode.getNodeValue());
   }
 
   private void checkSpecialCases(XmlFile file) {
@@ -165,13 +190,6 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
     new SpecialCase(
       "/FileZilla3/Servers/Server/Pass"
         + "|/FileZilla3/RecentServers/Server/Pass",
-      HardcodedCredentialsCheck::getTextValueSafe,
-      false),
-    // Jenkins
-    new SpecialCase(
-      "/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/secretPassword"
-        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/commonConfig/secretPassphrase"
-        + "|/jenkins.plugins.publish_over_ssh.BapSshHostConfiguration/keyInfo/secretPassphrase",
       HardcodedCredentialsCheck::getTextValueSafe,
       false),
     // SonarQube

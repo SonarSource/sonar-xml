@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +18,8 @@ package org.sonar.plugins.xml.checks.security.web;
 
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
 class HttpOnlyOnCookiesCheckTest {
@@ -47,4 +49,25 @@ class HttpOnlyOnCookiesCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue("noweb.xml", new HttpOnlyOnCookiesCheck());
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-without-http-cookies",
+    "webconfig-with-noncompliant-http-cookies",
+    "webconfig-dotnet-framework-compilation",
+  })
+  void web_config_noncompliant(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
+    SonarXmlCheckVerifier.verifyIssues(path, new HttpOnlyOnCookiesCheck());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "webconfig-with-http-cookies-true",
+    // ASP.NET Core web.config files do not use <system.web>/<httpCookies> — no issue expected.
+    "webconfig-aspnetcore",
+  })
+  void web_config_compliant(String dirName) {
+    String path = Paths.get(dirName, "web.config").toString();
+    SonarXmlCheckVerifier.verifyNoIssue(path, new HttpOnlyOnCookiesCheck());
+  }
 }

@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,9 +19,9 @@ package org.sonar.plugins.xml.checks.security.android;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 
-public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
+import static org.sonar.plugins.xml.checks.security.android.Utils.isAndroidManifestFile;
 
-  private static final String ANDROID_MANIFEST_XML = "AndroidManifest.xml";
+public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck {
 
   @Override
   public final void scanFile(XmlFile file) {
@@ -31,9 +31,5 @@ public abstract class AbstractAndroidManifestCheck extends SimpleXPathBasedCheck
   }
 
   protected abstract void scanAndroidManifest(XmlFile file);
-
-  public static boolean isAndroidManifestFile(XmlFile file) {
-    return ANDROID_MANIFEST_XML.equalsIgnoreCase(file.getInputFile().filename());
-  }
 
 }

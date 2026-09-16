@@ -1,14 +1,18 @@
 <myXml xmlns:x="http://www.abc.org/schema/x">
   <whatever>
     <noncompliant>
-      <password>admin1234</password> <!-- Noncompliant {{"password" detected here, make sure this is not a hard-coded credential.}} -->
+      <password>Kd83Vm719</password> <!-- Noncompliant {{"password" detected here, make sure this is not a hard-coded credential.}} -->
  <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-      <passwd value="admin1234" /> <!-- Noncompliant {{"passwd" detected here, make sure this is not a hard-coded credential.}} -->
+      <passwd value="Kd83Vm719" /> <!-- Noncompliant {{"passwd" detected here, make sure this is not a hard-coded credential.}} -->
  <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-      <myTag pwd="admin1234"> </myTag> <!-- Noncompliant {{"pwd" detected here, make sure this is not a hard-coded credential.}} -->
+      <myTag pwd="Kd83Vm719"> </myTag> <!-- Noncompliant {{"pwd" detected here, make sure this is not a hard-coded credential.}} -->
         <!-- ^^^^^^^^^^^^^^^ -->
-      <x:PASSWORD value="admin1234" /> <!-- Noncompliant {{"PASSWORD" detected here, make sure this is not a hard-coded credential.}} -->
+      <x:PASSWORD value="Kd83Vm719" /> <!-- Noncompliant {{"PASSWORD" detected here, make sure this is not a hard-coded credential.}} -->
  <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <dbPassword>Kd83Vm719</dbPassword> <!-- Noncompliant {{"dbPassword" detected here, make sure this is not a hard-coded credential.}} -->
+ <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
+      <myTag dbPassword="Kd83Vm719"> </myTag> <!-- Noncompliant {{"dbPassword" detected here, make sure this is not a hard-coded credential.}} -->
+        <!-- ^^^^^^^^^^^^^^^^^^^^^^ -->
     </noncompliant>
 
     <compliant>
@@ -18,8 +22,15 @@
       <password>${value}</password>
       <password>#{value}</password>
       <password>{{value}}</password>
+      <!-- Compliant: values recognized as non-secrets by the shared SecretClassifier (SONARXML-374) -->
+      <password>changeme</password>
+      <password>example_secret</password>
+      <password>$(cat /run/secrets/db)</password>
+      <password>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/db-AbCdEf</password>
       <password><nonText /></password>
       <password encryption="SSH" />
+      <!-- Compliant: 'defaultvalue' contains 'value' as substring but should not be matched as credential attribute -->
+      <password defaultvalue="Kd83Vm719" />
       <password>
         <child1></child1>
         <child2></child2>

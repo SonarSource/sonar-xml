@@ -1,0 +1,31 @@
+name: Update Rule Metadata
+
+on: workflow_dispatch
+
+jobs:
+  update-rule-metadata:
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Update Rule Metadata
+        id: update-rule-metadata
+        uses: SonarSource/release-github-actions/update-rule-metadata@v1
+        with:
+          labels: ''
+          # The default suffix is `rspec-read`, but JVM Squad uses just `rspec`.
+          rspec-token-suffix: 'rspec'
+          post-update: |
+            java -jar rule-api.jar generate -rule XPathCheck
+            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.html sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.html
+            cp sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/S140.json sonar-xml-plugin/src/main/resources/org/sonar/l10n/xml/rules/xml/XPathCheck.json
+
+      - name: Check Rule Metadata Changes
+        run: |
+          if [ "${{ steps.update-rule-metadata.outputs.has-changes }}" == "true" ]; then
+            echo "::notice title=Rule Metadata Changes::Changes detected and PR created: ${{ steps.update-rule-metadata.outputs.pull-request-url }}"
+          else
+            echo "::notice title=Rule Metadata Status::No changes to the rules metadata were detected"
+          fi

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <!-- Non compliant scenarios -->
+
+        <!-- Noncompliant@+1 {{Mark this component as exported.}} -->
+        <activity android:name=".MissingExportedSingleIntentFilterActivity">
+<!--     ^^^^^^^^ -->
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Noncompliant@+1 -->
+        <activity android:name=".MissingExportedMultipleIntentFiltersActivity">
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION1" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION2" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Noncompliant@+1 -->
+        <activity-alias
+            android:name=".MissingExportedAliasActivity"
+            android:targetActivity=".MissingExportedSingleIntentFilterActivity"
+            android:label="@string/missing_exported_alias_activity_label">
+<!--     ^^^^^^^^^^^^^^@-3 -->
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="http" android:host="host.com" android:pathPrefix="/sample/action" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Noncompliant@+1 -->
+        <provider android:name="MissingExportedProvider"
+            android:readPermission="android.permission.READ_SMS"
+            android:authorities="com.android.mms.SuggestionsProvider" >
+<!--     ^^^^^^^^@-2 -->
+            <path-permission android:pathPrefix="/search_suggest_query" android:readPermission="android.permission.GLOBAL_SEARCH" />
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_FULL" />
+            </intent-filter>
+        </provider>
+
+        <!-- Noncompliant@+1 -->
+        <receiver android:name=".MissingExportedReceiver">
+<!--     ^^^^^^^^ -->
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
+        </receiver>
+
+        <!-- Noncompliant@+1 -->
+        <service
+            android:description="@string/service_description"
+            android:name=".MissingExportedService"
+            android:permission="android.permission.BIND_REMOTEVIEWS">
+<!--     ^^^^^^^@-3 -->
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
+        </service>
+
+        <!-- Compliant scenarios -->
+
+        <!-- Compliant Activity: explicitly exported -->
+        <activity
+            android:name=".ExplicitlyExportedActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Compliant Activity: explicitly non exported -->
+        <activity
+            android:name=".ExplicitlyNonExportedActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Compliant Activity: no intent filter -->
+        <activity android:name=".NoIntentFilterActivity">
+        </activity>
+
+        <!-- Compliant Activity Alias: explicitly exported -->
+        <activity-alias
+            android:name=".ExplicitlyExportedActivityAlias"
+            android:targetActivity=".MissingExportedSingleIntentFilterActivity"
+            android:label="@string/explicitly_exported_alias_activity_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="http" android:host="host.com" android:pathPrefix="/sample/action" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Compliant Provider: explicitly non-exported -->
+        <provider android:name="NonExportedProvider"
+            android:exported="false"
+            android:readPermission="android.permission.READ_SMS"
+            android:authorities="com.android.mms.SuggestionsProvider" >
+            <path-permission
+                android:pathPrefix="/search_suggest_query"
+                android:readPermission="android.permission.GLOBAL_SEARCH" />
+            <path-permission
+                android:pathPrefix="/search_suggest_shortcut"
+                android:readPermission="android.permission.GLOBAL_SEARCH" />
+            <intent-filter>
+                <action android:name="android.intent.action.DEVICE_STORAGE_FULL" />
+            </intent-filter>
+        </provider>
+
+        <!-- Compliant Receiver: no intent filter -->
+        <receiver android:name=".NoIntentFilterReceiver" />
+
+    </application>
+
+    <!-- Compliant: not under application -->
+    <activity android:name=".MisplacedActivity">
+        <intent-filter>
+            <action android:name="com.sonar.demo.SAMPLE_ACTION" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+    </activity>
+
+</manifest>

@@ -6,12 +6,12 @@ on:
 
 jobs:
   stale:
-    runs-on: ubuntu-latest
+    runs-on: github-ubuntu-latest-s
     permissions:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@1e223db275d687790206a7acac4d1a11bd6fe629 # v10.4.0
         with:
           stale-pr-message: 'This PR is stale because it has been open 7 days with no activity. If there is no activity in the next 7 days it will be closed automatically'
           stale-pr-label: 'stale'

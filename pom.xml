@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>83.0.0.2369</version>
+    <version>87.0.0.3057</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
   <artifactId>xml</artifactId>
-  <version>2.13.0-SNAPSHOT</version>
+  <version>2.20.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarSource XML Analyzer</name>
@@ -58,16 +58,24 @@
     <license.title>SonarQube XML Plugin</license.title>
     <gitRepositoryName>sonar-xml</gitRepositoryName>
 
-    <jdk.min.version>17</jdk.min.version>
-    <sonar.version>10.7.0.96327</sonar.version>
+    <jdk.min.version>21</jdk.min.version>
+    <sonar.version>26.9.0.129388</sonar.version>
+    <!-- Required by shadow scans -->
+    <sonar.organization>sonarsource</sonar.organization>
     <!-- Minimum version of the plugin API in SQ -->
     <sonar.pluginApi.minVersion>9.14.9.375</sonar.pluginApi.minVersion>
 
-    <sonar.analyzerCommons.version>2.16.0.3141</sonar.analyzerCommons.version>
-    <sonar.orchestrator.version>5.0.0.2065</sonar.orchestrator.version>
+    <sonar.analyzerCommons.version>2.32.0.5319</sonar.analyzerCommons.version>
+    <sonar.orchestrator.version>6.4.3.4676</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
-    <sonar.sonarlint-core.version>8.17.0.70351</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>10.11.0.2468</sonar.pluginApi.version>
+    <sonar.sonarlint-core.version>11.10.0.86299</sonar.sonarlint-core.version>
+    <sonar.pluginApi.version>14.0.0.4498</sonar.pluginApi.version>
+    <sonar.scanner.version>13.12.0.5977</sonar.scanner.version>
+    <!-- Version required by sonar-orchestrator due to okhttp3.
+      If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
+    <kotlin.version>2.4.20</kotlin.version>
+    <!-- `its/` are intentionally scanned; only the test project sources are excluded, as we don't have much control over them. -->
+    <sonar.sca.exclusions>its/sources/**,sonar-xml-plugin/src/test/resources/**</sonar.sca.exclusions>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- Release: enable publication to Bintray -->
@@ -94,11 +102,6 @@
         <version>${sonar.pluginApi.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.analyzer-commons</groupId>
         <artifactId>sonar-xml-parsing</artifactId>
         <version>${sonar.analyzerCommons.version}</version>
@@ -122,9 +125,21 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api-impl</artifactId>
-        <version>${sonar.version}</version>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>plugin-api-scanner-impl</artifactId>
+        <version>${sonar.scanner.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>sensor-test-fixtures</artifactId>
+        <version>${sonar.scanner.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib</artifactId>
+        <version>${kotlin.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -147,32 +162,38 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.11.0</version>
+        <version>2.22.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
-        <version>3.21.0</version>
+        <version>3.27.7</version>
         <scope>test</scope>
       </dependency>
      <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.8.1</version>
+        <version>6.1.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>3.12.4</version>
+        <version>5.23.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
-        <version>2.11.0</version>
+        <version>2.14.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.20.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -208,6 +229,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>alphabetical</runOrder>
+          <systemPropertyVariables>
+            <projectVersion>${project.version}</projectVersion>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>

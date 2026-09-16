@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,8 +16,7 @@
  */
 package org.sonar.plugins.xml;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
@@ -70,13 +69,10 @@ public class Xml extends AbstractLanguage {
   }
 
   private static String[] filterEmptyStrings(String[] stringArray) {
-    List<String> nonEmptyStrings = new ArrayList<>();
-    for (String string : stringArray) {
-      if (!string.trim().isEmpty()) {
-        nonEmptyStrings.add(string.trim());
-      }
-    }
-    return nonEmptyStrings.toArray(new String[nonEmptyStrings.size()]);
+    return Arrays.stream(stringArray)
+      .map(String::trim)
+      .filter(string -> !string.isEmpty())
+      .toArray(String[]::new);
   }
 
   public static boolean isConfigFile(InputFile inputFile) {

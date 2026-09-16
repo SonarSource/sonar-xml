@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,6 +29,7 @@ import org.sonar.plugins.xml.checks.maven.GroupIdNamingConventionCheck;
 import org.sonar.plugins.xml.checks.maven.PomElementOrderCheck;
 import org.sonar.plugins.xml.checks.security.HardcodedCredentialsCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidApplicationBackupCheck;
+import org.sonar.plugins.xml.checks.security.android.AndroidComponentWithIntentFilterExportedCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidCustomPermissionCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidClearTextCheck;
 import org.sonar.plugins.xml.checks.security.android.AndroidExportedContentPermissionsCheck;
@@ -39,6 +40,8 @@ import org.sonar.plugins.xml.checks.security.android.DebugFeatureCheck;
 import org.sonar.plugins.xml.checks.security.web.BasicAuthenticationCheck;
 import org.sonar.plugins.xml.checks.security.web.CrossOriginResourceSharingCheck;
 import org.sonar.plugins.xml.checks.security.web.HttpOnlyOnCookiesCheck;
+import org.sonar.plugins.xml.checks.security.web.MimeNosniffCheck;
+import org.sonar.plugins.xml.checks.security.web.PasswordsInWebConfigCheck;
 import org.sonar.plugins.xml.checks.security.web.ValidationFiltersCheck;
 import org.sonar.plugins.xml.checks.spring.DefaultMessageListenerContainerCheck;
 import org.sonar.plugins.xml.checks.spring.SingleConnectionFactoryCheck;
@@ -62,6 +65,7 @@ public class CheckList {
       AndroidClearTextCheck.class,
       AndroidCustomPermissionCheck.class,
       AndroidApplicationBackupCheck.class,
+      AndroidComponentWithIntentFilterExportedCheck.class,
       AndroidExportedContentPermissionsCheck.class,
       AndroidPermissionsCheck.class,
       AndroidProviderPermissionCheck.class,
@@ -87,8 +91,9 @@ public class CheckList {
       FixmeCommentCheck.class,
       ValidationFiltersCheck.class,
       DisallowedDependenciesCheck.class,
-      CommentedOutCodeCheck.class
-    );
+      CommentedOutCodeCheck.class,
+      MimeNosniffCheck.class,
+      PasswordsInWebConfigCheck.class);
   }
 
 }

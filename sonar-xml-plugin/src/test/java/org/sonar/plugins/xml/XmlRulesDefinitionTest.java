@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,16 +16,16 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.CheckList;
 
@@ -58,7 +58,7 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 6)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
@@ -92,26 +92,26 @@ class XmlRulesDefinitionTest {
 
   @Test
   void test_security_standards() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 6)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
 
     RulesDefinition.Rule rule = repository.rule("S3281");
 
-    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "owaspTop10-2021:a5");
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "owaspTop10-2021:a5", "cwe:16", "cwe:693");
   }
 
   @Test
   void test_security_standards_before_sq_9_3() {
-    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(SonarRuntimeImpl.forSonarLint(Version.create(9, 2)));
+    XmlRulesDefinition rulesDefinition = new XmlRulesDefinition(TestSonarRuntime.forSonarLint(Version.create(9, 2)));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("xml");
 
     RulesDefinition.Rule rule = repository.rule("S3281");
 
-    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6");
+    assertThat(rule.securityStandards()).containsExactlyInAnyOrder("owaspTop10:a6", "cwe:16", "cwe:693");
   }
 
 }

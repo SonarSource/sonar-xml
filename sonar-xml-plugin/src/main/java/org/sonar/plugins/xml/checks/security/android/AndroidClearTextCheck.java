@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,22 +25,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
+
 @Rule(key = "S5332")
 public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
 
   private static final String MESSAGE = "Make sure allowing clear-text traffic is safe here.";
   private static final String MESSAGE_IMPLICIT = "\"usesCleartextTraffic\" is implicitly enabled for older Android versions. " + MESSAGE;
 
-  private static final String ANDROID_NAME_SPACE = "http://schemas.android.com/apk/res/android";
-
   private final XPathExpression xPathClearTextTrue = XPathBuilder
     .forExpression("/manifest/application[@n:usesCleartextTraffic='true']")
-    .withNamespace("n", ANDROID_NAME_SPACE)
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   private final XPathExpression xPathClearTextImplicit = XPathBuilder
     .forExpression("/manifest/application[not(@n:usesCleartextTraffic)]")
-    .withNamespace("n", ANDROID_NAME_SPACE)
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override

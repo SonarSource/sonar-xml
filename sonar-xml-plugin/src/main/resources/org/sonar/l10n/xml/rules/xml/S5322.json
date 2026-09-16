@@ -1,6 +1,11 @@
 {
-  "title": "Receiving intents is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Android broadcast receivers should not be registered without a permission",
+  "type": "VULNERABILITY",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
   "code": {
     "impacts": {
       "SECURITY": "HIGH"
@@ -10,7 +15,8 @@
   "status": "ready",
   "tags": [
     "cwe",
-    "android"
+    "android",
+    "former-hotspot"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5322",
@@ -24,9 +30,12 @@
     "OWASP Mobile": [
       "M1"
     ],
+    "OWASP Mobile Top 10 2024": [
+      "M3",
+      "M4"
+    ],
     "MASVS": [
       "MSTG-PLATFORM-2"
     ]
-  },
-  "quickfix": "unknown"
+  }
 }

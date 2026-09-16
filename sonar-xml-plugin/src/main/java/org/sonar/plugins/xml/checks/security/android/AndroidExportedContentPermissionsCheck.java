@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,6 +22,8 @@ import org.sonar.check.Rule;
 import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.w3c.dom.Element;
+
+import static org.sonar.plugins.xml.checks.security.android.Utils.ANDROID_MANIFEST_XMLNS;
 
 @Rule(key = "S5594")
 public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManifestCheck {
@@ -44,7 +46,7 @@ public class AndroidExportedContentPermissionsCheck extends AbstractAndroidManif
       "                       or @n:name='android.intent.action.SENDTO'" +
       "                       or @n:name='android.intent.action.SEND_MULTIPLE'])" +
       "]")
-    .withNamespace("n", "http://schemas.android.com/apk/res/android")
+    .withNamespace("n", ANDROID_MANIFEST_XMLNS)
     .build();
 
   @Override

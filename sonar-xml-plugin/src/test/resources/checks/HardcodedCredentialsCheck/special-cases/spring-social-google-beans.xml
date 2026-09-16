@@ -8,7 +8,7 @@
           <list>
               <bean class="org.springframework.social.google.connect.GoogleConnectionFactory">
                   <constructor-arg value="google.clientId" />
-                  <constructor-arg value="google.clientSecret" /> <!-- Noncompliant -->
+                  <constructor-arg value="Km91Xb47QzR3dNp8Ws2" /> <!-- Noncompliant -->
              <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
               </bean>
           </list>

@@ -8,7 +8,7 @@
           <list>
               <bean class="org.springframework.social.linkedin.connect.LinkedinConnectionFactory">
                   <constructor-arg value="blablala-user" />
-                  <constructor-arg value="blablala-password" /> <!-- Noncompliant -->
+                  <constructor-arg value="blablala-Xk29Vz73" /> <!-- Noncompliant -->
              <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
               </bean>
           </list>

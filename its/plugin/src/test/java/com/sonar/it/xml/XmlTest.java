@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2013-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -35,7 +35,7 @@ class XmlTest {
   private static final OrchestratorExtension ORCHESTRATOR = XmlTestSuite.ORCHESTRATOR;
 
   @BeforeAll
-  public static void inspect() {
+  static void inspect() {
     inspectProject(PROJECT);
   }
 
@@ -46,7 +46,7 @@ class XmlTest {
     assertThat(getProjectMeasureAsDouble("comment_lines_density")).isEqualTo(3.1);
     assertThat(getProjectMeasureAsDouble("comment_lines")).isEqualTo(9);
     assertThat(getProjectMeasureAsDouble("files")).isEqualTo(4);
-    assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(13);
+    assertThat(getProjectMeasureAsDouble("violations")).isEqualTo(11);
   }
 
   @Test

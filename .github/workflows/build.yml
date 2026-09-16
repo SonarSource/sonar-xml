@@ -1,0 +1,159 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - branch-*
+      - dogfood-*
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * 1-5"  # Run Mon-Fri at 01:30 AM UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: github-ubuntu-latest-m
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    outputs:
+      build-number: ${{ steps.build.outputs.BUILD_NUMBER }}
+      deployed: ${{ steps.build.outputs.deployed }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.5
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        id: build
+        with:
+          deploy-pull-request: true
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+          use-develocity: true
+          develocity-url: https://develocity-public.sonar.build/
+
+  build-win:
+    name: Build Windows
+    needs:
+      - build
+    runs-on: github-windows-latest-s
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
+    steps:
+      - name: Config Git
+        run: git config --global core.autocrlf input
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.5
+      - uses: SonarSource/ci-github-actions/build-maven@v1
+        with:
+          deploy: false
+          sonar-platform: 'none'
+          artifactory-reader-role: private-reader
+          artifactory-deployer-role: qa-deployer
+          use-develocity: true
+          develocity-url: https://develocity-public.sonar.build/
+
+  qa:
+    name: "QA - ${{ matrix.item.name }}"
+    if: ${{ needs.build.outputs.deployed }}
+    strategy:
+      fail-fast: false
+      matrix:
+        item:
+          - name: "Plugin [Linux] - SQ: DEV"
+            suite: "plugin"
+            sq_version: "DEV"
+            runner: "github-ubuntu-latest-s"
+            is_nightly: ${{ github.event_name == 'schedule' }}
+          - name: "Plugin [Linux] - SQ: LATEST"
+            suite: "plugin"
+            sq_version: "LATEST_RELEASE"
+            runner: "github-ubuntu-latest-s"
+          - name: "Ruling [Linux] - SQ: LATEST"
+            suite: "ruling"
+            sq_version: "LATEST_RELEASE"
+            runner: "github-ubuntu-latest-s"
+          - name: "Ruling [Windows] - SQ: LATEST"
+            suite: "ruling"
+            sq_version: "LATEST_RELEASE"
+            runner: "github-windows-latest-s"
+        exclude:
+          # DEV is tested only in nightly to reduce Repox usage
+          - item:
+              sq_version: "DEV"
+              is_nightly: false
+    runs-on: ${{ matrix.item.runner }}
+    needs:
+      - build # We only need the build that deploys the artifacts to run ruling.
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.5
+      - name: Vault
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/licenses-ro token | GITHUB_TOKEN;
+      - name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@v1
+        with:
+          artifactory-reader-role: private-reader
+          use-develocity: true
+          develocity-url: https://develocity-public.sonar.build/
+      - name: Orchestrator Cache
+         # Do not cache dependencies that change frequently.
+        if: ${{ matrix.item.sq_version != 'DEV' }}
+        uses: ./.github/actions/orchestrator-cache
+      - name: Inspect Cache Contents
+        if: ${{ matrix.item.sq_version != 'DEV' }}
+        shell: bash
+        run: |
+          ls -lRh "$ORCHESTRATOR_HOME"
+      - name: Plugin QA Tests
+        shell: bash # Set explicitly so Bash is used on Windows runners too.
+        working-directory: "its/${{ matrix.item.suite }}"
+        env:
+          SUITE: ${{ matrix.item.suite }}
+          SQ_VERSION: ${{ matrix.item.sq_version }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+        run: |
+          if [ $SUITE = "plugin" ]; then
+            mvn install -f test-plugin/pom.xml
+          fi;
+          mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+
+  promote:
+    needs:
+      - build
+      - build-win
+      - qa
+    if: ${{ needs.build.outputs.deployed }}
+    runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
+    name: Promote
+    permissions:
+      id-token: write  # Required for Vault OIDC authentication
+      contents: write  # Required for repository access and tagging
+    env:
+      BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
+    steps:
+      - uses: SonarSource/ci-github-actions/promote@v1
+        with:
+          promote-pull-request: true

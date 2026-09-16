@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +23,7 @@ import org.sonarsource.analyzer.commons.xml.XPathBuilder;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 @Rule(key = "S5122")
-public class CrossOriginResourceSharingCheck extends AbstractWebXmlCheck {
+public class CrossOriginResourceSharingCheck extends BaseWebCheck {
 
   private static final Pattern STAR_IN_COMMA_SEPARATED_LIST_REGEX = Pattern.compile("(^|,)\\*(,|$)");
 
@@ -37,7 +37,7 @@ public class CrossOriginResourceSharingCheck extends AbstractWebXmlCheck {
     .build();
 
   @Override
-  void scanWebXml(XmlFile file) {
+  protected void scanWebXml(XmlFile file) {
     evaluateAsList(corsAllowedOrigins, file.getDocument()).stream()
       .filter(node -> STAR_IN_COMMA_SEPARATED_LIST_REGEX.matcher(node.getNodeValue()).find())
       .forEach(node -> reportIssue(node, "Make sure this permissive CORS policy is safe here."));

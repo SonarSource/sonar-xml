@@ -16,14 +16,14 @@
     http://www.springframework.org/schema/social http://docs.spring.io/autorepo/schema/spring-social/current/social/spring-social.xsd
     http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-  <facebook:config app-id="facebook.clientId" app-secret="facebook.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+  <facebook:config app-id="facebook.clientId" app-secret="Km91Xb47QzR3dNp8Ws2Tq" app-namespace="socialshowcase" /> <!-- Noncompliant -->
                                          <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-  <google:config app-id="google.clientId" app-secret="google.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+  <google:config app-id="google.clientId" app-secret="Km91Xb47QzR3dNp8Ws2" app-namespace="socialshowcase" /> <!-- Noncompliant -->
                                      <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-  <github:config app-id="github.clientId" app-secret="github.clientSecret" app-namespace="socialshowcase" /> <!-- Noncompliant -->
+  <github:config app-id="github.clientId" app-secret="Km91Xb47QzR3dNp8Ws2" app-namespace="socialshowcase" /> <!-- Noncompliant -->
                                      <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-  <linkedin:config app-id="linkedin.consumerKey" app-secret="linkedin.consumerSecret" /> <!-- Noncompliant -->
+  <linkedin:config app-id="linkedin.consumerKey" app-secret="Km91Xb47QzR3dNp8Ws2TqLp" /> <!-- Noncompliant -->
                                             <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
-  <twitter:config app-id="comsumerclé" app-secret="consumerSecret" />  <!-- Noncompliant -->
+  <twitter:config app-id="comsumerclé" app-secret="Km91Xb47QzR3dN" />  <!-- Noncompliant -->
                                   <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
 </beans>

@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,6 +16,9 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,34 +33,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.assertj.core.api.Condition;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.fs.internal.Metadata;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.internal.apachecommons.io.FileUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -65,6 +55,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.xml.checks.TabCharacterCheck;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.fs.FileMetadata;
+import org.sonar.scanner.plugin.api.impl.fs.Metadata;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheck;
 
@@ -74,11 +71,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
 class XmlSensorTest {
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public Path temporaryFolder;
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -91,19 +87,20 @@ class XmlSensorTest {
   private static final String PARSING_ERROR_CHECK_KEY = "S2260";
   private static final RuleKey PARSING_ERROR_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, PARSING_ERROR_CHECK_KEY);
   private static final RuleKey TAB_CHARACTER_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, TabCharacterCheck.RULE_KEY);
-  public static final SonarRuntime SQ_LTS_RUNTIME = SonarRuntimeImpl.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
+  private static final RuleKey HARDCODED_CREDENTIALS_RULE_KEY = RuleKey.of(Xml.REPOSITORY_KEY, "S2068");
+  public static final SonarRuntime SQ_LTS_RUNTIME = TestSonarRuntime.forSonarQube(Version.create(8, 9), SonarQubeSide.SCANNER, SonarEdition.DEVELOPER);
 
   @Test
   @Timeout(value = 12000, unit = TimeUnit.MILLISECONDS)
   void testPerformance() throws Exception {
     init();
-    File smallXmlFile = createXmlFile(20000, "smallFile.xml");
-    fs.add(createInputFile(Paths.get(smallXmlFile.getParent()), smallXmlFile.getName(), StandardCharsets.UTF_8));
+    Path smallXmlFile = createXmlFile(20000, "smallFile.xml");
+    fs.add(createInputFile(smallXmlFile.getParent(), smallXmlFile.getFileName().toString(), StandardCharsets.UTF_8));
     long timeSmallFile = measureTimeToAnalyzeFile();
 
     init();
-    File bigXmlFile = createXmlFile(40000, "bigFile.xml");
-    fs.add(createInputFile(Paths.get(bigXmlFile.getParent()), bigXmlFile.getName(), StandardCharsets.UTF_8));
+    Path bigXmlFile = createXmlFile(40000, "bigFile.xml");
+    fs.add(createInputFile(bigXmlFile.getParent(), bigXmlFile.getFileName().toString(), StandardCharsets.UTF_8));
     long timeBigFile = measureTimeToAnalyzeFile();
 
     assertThat(timeBigFile).isLessThan((long) Math.floor(2.5 * timeSmallFile));
@@ -151,7 +148,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarlint() throws Exception {
-    init(SonarRuntimeImpl.forSonarLint(Version.create(6, 5)), false);
+    init(TestSonarRuntime.forSonarLint(Version.create(6, 5)), false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("XML Sensor");
@@ -160,7 +157,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_3() throws Exception {
-    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    init(TestSonarRuntime.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
     final boolean[] called = {false};
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
@@ -177,7 +174,7 @@ class XmlSensorTest {
 
   @Test
   void test_descriptor_sonarqube_9_3_reflection_failure() throws Exception {
-    init(SonarRuntimeImpl.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
+    init(TestSonarRuntime.forSonarQube(Version.create(9, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY), false);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor() {
       @Override
       public SensorDescriptor processesFilesIndependently() {
@@ -238,7 +235,7 @@ class XmlSensorTest {
     DefaultInputFile inputFile = createInputFile("src/pom.xml");
     fs.add(inputFile);
 
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 1)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(4, 1)));
     sensor.execute(context);
 
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(NEW_LINE_RULE_KEY);
@@ -346,8 +343,47 @@ class XmlSensorTest {
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
   }
 
+  @Test
+  void s2068_is_suppressed_when_file_is_in_test_directory() throws Exception {
+    initWithS2068();
+    fs.add(createInputFile("test/hardcoded.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).isEmpty();
+  }
+
+  @Test
+  void s2068_is_raised_when_sonar_tests_is_configured() throws Exception {
+    initWithS2068();
+    context.settings().setProperty("sonar.tests", "test");
+    fs.add(createInputFile("test/hardcoded.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).extracting("ruleKey").containsOnly(HARDCODED_CREDENTIALS_RULE_KEY);
+  }
+
   private void init() throws Exception {
     init(SQ_LTS_RUNTIME, false);
+  }
+
+  private void initWithS2068() throws Exception {
+    File moduleBaseDir = new File("src/test/resources");
+    context = SensorContextTester.create(moduleBaseDir);
+
+    fs = new DefaultFileSystem(moduleBaseDir);
+    Path folder = Files.createTempDirectory(temporaryFolder, "");
+    fs.setWorkDir(folder);
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder().setRuleKey(HARDCODED_CREDENTIALS_RULE_KEY).build())
+      .build();
+    CheckFactory checkFactory = new CheckFactory(activeRules);
+
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
+
+    sensor = new XmlSensor(SQ_LTS_RUNTIME, fs, checkFactory, fileLinesContextFactory);
   }
 
   private void init(SonarRuntime sonarRuntime, boolean activateParsingErrorCheck) throws Exception {
@@ -355,7 +391,8 @@ class XmlSensorTest {
     context = SensorContextTester.create(moduleBaseDir);
 
     fs = new DefaultFileSystem(moduleBaseDir);
-    fs.setWorkDir(temporaryFolder.newFolder().toPath());
+    Path folder = Files.createTempDirectory(temporaryFolder, "");
+    fs.setWorkDir(folder);
 
     ActiveRulesBuilder activeRuleBuilder = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder().setRuleKey(NEW_LINE_RULE_KEY).build())
@@ -367,8 +404,7 @@ class XmlSensorTest {
 
     CheckFactory checkFactory = new CheckFactory(activeRuleBuilder.build());
 
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
 
     sensor = new XmlSensor(sonarRuntime, fs, checkFactory, fileLinesContextFactory);
   }
@@ -378,7 +414,7 @@ class XmlSensorTest {
     Charset fileSystemCharset = StandardCharsets.UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
-    Path moduleBaseDir = temporaryFolder.newFolder().toPath();
+    Path moduleBaseDir = Files.createTempDirectory(temporaryFolder, "");
     SensorContextTester context = SensorContextTester.create(moduleBaseDir);
 
     DefaultFileSystem fileSystem = new DefaultFileSystem(moduleBaseDir);
@@ -397,13 +433,19 @@ class XmlSensorTest {
       .build();
     CheckFactory checkFactory = new CheckFactory(activeRules);
 
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(mock(FileLinesContext.class));
+    FileLinesContextFactory fileLinesContextFactory = mockFileLinesContextFactory();
     sensor = new XmlSensor(SQ_LTS_RUNTIME, fileSystem, checkFactory, fileLinesContextFactory);
     sensor.execute(context);
 
     String componentKey = "modulekey:" + filename;
     assertThat(context.measure(componentKey, CoreMetrics.NCLOC).value()).isEqualTo(2);
+  }
+
+  private static FileLinesContextFactory mockFileLinesContextFactory() {
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+    return fileLinesContextFactory;
   }
 
   private void assertLog(String expected, boolean isRegexp) {
@@ -418,13 +460,13 @@ class XmlSensorTest {
     }
   }
 
-  private File createXmlFile(int numberOfTags, String fileName) {
+  private Path createXmlFile(int numberOfTags, String fileName) {
     try {
-      File file = temporaryFolder.newFile(fileName);
+      Path file = Files.createFile(temporaryFolder.resolve(fileName));
       StringBuilder str = new StringBuilder("<?xml version=\"1.0\"?><root>\n");
       IntStream.range(0, numberOfTags).forEach(iteration -> str.append("<tag1 attr=\"val1\">text</tag1>\n"));
       str.append("</root>");
-      FileUtils.write(file, str.toString(), StandardCharsets.UTF_8);
+      Files.write(file, str.toString().getBytes(StandardCharsets.UTF_8));
       return file;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to create " + fileName);

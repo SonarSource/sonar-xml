@@ -1,6 +1,6 @@
 {
-  "title": "Defining a single permission for read and write access of content providers is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Content providers should use separate read and write permissions",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
@@ -12,9 +12,11 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
+  "quickfix": "unknown",
   "tags": [
     "cwe",
-    "android"
+    "android",
+    "former-hotspot"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6361",
@@ -28,9 +30,12 @@
       "M1",
       "M6"
     ],
+    "OWASP Mobile Top 10 2024": [
+      "M3",
+      "M8"
+    ],
     "MASVS": [
       "MSTG-PLATFORM-1"
     ]
-  },
-  "quickfix": "unknown"
+  }
 }

@@ -10,7 +10,7 @@
             <!-- Informative -->
             <User>root</User>
             <!-- Risk -->
-            <Pass>ExamplePas123</Pass>   <!-- Noncompliant -->
+            <Pass>Xk29Vz731Qmb4</Pass>   <!-- Noncompliant -->
        <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
             <Account>example.com</Account>
             <Logontype>4</Logontype>

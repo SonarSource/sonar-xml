@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,37 +16,33 @@
  */
 package org.sonar.plugins.xml;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestFileSystem;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
 import org.sonarsource.analyzer.commons.xml.XmlFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableRuleMigrationSupport
 class XmlHighlightingTest {
 
-  @Rule
-  public TemporaryFolder tmpFolder = new TemporaryFolder();
+  @TempDir
+  public Path tmpFolder;
 
-  private DefaultFileSystem fileSystem;
+  private TestFileSystem fileSystem;
   private SensorContextTester context;
   private XmlFile xmlFile;
 
@@ -328,12 +324,11 @@ class XmlHighlightingTest {
     Charset fileSystemCharset = UTF_8;
     Charset fileCharset = StandardCharsets.UTF_16;
 
-    Path moduleBaseDir = tmpFolder.newFolder().toPath();
+    Path moduleBaseDir = Files.createTempDirectory(tmpFolder, "");
     context = SensorContextTester.create(moduleBaseDir);
 
-    fileSystem = new DefaultFileSystem(moduleBaseDir);
-    fileSystem.setEncoding(fileSystemCharset);
-    context.setFileSystem(fileSystem);
+    context.setFileSystem(new DefaultFileSystem(moduleBaseDir));
+    fileSystem = context.fileSystem().setEncoding(fileSystemCharset);
 
     String filename = "utf16.xml";
     Path file = moduleBaseDir.resolve(filename);
@@ -362,20 +357,21 @@ class XmlHighlightingTest {
   }
 
   private void highlightFromFile(String filename, String content) throws Exception {
-    File file = tmpFolder.newFile(filename);
-    FileUtils.write(file, content, UTF_8);
+    Path file = tmpFolder.resolve(filename);
+    Files.createFile(file);
+    Files.write(file, content.getBytes(UTF_8));
     highlight(file, filename);
   }
 
   private void highlightFromFile(String filename) throws Exception {
-    File file = new File("src/test/resources/highlighting/" + filename);
+    Path file = Path.of("src", "test", "resources", "highlighting", filename);
     highlight(file, filename);
   }
 
-  private void highlight(File file, String filename) throws Exception {
+  private void highlight(Path file, String filename) throws Exception {
     DefaultInputFile inputFile = TestInputFileBuilder.create("module", filename)
-      .setModuleBaseDir(file.getParentFile().toPath())
-      .initMetadata(Files.lines(file.toPath()).collect(Collectors.joining("\n")))
+      .setModuleBaseDir(file.getParent())
+      .initMetadata(Files.lines(file).collect(Collectors.joining("\n")))
       .setType(InputFile.Type.MAIN)
       .setLanguage(Xml.KEY)
       .setCharset(UTF_8)

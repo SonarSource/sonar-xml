@@ -8,7 +8,7 @@
           <list>
               <bean class="org.springframework.social.github.connect.GitHubConnectionFactory">
                   <constructor-arg value="github.clientId" />
-                  <constructor-arg value="github.clientSecret" /> <!-- Noncompliant -->
+                  <constructor-arg value="Km91Xb47QzR3dNp8Ws2" /> <!-- Noncompliant -->
              <!-- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -->
               </bean>
           </list>

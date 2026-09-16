@@ -1,5 +1,8 @@
 {
-'project:special-cases/web/fake/web.xml':[
-9,
+"project:asp.net-web-application/web.config": [
+2
 ],
+"project:special-cases/web/fake/web.xml": [
+9
+]
 }

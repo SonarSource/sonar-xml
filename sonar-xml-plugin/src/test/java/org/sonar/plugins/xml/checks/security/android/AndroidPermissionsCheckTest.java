@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,4 +32,18 @@ class AndroidPermissionsCheckTest {
     SonarXmlCheckVerifier.verifyNoIssue(Paths.get("AnyFileName.xml").toString(), new AndroidPermissionsCheck());
   }
 
+  @Test
+  void should_not_raise_on_tools_node_remove() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemove/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void should_not_raise_on_tools_node_remove_all() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("ToolsNodeRemoveAll/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
+
+  @Test
+  void should_raise_on_tools_node_remove_all_with_wrong_tag() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("ToolsNodeRemoveAllWrongTag/AndroidManifest.xml").toString(), new AndroidPermissionsCheck());
+  }
 }

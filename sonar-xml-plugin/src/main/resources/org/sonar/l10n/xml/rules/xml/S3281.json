@@ -24,6 +24,10 @@
     ],
     "OWASP Top 10 2021": [
       "A5"
+    ],
+    "CWE": [
+      16,
+      693
     ]
   },
   "quickfix": "unknown"

@@ -1,0 +1,70 @@
+<p>MIME type sniffing allows browsers to override the declared <code>Content-Type</code> of an HTTP response, which can be exploited by attackers to
+execute malicious content.</p>
+<h2>Why is this an issue?</h2>
+<p><a href="https://blog.mozilla.org/security/2016/08/26/mitigating-mime-confusion-attacks-in-firefox/">MIME confusion</a> attacks occur when an
+attacker successfully tricks a web browser into interpreting a resource as a different type than the one expected. When the <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type header</a> is missing or incorrect, browsers try to deduce
+the correct content type by inspecting the resource content — a behavior known as <a href="https://en.wikipedia.org/wiki/Content_sniffing">MIME type
+sniffing</a>. Attackers can exploit this when a website allows arbitrary file uploads: a malicious file containing JavaScript can be uploaded, and
+when a victim views it, the browser sniffs it as a script and executes it. Setting the <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options">X-Content-Type-Options</a> response header to
+<code>nosniff</code> disables this behavior in all modern browsers.</p>
+<p>In ASP.NET applications, the <code>X-Content-Type-Options</code> header is not included in responses by default and must be configured explicitly
+in <code>web.config</code>.</p>
+<h3>What is the potential impact?</h3>
+<h4>Cross-site scripting</h4>
+<p>If an attacker can upload a file to a publicly accessible location — such as a profile picture or document upload — they may embed JavaScript
+inside it, for example using a <a href="https://docs.microsoft.com/fr-fr/archive/blogs/ieinternals/script-polyglots">polyglot content</a> file. When a
+victim views the file and the browser performs MIME sniffing, the malicious script executes in the victim’s browser context. This can allow the
+attacker to steal session cookies or credentials, or perform actions on behalf of the victim.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<p>The following code is vulnerable because the <code>X-Content-Type-Options: nosniff</code> response header is not set, allowing browsers to perform
+MIME type sniffing.</p>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;configuration&gt; &lt;!-- Noncompliant --&gt;
+  &lt;system.webServer&gt;
+    &lt;!-- ... --&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</pre>
+<h4>Compliant solution</h4>
+<p>To mitigate this finding, set <code>nosniff</code> globally for all pages in the application in the <code>web.config</code> file. While it is also
+possible to configure the header individually in the application code, or per <code>&lt;location&gt;</code> element, setting it globally is less
+error-prone and therefore recommended.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;httpProtocol&gt;
+      &lt;customHeaders&gt;
+        &lt;add name="X-Content-Type-Options" value="nosniff"/&gt;
+      &lt;/customHeaders&gt;
+    &lt;/httpProtocol&gt;
+    &lt;!-- ... --&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options">developer.mozilla.org</a> -
+  X-Content-Type-Options</li>
+</ul>
+<h3>Articles &amp; blog posts</h3>
+<ul>
+  <li><a href="https://blog.mozilla.org/security/2016/08/26/mitigating-mime-confusion-attacks-in-firefox/">blog.mozilla.org</a> - Mitigating MIME
+  Confusion Attacks in Firefox</li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/79">CWE-79 - Improper Neutralization of Input During Web Page Generation ('Cross-site
+  Scripting')</a></li>
+  <li>CWE - <a href="https://cwe.mitre.org/data/definitions/436">CWE-436 - Interpretation Conflict</a></li>
+  <li>OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a></li>
+  <li>OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a></li>
+</ul>
+

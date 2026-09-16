@@ -1,10 +1,10 @@
 /*
  * SonarQube XML Plugin
- * Copyright (C) 2010-2025 SonarSource SA
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,6 +43,13 @@ class HardcodedCredentialsCheckTest {
     SonarXmlCheckVerifier.verifyIssues("customized.xml", check);
   }
 
+  @Test
+  void empty_credential_word_tokens_are_ignored() {
+    HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
+    check.credentialWords = "password,,pwd";
+    SonarXmlCheckVerifier.verifyNoIssue("empty_credential_word.xml", check);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {
     "dbeaver-data-sources.xml",
@@ -74,5 +81,10 @@ class HardcodedCredentialsCheckTest {
   void web_application() {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "web.config").toString(), CHECK);
     SonarXmlCheckVerifier.verifyIssues(Paths.get("web-application", "Machine.config").toString(), CHECK);
+  }
+
+  @Test
+  void web_application_app_settings() {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("app-settings", "web.config").toString(), CHECK);
   }
 }
