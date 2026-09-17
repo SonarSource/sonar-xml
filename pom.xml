@@ -70,7 +70,7 @@
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
     <sonar.sonarlint-core.version>11.10.0.86299</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>14.0.0.4498</sonar.pluginApi.version>
-    <sonar.scanner.version>13.12.0.5977</sonar.scanner.version>
+    <sonar.scanner.version>13.13.0.6016</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.4.20</kotlin.version>
