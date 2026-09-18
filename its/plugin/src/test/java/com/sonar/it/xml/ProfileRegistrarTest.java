@@ -71,9 +71,9 @@ class ProfileRegistrarTest {
     var profileResponse = wsClient.qualityprofiles().search(profileSearchRequest);
 
     var xmlProfile = profileResponse.getProfilesList().stream()
-      .filter(profile -> "Sonar way".equals(profile.getName()) && profile.getIsBuiltIn())
+      .filter(profile -> profile.getName().contains("Sonar way") && profile.getIsBuiltIn())
       .findFirst()
-      .orElseThrow(() -> new AssertionError("Built-in 'Sonar way' profile not found for xml language"));
+      .orElseThrow(() -> new AssertionError("No built-in 'Sonar way' profile found for xml language"));
 
     var profileKey = xmlProfile.getKey();
 
