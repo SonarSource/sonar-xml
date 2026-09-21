@@ -49,6 +49,7 @@ class XmlRulingTest {
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
   private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
   private static final String LANGUAGE = "xml";
+  private static final String PROJECT_KEY = "project";
   private static final String QUALITY_PROFILE_NAME = "rules";
 
   @RegisterExtension
@@ -94,17 +95,17 @@ class XmlRulingTest {
 
   @Test
   void test() throws Exception {
-    ORCHESTRATOR.getServer().provisionProject("project", "project");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", LANGUAGE, QUALITY_PROFILE_NAME);
+    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, LANGUAGE, QUALITY_PROFILE_NAME);
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarScanner build = SonarScanner.create(FileLocation.of("../sources/projects").getFile())
       .setProperty("sonar.scanner.skipJreProvisioning", "true")
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(PROJECT_KEY)
+      .setProjectName(PROJECT_KEY)
       .setProjectVersion("1")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected/project").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected/" + PROJECT_KEY).getFile().getAbsolutePath())
       .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath());
