@@ -129,7 +129,7 @@ class XmlRulingTest {
     QualityProfile qualityProfile = adminWSClient.qualityprofiles().search(new SearchRequest()).getProfilesList().stream()
       .filter(qp -> qp.getLanguage().equals(LANGUAGE))
       .filter(qp -> qp.getName().equals(QUALITY_PROFILE_NAME))
-      .findFirst().orElseThrow(() -> new IllegalStateException(String.format("Could not find quality profile '%s' for language '%s' ", QUALITY_PROFILE_NAME, LANGUAGE)));
+      .findFirst().orElseThrow(() -> new IllegalStateException("Could not find quality profile '" + QUALITY_PROFILE_NAME + "' for language '" + LANGUAGE + "' "));
     String profileKey = qualityProfile.getKey();
 
     adminWSClient.qualityprofiles().activateRule(new ActivateRuleRequest()
