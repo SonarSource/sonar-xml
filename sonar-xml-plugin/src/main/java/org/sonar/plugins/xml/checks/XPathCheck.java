@@ -85,7 +85,7 @@ public class XPathCheck extends SonarXmlCheck {
         }
       } catch (XPathExpressionException booleanException) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug(String.format("[%s] Unable to evaluate XPath expression '%s' on file %s", ruleKey(), expression, inputFile().toString()));
+          LOG.debug("[{}] Unable to evaluate XPath expression '{}' on file {}", ruleKey(), expression, inputFile());
           LOG.error("Xpath exception:", booleanException);
         }
       }
