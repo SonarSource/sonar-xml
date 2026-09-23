@@ -46,6 +46,7 @@ jobs:
           name: build-output-${{ steps.build.outputs.BUILD_NUMBER }}
           path: '**/target'
           retention-days: 3
+          overwrite: true
 
       - name: Prepare PVF candidate version
         if: ${{ steps.build.outputs.deployed }}
