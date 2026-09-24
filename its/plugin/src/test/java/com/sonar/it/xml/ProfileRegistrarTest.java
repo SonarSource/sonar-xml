@@ -59,23 +59,30 @@ class ProfileRegistrarTest {
   }
 
   @Test
-  void testPluginRegistersRuleInDefaultXmlProfile() {
+  void testPluginRegistersRuleInSonarWayXmlProfile() {
     var wsClient = newWsClient();
 
-    // First, query the quality profiles to find the profile key for Xml's "Sonar way" profile
+    // Find the plugin-defined profile, renamed from "Sonar way" to "Sonar way comprehensive" on newer servers.
     var profileSearchRequest = new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
       .setLanguage("xml");
 
     var profileResponse = wsClient.qualityprofiles().search(profileSearchRequest);
 
-    var xmlProfile = profileResponse.getProfilesList().stream()
-      .filter(profile -> profile.getIsBuiltIn() && profile.getIsDefault())
+    var builtInXmlProfiles = profileResponse.getProfilesList().stream()
+      .filter(profile -> profile.getIsBuiltIn())
+      .toList();
+
+    var xmlProfile = builtInXmlProfiles.stream()
+      .filter(profile -> "Sonar way comprehensive".equals(profile.getName()))
       .findFirst()
-      .orElseThrow(() -> new AssertionError("No default built-in XML profile found"));
+      .or(() -> builtInXmlProfiles.stream()
+        .filter(profile -> "Sonar way".equals(profile.getName()))
+        .findFirst())
+      .orElseThrow(() -> new AssertionError("No plugin-defined, built-in Sonar way XML profile found"));
 
     var profileKey = xmlProfile.getKey();
 
-    // Query the active rules in the built-in "Sonar way" profile for xml language using the profile key
+    // Query the active rules in the plugin-defined profile using its key.
     var rulesSearchRequest = new org.sonarqube.ws.client.rules.SearchRequest()
       .setLanguages(List.of("xml"))
       .setQprofile(profileKey)
@@ -90,7 +97,7 @@ class ProfileRegistrarTest {
       .toList();
 
     assertThat(testRules)
-      .as("Rule xml-test:TEST001 should be registered in the default xml profile by TestProfileRegistrar")
+      .as("Rule xml-test:TEST001 should be registered in the plugin-defined Sonar way XML profile by TestProfileRegistrar")
       .hasSize(1);
 
     var testRule = testRules.get(0);
