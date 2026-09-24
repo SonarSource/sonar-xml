@@ -21,10 +21,8 @@ import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
-
 import java.io.File;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarqube.ws.client.HttpConnector;
@@ -71,9 +69,9 @@ class ProfileRegistrarTest {
     var profileResponse = wsClient.qualityprofiles().search(profileSearchRequest);
 
     var xmlProfile = profileResponse.getProfilesList().stream()
-      .filter(profile -> profile.getName().contains("Sonar way") && profile.getIsBuiltIn())
+      .filter(profile -> profile.getIsBuiltIn() && profile.getIsDefault())
       .findFirst()
-      .orElseThrow(() -> new AssertionError("No built-in 'Sonar way' profile found for xml language"));
+      .orElseThrow(() -> new AssertionError("No default built-in XML profile found"));
 
     var profileKey = xmlProfile.getKey();
 
