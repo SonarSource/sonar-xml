@@ -106,7 +106,7 @@ class XmlRulingTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProperty("sonar.lits.dump.old", FileLocation.of("src/test/resources/expected/" + PROJECT_KEY).getFile().getAbsolutePath())
-      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
+      .setProperty("sonar.lits.dump.new", FileLocation.of("target/actual/" + PROJECT_KEY).getFile().getAbsolutePath())
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath());
     ORCHESTRATOR.executeBuild(build);
