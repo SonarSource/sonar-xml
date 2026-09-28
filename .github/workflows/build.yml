@@ -133,6 +133,10 @@ jobs:
         shell: bash
         run: |
           ls -lRh "$ORCHESTRATOR_HOME"
+      - name: Wait for Artifactory token federation
+        uses: SonarSource/sonarsource-infra-artifactory/.github/actions/wait-for-artifactory-token-federation@979fc5f122d4f67f0d7e0ea880e0f1c3b8019941
+        with:
+          probe-path: "api/search/versions?g=com.sonarsource.sonarqube&a=sonarqube-enterprise-lw&remote=1&repos=sonarsource-releases&v=*"
       - name: Plugin QA Tests
         shell: bash # Set explicitly so Bash is used on Windows runners too.
         working-directory: "its/${{ matrix.item.suite }}"
@@ -144,7 +148,7 @@ jobs:
           if [ $SUITE = "plugin" ]; then
             mvn install -f test-plugin/pom.xml
           fi;
-          mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+          mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
   promote:
     needs:
