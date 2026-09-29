@@ -1,7 +1,7 @@
 {
-"project:sonar-java/java-checks/src/test/files/checks/xml/struts/FormNameDuplicationCheck/form-validation.xml": [
+'project:sonar-java/java-checks/src/test/files/checks/xml/struts/FormNameDuplicationCheck/form-validation.xml':[
 9,
 10,
-22
-]
+22,
+],
 }

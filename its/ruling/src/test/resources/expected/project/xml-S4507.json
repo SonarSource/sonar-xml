@@ -1,8 +1,8 @@
 {
-"project:asp.net-web-application/web.config": [
-3
+'project:asp.net-web-application/web.config':[
+3,
 ],
-"project:special-cases/android-application/app1/AndroidManifest.xml": [
-8
-]
+'project:special-cases/android-application/app1/AndroidManifest.xml':[
+8,
+],
 }

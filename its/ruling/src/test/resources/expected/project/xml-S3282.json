@@ -1,11 +1,11 @@
 {
-"project:jboss-ejb3-tutorial/interceptor/META-INF/ejb-jar.xml": [
+'project:jboss-ejb3-tutorial/interceptor/META-INF/ejb-jar.xml':[
 55,
-56
+56,
 ],
-"project:sonar-java/java-checks/src/test/files/checks/xml/ejb/InterceptorExclusionsCheck/ejb-jar.xml": [
+'project:sonar-java/java-checks/src/test/files/checks/xml/ejb/InterceptorExclusionsCheck/ejb-jar.xml':[
 12,
 13,
-17
-]
+17,
+],
 }
