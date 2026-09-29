@@ -153,21 +153,9 @@ jobs:
           fi;
           mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
 
-      - name: Prepare ruling artifacts
-        id: prepare-ruling-artifacts
+      - name: Prepare ruling artifact
         if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
-        shell: bash
-        run: |
-          mkdir -p "$RUNNER_TEMP/ruling-artifacts/expected"
-          cp -R its/ruling/target/actual/project "$RUNNER_TEMP/ruling-artifacts/expected/"
-
-      - name: Upload ruling artifacts
-        if: ${{ always() && matrix.item.notify_ruling == true && steps.prepare-ruling-artifacts.outcome == 'success' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: actual_xml
-          path: ${{ runner.temp }}/ruling-artifacts/
-          if-no-files-found: error
+        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@romain/rc-354
 
       - name: Update ruling and notify
         if: ${{ always() && matrix.item.notify_ruling == true && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure') }}
