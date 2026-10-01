@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>87.0.0.3057</version>
+    <version>88.0.0.3367</version>
   </parent>
 
   <groupId>org.sonarsource.xml</groupId>
@@ -68,8 +68,8 @@
     <sonar.analyzerCommons.version>2.33.0.5369</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.4.3.4676</sonar.orchestrator.version>
     <!-- Minimum SL version supporting ${sonar.pluginApi.minVersion} -->
-    <sonar.sonarlint-core.version>12.0.0.87449</sonar.sonarlint-core.version>
-    <sonar.pluginApi.version>14.0.0.4498</sonar.pluginApi.version>
+    <sonar.sonarlint-core.version>12.0.2.87499</sonar.sonarlint-core.version>
+    <sonar.pluginApi.version>14.1.0.5543</sonar.pluginApi.version>
     <sonar.scanner.version>13.14.0.6149</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
@@ -181,7 +181,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>5.23.0</version>
+        <version>5.24.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -193,7 +193,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.20.0</version>
+        <version>3.21.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
