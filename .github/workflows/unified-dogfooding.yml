@@ -10,7 +10,7 @@ jobs:
     name: Unified Platform Dogfooding
     permissions:
       id-token: write
-      contents: read
+      contents: write  # Required by ci-github-actions v2 get-build-number (creates Git refs)
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
