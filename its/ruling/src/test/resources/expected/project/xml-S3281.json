@@ -1,6 +1,6 @@
 {
-'project:sonar-java/java-checks/src/test/files/checks/xml/ejb/DefaultInterceptorsLocationCheck/ejb-interceptors.xml':[
+"project:sonar-java/java-checks/src/test/files/checks/xml/ejb/DefaultInterceptorsLocationCheck/ejb-interceptors.xml": [
 8,
-9,
-],
+9
+]
 }
