@@ -154,11 +154,11 @@ jobs:
 
       - name: Prepare ruling artifact
         if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
-        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@romain/rc-354
+        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@master
 
       - name: Update ruling and notify
         if: ${{ always() && matrix.item.notify_ruling == true && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure') }}
-        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@romain/rc-354
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
         with:
           ruling-failed: ${{ steps.qa-tests.outcome == 'failure' }}
 
