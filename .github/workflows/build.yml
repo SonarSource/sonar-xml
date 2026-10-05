@@ -29,7 +29,7 @@ jobs:
       - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
         with:
           version: 2026.9.17
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@v2
         id: build
         with:
           deploy-pull-request: true
@@ -61,7 +61,7 @@ jobs:
       - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
         with:
           version: 2026.9.17
-      - uses: SonarSource/ci-github-actions/build-maven@v1
+      - uses: SonarSource/ci-github-actions/build-maven@v2
         with:
           deploy: false
           sonar-platform: 'none'
@@ -119,7 +119,7 @@ jobs:
           secrets: |
             development/github/token/licenses-ro token | GITHUB_TOKEN;
       - name: Configure Maven
-        uses: SonarSource/ci-github-actions/config-maven@v1
+        uses: SonarSource/ci-github-actions/config-maven@v2
         with:
           artifactory-reader-role: private-reader
           use-develocity: true
@@ -160,6 +160,6 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
-      - uses: SonarSource/ci-github-actions/promote@v1
+      - uses: SonarSource/ci-github-actions/promote@v2
         with:
           promote-pull-request: true
