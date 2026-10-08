@@ -90,6 +90,8 @@ jobs:
             suite: "ruling"
             sq_version: "LATEST_RELEASE"
             runner: "github-ubuntu-latest-s"
+            # Run the update-and-notify flow once, avoiding duplicate fix PRs from Windows.
+            notify_ruling: true
           - name: "Ruling [Windows] - SQ: LATEST"
             suite: "ruling"
             sq_version: "LATEST_RELEASE"
@@ -104,7 +106,9 @@ jobs:
       - build # We only need the build that deploys the artifacts to run ruling.
     permissions:
       id-token: write  # Required for Vault OIDC authentication
-      contents: write  # Required for repository access
+      contents: write  # Required for fix branches
+      pull-requests: write
+      actions: read
     env:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
@@ -134,6 +138,8 @@ jobs:
         run: |
           ls -lRh "$ORCHESTRATOR_HOME"
       - name: Plugin QA Tests
+        id: qa-tests
+        continue-on-error: ${{ matrix.item.notify_ruling == true }}
         shell: bash # Set explicitly so Bash is used on Windows runners too.
         working-directory: "its/${{ matrix.item.suite }}"
         env:
@@ -145,6 +151,20 @@ jobs:
             mvn install -f test-plugin/pom.xml
           fi;
           mvn verify "-Pit-${SUITE}" "-Dsonar.runtimeVersion=${SQ_VERSION}" -Dmaven.test.redirectTestOutputToFile=false -B -e -V
+
+      - name: Prepare ruling artifact
+        if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
+        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@master
+
+      - name: Update ruling and notify
+        if: ${{ always() && matrix.item.notify_ruling == true && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure') }}
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        with:
+          ruling-failed: ${{ steps.qa-tests.outcome == 'failure' }}
+
+      - name: Preserve ruling test failure
+        if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
+        run: exit 1
 
   promote:
     needs:
