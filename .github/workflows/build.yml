@@ -29,6 +29,13 @@ jobs:
       - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
         with:
           version: 2026.10.0
+      # Build-number refs only track a number; use the existing base commit so
+      # claiming a PR number does not create refs containing workflow changes.
+      - name: Claim PR build number
+        if: github.event_name == 'pull_request'
+        uses: SonarSource/ci-github-actions/get-build-number@v2
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.base.sha }}
       - uses: SonarSource/ci-github-actions/build-maven@v2
         id: build
         with:
@@ -57,6 +64,12 @@ jobs:
   analysis:
     name: NEXT analysis
     needs: build
+    # Match build-maven's should_scan policy; other refs only build and deploy.
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.ref_name == github.event.repository.default_branch ||
+      startsWith(github.ref_name, 'branch-') ||
+      startsWith(github.ref_name, 'feature/long/')
     runs-on: github-ubuntu-latest-m
     permissions:
       id-token: write
@@ -65,9 +78,9 @@ jobs:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
         with:
-          version: 2026.9.18
+          version: 2026.10.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build-output-${{ needs.build.outputs.build-number }}
@@ -188,7 +201,13 @@ jobs:
       - analysis
       - build-win
       - qa
-    if: ${{ needs.build.outputs.deployed }}
+    if: >-
+      !cancelled()
+      && needs.build.result == 'success'
+      && needs.build-win.result == 'success'
+      && needs.qa.result == 'success'
+      && (needs.analysis.result == 'success' || needs.analysis.result == 'skipped')
+      && (needs.build.outputs.deployed)
     runs-on: github-ubuntu-latest-s  # Custom GitHub-hosted runner for public repos
     name: Promote
     permissions:
