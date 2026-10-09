@@ -65,7 +65,7 @@
 
     <sonar.analyzerCommons.version>2.33.0.5369</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.4.3.4676</sonar.orchestrator.version>
-    <sonar.sonarlint-core.version>12.0.2.87499</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>12.1.0.87730</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>14.1.0.5543</sonar.pluginApi.version>
     <sonar.scanner.version>13.15.0.6376</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
