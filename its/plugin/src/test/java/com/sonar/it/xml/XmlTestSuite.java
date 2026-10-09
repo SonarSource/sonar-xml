@@ -46,7 +46,7 @@ import static java.util.Collections.singletonList;
 public class XmlTestSuite {
 
   protected static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  protected static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  protected static final String DEFAULT_SQ_VERSION = "DEV";
 
   @RegisterExtension
   static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()

@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class XmlRulingTest {
 
   private static final String SQ_VERSION_PROPERTY = "sonar.runtimeVersion";
-  private static final String DEFAULT_SQ_VERSION = "LATEST_RELEASE";
+  private static final String DEFAULT_SQ_VERSION = "DEV";
   private static final String LANGUAGE = "xml";
   private static final String PROJECT_KEY = "project";
   private static final String QUALITY_PROFILE_NAME = "rules";
