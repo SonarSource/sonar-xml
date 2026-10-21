@@ -27,8 +27,8 @@ import org.w3c.dom.Node;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3282")
 public class InterceptorExclusionsCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression notDefaultInterceptorBindingsExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name!=\"*\"]");
-  private XPathExpression exclusionsExpression = getXPathExpression("*[self::exclude-default-interceptors[text()=\"true\"] or self::exclude-class-interceptors[text()=\"true\"]]");
+  private final XPathExpression notDefaultInterceptorBindingsExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name!=\"*\"]");
+  private final XPathExpression exclusionsExpression = getXPathExpression("*[self::exclude-default-interceptors[text()=\"true\"] or self::exclude-class-interceptors[text()=\"true\"]]");
 
   @Override
   public void scanFile(XmlFile xmlFile) {

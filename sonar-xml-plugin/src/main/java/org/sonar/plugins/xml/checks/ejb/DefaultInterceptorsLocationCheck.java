@@ -26,7 +26,7 @@ import org.sonarsource.analyzer.commons.xml.checks.SimpleXPathBasedCheck;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3281")
 public class DefaultInterceptorsLocationCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression defaultInterceptorClassesExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name=\"*\"]/interceptor-class");
+  private final XPathExpression defaultInterceptorClassesExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name=\"*\"]/interceptor-class");
 
   @Override
   public void scanFile(XmlFile file) {
