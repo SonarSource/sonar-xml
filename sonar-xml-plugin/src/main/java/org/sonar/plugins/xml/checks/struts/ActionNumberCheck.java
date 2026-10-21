@@ -38,8 +38,8 @@ public class ActionNumberCheck extends SimpleXPathBasedCheck {
     defaultValue = "" + DEFAULT_MAXIMUM_NUMBER_FORWARDS)
   public int maximumForwards = DEFAULT_MAXIMUM_NUMBER_FORWARDS;
 
-  private XPathExpression actionsExpression = getXPathExpression("struts-config/action-mappings/action");
-  private XPathExpression forwardsFromActionExpression = getXPathExpression("forward");
+  private final XPathExpression actionsExpression = getXPathExpression("struts-config/action-mappings/action");
+  private final XPathExpression forwardsFromActionExpression = getXPathExpression("forward");
 
   @Override
   public void scanFile(XmlFile xmlFile) {

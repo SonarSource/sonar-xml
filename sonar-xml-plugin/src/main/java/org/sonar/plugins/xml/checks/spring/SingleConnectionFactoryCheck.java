@@ -31,9 +31,9 @@ import org.w3c.dom.Node;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3438")
 public class SingleConnectionFactoryCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression singleConnectionFactoryBeansExpression = getXPathExpression("beans/bean[@class='org.springframework.jms.connection.SingleConnectionFactory']");
-  private XPathExpression reconnectOnExceptionPropertyExpression = getXPathExpression("property[@name='reconnectOnException']");
-  private XPathExpression valueExpression = getXPathExpression("value[text()='true']");
+  private final XPathExpression singleConnectionFactoryBeansExpression = getXPathExpression("beans/bean[@class='org.springframework.jms.connection.SingleConnectionFactory']");
+  private final XPathExpression reconnectOnExceptionPropertyExpression = getXPathExpression("property[@name='reconnectOnException']");
+  private final XPathExpression valueExpression = getXPathExpression("value[text()='true']");
 
   @Override
   public void scanFile(XmlFile file) {
