@@ -39,7 +39,7 @@ public class ArtifactIdNamingConventionCheck extends SimpleXPathBasedCheck {
     defaultValue = "" + DEFAULT_REGEX)
   public String regex = DEFAULT_REGEX;
 
-  private XPathExpression artifactIdExpression = getXPathExpression("project/artifactId");
+  private final XPathExpression artifactIdExpression = getXPathExpression("project/artifactId");
   private Pattern pattern = null;
 
   @Override
