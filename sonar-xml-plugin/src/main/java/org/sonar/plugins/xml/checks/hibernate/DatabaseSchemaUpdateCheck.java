@@ -28,7 +28,7 @@ import org.w3c.dom.NodeList;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3822")
 public class DatabaseSchemaUpdateCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression hibernateHbm2ddlAutoProperty = getXPathExpression("//property[@name='hibernate.hbm2ddl.auto']");
+  private final XPathExpression hibernateHbm2ddlAutoProperty = getXPathExpression("//property[@name='hibernate.hbm2ddl.auto']");
 
   @Override
   public void scanFile(XmlFile file) {
