@@ -13,7 +13,7 @@ jobs:
       contents: write  # Required by ci-github-actions v2 get-build-number (creates Git refs)
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.10.0
       - uses: SonarSource/ci-github-actions/build-maven@v2
