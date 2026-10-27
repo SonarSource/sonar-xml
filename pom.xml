@@ -67,7 +67,7 @@
     <sonar.orchestrator.version>6.4.4.4797</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>12.2.0.87867</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>14.2.0.5584</sonar.pluginApi.version>
-    <sonar.scanner.version>13.16.0.6705</sonar.scanner.version>
+    <sonar.scanner.version>13.17.0.6738</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.4.21</kotlin.version>
