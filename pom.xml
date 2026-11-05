@@ -63,11 +63,11 @@
     <!-- Required by shadow scans -->
     <sonar.organization>sonarsource</sonar.organization>
 
-    <sonar.analyzerCommons.version>2.33.0.5369</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.35.0.15509</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.4.4.4797</sonar.orchestrator.version>
-    <sonar.sonarlint-core.version>12.1.1.87771</sonar.sonarlint-core.version>
+    <sonar.sonarlint-core.version>12.2.0.87867</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>14.2.0.5584</sonar.pluginApi.version>
-    <sonar.scanner.version>13.16.0.6705</sonar.scanner.version>
+    <sonar.scanner.version>13.18.0.6805</sonar.scanner.version>
     <!-- Version required by sonar-orchestrator due to okhttp3.
       If it is not explicit, then we will use the version used by sonarlint-core, which is not compatible. -->
     <kotlin.version>2.4.21</kotlin.version>
@@ -184,7 +184,7 @@
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
-        <version>2.14.0</version>
+        <version>2.15.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
