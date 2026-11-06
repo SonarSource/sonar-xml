@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 public class DeprecatedPomPropertiesCheck extends SimpleXPathBasedCheck {
   private static final String POM_PROPERTY_PREFIX = "${pom.";
   private static final String POM_PROPERTY_SUFFIX = "}";
-  private XPathExpression textsExpression = getXPathExpression("//*[text()]");
+  private final XPathExpression textsExpression = getXPathExpression("//*[text()]");
 
   @Override
   public void scanFile(XmlFile file) {

@@ -44,7 +44,7 @@ public class Xml extends AbstractLanguage {
   public static final String SONAR_WAY_PROFILE_NAME = "Sonar way";
   public static final String SONAR_WAY_PATH = "org/sonar/l10n/xml/rules/xml/Sonar_way_profile.json";
 
-  private Configuration configuration;
+  private final Configuration configuration;
 
   /**
    * Default constructor.

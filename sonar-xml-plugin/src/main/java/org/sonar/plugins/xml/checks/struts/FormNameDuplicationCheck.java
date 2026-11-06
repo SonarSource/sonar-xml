@@ -32,8 +32,8 @@ import org.w3c.dom.Node;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3374")
 public class FormNameDuplicationCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression formsetsExpression = getXPathExpression("form-validation/formset");
-  private XPathExpression formsExpression = getXPathExpression("form");
+  private final XPathExpression formsetsExpression = getXPathExpression("form-validation/formset");
+  private final XPathExpression formsExpression = getXPathExpression("form");
 
   @Override
   public void scanFile(XmlFile xmlFile) {

@@ -40,7 +40,7 @@ public class GroupIdNamingConventionCheck extends SimpleXPathBasedCheck {
     defaultValue = "" + DEFAULT_REGEX)
   public String regex = DEFAULT_REGEX;
 
-  private XPathExpression groupIdExpression = getXPathExpression("project/groupId");
+  private final XPathExpression groupIdExpression = getXPathExpression("project/groupId");
   private Pattern pattern = null;
 
   @Override

@@ -28,8 +28,8 @@ import org.w3c.dom.Node;
 @Rule(key = "S3355")
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3355")
 public class ValidationFiltersCheck extends BaseWebCheck {
-  private XPathExpression filterNamesFromFilterExpression = getXPathExpression(WEB_XML_ROOT + "/filter/filter-name");
-  private XPathExpression filterNamesFromFilterMappingExpression = getXPathExpression(WEB_XML_ROOT + "/filter-mapping/filter-name");
+  private final XPathExpression filterNamesFromFilterExpression = getXPathExpression(WEB_XML_ROOT + "/filter/filter-name");
+  private final XPathExpression filterNamesFromFilterMappingExpression = getXPathExpression(WEB_XML_ROOT + "/filter-mapping/filter-name");
 
   @Override
   public void scanWebXml(XmlFile file) {
