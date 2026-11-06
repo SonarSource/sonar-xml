@@ -28,7 +28,8 @@ import org.w3c.dom.Node;
 public class InterceptorExclusionsCheck extends SimpleXPathBasedCheck {
 
   private final XPathExpression notDefaultInterceptorBindingsExpression = getXPathExpression("ejb-jar/assembly-descriptor/interceptor-binding[ejb-name!=\"*\"]");
-  private final XPathExpression exclusionsExpression = getXPathExpression("*[self::exclude-default-interceptors[text()=\"true\"] or self::exclude-class-interceptors[text()=\"true\"]]");
+  private final XPathExpression exclusionsExpression = getXPathExpression(
+    "*[self::exclude-default-interceptors[text()=\"true\"] or self::exclude-class-interceptors[text()=\"true\"]]");
 
   @Override
   public void scanFile(XmlFile xmlFile) {
