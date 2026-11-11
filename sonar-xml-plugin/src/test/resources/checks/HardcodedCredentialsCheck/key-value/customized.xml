@@ -1,0 +1,6 @@
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata">
+  <values>
+    <field>Consumer_Secret__c</field>
+    <value>N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+  </values>
+</CustomMetadata>

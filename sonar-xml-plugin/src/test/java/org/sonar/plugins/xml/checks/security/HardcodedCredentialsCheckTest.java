@@ -72,6 +72,31 @@ class HardcodedCredentialsCheckTest {
     SonarXmlCheckVerifier.verifyIssues(Paths.get("special-cases", file).toString(), CHECK);
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"salesforce.xml", "salesforce-prefixed.xml", "hadoop.xml", "properties.xml", "resources.resx", "dictionary.plist"})
+  void keyValueFormats(String file) {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("key-value", file).toString(), CHECK);
+  }
+
+  @Test
+  void customKeyValueCredentialWords() {
+    HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
+    check.credentialWords = "secret";
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("key-value", "customized.xml").toString(), check);
+  }
+
+  @Test
+  void keyValueCredentialsAreNotReportedTwice() {
+    HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
+    check.credentialWords = "secret,value";
+    SonarXmlCheckVerifier.verifyIssues(Paths.get("key-value", "customized.xml").toString(), check);
+  }
+
+  @Test
+  void unrelatedKeyValueStructures() {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get("key-value", "unrelated.xml").toString(), CHECK);
+  }
+
   @Test
   void android_password_attribute_is_ignored() {
     SonarXmlCheckVerifier.verifyNoIssue("android_password.xml", CHECK);

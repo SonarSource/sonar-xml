@@ -1,0 +1,12 @@
+<sf:CustomMetadata xmlns:sf="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <sf:values>
+    <sf:field> DbPaSsWoRd__c </sf:field>
+    <sf:value><![CDATA[N8v4Qz7Lm2Rt6]]></sf:value> <!-- Noncompliant -->
+  </sf:values>
+  <sf:values>
+    <sf:field>pwd</sf:field>
+    <sf:value><!-- Comment before literal -->N8v4Qz7Lm2Rt6</sf:value> <!-- Noncompliant -->
+  </sf:values>
+  <sf:values><sf:field>password</sf:field><sf:value xsi:nil="true">N8v4Qz7Lm2Rt6</sf:value></sf:values>
+  <sf:values><sf:field>password</sf:field><sf:value xsi:nil="1">N8v4Qz7Lm2Rt6</sf:value></sf:values>
+</sf:CustomMetadata>

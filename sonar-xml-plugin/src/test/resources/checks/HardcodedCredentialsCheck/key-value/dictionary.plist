@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>db.password</key>
+    <!-- Comment between key and value -->
+    <string>N8v4Qz7Lm2Rt6</string> <!-- Noncompliant -->
+    <key>nested</key>
+    <array><dict>
+      <key>PaSsPhRaSe</key>
+      <string><![CDATA[N8v4Qz7Lm2Rt6]]></string> <!-- Noncompliant -->
+    </dict></array>
+    <key>password</key><string>${PASSWORD}</string>
+    <key>password</key><string>changeme</string>
+    <key>password</key><string> </string>
+    <key>password</key><string/>
+    <key>username</key><string>N8v4Qz7Lm2Rt6</string>
+    <key>password</key><dict><key>username</key><string>N8v4Qz7Lm2Rt6</string></dict>
+    <key>password</key><array><string>N8v4Qz7Lm2Rt6</string></array>
+    <key>password</key><true/>
+    <string>N8v4Qz7Lm2Rt6</string>
+    <key>password</key><data>Tjh2NFF6N0xtMlJ0Ng==</data>
+    <key>password</key><integer>123456</integer>
+    <key>password</key><string><nested>N8v4Qz7Lm2Rt6</nested></string>
+    <key>password</key><key>username</key><string>N8v4Qz7Lm2Rt6</string>
+    <key>password</key>
+  </dict>
+</plist>

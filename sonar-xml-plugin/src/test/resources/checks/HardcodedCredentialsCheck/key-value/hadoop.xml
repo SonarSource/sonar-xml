@@ -1,0 +1,16 @@
+<configuration>
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+    <description>Database password</description>
+  </property>
+  <property><value>N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+    <name>db.PASSWD</name></property>
+  <property><name>password</name><value>${db.password}</value></property>
+  <property><name>password</name><value>example_secret</value></property>
+  <property><name>password</name><value> </value></property>
+  <property><name>password</name></property>
+  <property><value>N8v4Qz7Lm2Rt6</value></property>
+  <property><name>username</name><value>N8v4Qz7Lm2Rt6</value></property>
+  <property><name>password</name><value><nested>N8v4Qz7Lm2Rt6</nested></value></property>
+</configuration>
