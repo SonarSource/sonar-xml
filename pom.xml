@@ -63,7 +63,7 @@
     <!-- Required by shadow scans -->
     <sonar.organization>sonarsource</sonar.organization>
 
-    <sonar.analyzerCommons.version>2.35.0.15509</sonar.analyzerCommons.version>
+    <sonar.analyzerCommons.version>2.36.0.15632</sonar.analyzerCommons.version>
     <sonar.orchestrator.version>6.4.4.4797</sonar.orchestrator.version>
     <sonar.sonarlint-core.version>12.3.0.87938</sonar.sonarlint-core.version>
     <sonar.pluginApi.version>14.3.0.5639</sonar.pluginApi.version>
