@@ -12,5 +12,6 @@
   <property><name>password</name></property>
   <property><value>N8v4Qz7Lm2Rt6</value></property>
   <property><name>username</name><value>N8v4Qz7Lm2Rt6</value></property>
+  <!-- A value containing an element is structured content, not a literal credential. -->
   <property><name>password</name><value><nested>N8v4Qz7Lm2Rt6</nested></value></property>
 </configuration>

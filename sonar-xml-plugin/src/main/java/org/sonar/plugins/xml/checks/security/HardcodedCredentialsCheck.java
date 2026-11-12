@@ -51,14 +51,21 @@ public class HardcodedCredentialsCheck extends SimpleXPathBasedCheck {
 
   private static final Set<String> KEY_VALUE_ELEMENTS = Set.of(VALUE, "entry", "string");
 
-  private static final XPathExpression KEY_VALUE_NAME_PATH = XPathBuilder.forExpression(
+  private static final List<String> KEY_VALUE_NAME_PATHS = List.of(
+    // Salesforce CustomMetadata: nil values have no credential, even if text is present.
     "self::sf:value[not(*) and not(@xsi:nil='true' or @xsi:nil='1')]"
-      + "/parent::sf:values[parent::sf:CustomMetadata[not(parent::*)]]/sf:field[not(*)]"
-      + "|self::value[not(*)]/parent::property[parent::configuration[not(parent::*)]]/name[not(*)]"
-      + "|self::entry[not(*) and parent::properties[not(parent::*)]]/@key"
-      + "|self::value[not(*)]/parent::data[parent::root[not(parent::*)]]/@name"
-      + "|self::string[not(*) and parent::dict and ancestor::plist[not(parent::*)]]"
-      + "/preceding-sibling::*[1][self::key and not(*)]")
+      + "/parent::sf:values[parent::sf:CustomMetadata[not(parent::*)]]/sf:field[not(*)]",
+    // Hadoop configuration: pair the literal value with the name in the same property.
+    "self::value[not(*)]/parent::property[parent::configuration[not(parent::*)]]/name[not(*)]",
+    // Java XML Properties: the entry key names its literal text value.
+    "self::entry[not(*) and parent::properties[not(parent::*)]]/@key",
+    // .NET resources: the data name identifies its literal value child.
+    "self::value[not(*)]/parent::data[parent::root[not(parent::*)]]/@name",
+    // XML plists: only a literal string immediately after a dictionary key is a candidate.
+    "self::string[not(*) and parent::dict and ancestor::plist[not(parent::*)]]"
+      + "/preceding-sibling::*[1][self::key and not(*)]");
+
+  private static final XPathExpression KEY_VALUE_NAME_PATH = XPathBuilder.forExpression(String.join("|", KEY_VALUE_NAME_PATHS))
     .withNamespace("sf", "http://soap.sforce.com/2006/04/metadata")
     .withNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
     .build();

@@ -15,12 +15,16 @@
     <key>password</key><string> </string>
     <key>password</key><string/>
     <key>username</key><string>N8v4Qz7Lm2Rt6</string>
+    <!-- Containers are not literal credentials. The nested string belongs to username. -->
     <key>password</key><dict><key>username</key><string>N8v4Qz7Lm2Rt6</string></dict>
+    <!-- An array is a structured value, not a literal password string. -->
     <key>password</key><array><string>N8v4Qz7Lm2Rt6</string></array>
     <key>password</key><true/>
     <string>N8v4Qz7Lm2Rt6</string>
+    <!-- Binary data and numeric values are outside the supported plist string values. -->
     <key>password</key><data>Tjh2NFF6N0xtMlJ0Ng==</data>
     <key>password</key><integer>123456</integer>
+    <!-- A string containing an element is not a literal string in the plist format. -->
     <key>password</key><string><nested>N8v4Qz7Lm2Rt6</nested></string>
     <key>password</key><key>username</key><string>N8v4Qz7Lm2Rt6</string>
     <key>password</key>
