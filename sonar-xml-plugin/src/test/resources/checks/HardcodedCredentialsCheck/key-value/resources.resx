@@ -1,0 +1,14 @@
+<root>
+  <data name="DatabasePassword" xml:space="preserve">
+    <value>N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+    <comment>Connection credential</comment>
+  </data>
+  <data name="pwd"><value><![CDATA[N8v4Qz7Lm2Rt6]]></value></data> <!-- Noncompliant -->
+  <data name="password"><value>$(PASSWORD)</value></data>
+  <data name="password"><value>changeme</value></data>
+  <data name="password"><value> </value></data>
+  <data name="password"/>
+  <data><value>N8v4Qz7Lm2Rt6</value></data>
+  <data name="username"><value>N8v4Qz7Lm2Rt6</value></data>
+  <data name="password"><value><nested>N8v4Qz7Lm2Rt6</nested></value></data>
+</root>

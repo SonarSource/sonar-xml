@@ -1,0 +1,15 @@
+<!-- These lookalike entries lack the required document root or Salesforce namespace.
+     Known formats are recognized only under their expected root and namespace. -->
+<other xmlns:sf="http://soap.sforce.com/2006/04/metadata">
+  <values><field>password</field><value>N8v4Qz7Lm2Rt6</value></values>
+  <property><name>password</name><value>N8v4Qz7Lm2Rt6</value></property>
+  <entry key="password">N8v4Qz7Lm2Rt6</entry>
+  <data name="password"><value>N8v4Qz7Lm2Rt6</value></data>
+  <dict><key>password</key><string>N8v4Qz7Lm2Rt6</string></dict>
+  <CustomMetadata xmlns="urn:unrelated"><values><field>password</field><value>N8v4Qz7Lm2Rt6</value></values></CustomMetadata>
+  <sf:CustomMetadata><sf:values><sf:field>password</sf:field><value>N8v4Qz7Lm2Rt6</value></sf:values></sf:CustomMetadata>
+  <configuration><property><name>password</name><value>N8v4Qz7Lm2Rt6</value></property></configuration>
+  <properties><entry key="password">N8v4Qz7Lm2Rt6</entry></properties>
+  <root><data name="password"><value>N8v4Qz7Lm2Rt6</value></data></root>
+  <plist><dict><key>password</key><string>N8v4Qz7Lm2Rt6</string></dict></plist>
+</other>

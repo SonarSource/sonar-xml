@@ -1,0 +1,22 @@
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <values>
+    <field>password</field>
+    <value xsi:type="xsd:string">N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+  </values>
+  <values>
+    <field>Password__c</field>
+    <!-- Comment between key and value -->
+    <value>N8v4Qz7Lm2Rt6</value> <!-- Noncompliant -->
+  </values>
+  <values><field>Consumer_Secret__c</field><value>K9p3Wm6Hs8Va2</value></values>
+  <values><field>password</field><value xsi:nil="true"/></values>
+  <values><field>password</field><value xsi:nil="1"/></values>
+  <values><field>password</field><value/></values>
+  <values><field>password</field><value>   </value></values>
+  <values><field>password</field><value>${PASSWORD}</value></values>
+  <values><field>password</field><value>changeme</value></values>
+  <values><field>password</field></values>
+  <values><value>N8v4Qz7Lm2Rt6</value></values>
+  <values><field>username</field><value>N8v4Qz7Lm2Rt6</value></values>
+  <values><field>password</field><value><nested>N8v4Qz7Lm2Rt6</nested></value></values>
+</CustomMetadata>
