@@ -27,7 +27,7 @@ public class CrossOriginResourceSharingCheck extends BaseWebCheck {
 
   private static final Pattern STAR_IN_COMMA_SEPARATED_LIST_REGEX = Pattern.compile("(^|,)\\*(,|$)");
 
-  private XPathExpression corsAllowedOrigins = XPathBuilder
+  private final XPathExpression corsAllowedOrigins = XPathBuilder
     .forExpression("/j:web-app" +
       "/j:filter[j:filter-class='org.apache.catalina.filters.CorsFilter']" +
       "/j:init-param[j:param-name='cors.allowed.origins']" +

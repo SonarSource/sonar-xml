@@ -31,7 +31,7 @@ import org.w3c.dom.NodeList;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3422")
 public class DependencyWithSystemScopeCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression dependencyExpression = getXPathExpression("//dependencies/dependency");
+  private final XPathExpression dependencyExpression = getXPathExpression("//dependencies/dependency");
 
   @Override
   public void scanFile(XmlFile xmlFile) {

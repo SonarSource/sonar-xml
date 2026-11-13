@@ -29,11 +29,11 @@ import org.w3c.dom.Node;
 @DeprecatedRuleKey(repositoryKey = "java", ruleKey = "S3439")
 public class DefaultMessageListenerContainerCheck extends SimpleXPathBasedCheck {
 
-  private XPathExpression defaultMessageListenerContainerBeanExpression = getXPathExpression(
+  private final XPathExpression defaultMessageListenerContainerBeanExpression = getXPathExpression(
     "beans/bean[@class='org.springframework.jms.listener.DefaultMessageListenerContainer']");
-  private XPathExpression acceptMessageWhileStoppingPropertyExpression = getXPathExpression("property[@name='acceptMessagesWhileStopping']");
-  private XPathExpression sessionTransactedPropertyExpression = getXPathExpression("property[@name='sessionTransacted']");
-  private XPathExpression valueExpression = getXPathExpression("value[text()='true']");
+  private final XPathExpression acceptMessageWhileStoppingPropertyExpression = getXPathExpression("property[@name='acceptMessagesWhileStopping']");
+  private final XPathExpression sessionTransactedPropertyExpression = getXPathExpression("property[@name='sessionTransacted']");
+  private final XPathExpression valueExpression = getXPathExpression("value[text()='true']");
 
   @Override
   public void scanFile(XmlFile xmlFile) {

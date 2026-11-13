@@ -25,12 +25,12 @@ import org.w3c.dom.Document;
 @Rule(key = "S2647")
 public class BasicAuthenticationCheck extends BaseWebCheck {
 
-  private XPathExpression authMethodBasicExpression = XPathBuilder
+  private final XPathExpression authMethodBasicExpression = XPathBuilder
     .forExpression("/j:web-app/j:login-config/j:auth-method[.='BASIC']")
     .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
 
-  private XPathExpression httpsEnabledExpression = XPathBuilder
+  private final XPathExpression httpsEnabledExpression = XPathBuilder
     .forExpression("/j:web-app/j:security-constraint/j:user-data-constraint/j:transport-guarantee[.='CONFIDENTIAL']")
     .withNamespace("j", "http://xmlns.jcp.org/xml/ns/javaee")
     .build();
