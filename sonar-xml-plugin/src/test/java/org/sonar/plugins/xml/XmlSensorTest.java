@@ -364,6 +364,17 @@ class XmlSensorTest {
     assertThat(context.allIssues()).extracting("ruleKey").containsOnly(HARDCODED_CREDENTIALS_RULE_KEY);
   }
 
+  @Test
+  void s2068DetectsSalesforceMetadata() throws Exception {
+    initWithS2068();
+    fs.add(createInputFile("checks/HardcodedCredentialsCheck/key-value/salesforce.xml"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(2)
+      .extracting("ruleKey").containsOnly(HARDCODED_CREDENTIALS_RULE_KEY);
+  }
+
   private void init() throws Exception {
     init(SQ_LTS_RUNTIME, false);
   }

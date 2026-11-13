@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="db.password">N8v4Qz7Lm2Rt6</entry> <!-- Noncompliant -->
+  <entry key="TLS_PASSPHRASE"><![CDATA[N8v4Qz7Lm2Rt6]]></entry> <!-- Noncompliant -->
+  <entry key="pwd"><!-- Comment -->N8v4Qz7Lm2Rt6</entry> <!-- Noncompliant -->
+  <entry key="password">${PASSWORD}</entry>
+  <entry key="password">{{PASSWORD}}</entry>
+  <entry key="password">changeme</entry>
+  <entry key="password"/>
+  <entry key="password"> </entry>
+  <entry key="username">N8v4Qz7Lm2Rt6</entry>
+  <entry>N8v4Qz7Lm2Rt6</entry>
+  <entry key="password"><nested>N8v4Qz7Lm2Rt6</nested></entry>
+</properties>
