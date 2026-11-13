@@ -199,7 +199,14 @@ jobs:
         uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@master
 
       - name: Update ruling and notify
-        if: ${{ always() && matrix.item.notify_ruling == true && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure') }}
+        if: >-
+          ${{
+            always()
+            && github.event_name == 'pull_request'
+            && github.event.pull_request.head.repo.full_name == github.repository
+            && matrix.item.notify_ruling == true
+            && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure')
+          }}
         uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
         with:
           ruling-failed: ${{ steps.qa-tests.outcome == 'failure' }}
