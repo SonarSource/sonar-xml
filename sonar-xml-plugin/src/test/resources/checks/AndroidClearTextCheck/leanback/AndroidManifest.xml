@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.example.myapp">
+  <!-- Noncompliant@+1 {{"usesCleartextTraffic" is implicitly enabled for older Android versions. Make sure allowing clear-text traffic is safe here.}} -->
+  <application><activity android:name=".Tv"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LEANBACK_LAUNCHER"/></intent-filter></activity></application>
+</manifest>
