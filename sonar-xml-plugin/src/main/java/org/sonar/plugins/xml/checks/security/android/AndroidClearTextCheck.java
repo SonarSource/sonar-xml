@@ -45,6 +45,8 @@ public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
 
   @Override
   protected void scanAndroidManifest(XmlFile file) {
+    // Needed in addition to the check inside isLikelyNonPrimaryManifest: that one only guards the implicit report,
+    // this skips the whole file so an explicit usesCleartextTraffic="true" in a debug/test overlay is not reported either.
     if (Utils.isDebugOrTestOverlay(file)) {
       return;
     }
