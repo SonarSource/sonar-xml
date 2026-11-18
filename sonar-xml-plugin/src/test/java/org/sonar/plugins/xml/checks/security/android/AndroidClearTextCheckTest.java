@@ -16,7 +16,10 @@
  */
 package org.sonar.plugins.xml.checks.security.android;
 
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonarsource.analyzer.commons.xml.checks.SonarXmlCheckVerifier;
 
@@ -48,6 +51,20 @@ class AndroidClearTextCheckTest {
       new AndroidClearTextCheck(),
       new MapSettings().setProperty("sonar.android.minsdkversion.min", 27)
     );
+  }
+
+  private static final MapSettings OLD_SDK = new MapSettings().setProperty("sonar.android.minsdkversion.min", 27);
+
+  @ParameterizedTest
+  @ValueSource(strings = {"library", "hascode", "tools-only", "src/debug", "src/test", "src/androidTest", "src/debug-true/src/debug"})
+  void does_not_raise_on_non_primary_manifest(String dir) {
+    SonarXmlCheckVerifier.verifyNoIssue(Paths.get(dir, "AndroidManifest.xml").toString(), new AndroidClearTextCheck(), OLD_SDK);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"src/main", "src/release", "nolauncher-true", "leanback", "nsc-nolauncher", "label-nolauncher", "native-launcher"})
+  void still_raises(String dir) {
+    SonarXmlCheckVerifier.verifyIssues(Paths.get(dir, "AndroidManifest.xml").toString(), new AndroidClearTextCheck(), OLD_SDK);
   }
 
 }

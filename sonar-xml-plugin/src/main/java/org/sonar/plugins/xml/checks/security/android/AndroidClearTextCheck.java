@@ -45,12 +45,17 @@ public class AndroidClearTextCheck extends AbstractAndroidManifestCheck {
 
   @Override
   protected void scanAndroidManifest(XmlFile file) {
+    // Needed in addition to the check inside isLikelyNonPrimaryManifest: that one only guards the implicit report,
+    // this skips the whole file so an explicit usesCleartextTraffic="true" in a debug/test overlay is not reported either.
+    if (Utils.isDebugOrTestOverlay(file)) {
+      return;
+    }
     Document document = file.getDocument();
     evaluateAsList(xPathClearTextTrue, document).forEach(node -> reportAtNameLocation(node, MESSAGE));
     Integer minSdk = getContext().config().getInt("sonar.android.minsdkversion.min").orElse(27);
     // As of Android SDK 28, `usesCleartextTraffic` is implicitly set to false by default
     // See https://developer.android.com/guide/topics/manifest/application-element
-    if (minSdk < 28) {
+    if (minSdk < 28 && !Utils.isLikelyNonPrimaryManifest(file)) {
       evaluateAsList(xPathClearTextImplicit, document).forEach(node -> reportAtNameLocation(node, MESSAGE_IMPLICIT));
     }
   }
