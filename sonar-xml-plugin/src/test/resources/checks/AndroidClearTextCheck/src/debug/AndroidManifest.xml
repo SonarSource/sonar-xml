@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.example.myapp">
-  <application><provider android:name="com.example.P" tools:node="remove"/></application>
+  <application android:usesCleartextTraffic="true" tools:replace="android:usesCleartextTraffic"><provider android:name="com.example.P" tools:node="remove"/></application>
 </manifest>
