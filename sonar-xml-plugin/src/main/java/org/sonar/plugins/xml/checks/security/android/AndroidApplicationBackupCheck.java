@@ -56,6 +56,9 @@ public class AndroidApplicationBackupCheck extends AbstractAndroidManifestCheck 
 
   @Override
   protected void scanAndroidManifest(XmlFile file) {
+    if (Utils.isLikelyNonPrimaryManifest(file)) {
+      return;
+    }
     List<Node> nodes;
     Integer minSdkVersion = getContext().config().getInt(ANDROID_MIN_SDK_VERSION).orElse(null);
     if(minSdkVersion != null && minSdkVersion < 23) {
