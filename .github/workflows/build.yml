@@ -155,6 +155,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
         with:
           version: 2026.10.20
