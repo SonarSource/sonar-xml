@@ -50,7 +50,7 @@ jobs:
 
       - name: Prepare PVF candidate version
         if: ${{ steps.build.outputs.deployed }}
-        uses: SonarSource/core-languages-tooling-public/prepare-pvf@master
+        uses: SonarSource/core-languages-tooling-public/prepare-pvf@v1
         with:
           build-version: ${{ steps.build.outputs.project-version }}
 
@@ -196,7 +196,7 @@ jobs:
 
       - name: Prepare ruling artifact
         if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
-        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@master
+        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@v1
 
       - name: Update ruling and notify
         if: >-
@@ -207,7 +207,7 @@ jobs:
             && matrix.item.notify_ruling == true
             && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure')
           }}
-        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@v1
         with:
           ruling-failed: ${{ steps.qa-tests.outcome == 'failure' }}
 
