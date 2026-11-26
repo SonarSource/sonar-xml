@@ -50,7 +50,7 @@ jobs:
 
       - name: Prepare PVF candidate version
         if: ${{ steps.build.outputs.deployed }}
-        uses: SonarSource/core-languages-tooling-public/prepare-pvf@master
+        uses: SonarSource/core-languages-tooling-public/prepare-pvf@v1
         with:
           build-version: ${{ steps.build.outputs.project-version }}
 
@@ -155,6 +155,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.build.outputs.build-number }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
         with:
           version: 2026.10.20
@@ -196,7 +198,7 @@ jobs:
 
       - name: Prepare ruling artifact
         if: ${{ always() && matrix.item.notify_ruling == true && steps.qa-tests.outcome == 'failure' }}
-        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@master
+        uses: SonarSource/core-languages-tooling-public/prepare-ruling-artifact@v1
 
       - name: Update ruling and notify
         if: >-
@@ -207,7 +209,7 @@ jobs:
             && matrix.item.notify_ruling == true
             && (steps.qa-tests.outcome == 'success' || steps.qa-tests.outcome == 'failure')
           }}
-        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@v1
         with:
           ruling-failed: ${{ steps.qa-tests.outcome == 'failure' }}
 

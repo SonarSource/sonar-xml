@@ -1,0 +1,180 @@
+{
+  "$schema" : "https://json.schemastore.org/sarif-2.1.0.json",
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "LITS",
+        "language" : "en-US",
+        "contents" : [ "localizedData", "nonLocalizedData" ],
+        "isComprehensive" : false
+      }
+    },
+    "language" : "en-US",
+    "results" : [ {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 3; The markup in the document preceding the root element must be well-formed."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:jboss-ejb3-tutorial/guide/en/modules/tutorials.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 1; Content is not allowed in prolog."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/external-reports/src/test/resources/checkstyle/invalid-file.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 1; Content is not allowed in prolog."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/external-reports/src/test/resources/spotbugs/invalid-file.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 17; columnNumber: 11; The element type \"description\" must be terminated by the matching end-tag \"</description>\"."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/java-checks-testkit/src/test/files/xml/PomCheckVerifierParseIssue.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 3; columnNumber: 3; The element type \"test2\" must be terminated by the matching end-tag \"</test2>\"."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/java-checks-testkit/src/test/files/xml/XmlCheckVerifierParsingIssue.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; Premature end of file."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/java-frontend/src/test/files/xml/empty.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 27; columnNumber: 5; The element type \"dependency\" must be terminated by the matching end-tag \"</dependency>\"."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/java-frontend/src/test/files/xml/maven/parse-issue/pom.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 1; XML document structures must start and end within the same entity."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:sonar-java/java-frontend/src/test/files/xml/parsing-issue.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    }, {
+      "ruleId" : "xml:S2260",
+      "ruleIndex" : -1,
+      "kind" : "fail",
+      "level" : "warning",
+      "message" : {
+        "text" : "Parse error: org.xml.sax.SAXParseException; lineNumber: 6; columnNumber: 95; The prefix \"c\" for attribute \"c:name\" associated with an element type \"bean\" is not bound."
+      },
+      "locations" : [ {
+        "id" : -1,
+        "physicalLocation" : {
+          "artifactLocation" : {
+            "uri" : "project:spring-framework/spring-beans/src/test/resources/org/springframework/beans/factory/xml/simpleConstructorNamespaceHandlerTestsWithErrors.xml",
+            "index" : -1
+          }
+        }
+      } ],
+      "rank" : -1.0
+    } ],
+    "newlineSequences" : [ "\r\n", "\n" ],
+    "columnKind" : "utf16CodeUnits"
+  } ]
+}
