@@ -23,7 +23,7 @@ Project homepage:
 https://redirect.sonarsource.com/plugins/xml.html
 
 Issue tracking:
-https://jira.sonarsource.com/browse/SONARXML/
+https://jira.sonarsource.com/browse/XML/
 
 ### Updating licenses:
 When dependencies change, update the committed license files using the `updateLicenses` profile:
