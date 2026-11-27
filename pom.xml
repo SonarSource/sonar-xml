@@ -51,7 +51,7 @@
 
   <issueManagement>
     <system>JIRA</system>
-    <url>https://jira.sonarsource.com/browse/SONARXML</url>
+    <url>https://jira.sonarsource.com/browse/XML</url>
   </issueManagement>
 
   <properties>
